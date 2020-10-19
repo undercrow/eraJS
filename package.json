@@ -2,10 +2,18 @@
 	"name": "erajs",
 	"version": "0.1.0",
 	"description": "Javascript implementation of emuera",
-	"scripts": {},
+	"scripts": {
+		"lint": "run-s lint:tsc lint:eslint",
+		"lint:tsc": "tsc -p . --noEmit",
+		"lint:eslint": "eslint 'src/**/*.ts'"
+	},
 	"author": "Undercrow <undercrow@protonmail.com>",
 	"license": "MIT",
 	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^4.4.1",
+		"@typescript-eslint/parser": "^4.4.1",
+		"eslint": "^7.11.0",
+		"npm-run-all": "^4.1.5",
 		"typescript": "^4.0.3"
 	}
 }

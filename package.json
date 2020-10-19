@@ -4,5 +4,8 @@
 	"description": "Javascript implementation of emuera",
 	"scripts": {},
 	"author": "Undercrow <undercrow@protonmail.com>",
-	"license": "MIT"
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^4.0.3"
+	}
 }

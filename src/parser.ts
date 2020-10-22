@@ -16,18 +16,51 @@ function nullFn(): null {
 	return null;
 }
 
+function optional<T>(parser: P.Parser<T>, def: T): P.Parser<T> {
+	return P.alt(parser, P.string("").map(() => def));
+}
+
+function wrap<T>(left: string, parser: P.Parser<T>, right: string): P.Parser<T> {
+	return parser.wrap(P.string(left), P.string(right));
+}
+
 // eslint-disable-next-line no-irregular-whitespace
 const WS = P.alt(P.string(" "), P.string("\t"), P.string("　")).map(nullFn);
 const WS0 = WS.many().map(nullFn);
+const WS1 = WS.atLeast(1).map(nullFn);
 const Comment = P.seq(WS0, P.string(";"), P.noneOf("\r\n").many());
 const EOL = P.alt(Comment, WS, P.newline).atLeast(1).map(nullFn);
+const Int = P.alt(
+	P.string("0b").then(P.regex(/0x[0-1]+/)).map((val) => parseInt(val, 2)),
+	P.string("0x").then(P.regex(/0x[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
+	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
+);
 const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
+
+function leftAssociate<E, OP extends string>(
+	op: OP[],
+	subExpr: P.Parser<E>,
+	associate: (op: OP, left: E, right: E) => E,
+): P.Parser<E> {
+	return P.seqMap(
+		subExpr,
+		P.seq(P.alt(...op.map(P.string)).trim(WS0) as P.Parser<OP>, subExpr).atLeast(1),
+		(first, rest) => rest.reduce((acc, val) => associate(val[0], acc, val[1]), first),
+	);
+}
 
 function asLine<T>(parser: P.Parser<T>, leadingSpace: boolean = true): P.Parser<T> {
 	return (leadingSpace ? WS0 : P.string("")).then(parser).skip(EOL);
 }
 
 type LanguageSpec = {
+	Variable: ast.Variable;
+	IntExprL0: ast.IntExpr;
+	IntExprL1: ast.IntExpr;
+	IntExprL2: ast.IntExpr;
+	IntExprL3: ast.IntExpr;
+	IntExpr: ast.IntExpr;
+	InlineCall: ast.InlineCall;
 	Label: ast.Label;
 	Goto: ast.Goto;
 	PlainCommand: ast.PlainCommand;
@@ -37,6 +70,24 @@ type LanguageSpec = {
 };
 
 const language = P.createLanguage<LanguageSpec>({
+	Variable: () => Identifier.map(ast.variable),
+	IntExprL0: (r) => P.alt(r.InlineCall, r.Variable, Int),
+	IntExprL1: (r) => P.alt(
+		leftAssociate(["==", "!="], r.IntExprL0, ast.binaryInt),
+		r.IntExprL0,
+	),
+	IntExprL2: (r) => P.alt(
+		leftAssociate(["*", "/", "%"], r.IntExprL1, ast.binaryInt),
+		r.IntExprL1,
+	),
+	IntExprL3: (r) => P.alt(
+		leftAssociate(["<", "<=", ">", ">="], r.IntExprL2, ast.binaryInt),
+		r.IntExprL2,
+	),
+	IntExpr: (r) => r.IntExprL3,
+	InlineCall: (r) => P.seq(Identifier, wrap("(", r.IntExpr.sepBy(P.string(",")), ")")).map(
+		([name, arg]) => ast.inlineCall(name, arg),
+	),
 	Label: () => asLine(P.string("@").then(Identifier).map(ast.label), false),
 	Goto: () => asLine(P.string("$").then(Identifier).map(ast.goto), false),
 	PlainCommand: () => P.alt(
@@ -82,7 +133,21 @@ const language = P.createLanguage<LanguageSpec>({
 		asLine(P.string("STRDATA").map(ast.strData)),
 		asLine(P.string("STOPCALLTRAIN").map(ast.stopCallTrain)),
 	),
-	Command: (r) => r.PlainCommand,
+	Command: (r) => P.alt(
+		r.PlainCommand,
+		P.seqMap(
+			asLine(P.string("SIF").skip(WS1).then(r.IntExpr)),
+			r.PlainCommand,
+			(cond, then) => ast.conditional([[cond, [then]]]),
+		),
+		P.seqMap(
+			P.seq(asLine(P.string("IF").skip(WS1).then(r.IntExpr)), r.Command.many()),
+			P.seq(asLine(P.string("ELSEIF").skip(WS1).then(r.IntExpr)), r.Command.many()).many(),
+			optional(asLine(P.string("ELSE")).then(r.Command.many()), []),
+			asLine(P.string("ENDIF")),
+			(ifStmt, elifStmt, elseStmt) => ast.conditional([ifStmt, ...elifStmt, [1, elseStmt]]),
+		),
+	),
 	Statement: (r) => P.alt(
 		r.Label,
 		r.Goto,

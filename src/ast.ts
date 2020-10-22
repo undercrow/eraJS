@@ -1,33 +1,69 @@
-type BaseStatement<T extends string> = {
+type Node<T extends string> = {
 	type: T;
 };
-function base<T extends string>(type: T): BaseStatement<T> {
+function node<T extends string>(type: T): Node<T> {
 	return {
 		type,
 	};
 }
 
-export type Label = BaseStatement<"label"> & {
+export type Variable = Node<"variable"> & {
 	name: string;
 };
-export const label = (name: string): Label => ({
-	...base("label"),
+export const variable = (name: Variable["name"]): Variable => ({
+	...node("variable"),
 	name,
 });
 
-export type Goto = BaseStatement<"goto"> & {
+export type BinaryIntExpr = Node<"binary"> & {
+	op: "*" | "/" | "%" | "<" | "<=" | ">" | ">=" | "==" | "!=";
+	left: IntExpr;
+	right: IntExpr;
+};
+export const binaryInt = (
+	op: BinaryIntExpr["op"],
+	left: BinaryIntExpr["left"],
+	right: BinaryIntExpr["right"],
+): BinaryIntExpr => ({
+	...node("binary"),
+	op,
+	left,
+	right,
+});
+
+export type InlineCall = Node<"inlinecall"> & {
+	name: string;
+	arg: IntExpr[];
+};
+export const inlineCall = (name: InlineCall["name"], arg: InlineCall["arg"]): InlineCall => ({
+	...node("inlinecall"),
+	name,
+	arg,
+});
+
+export type IntExpr = number | Variable | BinaryIntExpr | InlineCall;
+
+export type Label = Node<"label"> & {
+	name: string;
+};
+export const label = (name: string): Label => ({
+	...node("label"),
+	name,
+});
+
+export type Goto = Node<"goto"> & {
 	dest: string;
 };
 export const goto = (dest: string): Goto => ({
-	...base("goto"),
+	...node("goto"),
 	dest,
 });
 
-type BaseCommand<T> = BaseStatement<"command"> & {
+type BaseCommand<T> = Node<"command"> & {
 	command: T;
 };
 const command = <T>(cmd: T): BaseCommand<T> => ({
-	...base("command"),
+	...node("command"),
 	command: cmd,
 });
 export type DrawLine = BaseCommand<"drawline">;
@@ -124,5 +160,13 @@ export type PlainCommand =
 	| CbgClear | CbgClearButton | CbgRemoveBmap | ClearTextBox | StrData | StopCallTrain;
 /* eslint-enable array-element-newline */
 export type Command = PlainCommand;
+
+export type Conditional = Node<"conditional"> & {
+	expr: Array<[IntExpr, Statement[]]>;
+};
+export const conditional = (expr: Conditional["expr"]): Conditional => ({
+	...node("conditional"),
+	expr,
+});
 
 export type Statement = Label | Goto | Command;

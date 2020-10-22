@@ -12,16 +12,22 @@ const SPECIAL_CHAR = [
 ];
 /* eslint-enable array-element-newline */
 
-function skip(parser: P.Parser<any>): P.Parser<null> {
-	return parser.map(() => null);
+function nullFn(): null {
+	return null;
+}
+
+// eslint-disable-next-line no-irregular-whitespace
+const WS = P.alt(P.string(" "), P.string("\t"), P.string("　")).map(nullFn);
+const WS0 = WS.many().map(nullFn);
+const Comment = P.seq(WS0, P.string(";"), P.noneOf("\r\n").many());
+const EOL = P.alt(Comment, WS, P.newline).atLeast(1).map(nullFn);
+const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
+
+function asLine<T>(parser: P.Parser<T>, leadingSpace: boolean = true): P.Parser<T> {
+	return (leadingSpace ? WS0 : P.string("")).then(parser).skip(EOL);
 }
 
 type LanguageSpec = {
-	Whitespace: null;
-	Whitespace0M: null;
-	Whitespace1M: null;
-	EOL: null;
-	Identifier: string;
 	Label: ast.Label;
 	Goto: ast.Goto;
 	PlainCommand: ast.PlainCommand;
@@ -31,56 +37,50 @@ type LanguageSpec = {
 };
 
 const language = P.createLanguage<LanguageSpec>({
-	// eslint-disable-next-line no-irregular-whitespace
-	Whitespace: () => skip(P.alt(P.string(" "), P.string("\t"), P.string("　"))),
-	Whitespace0M: (r) => skip(r.Whitespace.many()),
-	Whitespace1M: (r) => skip(r.Whitespace.atLeast(1)),
-	EOL: (r) => P.alt(r.Whitespace, P.newline).atLeast(1).map(() => null),
-	Identifier: () => P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie(),
-	Label: (r) => P.string("@").then(r.Identifier).map(ast.label).skip(r.EOL),
-	Goto: (r) => P.string("$").then(r.Identifier).map(ast.goto).skip(r.EOL),
-	PlainCommand: (r) => P.alt(
-		r.Whitespace0M.then(P.string("DRAWLINE")).map(ast.drawLine).skip(r.EOL),
-		r.Whitespace0M.then(P.string("RESETCOLOR")).map(ast.resetColor).skip(r.EOL),
-		r.Whitespace0M.then(P.string("RESETBGCOLOR")).map(ast.resetBgColor).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETCOLOR")).map(ast.getColor).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETDEFCOLOR")).map(ast.getDefColor).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETBGCOLOR")).map(ast.getBgColor).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETDEFBGCOLOR")).map(ast.getDefBgColor).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETFOCUSCOLOR")).map(ast.getFocusColor).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETSTYLE")).map(ast.getStyle).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETFONT")).map(ast.getFont).skip(r.EOL),
-		r.Whitespace0M.then(P.string("CURRENTALIGN")).map(ast.currentAlign).skip(r.EOL),
-		r.Whitespace0M.then(P.string("CURRENTREDRAW")).map(ast.currentRedraw).skip(r.EOL),
-		r.Whitespace0M.then(P.string("PRINTCPERLINE")).map(ast.printCPerLine).skip(r.EOL),
-		r.Whitespace0M.then(P.string("LINEISEMPTY")).map(ast.lineIsEmpty).skip(r.EOL),
-		r.Whitespace0M.then(P.string("ISSKIP")).map(ast.isSkip).skip(r.EOL),
-		r.Whitespace0M.then(P.string("MOUSESKIP")).map(ast.mouseSkip).skip(r.EOL),
-		r.Whitespace0M.then(P.string("ADDDEFCHARA")).map(ast.addDefChara).skip(r.EOL),
-		r.Whitespace0M.then(P.string("ADDVOIDCHARA")).map(ast.addVoidChara).skip(r.EOL),
-		r.Whitespace0M.then(P.string("DELALLCHARA")).map(ast.delAllChara).skip(r.EOL),
-		r.Whitespace0M.then(P.string("RESETDATA")).map(ast.resetData).skip(r.EOL),
-		r.Whitespace0M.then(P.string("RESETGLOBAL")).map(ast.resetGlobal).skip(r.EOL),
-		r.Whitespace0M.then(P.string("SAVEGLOBAL")).map(ast.saveGlobal).skip(r.EOL),
-		r.Whitespace0M.then(P.string("LOADGLOBAL")).map(ast.loadGlobal).skip(r.EOL),
-		r.Whitespace0M.then(P.string("OUTPUTLOG")).map(ast.outputLog).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETTIME")).map(ast.getTime).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETMILLISECOND")).map(ast.getMillisecond).skip(r.EOL),
-		r.Whitespace0M.then(P.string("GETSECOND")).map(ast.getSecond).skip(r.EOL),
-		r.Whitespace0M.then(P.string("FORCEWAIT")).map(ast.forceWait).skip(r.EOL),
-		r.Whitespace0M.then(P.string("WAITANYKEY")).map(ast.waitAnyKey).skip(r.EOL),
-		r.Whitespace0M.then(P.string("DUMPRAND")).map(ast.dumpRand).skip(r.EOL),
-		r.Whitespace0M.then(P.string("INITRAND")).map(ast.initRand).skip(r.EOL),
-		r.Whitespace0M.then(P.string("DEBUGCLEAR")).map(ast.debugClear).skip(r.EOL),
-		r.Whitespace0M.then(P.string("MOUSEX")).map(ast.mouseX).skip(r.EOL),
-		r.Whitespace0M.then(P.string("MOUSEY")).map(ast.mouseY).skip(r.EOL),
-		r.Whitespace0M.then(P.string("ISACTIVE")).map(ast.isActive).skip(r.EOL),
-		r.Whitespace0M.then(P.string("CBGCLEAR")).map(ast.cbgClear).skip(r.EOL),
-		r.Whitespace0M.then(P.string("CBGCLEARBUTTON")).map(ast.cbgClearButton).skip(r.EOL),
-		r.Whitespace0M.then(P.string("CBGREMOVEBMAP")).map(ast.cbgRemoveBmap).skip(r.EOL),
-		r.Whitespace0M.then(P.string("CLEARTEXTBOX")).map(ast.clearTextBox).skip(r.EOL),
-		r.Whitespace0M.then(P.string("STRDATA")).map(ast.strData).skip(r.EOL),
-		r.Whitespace0M.then(P.string("STOPCALLTRAIN")).map(ast.stopCallTrain).skip(r.EOL),
+	Label: () => asLine(P.string("@").then(Identifier).map(ast.label), false),
+	Goto: () => asLine(P.string("$").then(Identifier).map(ast.goto), false),
+	PlainCommand: () => P.alt(
+		asLine(P.string("DRAWLINE").map(ast.drawLine)),
+		asLine(P.string("RESETCOLOR").map(ast.resetColor)),
+		asLine(P.string("RESETBGCOLOR").map(ast.resetBgColor)),
+		asLine(P.string("GETCOLOR").map(ast.getColor)),
+		asLine(P.string("GETDEFCOLOR").map(ast.getDefColor)),
+		asLine(P.string("GETBGCOLOR").map(ast.getBgColor)),
+		asLine(P.string("GETDEFBGCOLOR").map(ast.getDefBgColor)),
+		asLine(P.string("GETFOCUSCOLOR").map(ast.getFocusColor)),
+		asLine(P.string("GETSTYLE").map(ast.getStyle)),
+		asLine(P.string("GETFONT").map(ast.getFont)),
+		asLine(P.string("CURRENTALIGN").map(ast.currentAlign)),
+		asLine(P.string("CURRENTREDRAW").map(ast.currentRedraw)),
+		asLine(P.string("PRINTCPERLINE").map(ast.printCPerLine)),
+		asLine(P.string("LINEISEMPTY").map(ast.lineIsEmpty)),
+		asLine(P.string("ISSKIP").map(ast.isSkip)),
+		asLine(P.string("MOUSESKIP").map(ast.mouseSkip)),
+		asLine(P.string("ADDDEFCHARA").map(ast.addDefChara)),
+		asLine(P.string("ADDVOIDCHARA").map(ast.addVoidChara)),
+		asLine(P.string("DELALLCHARA").map(ast.delAllChara)),
+		asLine(P.string("RESETDATA").map(ast.resetData)),
+		asLine(P.string("RESETGLOBAL").map(ast.resetGlobal)),
+		asLine(P.string("SAVEGLOBAL").map(ast.saveGlobal)),
+		asLine(P.string("LOADGLOBAL").map(ast.loadGlobal)),
+		asLine(P.string("OUTPUTLOG").map(ast.outputLog)),
+		asLine(P.string("GETTIME").map(ast.getTime)),
+		asLine(P.string("GETMILLISECOND").map(ast.getMillisecond)),
+		asLine(P.string("GETSECOND").map(ast.getSecond)),
+		asLine(P.string("FORCEWAIT").map(ast.forceWait)),
+		asLine(P.string("WAITANYKEY").map(ast.waitAnyKey)),
+		asLine(P.string("DUMPRAND").map(ast.dumpRand)),
+		asLine(P.string("INITRAND").map(ast.initRand)),
+		asLine(P.string("DEBUGCLEAR").map(ast.debugClear)),
+		asLine(P.string("MOUSEX").map(ast.mouseX)),
+		asLine(P.string("MOUSEY").map(ast.mouseY)),
+		asLine(P.string("ISACTIVE").map(ast.isActive)),
+		asLine(P.string("CBGCLEAR").map(ast.cbgClear)),
+		asLine(P.string("CBGCLEARBUTTON").map(ast.cbgClearButton)),
+		asLine(P.string("CBGREMOVEBMAP").map(ast.cbgRemoveBmap)),
+		asLine(P.string("CLEARTEXTBOX").map(ast.clearTextBox)),
+		asLine(P.string("STRDATA").map(ast.strData)),
+		asLine(P.string("STOPCALLTRAIN").map(ast.stopCallTrain)),
 	),
 	Command: (r) => r.PlainCommand,
 	Statement: (r) => P.alt(

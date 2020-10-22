@@ -43,8 +43,10 @@ export const inlineCall = (name: InlineCall["name"], arg: InlineCall["arg"]): In
 
 export type IntExpr = number | Variable | BinaryIntExpr | InlineCall;
 
+export type StringExpr = string | Variable | InlineCall;
+
 export type Form = Node<"form"> & {
-	expr: Array<string | IntExpr>;
+	expr: Array<string | IntExpr | StringExpr>;
 };
 export const form = (expr: Form["expr"]): Form => ({
 	...node("form"),
@@ -69,7 +71,7 @@ export const goto = (dest: string): Goto => ({
 
 export type Assign = Node<"assign"> & {
 	dest: Variable;
-	expr: IntExpr | Form;
+	expr: IntExpr | StringExpr | Form;
 };
 export const assign = (dest: Assign["dest"], expr: Assign["expr"]): Assign => ({
 	...node("assign"),
@@ -84,6 +86,23 @@ const command = <T>(cmd: T): BaseCommand<T> => ({
 	...node("command"),
 	command: cmd,
 });
+
+export type Print = BaseCommand<"print"> & {
+	value: string | IntExpr | StringExpr | Form;
+	outType?: "K" | "D";
+	action?: "newline" | "wait";
+};
+export const print = (
+	value: Print["value"],
+	outType?: Print["outType"],
+	action?: Print["action"],
+): Print => ({
+	...command("print"),
+	value,
+	outType,
+	action,
+});
+
 export type DrawLine = BaseCommand<"drawline">;
 export const drawLine = (): DrawLine => command("drawline");
 export type ResetColor = BaseCommand<"resetcolor">;
@@ -169,6 +188,7 @@ export const stopCallTrain = (): StopCallTrain => command("stopcalltrain");
 
 /* eslint-disable array-element-newline */
 export type PlainCommand =
+	| Print
 	| DrawLine
 	| ResetColor | ResetBgColor | GetColor | GetDefColor | GetBgColor | GetDefBgColor
 	| GetFocusColor | GetStyle | GetFont | CurrentAlign | CurrentRedraw | PrintCPerLine

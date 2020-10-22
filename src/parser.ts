@@ -30,11 +30,12 @@ const WS0 = WS.many().map(nullFn);
 const WS1 = WS.atLeast(1).map(nullFn);
 const Comment = P.seq(WS0, P.string(";"), P.noneOf("\r\n").many());
 const EOL = P.alt(Comment, WS, P.newline).atLeast(1).map(nullFn);
-const Int = P.alt(
+const ConstInt = P.alt(
 	P.string("0b").then(P.regex(/0x[0-1]+/)).map((val) => parseInt(val, 2)),
 	P.string("0x").then(P.regex(/0x[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
 );
+const ConstString = charSeq("\"").trim(P.string("\""));
 const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
 
 function charSeq(...exclude: string[]): P.Parser<string> {
@@ -77,10 +78,14 @@ type LanguageSpec = {
 	IntExprL2: ast.IntExpr;
 	IntExprL3: ast.IntExpr;
 	IntExpr: ast.IntExpr;
+	StringExprL0: ast.StringExpr;
+	StringExpr: ast.StringExpr;
 	InlineCall: ast.InlineCall;
 	Form: ast.Form;
 	Label: ast.Label;
 	Goto: ast.Goto;
+	PrintOType: ast.Print["outType"];
+	PrintAction: ast.Print["action"];
 	PlainCommand: ast.PlainCommand;
 	Command: ast.Command;
 	Assign: ast.Assign;
@@ -90,7 +95,7 @@ type LanguageSpec = {
 
 const language = P.createLanguage<LanguageSpec>({
 	Variable: () => Identifier.map(ast.variable),
-	IntExprL0: (r) => P.alt(r.InlineCall, r.Variable, Int),
+	IntExprL0: (r) => P.alt(r.InlineCall, r.Variable, ConstInt),
 	IntExprL1: (r) => P.alt(
 		leftAssociate(["==", "!="], r.IntExprL0, ast.binaryInt),
 		r.IntExprL0,
@@ -104,15 +109,62 @@ const language = P.createLanguage<LanguageSpec>({
 		r.IntExprL2,
 	),
 	IntExpr: (r) => r.IntExprL3,
-	InlineCall: (r) => P.seq(Identifier, wrap("(", r.IntExpr.sepBy(P.string(",")), ")")).map(
-		([name, arg]) => ast.inlineCall(name, arg),
+	StringExprL0: (r) => P.alt(r.InlineCall, r.Variable, ConstString),
+	StringExpr: (r) => r.StringExprL0,
+	InlineCall: (r) => P.seqMap(
+		Identifier,
+		wrap("(", P.alt(r.IntExpr, r.StringExpr).sepBy(P.string(",")), ")"),
+		ast.inlineCall
 	),
-	Form: (r) => P.alt(r.IntExpr.wrap(P.string("{"), P.string("}")), charSeq("{", "%"))
+	Form: (r) => P.alt(wrap("{", r.IntExpr, "}"), wrap("%", r.StringExpr, "%"), charSeq("{", "%"))
 		.atLeast(1)
 		.map(ast.form),
 	Label: () => asLine(P.string("@").then(Identifier).map(ast.label), false),
 	Goto: () => asLine(P.string("$").then(Identifier).map(ast.goto), false),
-	PlainCommand: () => P.alt(
+	PrintOType: () => P.alt(P.string("K"), P.string("D"), P.string("")).map((o) => {
+		switch (o) {
+			case "K": return "K";
+			case "D": return "D";
+			case "": return undefined;
+		}
+		return undefined;
+	}),
+	PrintAction: () => P.alt(P.string("L"), P.string("W"), P.string("")).map((a) => {
+		switch (a) {
+			case "L": return "newline";
+			case "W": return "wait";
+			case "": return undefined;
+		}
+		return undefined;
+	}),
+	PlainCommand: (r) => P.alt(
+		asLine(P.string("PRINT").then(P.alt(
+			P.string("V").then(P.seqMap(
+				r.PrintOType,
+				r.PrintAction,
+				WS1.then(r.IntExpr),
+				(out, action, val) => ast.print(val, out, action),
+			)),
+			P.string("S").then(P.seqMap(
+				r.PrintOType,
+				r.PrintAction,
+				WS1.then(r.StringExpr),
+				(out, action, val) => ast.print(val, out, action),
+			)),
+			P.string("FORM").then(P.seqMap(
+				r.PrintOType,
+				r.PrintAction,
+				optional(WS1.then(r.Form), ast.form([""])),
+				(out, action, val) => ast.print(val, out, action),
+			)),
+			// TODO: FORMS
+			P.seqMap(
+				r.PrintOType,
+				r.PrintAction,
+				optional(WS1.then(charSeq()), ""),
+				(out, action, val) => ast.print(val, out, action),
+			),
+		))),
 		asLine(P.string("DRAWLINE").map(ast.drawLine)),
 		asLine(P.string("RESETCOLOR").map(ast.resetColor)),
 		asLine(P.string("RESETBGCOLOR").map(ast.resetBgColor)),

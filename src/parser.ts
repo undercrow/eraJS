@@ -37,6 +37,23 @@ const Int = P.alt(
 );
 const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
 
+function charSeq(...exclude: string[]): P.Parser<string> {
+	const charParser = P.alt(
+		P.noneOf(exclude.join("") + "\r\n\\"),
+		P.string("\\").then(P.noneOf(exclude.join("") + "\r\n")).map((c) => {
+			switch (c) {
+				case "s": return " ";
+				// eslint-disable-next-line no-irregular-whitespace
+				case "S": return "　";
+				case "t": return "\t";
+				case "n": return "\n";
+				default: return c;
+			}
+		}),
+	);
+	return charParser.atLeast(1).tie();
+}
+
 function leftAssociate<E, OP extends string>(
 	op: OP[],
 	subExpr: P.Parser<E>,
@@ -61,10 +78,12 @@ type LanguageSpec = {
 	IntExprL3: ast.IntExpr;
 	IntExpr: ast.IntExpr;
 	InlineCall: ast.InlineCall;
+	Form: ast.Form;
 	Label: ast.Label;
 	Goto: ast.Goto;
 	PlainCommand: ast.PlainCommand;
 	Command: ast.Command;
+	Assign: ast.Assign;
 	Statement: ast.Statement;
 	Language: ast.Statement[];
 };
@@ -88,6 +107,9 @@ const language = P.createLanguage<LanguageSpec>({
 	InlineCall: (r) => P.seq(Identifier, wrap("(", r.IntExpr.sepBy(P.string(",")), ")")).map(
 		([name, arg]) => ast.inlineCall(name, arg),
 	),
+	Form: (r) => P.alt(r.IntExpr.wrap(P.string("{"), P.string("}")), charSeq("{", "%"))
+		.atLeast(1)
+		.map(ast.form),
 	Label: () => asLine(P.string("@").then(Identifier).map(ast.label), false),
 	Goto: () => asLine(P.string("$").then(Identifier).map(ast.goto), false),
 	PlainCommand: () => P.alt(
@@ -148,9 +170,16 @@ const language = P.createLanguage<LanguageSpec>({
 			(ifStmt, elifStmt, elseStmt) => ast.conditional([ifStmt, ...elifStmt, [1, elseStmt]]),
 		),
 	),
+	Assign: (r) => asLine(P.seqMap(
+		r.Variable,
+		P.string("=").trim(WS0),
+		P.alt(r.IntExpr, r.Form),
+		(dest, _op, expr) => ast.assign(dest, expr),
+	)),
 	Statement: (r) => P.alt(
 		r.Label,
 		r.Goto,
+		r.Assign,
 		r.Command,
 	),
 	Language: (r) => r.Statement.many().skip(P.eof),

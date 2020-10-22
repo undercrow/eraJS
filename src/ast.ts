@@ -43,6 +43,14 @@ export const inlineCall = (name: InlineCall["name"], arg: InlineCall["arg"]): In
 
 export type IntExpr = number | Variable | BinaryIntExpr | InlineCall;
 
+export type Form = Node<"form"> & {
+	expr: Array<string | IntExpr>;
+};
+export const form = (expr: Form["expr"]): Form => ({
+	...node("form"),
+	expr,
+});
+
 export type Label = Node<"label"> & {
 	name: string;
 };
@@ -57,6 +65,16 @@ export type Goto = Node<"goto"> & {
 export const goto = (dest: string): Goto => ({
 	...node("goto"),
 	dest,
+});
+
+export type Assign = Node<"assign"> & {
+	dest: Variable;
+	expr: IntExpr | Form;
+};
+export const assign = (dest: Assign["dest"], expr: Assign["expr"]): Assign => ({
+	...node("assign"),
+	dest,
+	expr,
 });
 
 type BaseCommand<T> = Node<"command"> & {

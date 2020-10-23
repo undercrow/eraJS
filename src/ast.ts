@@ -61,14 +61,6 @@ export const label = (name: string): Label => ({
 	name,
 });
 
-export type Goto = Node<"goto"> & {
-	dest: string;
-};
-export const goto = (dest: string): Goto => ({
-	...node("goto"),
-	dest,
-});
-
 export type Assign = Node<"assign"> & {
 	dest: Variable;
 	expr: IntExpr | StringExpr | Form;
@@ -207,4 +199,14 @@ export const conditional = (expr: Conditional["expr"]): Conditional => ({
 	expr,
 });
 
-export type Statement = Label | Goto | Command;
+export type Statement = Label | Command;
+
+export type Fn = Node<"function"> & {
+	name: string;
+	statement: Statement[];
+};
+export const fn = (name: Fn["name"], statement: Fn["statement"]): Fn => ({
+	...node("function"),
+	name,
+	statement,
+});

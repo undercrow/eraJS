@@ -83,14 +83,14 @@ type LanguageSpec = {
 	InlineCall: ast.InlineCall;
 	Form: ast.Form;
 	Label: ast.Label;
-	Goto: ast.Goto;
 	PrintOType: ast.Print["outType"];
 	PrintAction: ast.Print["action"];
 	PlainCommand: ast.PlainCommand;
 	Command: ast.Command;
 	Assign: ast.Assign;
 	Statement: ast.Statement;
-	Language: ast.Statement[];
+	Function: ast.Fn;
+	Language: ast.Fn[];
 };
 
 const language = P.createLanguage<LanguageSpec>({
@@ -119,8 +119,7 @@ const language = P.createLanguage<LanguageSpec>({
 	Form: (r) => P.alt(wrap("{", r.IntExpr, "}"), wrap("%", r.StringExpr, "%"), charSeq("{", "%"))
 		.atLeast(1)
 		.map(ast.form),
-	Label: () => asLine(P.string("@").then(Identifier).map(ast.label), false),
-	Goto: () => asLine(P.string("$").then(Identifier).map(ast.goto), false),
+	Label: () => asLine(P.string("$").then(Identifier).map(ast.label), false),
 	PrintOType: () => P.alt(P.string("K"), P.string("D"), P.string("")).map((o) => {
 		switch (o) {
 			case "K": return "K";
@@ -230,13 +229,17 @@ const language = P.createLanguage<LanguageSpec>({
 	)),
 	Statement: (r) => P.alt(
 		r.Label,
-		r.Goto,
 		r.Assign,
 		r.Command,
 	),
-	Language: (r) => r.Statement.many().skip(P.eof),
+	Function: (r) => P.seqMap(
+		asLine(P.string("@").then(Identifier), false),
+		r.Statement.many(),
+		ast.fn,
+	),
+	Language: (r) => r.Function.many().skip(P.eof),
 });
 
-export default function parse(content: string): ast.Statement[] {
+export default function parse(content: string): ast.Fn[] {
 	return language.Language.tryParse(content + "\n");
 }

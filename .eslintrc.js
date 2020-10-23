@@ -20,7 +20,6 @@ module.exports = {
 		"comma-dangle": ["error", "always-multiline"],
 		"comma-style": "error",
 		"computed-property-spacing": "error",
-		"consistent-return": "error",
 		curly: "error",
 		"dot-location": ["error", "property"],
 		"dot-notation": "error",

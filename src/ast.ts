@@ -16,7 +16,7 @@ export const variable = (name: Variable["name"]): Variable => ({
 });
 
 export type BinaryIntExpr = Node<"binary"> & {
-	op: "*" | "/" | "%" | "<" | "<=" | ">" | ">=" | "==" | "!=";
+	op: "*" | "/" | "%" | "+" | "-" | "<" | "<=" | ">" | ">=" | "==" | "!=";
 	left: IntExpr;
 	right: IntExpr;
 };
@@ -97,6 +97,13 @@ export const print = (
 
 export type DrawLine = BaseCommand<"drawline">;
 export const drawLine = (): DrawLine => command("drawline");
+export type ClearLine = BaseCommand<"clearline"> & {
+	count: IntExpr;
+};
+export const clearLine = (count: ClearLine["count"]): ClearLine => ({
+	...command("clearline"),
+	count,
+});
 export type ResetColor = BaseCommand<"resetcolor">;
 export const resetColor = (): ResetColor => command("resetcolor");
 export type ResetBgColor = BaseCommand<"resetbgcolor">;
@@ -111,10 +118,30 @@ export type GetDefBgColor = BaseCommand<"getdefbgcolor">;
 export const getDefBgColor = (): GetDefBgColor => command("getdefbgcolor");
 export type GetFocusColor = BaseCommand<"getfocuscolor">;
 export const getFocusColor = (): GetFocusColor => command("getfocuscolor");
+export type FontBold = BaseCommand<"fontbold">;
+export const fontBold = (): FontBold => command("fontbold");
+export type FontItalic = BaseCommand<"fontitalic">;
+export const fontItalic = (): FontItalic => command("fontitalic");
+export type FontRegular = BaseCommand<"fontregular">;
+export const fontRegular = (): FontRegular => command("fontregular");
 export type GetStyle = BaseCommand<"getstyle">;
 export const getStyle = (): GetStyle => command("getstyle");
+export type SetFont = BaseCommand<"setfont"> & {
+	font: StringExpr;
+};
+export const setFont = (font: SetFont["font"]): SetFont => ({
+	...command("setfont"),
+	font,
+});
 export type GetFont = BaseCommand<"getfont">;
 export const getFont = (): GetFont => command("getfont");
+export type Alignment = BaseCommand<"alignment"> & {
+	align: "left" | "center" | "right";
+};
+export const alignment = (align: Alignment["align"]): Alignment => ({
+	...command("alignment"),
+	align,
+});
 export type CurrentAlign = BaseCommand<"currentalign">;
 export const currentAlign = (): CurrentAlign => command("currentalign");
 export type CurrentRedraw = BaseCommand<"currentredraw">;
@@ -127,6 +154,35 @@ export type IsSkip = BaseCommand<"isskip">;
 export const isSkip = (): IsSkip => command("isskip");
 export type MouseSkip = BaseCommand<"mouseskip">;
 export const mouseSkip = (): MouseSkip => command("mouseskip");
+export type StrLen = BaseCommand<"strlen"> & {
+	expr: string | StringExpr | Form;
+};
+export const strlen = (expr: StrLen["expr"]): StrLen => ({
+	...command("strlen"),
+	expr,
+});
+export type SubString = BaseCommand<"substring"> & {
+	expr: StringExpr;
+	start: IntExpr;
+	end: IntExpr;
+};
+export const substring = (
+	expr: SubString["expr"],
+	start: SubString["start"],
+	end: SubString["end"],
+): SubString => ({
+	...command("substring"),
+	expr,
+	start,
+	end,
+});
+export type AddChara = BaseCommand<"addchara"> & {
+	characters: IntExpr[];
+};
+export const addChara = (...characters: AddChara["characters"]): AddChara => ({
+	...command("addchara"),
+	characters,
+});
 export type AddDefChara = BaseCommand<"adddefchara">;
 export const addDefChara = (): AddDefChara => command("adddefchara");
 export type AddVoidChara = BaseCommand<"addvoidchara">;
@@ -137,6 +193,10 @@ export type ResetData = BaseCommand<"resetdata">;
 export const resetData = (): ResetData => command("resetdata");
 export type ResetGlobal = BaseCommand<"resetglobal">;
 export const resetGlobal = (): ResetGlobal => command("resetglobal");
+export type SaveGame = BaseCommand<"savegame">;
+export const saveGame = (): SaveGame => command("savegame");
+export type LoadGame = BaseCommand<"loadgame">;
+export const loadGame = (): LoadGame => command("loadgame");
 export type SaveGlobal = BaseCommand<"saveglobal">;
 export const saveGlobal = (): SaveGlobal => command("saveglobal");
 export type LoadGlobal = BaseCommand<"loadglobal">;
@@ -151,12 +211,54 @@ export type GetSecond = BaseCommand<"getsecond">;
 export const getSecond = (): GetSecond => command("getsecond");
 export type ForceWait = BaseCommand<"forcewait">;
 export const forceWait = (): ForceWait => command("forcewait");
+export type Input = BaseCommand<"input"> & {
+	def?: number;
+};
+export const input = (def: Input["def"]): Input => ({
+	...command("input"),
+	def,
+});
+export type InputS = BaseCommand<"inputs"> & {
+	def?: string;
+};
+export const inputS = (def: InputS["def"]): InputS => ({
+	...command("inputs"),
+	def,
+});
 export type WaitAnyKey = BaseCommand<"waitanykey">;
 export const waitAnyKey = (): WaitAnyKey => command("waitanykey");
 export type DumpRand = BaseCommand<"dumprand">;
 export const dumpRand = (): DumpRand => command("dumprand");
 export type InitRand = BaseCommand<"initrand">;
 export const initRand = (): InitRand => command("initrand");
+export type Begin = BaseCommand<"begin"> & {
+	target: string;
+};
+export const begin = (target: Begin["target"]): Begin => ({
+	...command("begin"),
+	target,
+});
+export type Call = BaseCommand<"call"> & {
+	target: string;
+};
+export const call = (target: Call["target"]): Call => ({
+	...command("call"),
+	target,
+});
+export type Goto = BaseCommand<"goto"> & {
+	label: string;
+};
+export const goto = (lbl: Goto["label"]): Goto => ({
+	...command("goto"),
+	label: lbl,
+});
+export type Return = BaseCommand<"return"> & {
+	expr: IntExpr;
+};
+export const ret = (expr: Return["expr"]): Return => ({
+	...command("return"),
+	expr,
+});
 export type DebugClear = BaseCommand<"debugclear">;
 export const debugClear = (): DebugClear => command("debugclear");
 export type MouseX = BaseCommand<"mousex">;
@@ -184,9 +286,13 @@ export type PlainCommand =
 	| DrawLine
 	| ResetColor | ResetBgColor | GetColor | GetDefColor | GetBgColor | GetDefBgColor
 	| GetFocusColor | GetStyle | GetFont | CurrentAlign | CurrentRedraw | PrintCPerLine
-	| LineIsEmpty | IsSkip| MouseSkip | AddDefChara | AddVoidChara | DelAllChara | ResetData
+	| LineIsEmpty | IsSkip| MouseSkip | StrLen | SubString
+	| AddChara | AddDefChara | AddVoidChara | DelAllChara | ResetData
 	| ResetGlobal | SaveGlobal | LoadGlobal | OutputLog | GetTime | GetMillisecond | GetSecond
-	| ForceWait | WaitAnyKey | DumpRand | InitRand | DebugClear | MouseX | MouseY | IsActive
+	| ForceWait | Input | WaitAnyKey
+	| DumpRand | InitRand
+	| Begin | Call | Goto | Return
+	| DebugClear | MouseX | MouseY | IsActive
 	| CbgClear | CbgClearButton | CbgRemoveBmap | ClearTextBox | StrData | StopCallTrain;
 /* eslint-enable array-element-newline */
 export type Command = PlainCommand;

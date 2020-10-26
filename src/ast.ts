@@ -284,12 +284,14 @@ export const stopCallTrain = (): StopCallTrain => command("stopcalltrain");
 export type PlainCommand =
 	| Print
 	| DrawLine | ClearLine
-	| ResetColor | ResetBgColor | GetColor | GetDefColor | GetBgColor | GetDefBgColor
-	| GetFocusColor | GetStyle | GetFont | CurrentAlign | CurrentRedraw | PrintCPerLine
+	| ResetColor | ResetBgColor
+	| GetColor | GetDefColor | GetBgColor | GetDefBgColor | GetFocusColor
+	| FontBold | FontItalic | FontRegular | GetStyle | SetFont | GetFont
+	| Alignment | CurrentAlign | CurrentRedraw | PrintCPerLine
 	| LineIsEmpty | IsSkip| MouseSkip | StrLen | SubString
 	| AddChara | AddDefChara | AddVoidChara | DelAllChara | ResetData
 	| ResetGlobal | SaveGlobal | LoadGlobal | OutputLog | GetTime | GetMillisecond | GetSecond
-	| ForceWait | Input | WaitAnyKey
+	| ForceWait | Input | InputS | WaitAnyKey
 	| DumpRand | InitRand
 	| Begin | Call | Goto | Return
 	| DebugClear | MouseX | MouseY | IsActive
@@ -305,7 +307,7 @@ export const conditional = (expr: Conditional["expr"]): Conditional => ({
 	expr,
 });
 
-export type Statement = Label | Command | Conditional;
+export type Statement = Label | Assign | Command | Conditional;
 
 export type Fn = Node<"function"> & {
 	name: string;

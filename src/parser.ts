@@ -100,7 +100,7 @@ type LanguageSpec = {
 
 const language = P.createLanguage<LanguageSpec>({
 	Variable: () => Identifier.map(ast.variable),
-	IntExprL0: (r) => P.alt(r.InlineCall, r.Variable, ConstInt),
+	IntExprL0: (r) => P.alt(ConstInt, r.InlineCall, r.Variable),
 	IntExprL1: (r) => P.alt(
 		leftAssociate(["==", "!="], r.IntExprL0, ast.binaryInt),
 		r.IntExprL0,

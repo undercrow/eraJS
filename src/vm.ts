@@ -17,14 +17,23 @@ type Value = string | number | null;
 type Variable = Value | Value[];
 
 export class State {
+	public RESULT: Array<number | null>;
+	public RESULTS: Array<string | null>;
 	public GLOBAL: Array<number | null>;
 	public GLOBALS: Array<string | null>;
+	public GAMEBASE: {
+		AUTHOR: string;
+		INFO: string;
+		TITLE: string;
+		VERSION: number;
+	};
 	public LINECOUNT: number;
 	public globalMap: Map<string, Map<string, Variable>>;
 	public staticMap: Map<string, Map<string, Variable>>;
 	public style: {
+		alignment: "left" | "center" | "right";
 		font: {
-			name?: string;
+			name: string;
 			bold: boolean;
 		};
 		color: {
@@ -33,17 +42,29 @@ export class State {
 	};
 
 	public constructor(program: Program) {
+		this.RESULT = Array<null>(1000).fill(null);
+		this.RESULTS = Array<null>(100).fill(null);
 		this.GLOBAL = Array<null>(1000).fill(null);
 		this.GLOBALS = Array<null>(100).fill(null);
+		// TODO
+		this.GAMEBASE = {
+			AUTHOR: "",
+			INFO: "",
+			TITLE: "",
+			VERSION: 0,
+		};
 		this.LINECOUNT = 0;
 		this.globalMap = new Map<string, Map<string, Variable>>();
 		this.staticMap = new Map<string, Map<string, Variable>>();
 		for (const name of Object.keys(program.fn)) {
 			this.staticMap.set(name, new Map());
+			this.staticMap.get(name)!.set("LOCAL", Array<null>(1000).fill(null));
+			this.staticMap.get(name)!.set("LOCALS", Array<null>(100).fill(null));
 		}
 		this.style = {
+			alignment: "left",
 			font: {
-				name: undefined,
+				name: "",
 				bold: false,
 			},
 			color: {
@@ -59,12 +80,14 @@ export class State {
 
 class Context {
 	public state: State;
+	public fn: string;
 	public dynamicMap: Map<string, Value>;
 	public ARG: Array<number | null>;
 	public ARGS: Array<string | null>;
 
-	public constructor(state: State) {
+	public constructor(state: State, fn: string) {
 		this.state = state;
+		this.fn = fn;
 		this.dynamicMap = new Map<string, Value>();
 		this.ARG = Array<null>(1000).fill(null);
 		this.ARGS = Array<null>(100).fill(null);
@@ -72,21 +95,45 @@ class Context {
 
 	public getVar(name: string, index?: number): Value {
 		switch (name) {
+			case "RESULT": {
+				return this.state.RESULT[index ?? 0];
+			}
+			case "RESULTS": {
+				return this.state.RESULTS[index ?? 0];
+			}
 			case "ARG": {
-				assert(index != null, "ARG is an array!");
-				return this.ARG[index];
+				return this.ARG[index ?? 0];
 			}
 			case "ARGS": {
-				assert(index != null, "ARGS is an array!");
-				return this.ARGS[index];
+				return this.ARGS[index ?? 0];
 			}
 			case "GLOBAL": {
-				assert(index != null, "GLOBAL is an array!");
-				return this.state.GLOBAL[index];
+				return this.state.GLOBAL[index ?? 0];
 			}
 			case "GLOBALS": {
-				assert(index != null, "GLOBALS is an array!");
-				return this.state.GLOBALS[index];
+				return this.state.GLOBALS[index ?? 0];
+			}
+			case "LOCAL": {
+				const localArray =
+					this.state.staticMap.get(this.fn)!.get("LOCAL")! as Array<number | null>;
+				return localArray[index ?? 0];
+			}
+			case "LOCALS": {
+				const localArray =
+					this.state.staticMap.get(this.fn)!.get("LOCALS")! as Array<string | null>;
+				return localArray[index ?? 0];
+			}
+			case "GAMEBASE_AUTHOR": {
+				return this.state.GAMEBASE.AUTHOR;
+			}
+			case "GAMEBASE_INFO": {
+				return this.state.GAMEBASE.INFO;
+			}
+			case "GAMEBASE_TITLE": {
+				return this.state.GAMEBASE.TITLE;
+			}
+			case "GAMEBASE_VERSION": {
+				return this.state.GAMEBASE.VERSION;
 			}
 			case "LINECOUNT": {
 				return this.state.LINECOUNT;
@@ -103,28 +150,48 @@ class Context {
 
 	public setVar(name: string, index: number | undefined, value: Value) {
 		switch (name) {
+			case "RESULT": {
+				assert(typeof value === "number", "Value for RESULT should be a number");
+				this.state.RESULT[index ?? 0] = value;
+				break;
+			}
+			case "RESULTS": {
+				assert(typeof value === "string", "Value for RESULTS should be a string");
+				this.state.RESULTS[index ?? 0] = value;
+				break;
+			}
 			case "ARG": {
-				assert(index != null, "ARG is an array!");
 				assert(typeof value === "number", "Value for ARG should be a number");
-				this.ARG[index] = value;
+				this.ARG[index ?? 0] = value;
 				break;
 			}
 			case "ARGS": {
-				assert(index != null, "ARGS is an array!");
 				assert(typeof value === "string", "Value for ARGS should be a string");
-				this.ARGS[index] = value;
+				this.ARGS[index ?? 0] = value;
 				break;
 			}
 			case "GLOBAL": {
-				assert(index != null, "GLOBAL is an array!");
 				assert(typeof value === "number", "Value for GLOBAL should be a number");
-				this.state.GLOBAL[index] = value;
+				this.state.GLOBAL[index ?? 0] = value;
 				break;
 			}
 			case "GLOBALS": {
-				assert(index != null, "GLOBALS is an array!");
 				assert(typeof value === "string", "Value for GLOBALS should be a string");
-				this.state.GLOBALS[index] = value;
+				this.state.GLOBALS[index ?? 0] = value;
+				break;
+			}
+			case "LOCAL": {
+				assert(typeof value === "number", "Value for LOCAL should be a number");
+				const localArray =
+					this.state.staticMap.get(this.fn)!.get("LOCAL")! as Array<number | null>;
+				localArray[index ?? 0] = value;
+				break;
+			}
+			case "LOCALS": {
+				assert(typeof value === "string", "Value for LOCALS should be a string");
+				const localArray =
+					this.state.staticMap.get(this.fn)!.get("LOCALS")! as Array<string | null>;
+				localArray[index ?? 0] = value;
 				break;
 			}
 			case "LINECOUNT": {
@@ -132,6 +199,10 @@ class Context {
 				this.state.LINECOUNT = value;
 				break;
 			}
+			case "GAMEBASE_AUTHOR":
+			case "GAMEBASE_INFO":
+			case "GAMEBASE_TITLE":
+			case "GAMEBASE_VERSION":
 			default: {
 				if (this.dynamicMap.has(name)) {
 					this.dynamicMap.set(name, value);
@@ -147,11 +218,13 @@ type Output =
 	| {type: "string"; value: string}
 	| {type: "line"}
 	| {type: "clearline"; count: number}
-	| {type: "wait"; value: "string" | "number"};
+	| {type: "loadglobal"}
+	| {type: "wait"}
+	| {type: "input"};
 
-export function* exec(program: Program): Generator<Output, void, Value> {
+export function* exec(program: Program): Generator<Output, void, string> {
 	const state = new State(program);
-	const context = new Context(state);
+	const context = new Context(state, "SYSTEM_TITLE");
 
 	yield* call(program, context, "SYSTEM_TITLE");
 }
@@ -160,13 +233,45 @@ function* call(
 	program: Program,
 	context: Context,
 	fnName: string,
-): Generator<Output, Value, Value> {
+): Generator<Output, Value, string> {
 	assert(program.fn[fnName] != null, `Function ${fnName} does not exist!`);
 	for (const fn of program.fn[fnName]!) {
 		for (const statement of fn.statement) {
 			switch (statement.type) {
 				case "label": break;
+				case "assign": {
+					context.setVar(
+						statement.dest.name,
+						undefined,
+						reduce(program, context, statement.expr),
+					);
+					break;
+				}
 				case "command": switch (statement.command) {
+					case "print": {
+						const value = reduce(program, context, statement.value) as string;
+						yield {type: "string", value};
+
+						// TODO: outType
+
+						// Actions
+						if (statement.action === "newline") {
+							yield {type: "string", value: "\n"};
+							context.setVar(
+								"LINECOUNT",
+								undefined,
+								context.getVar("LINECOUNT") as number + 1,
+							);
+						} else if (statement.action === "wait") {
+							yield {type: "wait"};
+						}
+
+						break;
+					}
+					case "drawline": {
+						yield {type: "line"};
+						break;
+					}
 					case "clearline": {
 						const count = reduce(program, context, statement.count);
 						assert(
@@ -187,12 +292,80 @@ function* call(
 						context.state.style.color.front.b = 255;
 						break;
 					}
+					case "fontbold": {
+						context.state.style.font.bold = !context.state.style.font.bold;
+						break;
+					}
+					case "fontregular": {
+						context.state.style.font.bold = false;
+						break;
+					}
+					case "setfont": {
+						const font = reduce(program, context, statement.font);
+						assert(typeof font === "string", "Argument of SETFONT must be a string!");
+						context.state.style.font.name = font;
+						break;
+					}
+					case "alignment": {
+						context.state.style.alignment = statement.align;
+						break;
+					}
+					case "strlen": {
+						const value = reduce(program, context, statement.expr);
+						assert(typeof value === "string", "Argument of STRLEN must be a string!");
+						context.setVar("RESULT", 0, value.length);
+						break;
+					}
+					case "substring": {
+						const original = reduce(program, context, statement.expr);
+						assert(
+							typeof original === "string",
+							"1st argument of SUBSTRING must be a string!",
+						);
+						const start = reduce(program, context, statement.start);
+						assert(
+							typeof start === "number",
+							"2nd argument of SUBSTRING must be a number!",
+						);
+						const end = reduce(program, context, statement.end);
+						assert(
+							typeof end === "number",
+							"3rd argument of SUBSTRING must be a number!",
+						);
+						if (end < 0) {
+							context.setVar("RESULTS", 0, original.slice(start));
+						} else {
+							context.setVar("RESULTS", 0, original.slice(start, end));
+						}
+
+						break;
+					}
+					case "loadglobal": {
+						yield {type: "loadglobal"};
+						break;
+					}
+					case "input": {
+						// TODO: default value
+						let value: number = NaN;
+						do {
+							const input = parseInt(yield {type: "input"});
+							if (!isNaN(input)) {
+								value = input;
+							}
+						} while (isNaN(value));
+						context.setVar("RESULT", 0, value);
+
+						break;
+					}
+					case "return": {
+						return reduce(program, context, statement.expr);
+					}
 					default: throw new Error("Not Implemented!: " + statement.command);
 				}
 				// eslint-disable-next-line @typescript-eslint/indent
 				break;
 				case "conditional": {
-					break;
+					throw new Error("Conditional expression not implmeneted!");
 				}
 			}
 		}
@@ -203,14 +376,14 @@ function* call(
 function reduce(
 	program: Program,
 	context: Context,
-	expr: ast.IntExpr | ast.StringExpr,
+	expr: ast.IntExpr | ast.StringExpr | ast.Form,
 ): Value {
 	switch (typeof expr) {
 		case "number": return expr;
 		case "string": return expr;
 		default: switch (expr.type) {
 			case "inlinecall": {
-				const newContext = new Context(context.state);
+				const newContext = new Context(context.state, expr.name);
 				for (let i = 0; i < expr.arg.length; ++i) {
 					// TODO
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -235,6 +408,8 @@ function reduce(
 				if (typeof left === "number" && typeof right === "number") {
 					switch (expr.op) {
 						case "*": return left * right;
+						case "/": return Math.floor(left / right);
+						case "-": return left - right;
 						default: {
 							throw new Error(
 								`Binary operation ${expr.op} is not implemented yet!`,
@@ -248,6 +423,26 @@ function reduce(
 						`Wrong argument type for ${expr.op}: ${typeof left}, ${typeof right}`,
 					);
 				}
+			}
+			case "form": {
+				let result = "";
+				for (const child of expr.expr) {
+					const value = reduce(program, context, child);
+					switch (typeof value) {
+						case "number": {
+							result += value.toString();
+							break;
+						}
+						case "string": {
+							result += value;
+							break;
+						}
+						default: {
+							// Do nothing
+						}
+					}
+				}
+				return result;
 			}
 		}
 	}

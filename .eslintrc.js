@@ -164,6 +164,7 @@ module.exports = {
 			allowConstantLoopConditions: true,
 		}],
 		"@typescript-eslint/no-unnecessary-qualifier": "error",
+		"@typescript-eslint/no-unsafe-assignment": "off",
 		"@typescript-eslint/no-unused-expressions": "error",
 		"@typescript-eslint/no-use-before-define": "off", // Typescript
 		"@typescript-eslint/restrict-template-expressions": ["error", {

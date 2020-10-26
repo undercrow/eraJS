@@ -1,5 +1,5 @@
 import * as ast from "./ast";
-import type {Program} from "./compiler";
+import type {Program, State} from "./compiler";
 
 function assert(condition: boolean, message: string): asserts condition {
 	if (!condition) {
@@ -7,88 +7,19 @@ function assert(condition: boolean, message: string): asserts condition {
 	}
 }
 
-type Color = {
-	r: number;
-	g: number;
-	b: number;
-};
-
 type Value = string | number | null;
-type Variable = Value | Value[];
-
-export class State {
-	public RESULT: Array<number | null>;
-	public RESULTS: Array<string | null>;
-	public GLOBAL: Array<number | null>;
-	public GLOBALS: Array<string | null>;
-	public GAMEBASE: {
-		AUTHOR: string;
-		INFO: string;
-		TITLE: string;
-		VERSION: number;
-	};
-	public LINECOUNT: number;
-	public globalMap: Map<string, Map<string, Variable>>;
-	public staticMap: Map<string, Map<string, Variable>>;
-	public style: {
-		alignment: "left" | "center" | "right";
-		font: {
-			name: string;
-			bold: boolean;
-		};
-		color: {
-			front: Color;
-		};
-	};
-
-	public constructor(program: Program) {
-		this.RESULT = Array<null>(1000).fill(null);
-		this.RESULTS = Array<null>(100).fill(null);
-		this.GLOBAL = Array<null>(1000).fill(null);
-		this.GLOBALS = Array<null>(100).fill(null);
-		// TODO
-		this.GAMEBASE = {
-			AUTHOR: "",
-			INFO: "",
-			TITLE: "",
-			VERSION: 0,
-		};
-		this.LINECOUNT = 0;
-		this.globalMap = new Map<string, Map<string, Variable>>();
-		this.staticMap = new Map<string, Map<string, Variable>>();
-		for (const name of Object.keys(program.fn)) {
-			this.staticMap.set(name, new Map());
-			this.staticMap.get(name)!.set("LOCAL", Array<null>(1000).fill(null));
-			this.staticMap.get(name)!.set("LOCALS", Array<null>(100).fill(null));
-		}
-		this.style = {
-			alignment: "left",
-			font: {
-				name: "",
-				bold: false,
-			},
-			color: {
-				front: {
-					r: 255,
-					g: 255,
-					b: 255,
-				},
-			},
-		};
-	}
-}
 
 class Context {
 	public state: State;
 	public fn: string;
-	public dynamicMap: Map<string, Value>;
+	public dynamicMap: Map<string, Array<Value>>;
 	public ARG: Array<number | null>;
 	public ARGS: Array<string | null>;
 
 	public constructor(state: State, fn: string) {
 		this.state = state;
 		this.fn = fn;
-		this.dynamicMap = new Map<string, Value>();
+		this.dynamicMap = new Map();
 		this.ARG = Array<null>(1000).fill(null);
 		this.ARGS = Array<null>(100).fill(null);
 	}
@@ -140,7 +71,7 @@ class Context {
 			}
 			default: {
 				if (this.dynamicMap.has(name)) {
-					return this.dynamicMap.get(name)!;
+					return this.dynamicMap.get(name)![index ?? 0];
 				} else {
 					throw new Error(`Variable ${name} does not exist!`);
 				}
@@ -205,7 +136,7 @@ class Context {
 			case "GAMEBASE_VERSION":
 			default: {
 				if (this.dynamicMap.has(name)) {
-					this.dynamicMap.set(name, value);
+					this.dynamicMap.get(name)![index ?? 0] = value;
 				} else {
 					throw new Error(`Variable ${name} does not exist!`);
 				}
@@ -222,8 +153,7 @@ type Output =
 	| {type: "wait"}
 	| {type: "input"};
 
-export function* exec(program: Program): Generator<Output, void, string> {
-	const state = new State(program);
+export function* exec(program: Program, state: State): Generator<Output, void, string> {
 	const context = new Context(state, "SYSTEM_TITLE");
 
 	yield* call(program, context, "SYSTEM_TITLE");

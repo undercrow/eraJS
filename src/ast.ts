@@ -283,7 +283,7 @@ export const stopCallTrain = (): StopCallTrain => command("stopcalltrain");
 /* eslint-disable array-element-newline */
 export type PlainCommand =
 	| Print
-	| DrawLine
+	| DrawLine | ClearLine
 	| ResetColor | ResetBgColor | GetColor | GetDefColor | GetBgColor | GetDefBgColor
 	| GetFocusColor | GetStyle | GetFont | CurrentAlign | CurrentRedraw | PrintCPerLine
 	| LineIsEmpty | IsSkip| MouseSkip | StrLen | SubString
@@ -305,7 +305,7 @@ export const conditional = (expr: Conditional["expr"]): Conditional => ({
 	expr,
 });
 
-export type Statement = Label | Command;
+export type Statement = Label | Command | Conditional;
 
 export type Fn = Node<"function"> & {
 	name: string;

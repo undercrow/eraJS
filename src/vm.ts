@@ -167,140 +167,151 @@ function* call(
 	assert(program.fn[fnName] != null, `Function ${fnName} does not exist!`);
 	for (const fn of program.fn[fnName]!) {
 		for (const statement of fn.statement) {
-			switch (statement.type) {
-				case "label": break;
-				case "assign": {
-					context.setVar(
-						statement.dest.name,
-						undefined,
-						reduce(program, context, statement.expr),
-					);
-					break;
-				}
-				case "command": switch (statement.command) {
-					case "print": {
-						const value = reduce(program, context, statement.value) as string;
-						yield {type: "string", value};
-
-						// TODO: outType
-
-						// Actions
-						if (statement.action === "newline") {
-							yield {type: "string", value: "\n"};
-							context.setVar(
-								"LINECOUNT",
-								undefined,
-								context.getVar("LINECOUNT") as number + 1,
-							);
-						} else if (statement.action === "wait") {
-							yield {type: "wait"};
-						}
-
-						break;
-					}
-					case "drawline": {
-						yield {type: "line"};
-						break;
-					}
-					case "clearline": {
-						const count = reduce(program, context, statement.count);
-						assert(
-							typeof count === "number",
-							"Argument of CLEARLINE must be an integer!",
-						);
-						context.setVar(
-							"LINECOUNT",
-							undefined,
-							context.getVar("LINECOUNT") as number - count,
-						);
-						yield {type: "clearline", count};
-						break;
-					}
-					case "resetcolor": {
-						context.state.style.color.front.r = 255;
-						context.state.style.color.front.g = 255;
-						context.state.style.color.front.b = 255;
-						break;
-					}
-					case "fontbold": {
-						context.state.style.font.bold = !context.state.style.font.bold;
-						break;
-					}
-					case "fontregular": {
-						context.state.style.font.bold = false;
-						break;
-					}
-					case "setfont": {
-						const font = reduce(program, context, statement.font);
-						assert(typeof font === "string", "Argument of SETFONT must be a string!");
-						context.state.style.font.name = font;
-						break;
-					}
-					case "alignment": {
-						context.state.style.alignment = statement.align;
-						break;
-					}
-					case "strlen": {
-						const value = reduce(program, context, statement.expr);
-						assert(typeof value === "string", "Argument of STRLEN must be a string!");
-						context.setVar("RESULT", 0, value.length);
-						break;
-					}
-					case "substring": {
-						const original = reduce(program, context, statement.expr);
-						assert(
-							typeof original === "string",
-							"1st argument of SUBSTRING must be a string!",
-						);
-						const start = reduce(program, context, statement.start);
-						assert(
-							typeof start === "number",
-							"2nd argument of SUBSTRING must be a number!",
-						);
-						const end = reduce(program, context, statement.end);
-						assert(
-							typeof end === "number",
-							"3rd argument of SUBSTRING must be a number!",
-						);
-						if (end < 0) {
-							context.setVar("RESULTS", 0, original.slice(start));
-						} else {
-							context.setVar("RESULTS", 0, original.slice(start, end));
-						}
-
-						break;
-					}
-					case "loadglobal": {
-						yield {type: "loadglobal"};
-						break;
-					}
-					case "input": {
-						// TODO: default value
-						let value: number = NaN;
-						do {
-							const input = parseInt(yield {type: "input"});
-							if (!isNaN(input)) {
-								value = input;
-							}
-						} while (isNaN(value));
-						context.setVar("RESULT", 0, value);
-
-						break;
-					}
-					case "return": {
-						return reduce(program, context, statement.expr);
-					}
-					default: throw new Error("Not Implemented!: " + statement.command);
-				}
-				// eslint-disable-next-line @typescript-eslint/indent
-				break;
-				case "conditional": {
-					throw new Error("Conditional expression not implmeneted!");
-				}
+			const result = yield* runStatement(program, context, statement);
+			if (result !== undefined) {
+				return result;
 			}
 		}
 	}
 	return null;
+}
+
+function* runStatement(
+	program: Program,
+	context: Context,
+	statement: ast.Statement,
+): Generator<Output, Value | undefined, string> {
+	switch (statement.type) {
+		case "label": break;
+		case "assign": {
+			context.setVar(
+				statement.dest.name,
+				undefined,
+				reduce(program, context, statement.expr),
+			);
+			break;
+		}
+		case "command": {
+			// Special case for return command
+			if (statement.command === "return") {
+				return reduce(program, context, statement.expr);
+			}
+
+			yield* runCommand(program, context, statement);
+			break;
+		}
+		case "conditional": {
+			throw new Error("Conditional expression not implmeneted!");
+		}
+	}
+	return undefined;
+}
+
+function* runCommand(
+	program: Program,
+	context: Context,
+	command: ast.Command,
+): Generator<Output, void, string> {
+	switch (command.command) {
+		case "print": {
+			const value = reduce(program, context, command.value) as string;
+			yield {type: "string", value};
+
+			// TODO: outType
+
+			// Actions
+			if (command.action === "newline") {
+				yield {type: "string", value: "\n"};
+				context.setVar(
+					"LINECOUNT",
+					undefined,
+					context.getVar("LINECOUNT") as number + 1,
+				);
+			} else if (command.action === "wait") {
+				yield {type: "wait"};
+			}
+
+			break;
+		}
+		case "drawline": {
+			yield {type: "line"};
+			break;
+		}
+		case "clearline": {
+			const count = reduce(program, context, command.count);
+			assert(typeof count === "number", "Argument of CLEARLINE must be an integer!");
+			context.setVar(
+				"LINECOUNT",
+				undefined,
+				context.getVar("LINECOUNT") as number - count,
+			);
+			yield {type: "clearline", count};
+			break;
+		}
+		case "resetcolor": {
+			context.state.style.color.front.r = 255;
+			context.state.style.color.front.g = 255;
+			context.state.style.color.front.b = 255;
+			break;
+		}
+		case "fontbold": {
+			context.state.style.font.bold = !context.state.style.font.bold;
+			break;
+		}
+		case "fontregular": {
+			context.state.style.font.bold = false;
+			break;
+		}
+		case "setfont": {
+			const font = reduce(program, context, command.font);
+			assert(typeof font === "string", "Argument of SETFONT must be a string!");
+			context.state.style.font.name = font;
+			break;
+		}
+		case "alignment": {
+			context.state.style.alignment = command.align;
+			break;
+		}
+		case "strlen": {
+			const value = reduce(program, context, command.expr);
+			assert(typeof value === "string", "Argument of STRLEN must be a string!");
+			context.setVar("RESULT", 0, value.length);
+			break;
+		}
+		case "substring": {
+			const original = reduce(program, context, command.expr);
+			assert(typeof original === "string", "1st argument of SUBSTRING must be a string!");
+			const start = reduce(program, context, command.start);
+			assert(typeof start === "number", "2nd argument of SUBSTRING must be a number!");
+			const end = reduce(program, context, command.end);
+			assert(typeof end === "number", "3rd argument of SUBSTRING must be a number!");
+			if (end < 0) {
+				context.setVar("RESULTS", 0, original.slice(start));
+			} else {
+				context.setVar("RESULTS", 0, original.slice(start, end));
+			}
+
+			break;
+		}
+		case "loadglobal": {
+			yield {type: "loadglobal"};
+			break;
+		}
+		case "input": {
+			// TODO: default value
+			let value: number = NaN;
+			do {
+				const input = parseInt(yield {type: "input"});
+				if (!isNaN(input)) {
+					value = input;
+				}
+			} while (isNaN(value));
+			context.setVar("RESULT", 0, value);
+
+			break;
+		}
+		default: throw new Error("Not Implemented!: " + command.command);
+	}
 }
 
 function reduce(

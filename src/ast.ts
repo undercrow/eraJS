@@ -290,7 +290,8 @@ export type PlainCommand =
 	| Alignment | CurrentAlign | CurrentRedraw | PrintCPerLine
 	| LineIsEmpty | IsSkip| MouseSkip | StrLen | SubString
 	| AddChara | AddDefChara | AddVoidChara | DelAllChara | ResetData
-	| ResetGlobal | SaveGlobal | LoadGlobal | OutputLog | GetTime | GetMillisecond | GetSecond
+	| ResetGlobal | SaveGame | LoadGame | SaveGlobal | LoadGlobal
+	| OutputLog | GetTime | GetMillisecond | GetSecond
 	| ForceWait | Input | InputS | WaitAnyKey
 	| DumpRand | InitRand
 	| Begin | Call | Goto | Return

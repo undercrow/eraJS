@@ -153,6 +153,8 @@ type Output =
 	| {type: "string"; value: string}
 	| {type: "line"}
 	| {type: "clearline"; count: number}
+	| {type: "resetdata"}
+	| {type: "loadgame"}
 	| {type: "loadglobal"}
 	| {type: "wait"}
 	| {type: "input"};
@@ -306,6 +308,14 @@ function* runCommand(
 				context.setVar("RESULTS", 0, original.slice(start, end));
 			}
 
+			break;
+		}
+		case "resetdata": {
+			yield {type: "resetdata"};
+			break;
+		}
+		case "loadgame": {
+			yield {type: "loadgame"};
 			break;
 		}
 		case "loadglobal": {

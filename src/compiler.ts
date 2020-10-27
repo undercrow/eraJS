@@ -4,6 +4,7 @@ export type Config = {
 	gamebase?: {
 		author?: string;
 		info?: string;
+		year?: string;
 		title?: string;
 		version?: number;
 	};
@@ -24,6 +25,7 @@ export type State = {
 	GAMEBASE: {
 		AUTHOR: string;
 		INFO: string;
+		YEAR: string;
 		TITLE: string;
 		VERSION: number;
 	};
@@ -69,6 +71,7 @@ export default function compile(fnList: ast.Fn[], config: Config): [Program, Sta
 		GAMEBASE: {
 			AUTHOR: config.gamebase?.author ?? "",
 			INFO: config.gamebase?.info ?? "",
+			YEAR: config.gamebase?.year ?? "",
 			TITLE: config.gamebase?.title ?? "",
 			VERSION: config.gamebase?.version ?? 0,
 		},

@@ -60,6 +60,9 @@ class Context {
 			case "GAMEBASE_INFO": {
 				return this.state.GAMEBASE.INFO;
 			}
+			case "GAMEBASE_YEAR": {
+				return this.state.GAMEBASE.YEAR;
+			}
 			case "GAMEBASE_TITLE": {
 				return this.state.GAMEBASE.TITLE;
 			}
@@ -132,6 +135,7 @@ class Context {
 			}
 			case "GAMEBASE_AUTHOR":
 			case "GAMEBASE_INFO":
+			case "GAMEBASE_YEAR":
 			case "GAMEBASE_TITLE":
 			case "GAMEBASE_VERSION":
 			default: {
@@ -335,18 +339,30 @@ function reduce(
 		case "string": return expr;
 		default: switch (expr.type) {
 			case "inlinecall": {
-				const newContext = new Context(context.state, expr.name);
-				for (let i = 0; i < expr.arg.length; ++i) {
-					// TODO
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-					newContext.ARG[i] = reduce(program, context, expr.arg[i]) as any;
-				}
+				switch (expr.name) {
+					case "STRLENS": {
+						const value = reduce(program, context, expr.arg[0]);
+						assert(
+							typeof value === "string",
+							"Argument of STRLENS should be a string!",
+						);
+						return value.length;
+					}
+					default: {
+						const newContext = new Context(context.state, expr.name);
+						for (let i = 0; i < expr.arg.length; ++i) {
+							// TODO
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+							newContext.ARG[i] = reduce(program, context, expr.arg[i]) as any;
+						}
 
-				const generator = call(program, newContext, expr.name);
-				while (true) {
-					const next = generator.next();
-					if (next.done === true) {
-						return next.value!;
+						const generator = call(program, newContext, expr.name);
+						while (true) {
+							const next = generator.next();
+							if (next.done === true) {
+								return next.value!;
+							}
+						}
 					}
 				}
 			}
@@ -362,6 +378,8 @@ function reduce(
 						case "*": return left * right;
 						case "/": return Math.floor(left / right);
 						case "-": return left - right;
+						case ">": return left > right ? 1 : 0;
+						case "==": return left === right ? 1 : 0;
 						default: {
 							throw new Error(
 								`Binary operation ${expr.op} is not implemented yet!`,

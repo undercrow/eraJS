@@ -166,42 +166,53 @@ function* call(
 ): Generator<Output, Value, string> {
 	assert(program.fn[fnName] != null, `Function ${fnName} does not exist!`);
 	for (const fn of program.fn[fnName]!) {
-		for (const statement of fn.statement) {
-			const result = yield* runStatement(program, context, statement);
-			if (result !== undefined) {
-				return result;
-			}
+		const result = yield* runStatements(program, context, fn.statement);
+		if (result !== undefined) {
+			return result;
 		}
 	}
 	return null;
 }
 
-function* runStatement(
+function* runStatements(
 	program: Program,
 	context: Context,
-	statement: ast.Statement,
+	statementList: ast.Statement[],
 ): Generator<Output, Value | undefined, string> {
-	switch (statement.type) {
-		case "label": break;
-		case "assign": {
-			context.setVar(
-				statement.dest.name,
-				undefined,
-				reduce(program, context, statement.expr),
-			);
-			break;
-		}
-		case "command": {
-			// Special case for return command
-			if (statement.command === "return") {
-				return reduce(program, context, statement.expr);
+	for (const statement of statementList) {
+		switch (statement.type) {
+			case "label": break;
+			case "assign": {
+				context.setVar(
+					statement.dest.name,
+					undefined,
+					reduce(program, context, statement.expr),
+				);
+				break;
 			}
+			case "command": {
+				// Special case for return command
+				if (statement.command === "return") {
+					return reduce(program, context, statement.expr);
+				}
 
-			yield* runCommand(program, context, statement);
-			break;
-		}
-		case "conditional": {
-			throw new Error("Conditional expression not implmeneted!");
+				yield* runCommand(program, context, statement);
+				break;
+			}
+			case "conditional": {
+				for (const expr of statement.expr) {
+					const cond = reduce(program, context, expr[0]);
+					assert(typeof cond === "number", "Condition be an integer!");
+					if (cond !== 0) {
+						const result = yield* runStatements(program, context, expr[1]);
+						if (result !== undefined) {
+							return result;
+						}
+						break;
+					}
+				}
+				break;
+			}
 		}
 	}
 	return undefined;

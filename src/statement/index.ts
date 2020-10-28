@@ -11,8 +11,10 @@ export type Output =
 	| {type: "input"};
 
 export type Result =
-	| {type: "return"; value: string | number | null}
-	| {type: "begin"; keyword: string};
+	| {type: "begin"; keyword: string}
+	| {type: "break"}
+	| {type: "continue"}
+	| {type: "return"; value: string | number | null};
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default class Statement {

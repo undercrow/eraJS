@@ -76,6 +76,7 @@ export default class VM {
 			});
 		}
 
+		this.globalMap.set("COUNT", null);
 		this.globalMap.set("RESULT", Array<null>(1000).fill(null));
 		this.globalMap.set("RESULTS", Array<null>(100).fill(null));
 		this.globalMap.set("GLOBAL", Array<null>(1000).fill(null));
@@ -244,6 +245,8 @@ export default class VM {
 
 			switch (result?.type) {
 				case "begin": begin = result.keyword; continue;
+				case "break": return null;
+				case "continue": return null;
 				case "return": return null;
 				case undefined: continue;
 			}

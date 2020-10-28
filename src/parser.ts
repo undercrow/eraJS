@@ -9,12 +9,14 @@ import AddDefChara from "./statement/command/adddefchara";
 import AddVoidChara from "./statement/command/addvoidchara";
 import Alignment from "./statement/command/alignment";
 import Begin from "./statement/command/begin";
+import Break from "./statement/command/break";
 import Call from "./statement/command/call";
 import CbgClear from "./statement/command/cbgclear";
 import CbgClearButton from "./statement/command/cbgclearbutton";
 import CbgRemoveBmap from "./statement/command/cbgremovebmap";
 import ClearTextBox from "./statement/command/cleartextbox";
 import Conditional from "./statement/command/conditional";
+import Continue from "./statement/command/continue";
 import CurrentAlign from "./statement/command/currentalign";
 import CurrentRedraw from "./statement/command/currentredraw";
 import DebugClear from "./statement/command/debugclear";
@@ -24,6 +26,7 @@ import DumpRand from "./statement/command/dumprand";
 import FontBold from "./statement/command/fontbold";
 import FontItalic from "./statement/command/fontitalic";
 import FontRegular from "./statement/command/fontregular";
+import For from "./statement/command/for";
 import ForceWait from "./statement/command/forcewait";
 import GetBgColor from "./statement/command/getbgcolor";
 import GetColor from "./statement/command/getcolor";
@@ -50,6 +53,7 @@ import MouseY from "./statement/command/mousey";
 import OutputLog from "./statement/command/outputlog";
 import Print from "./statement/command/print";
 import PrintCPerLine from "./statement/command/printcperline";
+import Repeat from "./statement/command/repeat";
 import ResetBgColor from "./statement/command/resetbgcolor";
 import ResetColor from "./statement/command/resetcolor";
 import ResetData from "./statement/command/resetdata";
@@ -70,6 +74,7 @@ import ConstStringExpr from "./statement/expr/const-string";
 import Form from "./statement/expr/form";
 import InlineCall from "./statement/expr/inline-call";
 import Variable from "./statement/expr/variable";
+import OpAssign from "./statement/op-assign";
 
 /* eslint-disable array-element-newline */
 const SPECIAL_CHAR = [
@@ -163,20 +168,24 @@ type LanguageSpec = {
 	PlainCommand: Statement;
 	Command: Statement;
 	Assign: Assign;
+	OpAssign: OpAssign;
+	Statement: Statement;
 	Function: Fn;
 	Language: Fn[];
 };
 
 const language = P.createLanguage<LanguageSpec>({
-	Variable: () => P.seqMap(
+	Variable: (r) => P.seqMap(
 		Identifier,
 		P.string(":").then(P.alt(
 			ConstInt.map((value) => new ConstIntExpr(value)),
 			Identifier.map((name) => new Variable(name, [])),
+			wrap("(", r.IntExpr, ")"),
 		)).many(),
 		(name, index) => new Variable(name, index),
 	),
 	IntExprL0: (r) => P.alt(
+		wrap("(", r.IntExpr, ")"),
 		ConstInt.map((val) => new ConstIntExpr(val)),
 		r.InlineCall,
 		r.Variable,
@@ -370,15 +379,39 @@ const language = P.createLanguage<LanguageSpec>({
 			(cond, then) => new Conditional([[cond, [then]]]),
 		),
 		P.seqMap(
-			P.seq(asLine(P.string("IF").skip(WS1).then(r.IntExpr)), r.Command.many()),
-			P.seq(asLine(P.string("ELSEIF").skip(WS1).then(r.IntExpr)), r.Command.many()).many(),
-			optional(asLine(P.string("ELSE")).then(r.Command.many()), []),
+			P.seq(asLine(P.string("IF").skip(WS1).then(r.IntExpr)), r.Statement.many()),
+			P.seq(asLine(P.string("ELSEIF").skip(WS1).then(r.IntExpr)), r.Statement.many()).many(),
+			optional(asLine(P.string("ELSE")).then(r.Statement.many()), []),
 			asLine(P.string("ENDIF")),
 			(ifStmt, elifStmt, elseStmt) => new Conditional([
 				ifStmt,
 				...elifStmt,
 				[new ConstIntExpr(1), elseStmt],
 			]),
+		),
+		P.seqMap(
+			asLine(P.string("REPEAT").skip(WS1).then(r.IntExpr)),
+			P.alt(
+				r.Statement,
+				asLine(P.string("BREAK")).map(() => new Break()),
+				asLine(P.string("CONTINUE")).map(() => new Continue()),
+			).many(),
+			asLine(P.string("REND")),
+			(condition, statement) => new Repeat(condition, statement),
+		),
+		P.seqMap(
+			asLine(P.string("FOR").skip(WS1).then(P.seq(
+				r.Variable.trim(WS0),
+				P.string(",").then(r.IntExpr.trim(WS0)),
+				P.string(",").then(r.IntExpr.trim(WS0)),
+			))),
+			P.alt(
+				r.Statement,
+				asLine(P.string("BREAK")).map(() => new Break()),
+				asLine(P.string("CONTINUE")).map(() => new Continue()),
+			).many(),
+			asLine(P.string("NEXT")),
+			([counter, start, end], statement) => new For(counter, start, end, statement),
 		),
 	),
 	Assign: (r) => asLine(P.seqMap(
@@ -387,9 +420,16 @@ const language = P.createLanguage<LanguageSpec>({
 		P.alt(r.IntExpr, r.Form),
 		(dest, _op, expr) => new Assign(dest, expr),
 	)),
+	OpAssign: (r) => asLine(P.seqMap(
+		r.Variable,
+		oneOf("*", "/", "%", "+", "-").skip(P.string("=")).trim(WS0),
+		r.IntExpr,
+		(dest, op, expr) => new OpAssign(dest, op, expr),
+	)),
+	Statement: (r) => P.alt(r.Command, r.Assign, r.OpAssign),
 	Function: (r) => P.seqMap(
 		asLine(P.string("@").then(Identifier), false),
-		P.alt(r.Label, r.Property, r.Command, r.Assign).many(),
+		P.alt(r.Label, r.Property, r.Statement).many(),
 		(name, statement) => new Fn(name, statement),
 	),
 	Language: (r) => r.Function.many().skip(P.eof),

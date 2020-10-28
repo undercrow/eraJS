@@ -1,10 +1,8 @@
-import {assertNumber} from "../assert";
 import type VM from "../vm";
 import Expr from "./expr";
 import Variable from "./expr/variable";
 import Statement from "./index";
 
-// TODO: index
 export default class Assign extends Statement {
 	public dest: Variable;
 	public expr: Expr;
@@ -17,10 +15,9 @@ export default class Assign extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.expr.reduce(vm);
-		const index = this.dest.index.map((i) => i.reduce(vm));
-		index.forEach((i) => assertNumber(i, "Index of variable should be an integer"));
+		const index = this.dest.reduceIndex(vm);
 
-		vm.setValue(value, this.dest.name, ...index.length === 0 ? [0] : index as number[]);
+		vm.setValue(value, this.dest.name, ...index);
 
 		return null;
 	}

@@ -1,6 +1,75 @@
 import P from "parsimmon";
 
-import * as ast from "./ast";
+import Fn from "./fn";
+import Statement from "./statement";
+import Assign from "./statement/assign";
+import ClearLine from "./statement/command/clearline";
+import AddChara from "./statement/command/addchara";
+import AddDefChara from "./statement/command/adddefchara";
+import AddVoidChara from "./statement/command/addvoidchara";
+import Alignment from "./statement/command/alignment";
+import Begin from "./statement/command/begin";
+import Call from "./statement/command/call";
+import CbgClear from "./statement/command/cbgclear";
+import CbgClearButton from "./statement/command/cbgclearbutton";
+import CbgRemoveBmap from "./statement/command/cbgremovebmap";
+import ClearTextBox from "./statement/command/cleartextbox";
+import Conditional from "./statement/command/conditional";
+import CurrentAlign from "./statement/command/currentalign";
+import CurrentRedraw from "./statement/command/currentredraw";
+import DebugClear from "./statement/command/debugclear";
+import DelAllChara from "./statement/command/delallchara";
+import DrawLine from "./statement/command/drawline";
+import DumpRand from "./statement/command/dumprand";
+import FontBold from "./statement/command/fontbold";
+import FontItalic from "./statement/command/fontitalic";
+import FontRegular from "./statement/command/fontregular";
+import ForceWait from "./statement/command/forcewait";
+import GetBgColor from "./statement/command/getbgcolor";
+import GetColor from "./statement/command/getcolor";
+import GetDefBgColor from "./statement/command/getdefbgcolor";
+import GetDefColor from "./statement/command/getdefcolor";
+import GetFocusColor from "./statement/command/getfocuscolor";
+import GetFont from "./statement/command/getfont";
+import GetMillisecond from "./statement/command/getmillisecond";
+import GetSecond from "./statement/command/getsecond";
+import GetStyle from "./statement/command/getstyle";
+import GetTime from "./statement/command/gettime";
+import Goto from "./statement/command/goto";
+import Input from "./statement/command/input";
+import InputS from "./statement/command/inputs";
+import InitRand from "./statement/command/initrand";
+import IsActive from "./statement/command/isactive";
+import IsSkip from "./statement/command/isskip";
+import LineIsEmpty from "./statement/command/lineisempty";
+import LoadGame from "./statement/command/loadgame";
+import LoadGlobal from "./statement/command/loadglobal";
+import MouseSkip from "./statement/command/mouseskip";
+import MouseX from "./statement/command/mousex";
+import MouseY from "./statement/command/mousey";
+import OutputLog from "./statement/command/outputlog";
+import Print from "./statement/command/print";
+import PrintCPerLine from "./statement/command/printcperline";
+import ResetBgColor from "./statement/command/resetbgcolor";
+import ResetColor from "./statement/command/resetcolor";
+import ResetData from "./statement/command/resetdata";
+import ResetGlobal from "./statement/command/resetglobal";
+import Return from "./statement/command/return";
+import SaveGame from "./statement/command/savegame";
+import SaveGlobal from "./statement/command/saveglobal";
+import SetFont from "./statement/command/setfont";
+import StopCallTrain from "./statement/command/stopcalltrain";
+import StrData from "./statement/command/strdata";
+import StrLen from "./statement/command/strlen";
+import Substring from "./statement/command/substring";
+import WaitAnyKey from "./statement/command/waitanykey";
+import Expr from "./statement/expr";
+import BinaryIntExpr from "./statement/expr/binary-int";
+import ConstIntExpr from "./statement/expr/const-int";
+import ConstStringExpr from "./statement/expr/const-string";
+import Form from "./statement/expr/form";
+import InlineCall from "./statement/expr/inline-call";
+import Variable from "./statement/expr/variable";
 
 /* eslint-disable array-element-newline */
 const SPECIAL_CHAR = [
@@ -76,59 +145,83 @@ function asLine<T>(parser: P.Parser<T>, leadingSpace: boolean = true): P.Parser<
 }
 
 type LanguageSpec = {
-	Variable: ast.Variable;
-	IntExprL0: ast.IntExpr;
-	IntExprL1: ast.IntExpr;
-	IntExprL2: ast.IntExpr;
-	IntExprL3: ast.IntExpr;
-	IntExprL4: ast.IntExpr;
-	IntExpr: ast.IntExpr;
-	StringExprL0: ast.StringExpr;
-	StringExpr: ast.StringExpr;
-	InlineCall: ast.InlineCall;
-	Form: ast.Form;
-	Label: ast.Label;
-	PrintOType: ast.Print["outType"];
-	PrintAction: ast.Print["action"];
-	PlainCommand: ast.PlainCommand;
-	Command: ast.Command;
-	Assign: ast.Assign;
-	Statement: ast.Statement;
-	Function: ast.Fn;
-	Language: ast.Fn[];
+	Variable: Variable;
+	IntExprL0: Expr;
+	IntExprL1: Expr;
+	IntExprL2: Expr;
+	IntExprL3: Expr;
+	IntExprL4: Expr;
+	IntExpr: Expr;
+	StringExprL0: Expr;
+	StringExpr: Expr;
+	InlineCall: InlineCall;
+	Form: Form;
+	Label: string;
+	PrintOType: Print["outType"];
+	PrintAction: Print["action"];
+	PlainCommand: Statement;
+	Command: Statement;
+	Assign: Assign;
+	Statement: Statement;
+	Function: Fn;
+	Language: Fn[];
 };
 
 const language = P.createLanguage<LanguageSpec>({
-	Variable: () => Identifier.map(ast.variable),
-	IntExprL0: (r) => P.alt(ConstInt, r.InlineCall, r.Variable),
+	Variable: () => Identifier.map((name) => new Variable(name)),
+	IntExprL0: (r) => P.alt(
+		ConstInt.map((val) => new ConstIntExpr(val)),
+		r.InlineCall,
+		r.Variable,
+	),
 	IntExprL1: (r) => P.alt(
-		leftAssociate(["==", "!="], r.IntExprL0, ast.binaryInt),
+		leftAssociate(
+			["==", "!="],
+			r.IntExprL0,
+			(op, left, right) => new BinaryIntExpr(op, left, right),
+		),
 		r.IntExprL0,
 	),
 	IntExprL2: (r) => P.alt(
-		leftAssociate(["*", "/", "%"], r.IntExprL1, ast.binaryInt),
+		leftAssociate(
+			["*", "/", "%"],
+			r.IntExprL1,
+			(op, left, right) => new BinaryIntExpr(op, left, right),
+		),
 		r.IntExprL1,
 	),
 	IntExprL3: (r) => P.alt(
-		leftAssociate(["+", "-"], r.IntExprL2, ast.binaryInt),
+		leftAssociate(
+			["+", "-"],
+			r.IntExprL2,
+			(op, left, right) => new BinaryIntExpr(op, left, right),
+		),
 		r.IntExprL2,
 	),
 	IntExprL4: (r) => P.alt(
-		leftAssociate(["<", "<=", ">", ">="], r.IntExprL3, ast.binaryInt),
+		leftAssociate(
+			["<", "<=", ">", ">="],
+			r.IntExprL3,
+			(op, left, right) => new BinaryIntExpr(op, left, right),
+		),
 		r.IntExprL3,
 	),
 	IntExpr: (r) => r.IntExprL4,
-	StringExprL0: (r) => P.alt(r.InlineCall, r.Variable, ConstString),
+	StringExprL0: (r) => P.alt(
+		ConstString.map((value) => new ConstStringExpr(value)),
+		r.InlineCall,
+		r.Variable,
+	),
 	StringExpr: (r) => r.StringExprL0,
 	InlineCall: (r) => P.seqMap(
 		Identifier,
 		wrap("(", P.alt(r.IntExpr, r.StringExpr).sepBy(P.string(",")), ")"),
-		ast.inlineCall
+		(name, arg) => new InlineCall(name, arg),
 	),
 	Form: (r) => P.alt(wrap("{", r.IntExpr, "}"), wrap("%", r.StringExpr, "%"), charSeq("{", "%"))
 		.atLeast(1)
-		.map(ast.form),
-	Label: () => asLine(P.string("$").then(Identifier).map(ast.label), false),
+		.map((expr) => new Form(expr)),
+	Label: () => asLine(P.string("$").then(Identifier), false),
 	PrintOType: () => oneOf("K", "D", "").map((o) => {
 		switch (o) {
 			case "K": return "K";
@@ -149,134 +242,142 @@ const language = P.createLanguage<LanguageSpec>({
 				r.PrintOType,
 				r.PrintAction,
 				WS1.then(r.IntExpr),
-				(out, action, val) => ast.print(val, out, action),
+				(out, action, val) => new Print(val, out, action),
 			)),
 			P.string("S").then(P.seqMap(
 				r.PrintOType,
 				r.PrintAction,
 				WS1.then(r.StringExpr),
-				(out, action, val) => ast.print(val, out, action),
+				(out, action, val) => new Print(val, out, action),
 			)),
 			P.string("FORM").then(P.seqMap(
 				r.PrintOType,
 				r.PrintAction,
-				optional(WS1.then(r.Form), ast.form([""])),
-				(out, action, val) => ast.print(val, out, action),
+				optional<Expr>(WS1.then(r.Form), new ConstStringExpr("")),
+				(out, action, val) => new Print(val, out, action),
 			)),
 			// TODO: FORMS
 			P.seqMap(
 				r.PrintOType,
 				r.PrintAction,
 				optional(WS1.then(charSeq()), ""),
-				(out, action, val) => ast.print(val, out, action),
+				(out, action, val) => new Print(new ConstStringExpr(val), out, action),
 			),
 		)),
-		P.string("DRAWLINE").map(ast.drawLine),
-		P.string("CLEARLINE").skip(WS1).then(r.IntExpr).map(ast.clearLine),
-		P.string("RESETCOLOR").map(ast.resetColor),
-		P.string("RESETBGCOLOR").map(ast.resetBgColor),
-		P.string("GETCOLOR").map(ast.getColor),
-		P.string("GETDEFCOLOR").map(ast.getDefColor),
-		P.string("GETBGCOLOR").map(ast.getBgColor),
-		P.string("GETDEFBGCOLOR").map(ast.getDefBgColor),
-		P.string("GETFOCUSCOLOR").map(ast.getFocusColor),
-		P.string("FONTBOLD").map(ast.fontBold),
-		P.string("FONTITALIC").map(ast.fontItalic),
-		P.string("FONTREGULAR").map(ast.fontRegular),
-		P.string("GETSTYLE").map(ast.getStyle),
-		P.string("SETFONT").then(optional(WS1.then(r.StringExpr), "")).map(ast.setFont),
-		P.string("GETFONT").map(ast.getFont),
+		P.string("DRAWLINE").map(() => new DrawLine()),
+		P.string("CLEARLINE").skip(WS1).then(r.IntExpr).map((expr) => new ClearLine(expr)),
+		P.string("RESETCOLOR").map(() => new ResetColor()),
+		P.string("RESETBGCOLOR").map(() => new ResetBgColor()),
+		P.string("GETCOLOR").map(() => new GetColor()),
+		P.string("GETDEFCOLOR").map(() => new GetDefColor()),
+		P.string("GETBGCOLOR").map(() => new GetBgColor()),
+		P.string("GETDEFBGCOLOR").map(() => new GetDefBgColor()),
+		P.string("GETFOCUSCOLOR").map(() => new GetFocusColor()),
+		P.string("FONTBOLD").map(() => new FontBold()),
+		P.string("FONTITALIC").map(() => new FontItalic()),
+		P.string("FONTREGULAR").map(() => new FontRegular()),
+		P.string("GETSTYLE").map(() => new GetStyle()),
+		P.string("SETFONT").then(optional(WS1.then(r.StringExpr), undefined)).map(
+			(font) => new SetFont(font),
+		),
+		P.string("GETFONT").map(() => new GetFont()),
 		P.string("ALIGNMENT").skip(WS1).then(oneOf("LEFT", "CENTER", "RIGHT")).map((align) => {
 			switch (align) {
-				case "LEFT": return ast.alignment("left");
-				case "CENTER": return ast.alignment("center");
-				case "RIGHT": return ast.alignment("right");
+				case "LEFT": return new Alignment("left");
+				case "CENTER": return new Alignment("center");
+				case "RIGHT": return new Alignment("right");
 			}
 		}),
-		P.string("CURRENTALIGN").map(ast.currentAlign),
-		P.string("CURRENTREDRAW").map(ast.currentRedraw),
-		P.string("PRINTCPERLINE").map(ast.printCPerLine),
-		P.string("LINEISEMPTY").map(ast.lineIsEmpty),
-		P.string("ISSKIP").map(ast.isSkip),
-		P.string("MOUSESKIP").map(ast.mouseSkip),
-		P.string("STRLEN").skip(WS1).then(charSeq()).map(ast.strlen),
-		P.string("STRLENS").skip(WS1).then(r.StringExpr).map(ast.strlen),
-		P.string("STRLENFORM").skip(WS1).then(r.Form).map(ast.strlen),
+		P.string("CURRENTALIGN").map(() => new CurrentAlign()),
+		P.string("CURRENTREDRAW").map(() => new CurrentRedraw()),
+		P.string("PRINTCPERLINE").map(() => new PrintCPerLine()),
+		P.string("LINEISEMPTY").map(() => new LineIsEmpty()),
+		P.string("ISSKIP").map(() => new IsSkip()),
+		P.string("MOUSESKIP").map(() => new MouseSkip()),
+		P.string("STRLEN").skip(WS1).then(charSeq()).map(
+			(expr) => new StrLen(new ConstStringExpr(expr)),
+		),
+		P.string("STRLENS").skip(WS1).then(r.StringExpr).map((expr) => new StrLen(expr)),
+		P.string("STRLENFORM").skip(WS1).then(r.Form).map((expr) => new StrLen(expr)),
 		P.string("SUBSTRING").skip(WS1).then(P.seqMap(
 			r.StringExpr.trim(WS0),
 			P.string(",").then(r.IntExpr.trim(WS0)),
 			P.string(",").then(r.IntExpr.trim(WS0)),
-			ast.substring,
+			(expr, start, end) => new Substring(expr, start, end),
 		)),
-		P.string("ADDCHARA").skip(WS1).then(r.IntExpr).map(ast.addChara),
-		P.string("ADDDEFCHARA").map(ast.addDefChara),
-		P.string("ADDVOIDCHARA").map(ast.addVoidChara),
-		P.string("DELALLCHARA").map(ast.delAllChara),
-		P.string("RESETDATA").map(ast.resetData),
-		P.string("RESETGLOBAL").map(ast.resetGlobal),
-		P.string("SAVEGAME").map(ast.saveGame),
-		P.string("LOADGAME").map(ast.loadGame),
-		P.string("SAVEGLOBAL").map(ast.saveGlobal),
-		P.string("LOADGLOBAL").map(ast.loadGlobal),
-		P.string("OUTPUTLOG").map(ast.outputLog),
-		P.string("GETTIME").map(ast.getTime),
-		P.string("GETMILLISECOND").map(ast.getMillisecond),
-		P.string("GETSECOND").map(ast.getSecond),
-		P.string("FORCEWAIT").map(ast.forceWait),
-		P.string("INPUT").then(WS1.then(ConstInt).fallback(undefined)).map(ast.input),
-		P.string("INPUTS").skip(WS1).then(charSeq().fallback(undefined)).map(ast.inputS),
-		P.string("WAITANYKEY").map(ast.waitAnyKey),
-		P.string("DUMPRAND").map(ast.dumpRand),
-		P.string("INITRAND").map(ast.initRand),
-		P.string("BEGIN").skip(WS1).then(Identifier).map(ast.begin),
-		P.string("CALL").skip(WS1).then(Identifier).map(ast.call),
-		P.string("GOTO").skip(WS1).then(Identifier).map(ast.goto),
-		P.string("RETURN").skip(WS1).then(r.IntExpr).map(ast.ret),
-		P.string("DEBUGCLEAR").map(ast.debugClear),
-		P.string("MOUSEX").map(ast.mouseX),
-		P.string("MOUSEY").map(ast.mouseY),
-		P.string("ISACTIVE").map(ast.isActive),
-		P.string("CBGCLEAR").map(ast.cbgClear),
-		P.string("CBGCLEARBUTTON").map(ast.cbgClearButton),
-		P.string("CBGREMOVEBMAP").map(ast.cbgRemoveBmap),
-		P.string("CLEARTEXTBOX").map(ast.clearTextBox),
-		P.string("STRDATA").map(ast.strData),
-		P.string("STOPCALLTRAIN").map(ast.stopCallTrain),
+		P.string("ADDCHARA").skip(WS1).then(r.IntExpr).map((expr) => new AddChara([expr])),
+		P.string("ADDDEFCHARA").map(() => new AddDefChara()),
+		P.string("ADDVOIDCHARA").map(() => new AddVoidChara()),
+		P.string("DELALLCHARA").map(() => new DelAllChara()),
+		P.string("RESETDATA").map(() => new ResetData()),
+		P.string("RESETGLOBAL").map(() => new ResetGlobal()),
+		P.string("SAVEGAME").map(() => new SaveGame()),
+		P.string("LOADGAME").map(() => new LoadGame()),
+		P.string("SAVEGLOBAL").map(() => new SaveGlobal()),
+		P.string("LOADGLOBAL").map(() => new LoadGlobal()),
+		P.string("OUTPUTLOG").map(() => new OutputLog()),
+		P.string("GETTIME").map(() => new GetTime()),
+		P.string("GETMILLISECOND").map(() => new GetMillisecond()),
+		P.string("GETSECOND").map(() => new GetSecond()),
+		P.string("FORCEWAIT").map(() => new ForceWait()),
+		P.string("INPUT").then(WS1.then(ConstInt).fallback(undefined)).map(
+			(def) => new Input(def),
+		),
+		P.string("INPUTS").skip(WS1).then(charSeq().fallback(undefined)).map(
+			(def) => new InputS(def),
+		),
+		P.string("WAITANYKEY").map(() => new WaitAnyKey()),
+		P.string("DUMPRAND").map(() => new DumpRand()),
+		P.string("INITRAND").map(() => new InitRand()),
+		P.string("BEGIN").skip(WS1).then(Identifier).map((target) => new Begin(target)),
+		P.string("CALL").skip(WS1).then(Identifier).map((target) => new Call(target)),
+		P.string("GOTO").skip(WS1).then(Identifier).map((target) => new Goto(target)),
+		P.string("RETURN").skip(WS1).then(r.IntExpr).map((expr) => new Return(expr)),
+		P.string("DEBUGCLEAR").map(() => new DebugClear()),
+		P.string("MOUSEX").map(() => new MouseX()),
+		P.string("MOUSEY").map(() => new MouseY()),
+		P.string("ISACTIVE").map(() => new IsActive()),
+		P.string("CBGCLEAR").map(() => new CbgClear()),
+		P.string("CBGCLEARBUTTON").map(() => new CbgClearButton()),
+		P.string("CBGREMOVEBMAP").map(() => new CbgRemoveBmap()),
+		P.string("CLEARTEXTBOX").map(() => new ClearTextBox()),
+		P.string("STRDATA").map(() => new StrData()),
+		P.string("STOPCALLTRAIN").map(() => new StopCallTrain()),
 	)),
 	Command: (r) => P.alt(
 		r.PlainCommand,
 		P.seqMap(
 			asLine(P.string("SIF").skip(WS1).then(r.IntExpr)),
 			r.PlainCommand,
-			(cond, then) => ast.conditional([[cond, [then]]]),
+			(cond, then) => new Conditional([[cond, [then]]]),
 		),
 		P.seqMap(
 			P.seq(asLine(P.string("IF").skip(WS1).then(r.IntExpr)), r.Command.many()),
 			P.seq(asLine(P.string("ELSEIF").skip(WS1).then(r.IntExpr)), r.Command.many()).many(),
 			optional(asLine(P.string("ELSE")).then(r.Command.many()), []),
 			asLine(P.string("ENDIF")),
-			(ifStmt, elifStmt, elseStmt) => ast.conditional([ifStmt, ...elifStmt, [1, elseStmt]]),
+			(ifStmt, elifStmt, elseStmt) => new Conditional([
+				ifStmt,
+				...elifStmt,
+				[new ConstIntExpr(1), elseStmt],
+			]),
 		),
 	),
 	Assign: (r) => asLine(P.seqMap(
-		r.Variable,
+		Identifier,
 		P.string("=").trim(WS0),
 		P.alt(r.IntExpr, r.Form),
-		(dest, _op, expr) => ast.assign(dest, expr),
+		(dest, _op, expr) => new Assign(dest, expr),
 	)),
-	Statement: (r) => P.alt(
-		r.Label,
-		r.Assign,
-		r.Command,
-	),
+	Statement: (r) => P.alt(r.Assign, r.Command),
 	Function: (r) => P.seqMap(
 		asLine(P.string("@").then(Identifier), false),
-		r.Statement.many(),
-		ast.fn,
+		P.alt(r.Statement, r.Label).many(),
+		(name, statement) => new Fn(name, statement),
 	),
 	Language: (r) => r.Function.many().skip(P.eof),
 });
 
-export default function parse(content: string): ast.Fn[] {
+export default function parse(content: string): Fn[] {
 	return language.Language.tryParse(content + "\n");
 }

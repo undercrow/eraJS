@@ -1,429 +1,210 @@
-import * as ast from "./ast";
-import type {Program, State} from "./compiler";
+import {assert, assertNumber} from "./assert";
+import type Fn from "./fn";
+import type Statement from "./statement";
+import type Alignment from "./statement/command/alignment";
 
-function assert(condition: boolean, message: string): asserts condition {
-	if (!condition) {
-		throw new Error(message);
-	}
-}
+export type Config = {
+	gamebase?: {
+		author?: string;
+		info?: string;
+		year?: string;
+		title?: string;
+		version?: number;
+	};
+};
 
-type Value = string | number | null;
+type LeafValue = string | number | null;
+type Value = LeafValue | LeafValue[] | LeafValue[][] | LeafValue[][][];
 
-class Context {
-	public state: State;
-	public fn: string;
-	public dynamicMap: Map<string, Array<Value>>;
-	public ARG: Array<number | null>;
-	public ARGS: Array<string | null>;
+type Context = {
+	fn: string;
+	dynamicMap: Map<string, Value>;
+};
 
-	public constructor(state: State, fn: string) {
-		this.state = state;
-		this.fn = fn;
-		this.dynamicMap = new Map();
-		this.ARG = Array<null>(1000).fill(null);
-		this.ARGS = Array<null>(100).fill(null);
-	}
+export default class VM {
+	public fnMap: Map<string, Fn[]>;
+	public globalMap: Map<string, Value>;
+	public staticMap: Map<string, Map<string, Value>>;
+	private contextStack: Array<Context>;
 
-	public getVar(name: string, index?: number): Value {
-		switch (name) {
-			case "RESULT": {
-				return this.state.RESULT[index ?? 0];
+	public alignment: Alignment["align"];
+	public font: {
+		name: string;
+		bold: boolean;
+	};
+	public color: {
+		front: {
+			r: number;
+			g: number;
+			b: number;
+		};
+	};
+
+	public constructor(fnList: Fn[], config: Config) {
+		this.fnMap = new Map();
+		this.globalMap = new Map();
+		this.staticMap = new Map();
+		this.contextStack = [];
+		this.alignment = "left";
+		this.font = {
+			name: "",
+			bold: false,
+		};
+		this.color = {
+			front: {
+				r: 255,
+				g: 255,
+				b: 255,
+			},
+		};
+
+		for (const fn of fnList) {
+			if (!this.fnMap.has(fn.name)) {
+				this.fnMap.set(fn.name, []);
 			}
-			case "RESULTS": {
-				return this.state.RESULTS[index ?? 0];
-			}
-			case "ARG": {
-				return this.ARG[index ?? 0];
-			}
-			case "ARGS": {
-				return this.ARGS[index ?? 0];
-			}
-			case "GLOBAL": {
-				return this.state.GLOBAL[index ?? 0];
-			}
-			case "GLOBALS": {
-				return this.state.GLOBALS[index ?? 0];
-			}
-			case "LOCAL": {
-				const localArray =
-					this.state.staticMap.get(this.fn)!.get("LOCAL")! as Array<number | null>;
-				return localArray[index ?? 0];
-			}
-			case "LOCALS": {
-				const localArray =
-					this.state.staticMap.get(this.fn)!.get("LOCALS")! as Array<string | null>;
-				return localArray[index ?? 0];
-			}
-			case "GAMEBASE_AUTHOR": {
-				return this.state.GAMEBASE.AUTHOR;
-			}
-			case "GAMEBASE_INFO": {
-				return this.state.GAMEBASE.INFO;
-			}
-			case "GAMEBASE_YEAR": {
-				return this.state.GAMEBASE.YEAR;
-			}
-			case "GAMEBASE_TITLE": {
-				return this.state.GAMEBASE.TITLE;
-			}
-			case "GAMEBASE_VERSION": {
-				return this.state.GAMEBASE.VERSION;
-			}
-			case "LINECOUNT": {
-				return this.state.LINECOUNT;
-			}
-			default: {
-				if (this.dynamicMap.has(name)) {
-					return this.dynamicMap.get(name)![index ?? 0];
-				} else {
-					throw new Error(`Variable ${name} does not exist!`);
-				}
-			}
+			this.fnMap.get(fn.name)!.push(fn);
+		}
+
+		this.globalMap.set("RESULT", Array<null>(1000).fill(null));
+		this.globalMap.set("RESULTS", Array<null>(100).fill(null));
+		this.globalMap.set("GLOBAL", Array<null>(1000).fill(null));
+		this.globalMap.set("GLOBALS", Array<null>(100).fill(null));
+		this.globalMap.set("GAMEBASE_AUTHOR", config.gamebase?.author ?? "");
+		this.globalMap.set("GAMEBASE_INFO", config.gamebase?.info ?? "");
+		this.globalMap.set("GAMEBASE_YEAR", config.gamebase?.year ?? "");
+		this.globalMap.set("GAMEBASE_TITLE", config.gamebase?.title ?? "");
+		this.globalMap.set("GAMEBASE_VERSION", config.gamebase?.version ?? 0);
+		this.globalMap.set("LINECOUNT", 0);
+
+		for (const fn of this.fnMap.keys()) {
+			this.staticMap.set(fn, new Map());
+			this.staticMap.get(fn)!.set("LOCAL", Array<null>(1000).fill(null));
+			this.staticMap.get(fn)!.set("LOCALS", Array<null>(100).fill(null));
 		}
 	}
 
-	public setVar(name: string, index: number | undefined, value: Value) {
-		switch (name) {
-			case "RESULT": {
-				assert(typeof value === "number", "Value for RESULT should be a number");
-				this.state.RESULT[index ?? 0] = value;
-				break;
-			}
-			case "RESULTS": {
-				assert(typeof value === "string", "Value for RESULTS should be a string");
-				this.state.RESULTS[index ?? 0] = value;
-				break;
-			}
-			case "ARG": {
-				assert(typeof value === "number", "Value for ARG should be a number");
-				this.ARG[index ?? 0] = value;
-				break;
-			}
-			case "ARGS": {
-				assert(typeof value === "string", "Value for ARGS should be a string");
-				this.ARGS[index ?? 0] = value;
-				break;
-			}
-			case "GLOBAL": {
-				assert(typeof value === "number", "Value for GLOBAL should be a number");
-				this.state.GLOBAL[index ?? 0] = value;
-				break;
-			}
-			case "GLOBALS": {
-				assert(typeof value === "string", "Value for GLOBALS should be a string");
-				this.state.GLOBALS[index ?? 0] = value;
-				break;
-			}
-			case "LOCAL": {
-				assert(typeof value === "number", "Value for LOCAL should be a number");
-				const localArray =
-					this.state.staticMap.get(this.fn)!.get("LOCAL")! as Array<number | null>;
-				localArray[index ?? 0] = value;
-				break;
-			}
-			case "LOCALS": {
-				assert(typeof value === "string", "Value for LOCALS should be a string");
-				const localArray =
-					this.state.staticMap.get(this.fn)!.get("LOCALS")! as Array<string | null>;
-				localArray[index ?? 0] = value;
-				break;
-			}
-			case "LINECOUNT": {
-				assert(typeof value === "number", "Value for GLOBALS should be a string");
-				this.state.LINECOUNT = value;
-				break;
-			}
-			case "GAMEBASE_AUTHOR":
-			case "GAMEBASE_INFO":
-			case "GAMEBASE_YEAR":
-			case "GAMEBASE_TITLE":
-			case "GAMEBASE_VERSION":
-			default: {
-				if (this.dynamicMap.has(name)) {
-					this.dynamicMap.get(name)![index ?? 0] = value;
-				} else {
-					throw new Error(`Variable ${name} does not exist!`);
-				}
-			}
-		}
+	private context(): Context {
+		return this.contextStack[this.contextStack.length - 1];
 	}
-}
 
-type Output =
-	| {type: "string"; value: string}
-	| {type: "line"}
-	| {type: "clearline"; count: number}
-	| {type: "resetdata"}
-	| {type: "loadgame"}
-	| {type: "loadglobal"}
-	| {type: "wait"}
-	| {type: "input"};
+	public pushContext(fn: string): void {
+		const context: Context = {
+			fn,
+			dynamicMap: new Map(),
+		};
 
-export function* exec(program: Program, state: State): Generator<Output, void, string> {
-	const context = new Context(state, "SYSTEM_TITLE");
+		context.dynamicMap.set("ARG", Array<null>(1000).fill(null));
+		context.dynamicMap.set("ARGS", Array<null>(100).fill(null));
 
-	yield* call(program, context, "SYSTEM_TITLE");
-}
-
-function* call(
-	program: Program,
-	context: Context,
-	fnName: string,
-): Generator<Output, Value, string> {
-	assert(program.fn[fnName] != null, `Function ${fnName} does not exist!`);
-	for (const fn of program.fn[fnName]!) {
-		const result = yield* runStatements(program, context, fn.statement);
-		if (result !== undefined) {
-			return result;
-		}
+		this.contextStack.push(context);
 	}
-	return null;
-}
 
-function* runStatements(
-	program: Program,
-	context: Context,
-	statementList: ast.Statement[],
-): Generator<Output, Value | undefined, string> {
-	for (const statement of statementList) {
-		switch (statement.type) {
-			case "label": break;
-			case "assign": {
-				context.setVar(
-					statement.dest.name,
-					undefined,
-					reduce(program, context, statement.expr),
-				);
-				break;
-			}
-			case "command": {
-				// Special case for return command
-				if (statement.command === "return") {
-					return reduce(program, context, statement.expr);
-				}
-
-				yield* runCommand(program, context, statement);
-				break;
-			}
-			case "conditional": {
-				for (const expr of statement.expr) {
-					const cond = reduce(program, context, expr[0]);
-					assert(typeof cond === "number", "Condition be an integer!");
-					if (cond !== 0) {
-						const result = yield* runStatements(program, context, expr[1]);
-						if (result !== undefined) {
-							return result;
-						}
-						break;
-					}
-				}
-				break;
-			}
-		}
+	public popContext(): void {
+		this.contextStack.pop();
 	}
-	return undefined;
-}
 
-function* runCommand(
-	program: Program,
-	context: Context,
-	command: ast.Command,
-): Generator<Output, void, string> {
-	switch (command.command) {
-		case "print": {
-			const value = reduce(program, context, command.value) as string;
-			yield {type: "string", value};
-
-			// TODO: outType
-
-			// Actions
-			if (command.action === "newline") {
-				yield {type: "string", value: "\n"};
-				context.setVar(
-					"LINECOUNT",
-					undefined,
-					context.getVar("LINECOUNT") as number + 1,
-				);
-			} else if (command.action === "wait") {
-				yield {type: "wait"};
-			}
-
-			break;
-		}
-		case "drawline": {
-			yield {type: "line"};
-			break;
-		}
-		case "clearline": {
-			const count = reduce(program, context, command.count);
-			assert(typeof count === "number", "Argument of CLEARLINE must be an integer!");
-			context.setVar(
-				"LINECOUNT",
-				undefined,
-				context.getVar("LINECOUNT") as number - count,
-			);
-			yield {type: "clearline", count};
-			break;
-		}
-		case "resetcolor": {
-			context.state.style.color.front.r = 255;
-			context.state.style.color.front.g = 255;
-			context.state.style.color.front.b = 255;
-			break;
-		}
-		case "fontbold": {
-			context.state.style.font.bold = !context.state.style.font.bold;
-			break;
-		}
-		case "fontregular": {
-			context.state.style.font.bold = false;
-			break;
-		}
-		case "setfont": {
-			const font = reduce(program, context, command.font);
-			assert(typeof font === "string", "Argument of SETFONT must be a string!");
-			context.state.style.font.name = font;
-			break;
-		}
-		case "alignment": {
-			context.state.style.alignment = command.align;
-			break;
-		}
-		case "strlen": {
-			const value = reduce(program, context, command.expr);
-			assert(typeof value === "string", "Argument of STRLEN must be a string!");
-			context.setVar("RESULT", 0, value.length);
-			break;
-		}
-		case "substring": {
-			const original = reduce(program, context, command.expr);
-			assert(typeof original === "string", "1st argument of SUBSTRING must be a string!");
-			const start = reduce(program, context, command.start);
-			assert(typeof start === "number", "2nd argument of SUBSTRING must be a number!");
-			const end = reduce(program, context, command.end);
-			assert(typeof end === "number", "3rd argument of SUBSTRING must be a number!");
-			if (end < 0) {
-				context.setVar("RESULTS", 0, original.slice(start));
-			} else {
-				context.setVar("RESULTS", 0, original.slice(start, end));
-			}
-
-			break;
-		}
-		case "resetdata": {
-			yield {type: "resetdata"};
-			break;
-		}
-		case "loadgame": {
-			yield {type: "loadgame"};
-			break;
-		}
-		case "loadglobal": {
-			yield {type: "loadglobal"};
-			break;
-		}
-		case "input": {
-			// TODO: default value
-			let value: number = NaN;
-			do {
-				const input = parseInt(yield {type: "input"});
-				if (!isNaN(input)) {
-					value = input;
-				}
-			} while (isNaN(value));
-			context.setVar("RESULT", 0, value);
-
-			break;
-		}
-		default: throw new Error("Not Implemented!: " + command.command);
-	}
-}
-
-function reduce(
-	program: Program,
-	context: Context,
-	expr: ast.IntExpr | ast.StringExpr | ast.Form,
-): Value {
-	switch (typeof expr) {
-		case "number": return expr;
-		case "string": return expr;
-		default: switch (expr.type) {
-			case "inlinecall": {
-				switch (expr.name) {
-					case "STRLENS": {
-						const value = reduce(program, context, expr.arg[0]);
-						assert(
-							typeof value === "string",
-							"Argument of STRLENS should be a string!",
+	public getValue(name: string, ...index: number[]): LeafValue {
+		const context = this.context();
+		function get(value: Value) {
+			if (Array.isArray(value)) {
+				assertNumber(index[0], `1st index of variable ${name} should be an integer`);
+				const depth1 = value[index[0]];
+				if (Array.isArray(depth1)) {
+					assertNumber(index[1], `2nd index of variable ${name} should be an integer`);
+					const depth2 = depth1[index[1]];
+					if (Array.isArray(depth2)) {
+						assertNumber(
+							index[2],
+							`3rd index of variable ${name} should be an integer`,
 						);
-						return value.length;
+						return depth2[index[2]];
+					} else {
+						return depth2;
 					}
-					default: {
-						const newContext = new Context(context.state, expr.name);
-						for (let i = 0; i < expr.arg.length; ++i) {
-							// TODO
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-							newContext.ARG[i] = reduce(program, context, expr.arg[i]) as any;
-						}
-
-						const generator = call(program, newContext, expr.name);
-						while (true) {
-							const next = generator.next();
-							if (next.done === true) {
-								return next.value!;
-							}
-						}
-					}
-				}
-			}
-			case "variable": {
-				return context.getVar(expr.name);
-			}
-			case "binary": {
-				const left = reduce(program, context, expr.left);
-				const right = reduce(program, context, expr.right);
-
-				if (typeof left === "number" && typeof right === "number") {
-					switch (expr.op) {
-						case "*": return left * right;
-						case "/": return Math.floor(left / right);
-						case "-": return left - right;
-						case ">": return left > right ? 1 : 0;
-						case "==": return left === right ? 1 : 0;
-						default: {
-							throw new Error(
-								`Binary operation ${expr.op} is not implemented yet!`,
-							);
-						}
-					}
-				} else if (typeof left === "string" && typeof right === "string") {
-					throw new Error("Reducing string expression is not implemented yet!");
 				} else {
-					throw new Error(
-						`Wrong argument type for ${expr.op}: ${typeof left}, ${typeof right}`,
-					);
+					return depth1;
 				}
+			} else {
+				return value;
 			}
-			case "form": {
-				let result = "";
-				for (const child of expr.expr) {
-					const value = reduce(program, context, child);
-					switch (typeof value) {
-						case "number": {
-							result += value.toString();
-							break;
-						}
-						case "string": {
-							result += value;
-							break;
-						}
-						default: {
-							// Do nothing
-						}
+		}
+
+		if (context.dynamicMap.has(name)) {
+			return get(context.dynamicMap.get(name)!);
+		} else if (this.staticMap.get(context.fn)!.has(name)) {
+			return get(this.staticMap.get(context.fn)!.get(name)!);
+		} else if (this.globalMap.has(name)) {
+			return get(this.globalMap.get(name)!);
+		} else {
+			throw new Error(`Variable ${name} does not exist`);
+		}
+	}
+
+	public setValue(value: LeafValue, name: string, ...index: number[]): void {
+		const context = this.context();
+		function update(map: Map<string, Value>) {
+			const dest = map.get(name)!;
+			if (Array.isArray(dest)) {
+				assertNumber(index[0], `1st index of variable ${name} should be an integer`);
+				const depth1 = dest[index[0]];
+				if (Array.isArray(depth1)) {
+					assertNumber(index[1], `2nd index of variable ${name} should be an integer`);
+					const depth2 = depth1[index[1]];
+					if (Array.isArray(depth2)) {
+						assertNumber(
+							index[2],
+							`3rd index of variable ${name} should be an integer`,
+						);
+						depth2[index[2]] = value;
+					} else {
+						depth1[index[1]] = value;
 					}
+				} else {
+					dest[index[0]] = value;
 				}
+			} else {
+				map.set(name, value);
+			}
+		}
+
+
+		if (context.dynamicMap.has(name)) {
+			update(context.dynamicMap);
+		} else if (this.staticMap.get(context.fn)!.has(name)) {
+			update(this.staticMap.get(context.fn)!);
+		} else if (this.globalMap.has(name)) {
+			update(this.globalMap);
+		} else {
+			throw new Error(`Variable ${name} does not exist`);
+		}
+	}
+
+	public *eval(statementList: Statement[]): ReturnType<Statement["run"]> {
+		for (const statement of statementList) {
+			const result = yield* statement.run(this);
+			if (result != null) {
 				return result;
 			}
+		}
+		return null;
+	}
+
+	public *start(): ReturnType<Statement["run"]> {
+		let fnName = "SYSTEM_TITLE";
+		mainLoop: while (true) {
+			assert(this.fnMap.has(fnName), `Function ${fnName} does not exist`);
+			fnLoop: for (const fn of this.fnMap.get(fnName)!) {
+				this.pushContext(fnName);
+				const result = yield* this.eval(fn.statement);
+				this.popContext();
+
+				switch (result?.type) {
+					case "begin": fnName = result.keyword; continue mainLoop;
+					case "return": return null;
+					case undefined: continue fnLoop;
+				}
+			}
+			return null;
 		}
 	}
 }

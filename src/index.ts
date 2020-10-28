@@ -1,11 +1,10 @@
-import type {Fn} from "./ast";
-import rawCompile, {Config, Program, State} from "./compiler";
+import type Fn from "./fn";
 import parse from "./parser";
+import VM, {Config} from "./vm";
 
-export function compile(files: string[], config: Config): [Program, State] {
+export function compile(files: string[], config: Config): VM {
 	const fnList = ([] as Fn[]).concat(...files.map(parse));
-	return rawCompile(fnList, config);
+	return new VM(fnList, config);
 }
 
-export type {Config, Program, State} from "./compiler";
-export {exec} from "./vm";
+export type {Config} from "./vm";

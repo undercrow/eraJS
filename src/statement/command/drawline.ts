@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class DrawLine implements Statement {
+export default class DrawLine extends Statement {
 	public *run() {
 		yield <const>{type: "line"};
 

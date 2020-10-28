@@ -1,10 +1,11 @@
 import type VM from "../../vm";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class Goto implements Statement {
+export default class Goto extends Statement {
 	public target: string;
 
 	public constructor(target: string) {
+		super();
 		this.target = target;
 	}
 

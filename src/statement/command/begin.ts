@@ -1,9 +1,10 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class Begin implements Statement {
+export default class Begin extends Statement {
 	public target: string;
 
 	public constructor(target: string) {
+		super();
 		this.target = target;
 	}
 

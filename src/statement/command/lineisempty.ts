@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class LineIsEmpty implements Statement {
+export default class LineIsEmpty extends Statement {
 	public *run() {
 		throw new Error("LINEISEMPTY is not implemented yet!");
 

@@ -1,7 +1,7 @@
 import type VM from "../../vm";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class FontRegular implements Statement {
+export default class FontRegular extends Statement {
 	public *run(vm: VM) {
 		vm.font.bold = false;
 

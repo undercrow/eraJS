@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class MouseX implements Statement {
+export default class MouseX extends Statement {
 	public *run() {
 		throw new Error("MOUSEX is not implemented yet!");
 

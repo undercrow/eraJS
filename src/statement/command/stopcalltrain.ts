@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class StopCallTrain implements Statement {
+export default class StopCallTrain extends Statement {
 	public *run() {
 		throw new Error("STOPCALLTRAIN is not implemented yet!");
 

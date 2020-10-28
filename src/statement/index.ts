@@ -15,6 +15,8 @@ export type Result =
 	| {type: "begin"; keyword: string};
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export default interface Statement {
-	run: (vm: VM) => Generator<Output, Result | null, string | null>;
+export default class Statement {
+	public *run(_vm: VM): Generator<Output, Result | null, string | null> {
+		return null;
+	}
 }

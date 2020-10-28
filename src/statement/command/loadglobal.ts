@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class LoadGlobal implements Statement {
+export default class LoadGlobal extends Statement {
 	public *run() {
 		yield <const>{type: "loadglobal"};
 

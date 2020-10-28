@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class LoadGame implements Statement {
+export default class LoadGame extends Statement {
 	public *run() {
 		yield <const>{type: "loadgame"};
 

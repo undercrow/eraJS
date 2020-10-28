@@ -1,12 +1,13 @@
 import {assertNumber} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class ClearLine implements Statement {
+export default class ClearLine extends Statement {
 	public count: Expr;
 
 	public constructor(count: Expr) {
+		super();
 		this.count = count;
 	}
 

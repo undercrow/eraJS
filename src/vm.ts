@@ -1,6 +1,6 @@
 import {assert, assertNumber} from "./assert";
 import type Fn from "./fn";
-import type Statement from "./statement";
+import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 
 export type Config = {
@@ -65,6 +65,17 @@ export default class VM {
 			this.fnMap.get(fn.name)!.push(fn);
 		}
 
+		// Reorder functions
+		for (const fn of this.fnMap.keys()) {
+			this.fnMap.get(fn)!.sort((a, b) => {
+				if (a.order === "first") { return -1; }
+				if (b.order === "first") { return 1; }
+				if (a.order === "last") { return 1; }
+				if (b.order === "last") { return -1; }
+				return 0;
+			});
+		}
+
 		this.globalMap.set("RESULT", Array<null>(1000).fill(null));
 		this.globalMap.set("RESULTS", Array<null>(100).fill(null));
 		this.globalMap.set("GLOBAL", Array<null>(1000).fill(null));
@@ -87,14 +98,24 @@ export default class VM {
 		return this.contextStack[this.contextStack.length - 1];
 	}
 
-	public pushContext(fn: string): void {
+	public pushContext(fn: Fn): void {
 		const context: Context = {
-			fn,
+			fn: fn.name,
 			dynamicMap: new Map(),
 		};
-
 		context.dynamicMap.set("ARG", Array<null>(1000).fill(null));
 		context.dynamicMap.set("ARGS", Array<null>(100).fill(null));
+		for (const [name, size] of fn.variableMap) {
+			if (size.length === 0) {
+				context.dynamicMap.set(name, null);
+			} else if (size.length === 1) {
+				context.dynamicMap.set(name, Array.from({length: size[0]}, () => null));
+			} else if (size.length === 2) {
+				throw new Error("Local 2D array is not implemented yet");
+			} else if (size.length === 3) {
+				throw new Error("Local 3D array is not implemented yet");
+			}
+		}
 
 		this.contextStack.push(context);
 	}
@@ -189,22 +210,43 @@ export default class VM {
 		return null;
 	}
 
-	public *start(): ReturnType<Statement["run"]> {
-		let fnName = "SYSTEM_TITLE";
-		mainLoop: while (true) {
-			assert(this.fnMap.has(fnName), `Function ${fnName} does not exist`);
-			fnLoop: for (const fn of this.fnMap.get(fnName)!) {
-				this.pushContext(fnName);
-				const result = yield* this.eval(fn.statement);
-				this.popContext();
+	public *call(fnName: string): ReturnType<Statement["run"]> {
+		assert(this.fnMap.has(fnName), `Function ${fnName} does not exist`);
+		for (const fn of this.fnMap.get(fnName)!) {
+			this.pushContext(fn);
+			const result = yield* this.eval(fn.statement);
+			this.popContext();
 
-				switch (result?.type) {
-					case "begin": fnName = result.keyword; continue mainLoop;
-					case "return": return null;
-					case undefined: continue fnLoop;
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
+
+	public *start(): ReturnType<Statement["run"]> {
+		let begin = "TITLE";
+		while (true) {
+			let result: Result | null = null;
+			switch (begin) {
+				case "TITLE": {
+					result = yield* this.call("SYSTEM_TITLE");
+					break;
+				}
+				case "FIRST": {
+					result = yield* this.call("EVENTFIRST");
+					break;
+				}
+				default: {
+					throw new Error(`${begin} is not a valid keyword`);
 				}
 			}
-			return null;
+
+			switch (result?.type) {
+				case "begin": begin = result.keyword; continue;
+				case "return": return null;
+				case undefined: continue;
+			}
 		}
 	}
 }

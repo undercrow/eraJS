@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class IsSkip implements Statement {
+export default class IsSkip extends Statement {
 	public *run() {
 		throw new Error("ISSKIP is not implemented yet!");
 

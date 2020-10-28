@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class ResetData implements Statement {
+export default class ResetData extends Statement {
 	public *run() {
 		yield <const>{type: "resetdata"};
 

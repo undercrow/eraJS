@@ -1,7 +1,7 @@
 import type VM from "../../vm";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class ResetColor implements Statement {
+export default class ResetColor extends Statement {
 	public *run(vm: VM) {
 		vm.color.front = {
 			r: 255,

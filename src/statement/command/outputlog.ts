@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class OutputLog implements Statement {
+export default class OutputLog extends Statement {
 	public *run() {
 		throw new Error("OUTPUTLOG is not implemented yet!");
 

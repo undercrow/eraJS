@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class AddDefChara implements Statement {
+export default class AddDefChara extends Statement {
 	public *run() {
 		throw new Error("ADDDEFCHARA is not implemented yet!");
 

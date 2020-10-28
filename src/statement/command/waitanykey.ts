@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class WaitAnyKey implements Statement {
+export default class WaitAnyKey extends Statement {
 	public *run() {
 		throw new Error("WAITANYKEY is not implemented yet!");
 

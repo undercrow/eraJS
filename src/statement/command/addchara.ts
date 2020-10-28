@@ -1,11 +1,12 @@
 import type VM from "../../vm";
 import type Expr from "../expr";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class StrLen implements Statement {
+export default class StrLen extends Statement {
 	public charaters: Expr[];
 
 	public constructor(characters: Expr[]) {
+		super();
 		this.charaters = characters;
 	}
 

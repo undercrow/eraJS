@@ -1,6 +1,6 @@
 import P from "parsimmon";
 
-import Fn from "./fn";
+import Fn, {Extra as FnExtra} from "./fn";
 import Statement from "./statement";
 import Assign from "./statement/assign";
 import ClearLine from "./statement/command/clearline";
@@ -156,19 +156,26 @@ type LanguageSpec = {
 	StringExpr: Expr;
 	InlineCall: InlineCall;
 	Form: Form;
-	Label: string;
+	Label: FnExtra;
+	Property: FnExtra;
 	PrintOType: Print["outType"];
 	PrintAction: Print["action"];
 	PlainCommand: Statement;
 	Command: Statement;
 	Assign: Assign;
-	Statement: Statement;
 	Function: Fn;
 	Language: Fn[];
 };
 
 const language = P.createLanguage<LanguageSpec>({
-	Variable: () => Identifier.map((name) => new Variable(name)),
+	Variable: () => P.seqMap(
+		Identifier,
+		P.string(":").then(P.alt(
+			ConstInt.map((value) => new ConstIntExpr(value)),
+			Identifier.map((name) => new Variable(name, [])),
+		)).many(),
+		(name, index) => new Variable(name, index),
+	),
 	IntExprL0: (r) => P.alt(
 		ConstInt.map((val) => new ConstIntExpr(val)),
 		r.InlineCall,
@@ -221,7 +228,18 @@ const language = P.createLanguage<LanguageSpec>({
 	Form: (r) => P.alt(wrap("{", r.IntExpr, "}"), wrap("%", r.StringExpr, "%"), charSeq("{", "%"))
 		.atLeast(1)
 		.map((expr) => new Form(expr)),
-	Label: () => asLine(P.string("$").then(Identifier), false),
+	Label: () => asLine(P.string("$").then(Identifier), false).map((name) => ({
+		type: "label",
+		name,
+	})),
+	Property: () => asLine(P.string("#").then(P.alt(
+		P.string("PRI").map(() => <const>({type: "first"})),
+		P.string("DIM").skip(WS1).then(P.seqMap(
+			Identifier,
+			P.string(",").skip(WS0).then(ConstInt).many(),
+			(name, size) => <const>({type: "variable", name, size}),
+		)),
+	))),
 	PrintOType: () => oneOf("K", "D", "").map((o) => {
 		switch (o) {
 			case "K": return "K";
@@ -364,15 +382,14 @@ const language = P.createLanguage<LanguageSpec>({
 		),
 	),
 	Assign: (r) => asLine(P.seqMap(
-		Identifier,
+		r.Variable,
 		P.string("=").trim(WS0),
 		P.alt(r.IntExpr, r.Form),
 		(dest, _op, expr) => new Assign(dest, expr),
 	)),
-	Statement: (r) => P.alt(r.Assign, r.Command),
 	Function: (r) => P.seqMap(
 		asLine(P.string("@").then(Identifier), false),
-		P.alt(r.Statement, r.Label).many(),
+		P.alt(r.Label, r.Property, r.Command, r.Assign).many(),
 		(name, statement) => new Fn(name, statement),
 	),
 	Language: (r) => r.Function.many().skip(P.eof),

@@ -1,10 +1,11 @@
 import type VM from "../../vm";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class Input implements Statement {
+export default class Input extends Statement {
 	public def?: number;
 
 	public constructor(def?: number) {
+		super();
 		this.def = def;
 	}
 

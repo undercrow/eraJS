@@ -1,12 +1,13 @@
 import {assertNumber} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class Conditional implements Statement {
+export default class Conditional extends Statement {
 	public expr: Array<[Expr, Statement[]]>;
 
 	public constructor(expr: Conditional["expr"]) {
+		super();
 		this.expr = expr;
 	}
 

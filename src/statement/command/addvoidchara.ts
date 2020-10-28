@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class AddVoidChara implements Statement {
+export default class AddVoidChara extends Statement {
 	public *run() {
 		throw new Error("ADDVOIDCHARA is not implemented yet!");
 

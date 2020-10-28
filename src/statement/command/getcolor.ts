@@ -1,6 +1,6 @@
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class GetColor implements Statement {
+export default class GetColor extends Statement {
 	public *run() {
 		throw new Error("GETCOLOR is not implemented yet!");
 

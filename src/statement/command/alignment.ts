@@ -1,12 +1,13 @@
 import type VM from "../../vm";
-import type Statement from "../index";
+import Statement from "../index";
 
 type Align = "left" | "center" | "right";
 
-export default class Alignment implements Statement {
+export default class Alignment extends Statement {
 	public align: Align;
 
 	public constructor(align: Align) {
+		super();
 		this.align = align;
 	}
 

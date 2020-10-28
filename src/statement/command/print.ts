@@ -1,17 +1,18 @@
 import {assertString} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
-import type Statement from "../index";
+import Statement from "../index";
 
 type OutType = "K" | "D";
 type Action = "newline" | "wait";
 
-export default class Print implements Statement {
+export default class Print extends Statement {
 	public value: Expr;
 	public outType?: OutType;
 	public action?: Action;
 
 	public constructor(value: Expr, outType?: OutType, action?: Action) {
+		super();
 		this.value = value;
 		this.outType = outType;
 		this.action = action;

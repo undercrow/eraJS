@@ -1,14 +1,15 @@
 import {assertNumber, assertString} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class Substring implements Statement {
+export default class Substring extends Statement {
 	public expr: Expr;
 	public start: Expr;
 	public end: Expr;
 
 	public constructor(expr: Expr, start: Expr, end: Expr) {
+		super();
 		this.expr = expr;
 		this.start = start;
 		this.end = end;

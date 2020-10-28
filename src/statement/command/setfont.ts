@@ -1,12 +1,13 @@
 import {assertString} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class SetFont implements Statement {
+export default class SetFont extends Statement {
 	public font?: Expr;
 
 	public constructor(font?: Expr) {
+		super();
 		this.font = font;
 	}
 

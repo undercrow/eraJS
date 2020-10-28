@@ -1,12 +1,13 @@
 import {assertString} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
-import type Statement from "../index";
+import Statement from "../index";
 
-export default class StrLen implements Statement {
+export default class StrLen extends Statement {
 	public expr: Expr;
 
 	public constructor(expr: Expr) {
+		super();
 		this.expr = expr;
 	}
 

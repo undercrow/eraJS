@@ -485,15 +485,18 @@ const language = P.createLanguage<LanguageSpec>({
 	Statement: (r) => P.alt(r.Command, r.Assign, r.OpAssign),
 	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),
 	Function: (r) => P.seqMap(
-		asLine(
-			P.seq(P.string("@").then(Identifier), argument(",", r.Variable)),
-			false,
-		),
+		asLine(P.seq(
+			P.string("@").then(Identifier),
+			argument(",", P.seq(
+				r.Variable,
+				P.string("=").trim(WS0).then(P.alt(ConstInt, ConstString)).fallback(0),
+			)),
+		), false),
 		r.Property.many(),
 		r.Thunk,
 		([name, arg], property, thunk) => new Fn(name, arg, property, thunk),
 	),
-	Language: (r) => r.Function.many().skip(P.eof),
+	Language: (r) => EOL.fallback("").then(r.Function.many()).skip(P.eof),
 });
 
 export default function parse(content: string): Fn[] {

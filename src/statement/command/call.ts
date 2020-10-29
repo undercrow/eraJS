@@ -20,8 +20,9 @@ export default class Call extends Statement {
 			vm.pushContext(fn);
 
 			for (let i = 0; i < fn.arg.length; ++i) {
-				const dest = fn.arg[i];
-				const value = arg[i];
+				const dest = fn.arg[i][0];
+				const value = arg[i] ?? fn.arg[i][1];
+				assert(value != null, `Function ${this.target}'s ${i}th argument is null'`);
 				const index = dest.reduceIndex(vm);
 				vm.setValue(value, dest.name, ...index);
 			}

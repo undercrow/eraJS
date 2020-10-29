@@ -8,7 +8,7 @@ export type Property =
 
 export default class Fn {
 	public name: string;
-	public arg: Variable[];
+	public arg: Array<[Variable, string | number]>;
 	public order?: "first" | "last";
 	public thunk: Thunk;
 	public labelMap: Map<string, number>;
@@ -16,7 +16,7 @@ export default class Fn {
 	public stringVariableMap: Map<string, number[]>;
 
 	// NOTE: `statement` argument is mixed array of statments and labels
-	public constructor(name: string, arg: Variable[], property: Property[], thunk: Thunk) {
+	public constructor(name: string, arg: Fn["arg"], property: Property[], thunk: Thunk) {
 		this.name = name;
 		this.arg = arg;
 		this.thunk = thunk;

@@ -5,6 +5,7 @@ import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 
 type Character = {
+	id: number;
 	name: string;
 	nickname: string;
 	flags: number[];

@@ -22,9 +22,6 @@ export default class Call extends Statement {
 			for (let i = 0; i < fn.arg.length; ++i) {
 				const dest = fn.arg[i];
 				const value = arg[i];
-				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-				assert(value != null, `${i}th argument for ${this.target} should not be null`);
-
 				const index = dest.reduceIndex(vm);
 				vm.setValue(value, dest.name, ...index);
 			}

@@ -7,7 +7,7 @@ import Call from "./statement/command/call";
 type Character = {
 	name: string;
 	nickname: string;
-	flags: Array<number | null>;
+	flags: number[];
 };
 
 export type Config = {
@@ -21,7 +21,7 @@ export type Config = {
 	character: Map<number, Character>;
 };
 
-type LeafValue = string | number | null;
+type LeafValue = string | number;
 type Value = LeafValue | LeafValue[] | LeafValue[][] | LeafValue[][][];
 
 type Context = {
@@ -93,12 +93,12 @@ export default class VM {
 			this.characterMap.set(id, character);
 		}
 
-		this.globalMap.set("COUNT", null);
-		this.globalMap.set("RESULT", Array<null>(1000).fill(null));
-		this.globalMap.set("RESULTS", Array<null>(100).fill(null));
-		this.globalMap.set("FLAG", Array<null>(10000).fill(null));
-		this.globalMap.set("GLOBAL", Array<null>(1000).fill(null));
-		this.globalMap.set("GLOBALS", Array<null>(100).fill(null));
+		this.globalMap.set("COUNT", 0);
+		this.globalMap.set("RESULT", Array(1000).fill(0));
+		this.globalMap.set("RESULTS", Array(100).fill(""));
+		this.globalMap.set("FLAG", Array(10000).fill(0));
+		this.globalMap.set("GLOBAL", Array(1000).fill(0));
+		this.globalMap.set("GLOBALS", Array(100).fill(""));
 		this.globalMap.set("GAMEBASE_AUTHOR", config.gamebase?.author ?? "");
 		this.globalMap.set("GAMEBASE_INFO", config.gamebase?.info ?? "");
 		this.globalMap.set("GAMEBASE_YEAR", config.gamebase?.year ?? "");
@@ -108,8 +108,8 @@ export default class VM {
 
 		for (const fn of this.fnMap.keys()) {
 			this.staticMap.set(fn, new Map());
-			this.staticMap.get(fn)!.set("LOCAL", Array<null>(1000).fill(null));
-			this.staticMap.get(fn)!.set("LOCALS", Array<null>(100).fill(null));
+			this.staticMap.get(fn)!.set("LOCAL", Array(1000).fill(0));
+			this.staticMap.get(fn)!.set("LOCALS", Array(100).fill(""));
 		}
 	}
 
@@ -122,8 +122,8 @@ export default class VM {
 			fn: fn.name,
 			dynamicMap: new Map(),
 		};
-		context.dynamicMap.set("ARG", Array<null>(1000).fill(null));
-		context.dynamicMap.set("ARGS", Array<null>(100).fill(null));
+		context.dynamicMap.set("ARG", Array(1000).fill(0));
+		context.dynamicMap.set("ARGS", Array(100).fill(""));
 		for (const [name, size] of fn.intVariableMap) {
 			if (size.length === 0) {
 				context.dynamicMap.set(name, 0);

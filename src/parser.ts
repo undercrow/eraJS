@@ -476,10 +476,13 @@ const language = P.createLanguage<LanguageSpec>({
 	Statement: (r) => P.alt(r.Command, r.Assign, r.OpAssign),
 	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),
 	Function: (r) => P.seqMap(
-		asLine(P.string("@").then(Identifier), false),
+		asLine(
+			P.seq(P.string("@").then(Identifier), argument(",", r.Variable)),
+			false,
+		),
 		r.Property.many(),
 		r.Thunk,
-		(name, property, thunk) => new Fn(name, property, thunk),
+		([name, arg], property, thunk) => new Fn(name, arg, property, thunk),
 	),
 	Language: (r) => r.Function.many().skip(P.eof),
 });

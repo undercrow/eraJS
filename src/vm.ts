@@ -1,7 +1,8 @@
-import {assert, assertNumber} from "./assert";
+import {assertNumber} from "./assert";
 import type Fn from "./fn";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
+import Call from "./statement/command/call";
 
 type Character = {
 	name: string;
@@ -217,31 +218,17 @@ export default class VM {
 		}
 	}
 
-	public *call(fnName: string): ReturnType<Statement["run"]> {
-		assert(this.fnMap.has(fnName), `Function ${fnName} does not exist`);
-		for (const fn of this.fnMap.get(fnName)!) {
-			this.pushContext(fn);
-			const result = yield* fn.thunk.run(this);
-			this.popContext();
-
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
-	}
-
 	public *start(): ReturnType<Statement["run"]> {
 		let begin = "TITLE";
 		while (true) {
 			let result: Result | null = null;
 			switch (begin) {
 				case "TITLE": {
-					result = yield* this.call("SYSTEM_TITLE");
+					result = yield* new Call("SYSTEM_TITLE", []).run(this);
 					break;
 				}
 				case "FIRST": {
-					result = yield* this.call("EVENTFIRST");
+					result = yield* new Call("EVENTFIRST", []).run(this);
 					break;
 				}
 				default: {

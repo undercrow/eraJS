@@ -1,3 +1,4 @@
+import Variable from "./statement/expr/variable";
 import Thunk from "./thunk";
 
 export type Property =
@@ -6,14 +7,16 @@ export type Property =
 
 export default class Fn {
 	public name: string;
+	public arg: Variable[];
 	public order?: "first" | "last";
 	public thunk: Thunk;
 	public labelMap: Map<string, number>;
 	public variableMap: Map<string, number[]>;
 
 	// NOTE: `statement` argument is mixed array of statments and labels
-	public constructor(name: string, property: Property[], thunk: Thunk) {
+	public constructor(name: string, arg: Variable[], property: Property[], thunk: Thunk) {
 		this.name = name;
+		this.arg = arg;
 		this.thunk = thunk;
 		this.labelMap = new Map();
 		this.variableMap = new Map();

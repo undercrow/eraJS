@@ -71,8 +71,10 @@ import StrLen from "./statement/command/strlen";
 import Substring from "./statement/command/substring";
 import Wait from "./statement/command/wait";
 import WaitAnyKey from "./statement/command/waitanykey";
+import While from "./statement/command/while";
 import Expr from "./statement/expr";
-import BinaryIntExpr from "./statement/expr/binary-int";
+import BinaryInt from "./statement/expr/binary-int";
+import CompareString from "./statement/expr/compare-string";
 import ConstIntExpr from "./statement/expr/const-int";
 import ConstStringExpr from "./statement/expr/const-string";
 import Form from "./statement/expr/form";
@@ -217,7 +219,7 @@ const language = P.createLanguage<LanguageSpec>({
 		leftAssociate(
 			["*", "/", "%"],
 			r.IntExprL0,
-			(op, left, right) => new BinaryIntExpr(op, left, right),
+			(op, left, right) => new BinaryInt(op, left, right),
 		),
 		r.IntExprL0,
 	),
@@ -225,7 +227,7 @@ const language = P.createLanguage<LanguageSpec>({
 		leftAssociate(
 			["+", "-"],
 			r.IntExprL1,
-			(op, left, right) => new BinaryIntExpr(op, left, right),
+			(op, left, right) => new BinaryInt(op, left, right),
 		),
 		r.IntExprL1,
 	),
@@ -233,7 +235,7 @@ const language = P.createLanguage<LanguageSpec>({
 		leftAssociate(
 			["<=", "<", ">=", ">"],
 			r.IntExprL2,
-			(op, left, right) => new BinaryIntExpr(op, left, right),
+			(op, left, right) => new BinaryInt(op, left, right),
 		),
 		r.IntExprL2,
 	),
@@ -241,7 +243,12 @@ const language = P.createLanguage<LanguageSpec>({
 		leftAssociate(
 			["==", "!="],
 			r.IntExprL3,
-			(op, left, right) => new BinaryIntExpr(op, left, right),
+			(op, left, right) => new BinaryInt(op, left, right),
+		),
+		leftAssociate(
+			["==", "!="],
+			r.StringExpr,
+			(op, left, right) => new CompareString(op, left, right),
 		),
 		r.IntExprL3,
 	),
@@ -249,7 +256,7 @@ const language = P.createLanguage<LanguageSpec>({
 		leftAssociate(
 			["&", "|", "^"],
 			r.IntExprL4,
-			(op, left, right) => new BinaryIntExpr(op, left, right),
+			(op, left, right) => new BinaryInt(op, left, right),
 		),
 		r.IntExprL4,
 	),
@@ -257,7 +264,7 @@ const language = P.createLanguage<LanguageSpec>({
 		leftAssociate(
 			["&&", "!&", "||", "!|", "^^"],
 			r.IntExprL5,
-			(op, left, right) => new BinaryIntExpr(op, left, right),
+			(op, left, right) => new BinaryInt(op, left, right),
 		),
 		r.IntExprL5,
 	),
@@ -474,6 +481,12 @@ const language = P.createLanguage<LanguageSpec>({
 			r.Thunk,
 			asLine(P.string("NEXT")),
 			([counter, start, end], thunk) => new For(counter, start, end, thunk),
+		),
+		P.seqMap(
+			asLine(P.string("WHILE").skip(WS1).then(r.IntExpr)),
+			r.Thunk,
+			asLine(P.string("WEND")),
+			(condition, thunk) => new While(condition, thunk),
 		),
 	),
 	Assign: (r) => asLine(P.seqMap(

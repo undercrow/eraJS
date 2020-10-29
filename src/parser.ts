@@ -65,6 +65,7 @@ import SaveGame from "./statement/command/savegame";
 import SaveGlobal from "./statement/command/saveglobal";
 import SetColor from "./statement/command/setcolor";
 import SetFont from "./statement/command/setfont";
+import Split from "./statement/command/split";
 import StopCallTrain from "./statement/command/stopcalltrain";
 import StrData from "./statement/command/strdata";
 import StrLen from "./statement/command/strlen";
@@ -401,6 +402,12 @@ const language = P.createLanguage<LanguageSpec>({
 			P.string(",").then(r.IntExpr.trim(WS0)),
 			P.string(",").then(r.IntExpr.trim(WS0)),
 			(expr, start, end) => new Substring(expr, start, end),
+		)),
+		P.string("SPLIT").skip(WS1).then(P.seqMap(
+			r.StringExpr,
+			P.string(",").trim(WS0).then(r.StringExpr),
+			P.string(",").trim(WS0).then(r.Variable),
+			(expr, sep, dest) => new Split(expr, sep, dest),
 		)),
 		P.string("GETBIT").skip(WS1).then(P.seqMap(
 			r.IntExpr.trim(WS0),

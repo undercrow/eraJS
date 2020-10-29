@@ -284,6 +284,51 @@ export default class VM {
 		}
 	}
 
+	public lengthOf(name: string, ...index: number[]): LeafValue {
+		const context = this.context();
+		function len(value: Value) {
+			if (Array.isArray(value)) {
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+				if (index[0] == null) {
+					return value.length;
+				}
+
+				const depth1 = value[index[0]];
+				if (Array.isArray(depth1)) {
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					if (index[1] == null) {
+						return depth1.length;
+					}
+
+					const depth2 = depth1[index[1]];
+					if (Array.isArray(depth2)) {
+						return depth2.length;
+					}
+
+					return depth1.length;
+				}
+
+				return value.length;
+			} else {
+				return 1;
+			}
+		}
+
+		if (name === "CFLAG") {
+			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
+			const character = this.characters[index[0]];
+			return character.flags.length;
+		} else if (context.dynamicMap.has(name)) {
+			return len(context.dynamicMap.get(name)!);
+		} else if (this.staticMap.get(context.fn)!.has(name)) {
+			return len(this.staticMap.get(context.fn)!.get(name)!);
+		} else if (this.globalMap.has(name)) {
+			return len(this.globalMap.get(name)!);
+		} else {
+			throw new Error(`Variable ${name} does not exist`);
+		}
+	}
+
 	public *start(): ReturnType<Statement["run"]> {
 		let begin = "TITLE";
 		while (true) {

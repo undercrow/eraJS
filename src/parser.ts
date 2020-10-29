@@ -69,6 +69,7 @@ import StopCallTrain from "./statement/command/stopcalltrain";
 import StrData from "./statement/command/strdata";
 import StrLen from "./statement/command/strlen";
 import Substring from "./statement/command/substring";
+import VarSet from "./statement/command/varset";
 import Wait from "./statement/command/wait";
 import WaitAnyKey from "./statement/command/waitanykey";
 import While from "./statement/command/while";
@@ -412,6 +413,11 @@ const language = P.createLanguage<LanguageSpec>({
 		P.string("DELALLCHARA").map(() => new DelAllChara()),
 		P.string("RESETDATA").map(() => new ResetData()),
 		P.string("RESETGLOBAL").map(() => new ResetGlobal()),
+		P.string("VARSET").skip(WS1).then(P.seqMap(
+			r.Variable,
+			P.string(",").trim(WS0).then(P.alt(r.IntExpr, r.StringExpr)),
+			(dest, value) => new VarSet(dest, value),
+		)),
 		P.string("PUTFORM").skip(WS1).then(r.Form).map((expr) => new PutForm(expr)),
 		P.string("SAVEGAME").map(() => new SaveGame()),
 		P.string("LOADGAME").map(() => new LoadGame()),

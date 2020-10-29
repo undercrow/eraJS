@@ -94,6 +94,7 @@ export default class VM {
 		this.globalMap.set("COUNT", null);
 		this.globalMap.set("RESULT", Array<null>(1000).fill(null));
 		this.globalMap.set("RESULTS", Array<null>(100).fill(null));
+		this.globalMap.set("FLAG", Array<null>(10000).fill(null));
 		this.globalMap.set("GLOBAL", Array<null>(1000).fill(null));
 		this.globalMap.set("GLOBALS", Array<null>(100).fill(null));
 		this.globalMap.set("GAMEBASE_AUTHOR", config.gamebase?.author ?? "");

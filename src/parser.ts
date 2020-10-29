@@ -208,6 +208,7 @@ const language = P.createLanguage<LanguageSpec>({
 		Identifier,
 		argument(":", P.alt(
 			ConstInt.map((value) => new ConstIntExpr(value)),
+			r.InlineCall,
 			Identifier.map((name) => new Variable(name, [])),
 			wrap("(", r.IntExpr, ")"),
 		)),

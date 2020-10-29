@@ -115,11 +115,11 @@ const ConstInt = P.alt(
 	P.string("0x").then(P.regex(/0x[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
 );
-const ConstString = charSeq("\"").trim(P.string("\""));
+const ConstString = char("\"").many().tie().trim(P.string("\""));
 const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
 
-function charSeq(...exclude: string[]): P.Parser<string> {
-	const charParser = P.alt(
+function char(...exclude: string[]): P.Parser<string> {
+	return P.alt(
 		P.noneOf(exclude.join("") + "\r\n\\"),
 		P.string("\\").then(P.noneOf(exclude.join("") + "\r\n")).map((c) => {
 			switch (c) {
@@ -132,11 +132,18 @@ function charSeq(...exclude: string[]): P.Parser<string> {
 			}
 		}),
 	);
-	return charParser.atLeast(1).tie();
 }
 
-function argument<E>(sep: string, expr: P.Parser<E>): P.Parser<E[]> {
-	return P.string(sep).trim(WS0).then(expr).many();
+function charSeq(...exclude: string[]): P.Parser<string> {
+	return char(...exclude).atLeast(1).tie();
+}
+
+function argument<E>(sep: string, expr: P.Parser<E>, includeFirst = false): P.Parser<E[]> {
+	if (includeFirst) {
+		return P.seqMap(expr, P.string(sep).trim(WS0).then(expr).many(), (a, b) => [a, ...b]);
+	} else {
+		return P.string(sep).trim(WS0).then(expr).many();
+	}
 }
 
 function leftAssociate<E, OP extends string>(
@@ -256,7 +263,7 @@ const language = P.createLanguage<LanguageSpec>({
 	StringExpr: (r) => r.StringExprL0,
 	InlineCall: (r) => P.seqMap(
 		Identifier,
-		wrap("(", P.alt(r.IntExpr, r.StringExpr).sepBy(P.string(",")), ")"),
+		wrap("(", argument(",", P.alt(r.IntExpr, r.StringExpr), true), ")"),
 		(name, arg) => new InlineCall(name, arg),
 	),
 	Form: (r) => P.alt(wrap("{", r.IntExpr, "}"), wrap("%", r.StringExpr, "%"), charSeq("{", "%"))
@@ -384,7 +391,10 @@ const language = P.createLanguage<LanguageSpec>({
 		P.string("BEGIN").skip(WS1).then(Identifier).map((target) => new Begin(target)),
 		P.string("CALL").skip(WS1).then(P.seqMap(
 			Identifier,
-			argument(",", P.alt(r.IntExpr, r.StringExpr)),
+			P.alt(
+				wrap("(", argument(",", P.alt(r.IntExpr, r.StringExpr), true), ")"),
+				argument(",", P.alt(r.IntExpr, r.StringExpr)),
+			),
 			(target, arg) => new Call(target, arg),
 		)),
 		P.string("GOTO").skip(WS1).then(Identifier).map((target) => new Goto(target)),

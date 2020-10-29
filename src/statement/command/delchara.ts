@@ -21,6 +21,8 @@ export default class DelChara extends Statement {
 				newCharacters.push(vm.characters[i]);
 			}
 		}
+		vm.characters = newCharacters;
+		vm.setValue(vm.characters.length, "CHARANUM");
 
 		return null;
 	}

@@ -113,6 +113,8 @@ export default class VM {
 		this.globalMap.set("ITEMSALES", Array(100).fill(0));
 		this.globalMap.set("BOUGHT", 0);
 		this.globalMap.set("PBAND", 4);
+		this.globalMap.set("CHARANUM", 0);
+		this.globalMap.set("SAVESTR", Array(100).fill(""));
 		this.globalMap.set("GLOBAL", Array(1000).fill(0));
 		this.globalMap.set("GLOBALS", Array(100).fill(""));
 		this.globalMap.set("GAMEBASE_AUTHOR", config.gamebase.author ?? "");

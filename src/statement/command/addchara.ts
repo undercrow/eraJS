@@ -24,6 +24,7 @@ export default class StrLen extends Statement {
 				flags: new Map(character.flags),
 			});
 		}
+		vm.setValue(vm.characters.length, "CHARANUM");
 
 		return null;
 	}

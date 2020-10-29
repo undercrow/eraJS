@@ -3,6 +3,11 @@ import type Fn from "./fn";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 
+type Character = {
+	name: string;
+	nickname: string;
+};
+
 export type Config = {
 	gamebase?: {
 		author?: string;
@@ -11,6 +16,7 @@ export type Config = {
 		title?: string;
 		version?: number;
 	};
+	character: Map<number, Character>;
 };
 
 type LeafValue = string | number | null;
@@ -23,10 +29,13 @@ type Context = {
 
 export default class VM {
 	public fnMap: Map<string, Fn[]>;
+	public characterMap: Map<number, Character>;
+
 	public globalMap: Map<string, Value>;
 	public staticMap: Map<string, Map<string, Value>>;
 	private contextStack: Array<Context>;
 
+	public characters: Character[];
 	public alignment: Alignment["align"];
 	public font: {
 		name: string;
@@ -42,9 +51,11 @@ export default class VM {
 
 	public constructor(fnList: Fn[], config: Config) {
 		this.fnMap = new Map();
+		this.characterMap = new Map();
 		this.globalMap = new Map();
 		this.staticMap = new Map();
 		this.contextStack = [];
+		this.characters = [];
 		this.alignment = "left";
 		this.font = {
 			name: "",
@@ -74,6 +85,10 @@ export default class VM {
 				if (b.order === "last") { return -1; }
 				return 0;
 			});
+		}
+
+		for (const [id, character] of config.character) {
+			this.characterMap.set(id, character);
 		}
 
 		this.globalMap.set("COUNT", null);

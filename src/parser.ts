@@ -53,6 +53,7 @@ import MouseY from "./statement/command/mousey";
 import OutputLog from "./statement/command/outputlog";
 import Print from "./statement/command/print";
 import PrintCPerLine from "./statement/command/printcperline";
+import PutForm from "./statement/command/putform";
 import Repeat from "./statement/command/repeat";
 import ResetBgColor from "./statement/command/resetbgcolor";
 import ResetColor from "./statement/command/resetcolor";
@@ -61,6 +62,7 @@ import ResetGlobal from "./statement/command/resetglobal";
 import Return from "./statement/command/return";
 import SaveGame from "./statement/command/savegame";
 import SaveGlobal from "./statement/command/saveglobal";
+import SetColor from "./statement/command/setcolor";
 import SetFont from "./statement/command/setfont";
 import StopCallTrain from "./statement/command/stopcalltrain";
 import StrData from "./statement/command/strdata";
@@ -153,7 +155,7 @@ function leftAssociate<E, OP extends string>(
 ): P.Parser<E> {
 	return P.seqMap(
 		subExpr,
-		P.seq(oneOf(...op).trim(WS1), subExpr).atLeast(1),
+		P.seq(oneOf(...op).trim(WS0), subExpr).atLeast(1),
 		(first, rest) => rest.reduce((acc, val) => associate(val[0], acc, val[1]), first),
 	);
 }
@@ -324,6 +326,19 @@ const language = P.createLanguage<LanguageSpec>({
 		P.string("CLEARLINE").skip(WS1).then(r.IntExpr).map((expr) => new ClearLine(expr)),
 		P.string("RESETCOLOR").map(() => new ResetColor()),
 		P.string("RESETBGCOLOR").map(() => new ResetBgColor()),
+		P.string("SETCOLOR").skip(WS1).then(P.alt(
+			P.seqMap(
+				ConstInt,
+				P.string(",").trim(WS0).then(ConstInt),
+				P.string(",").trim(WS0).then(ConstInt),
+				(colorR, colorG, colorB) => new SetColor(new ConstIntExpr(
+					colorR * 0x010000 +
+					colorG * 0x000100 +
+					colorB
+				)),
+			),
+			r.IntExpr.map((expr) => new SetColor(expr)),
+		)),
 		P.string("GETCOLOR").map(() => new GetColor()),
 		P.string("GETDEFCOLOR").map(() => new GetDefColor()),
 		P.string("GETBGCOLOR").map(() => new GetBgColor()),
@@ -367,6 +382,7 @@ const language = P.createLanguage<LanguageSpec>({
 		P.string("DELALLCHARA").map(() => new DelAllChara()),
 		P.string("RESETDATA").map(() => new ResetData()),
 		P.string("RESETGLOBAL").map(() => new ResetGlobal()),
+		P.string("PUTFORM").skip(WS1).then(r.Form).map((expr) => new PutForm(expr)),
 		P.string("SAVEGAME").map(() => new SaveGame()),
 		P.string("LOADGAME").map(() => new LoadGame()),
 		P.string("SAVEGLOBAL").map(() => new SaveGlobal()),

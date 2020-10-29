@@ -21,6 +21,7 @@ import CurrentAlign from "./statement/command/currentalign";
 import CurrentRedraw from "./statement/command/currentredraw";
 import DebugClear from "./statement/command/debugclear";
 import DelAllChara from "./statement/command/delallchara";
+import DelChara from "./statement/command/delchara";
 import DrawLine from "./statement/command/drawline";
 import DumpRand from "./statement/command/dumprand";
 import FontBold from "./statement/command/fontbold";
@@ -424,6 +425,7 @@ const language = P.createLanguage<LanguageSpec>({
 		P.string("ADDCHARA").skip(WS1).then(r.IntExpr).map((expr) => new AddChara([expr])),
 		P.string("ADDDEFCHARA").map(() => new AddDefChara()),
 		P.string("ADDVOIDCHARA").map(() => new AddVoidChara()),
+		P.string("DELCHARA").skip(WS1).then(r.IntExpr).map((expr) => new DelChara([expr])),
 		P.string("DELALLCHARA").map(() => new DelAllChara()),
 		P.string("RESETDATA").map(() => new ResetData()),
 		P.string("RESETGLOBAL").map(() => new ResetGlobal()),

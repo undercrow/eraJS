@@ -29,6 +29,7 @@ import FontRegular from "./statement/command/fontregular";
 import For from "./statement/command/for";
 import ForceWait from "./statement/command/forcewait";
 import GetBgColor from "./statement/command/getbgcolor";
+import GetBit from "./statement/command/getbit";
 import GetColor from "./statement/command/getcolor";
 import GetDefBgColor from "./statement/command/getdefbgcolor";
 import GetDefColor from "./statement/command/getdefcolor";
@@ -385,6 +386,11 @@ const language = P.createLanguage<LanguageSpec>({
 			P.string(",").then(r.IntExpr.trim(WS0)),
 			(expr, start, end) => new Substring(expr, start, end),
 		)),
+		P.string("GETBIT").skip(WS1).then(P.seqMap(
+			r.IntExpr.trim(WS0),
+			P.string(",").then(r.IntExpr.trim(WS0)),
+			(expr, index) => new GetBit(expr, index),
+		)),
 		P.string("ADDCHARA").skip(WS1).then(r.IntExpr).map((expr) => new AddChara([expr])),
 		P.string("ADDDEFCHARA").map(() => new AddDefChara()),
 		P.string("ADDVOIDCHARA").map(() => new AddVoidChara()),
@@ -473,7 +479,7 @@ const language = P.createLanguage<LanguageSpec>({
 	Assign: (r) => asLine(P.seqMap(
 		r.Variable,
 		P.string("=").trim(WS0),
-		P.alt(r.IntExpr, r.Form),
+		P.alt(r.IntExpr, r.Form).fallback(new Form([""])),
 		(dest, _op, expr) => new Assign(dest, expr),
 	)),
 	OpAssign: (r) => asLine(P.seqMap(

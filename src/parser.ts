@@ -516,11 +516,19 @@ const language = P.createLanguage<LanguageSpec>({
 		P.alt(r.IntExpr, r.Form).fallback(new Form([""])),
 		(dest, _op, expr) => new Assign(dest, expr),
 	)),
-	OpAssign: (r) => asLine(P.seqMap(
-		r.Variable,
-		oneOf("*", "/", "%", "+", "-", "&", "|", "^").skip(P.string("=")).trim(WS0),
-		r.IntExpr,
-		(dest, op, expr) => new OpAssign(dest, op, expr),
+	OpAssign: (r) => asLine(P.alt(
+		P.seqMap(
+			r.Variable,
+			oneOf("*", "/", "%", "+", "-", "&", "|", "^").skip(P.string("=")).trim(WS0),
+			r.IntExpr,
+			(dest, op, expr) => new OpAssign(dest, op, expr),
+		),
+		r.Variable.skip(P.string("++")).map(
+			(dest) => new OpAssign(dest, "+", new ConstIntExpr(1)),
+		),
+		r.Variable.skip(P.string("--")).map(
+			(dest) => new OpAssign(dest, "-", new ConstIntExpr(1)),
+		),
 	)),
 	Statement: (r) => P.alt(r.Command, r.Assign, r.OpAssign),
 	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),

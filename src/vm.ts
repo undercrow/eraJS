@@ -138,10 +138,13 @@ export default class VM {
 		this.globalMap.set("GAMEBASE_VERSION", config.gamebase?.version ?? 0);
 		this.globalMap.set("LINECOUNT", 0);
 
-		for (const fn of this.fnMap.keys()) {
-			this.staticMap.set(fn, new Map());
-			this.staticMap.get(fn)!.set("LOCAL", Array(1000).fill(0));
-			this.staticMap.get(fn)!.set("LOCALS", Array(100).fill(""));
+		for (const [name, fn] of this.fnMap) {
+			const localSize = fn.find((f) => f.localSize != null)?.localSize ?? 1000;
+			const localSSize = fn.find((f) => f.localSSize != null)?.localSSize ?? 100;
+
+			this.staticMap.set(name, new Map());
+			this.staticMap.get(name)!.set("LOCAL", Array(localSize).fill(0));
+			this.staticMap.get(name)!.set("LOCALS", Array(localSSize).fill(""));
 		}
 	}
 

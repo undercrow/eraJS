@@ -4,12 +4,16 @@ import Thunk from "./thunk";
 export type Property =
 	| {type: "variable-int", name: string, size: number[]}
 	| {type: "variable-string", name: string, size: number[]}
+	| {type: "localsize", size: number}
+	| {type: "localssize", size: number}
 	| {type: "first"};
 
 export default class Fn {
 	public name: string;
 	public arg: Array<[Variable, string | number]>;
 	public order?: "first" | "last";
+	public localSize?: number;
+	public localSSize?: number;
 	public thunk: Thunk;
 	public labelMap: Map<string, number>;
 	public intVariableMap: Map<string, number[]>;
@@ -36,6 +40,14 @@ export default class Fn {
 				}
 				case "variable-string": {
 					this.stringVariableMap.set(p.name, p.size);
+					break;
+				}
+				case "localsize": {
+					this.localSize = p.size;
+					break;
+				}
+				case "localssize": {
+					this.localSSize = p.size;
 					break;
 				}
 			}

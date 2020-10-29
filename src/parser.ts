@@ -296,6 +296,14 @@ const language = P.createLanguage<LanguageSpec>({
 			argument(",", ConstInt),
 			(name, size) => <const>({type: "variable-string", name, size}),
 		)),
+		P.string("LOCALSIZE").skip(WS1).then(ConstInt).map((size) => <const>({
+			type: "localsize",
+			size,
+		})),
+		P.string("LOCALSSIZE").skip(WS1).then(ConstInt).map((size) => <const>({
+			type: "localssize",
+			size,
+		})),
 	))),
 	PrintOType: () => oneOf("K", "D", "").map((o) => {
 		switch (o) {

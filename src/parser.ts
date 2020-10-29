@@ -162,6 +162,8 @@ type LanguageSpec = {
 	IntExprL2: Expr;
 	IntExprL3: Expr;
 	IntExprL4: Expr;
+	IntExprL5: Expr;
+	IntExprL6: Expr;
 	IntExpr: Expr;
 	StringExprL0: Expr;
 	StringExpr: Expr;
@@ -199,7 +201,7 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	IntExprL1: (r) => P.alt(
 		leftAssociate(
-			["==", "!="],
+			["*", "/", "%"],
 			r.IntExprL0,
 			(op, left, right) => new BinaryIntExpr(op, left, right),
 		),
@@ -207,7 +209,7 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	IntExprL2: (r) => P.alt(
 		leftAssociate(
-			["*", "/", "%"],
+			["+", "-"],
 			r.IntExprL1,
 			(op, left, right) => new BinaryIntExpr(op, left, right),
 		),
@@ -215,7 +217,7 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	IntExprL3: (r) => P.alt(
 		leftAssociate(
-			["+", "-"],
+			["<=", "<", ">=", ">"],
 			r.IntExprL2,
 			(op, left, right) => new BinaryIntExpr(op, left, right),
 		),
@@ -223,13 +225,29 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	IntExprL4: (r) => P.alt(
 		leftAssociate(
-			["<=", "<", ">=", ">"],
+			["==", "!="],
 			r.IntExprL3,
 			(op, left, right) => new BinaryIntExpr(op, left, right),
 		),
 		r.IntExprL3,
 	),
-	IntExpr: (r) => r.IntExprL4,
+	IntExprL5: (r) => P.alt(
+		leftAssociate(
+			["&", "|", "^"],
+			r.IntExprL4,
+			(op, left, right) => new BinaryIntExpr(op, left, right),
+		),
+		r.IntExprL4,
+	),
+	IntExprL6: (r) => P.alt(
+		leftAssociate(
+			["&&", "!&", "||", "!|", "^^"],
+			r.IntExprL5,
+			(op, left, right) => new BinaryIntExpr(op, left, right),
+		),
+		r.IntExprL5,
+	),
+	IntExpr: (r) => r.IntExprL6,
 	StringExprL0: (r) => P.alt(
 		ConstString.map((value) => new ConstStringExpr(value)),
 		r.InlineCall,
@@ -386,7 +404,7 @@ const language = P.createLanguage<LanguageSpec>({
 		r.PlainCommand,
 		P.seqMap(
 			asLine(P.string("SIF").skip(WS1).then(r.IntExpr)),
-			r.PlainCommand,
+			P.alt(r.PlainCommand, r.Assign, r.OpAssign),
 			(cond, then) => new Conditional([[cond, new Thunk([then])]]),
 		),
 		P.seqMap(
@@ -425,7 +443,7 @@ const language = P.createLanguage<LanguageSpec>({
 	)),
 	OpAssign: (r) => asLine(P.seqMap(
 		r.Variable,
-		oneOf("*", "/", "%", "+", "-").skip(P.string("=")).trim(WS0),
+		oneOf("*", "/", "%", "+", "-", "&", "|", "^").skip(P.string("=")).trim(WS0),
 		r.IntExpr,
 		(dest, op, expr) => new OpAssign(dest, op, expr),
 	)),

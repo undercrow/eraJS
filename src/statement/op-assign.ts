@@ -4,7 +4,7 @@ import Expr from "./expr";
 import Variable from "./expr/variable";
 import Statement from "./index";
 
-type Operator = "*" | "/" | "%" | "+" | "-";
+type Operator = "*" | "/" | "%" | "+" | "-" | "&" | "|" | "^";
 export default class OpAssign extends Statement {
 	public dest: Variable;
 	public operator: Operator;
@@ -30,6 +30,12 @@ export default class OpAssign extends Statement {
 			case "%": vm.setValue(original % value, this.dest.name, ...index); break;
 			case "+": vm.setValue(original + value, this.dest.name, ...index); break;
 			case "-": vm.setValue(original - value, this.dest.name, ...index); break;
+			// eslint-disable-next-line no-bitwise
+			case "&": vm.setValue(original & value, this.dest.name, ...index); break;
+			// eslint-disable-next-line no-bitwise
+			case "|": vm.setValue(original | value, this.dest.name, ...index); break;
+			// eslint-disable-next-line no-bitwise
+			case "^": vm.setValue(original ^ value, this.dest.name, ...index); break;
 		}
 
 		return null;

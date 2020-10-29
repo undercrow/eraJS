@@ -1,6 +1,6 @@
 import P from "parsimmon";
 
-import Fn, {Extra as FnExtra} from "./fn";
+import Fn, {Property} from "./fn";
 import Statement from "./statement";
 import Assign from "./statement/assign";
 import ClearLine from "./statement/command/clearline";
@@ -66,6 +66,7 @@ import StopCallTrain from "./statement/command/stopcalltrain";
 import StrData from "./statement/command/strdata";
 import StrLen from "./statement/command/strlen";
 import Substring from "./statement/command/substring";
+import Wait from "./statement/command/wait";
 import WaitAnyKey from "./statement/command/waitanykey";
 import Expr from "./statement/expr";
 import BinaryIntExpr from "./statement/expr/binary-int";
@@ -75,6 +76,7 @@ import Form from "./statement/expr/form";
 import InlineCall from "./statement/expr/inline-call";
 import Variable from "./statement/expr/variable";
 import OpAssign from "./statement/op-assign";
+import Thunk from "./thunk";
 
 /* eslint-disable array-element-newline */
 const SPECIAL_CHAR = [
@@ -133,6 +135,10 @@ function charSeq(...exclude: string[]): P.Parser<string> {
 	return charParser.atLeast(1).tie();
 }
 
+function argument<E>(sep: string, expr: P.Parser<E>): P.Parser<E[]> {
+	return P.string(sep).trim(WS0).then(expr).many();
+}
+
 function leftAssociate<E, OP extends string>(
 	op: OP[],
 	subExpr: P.Parser<E>,
@@ -161,8 +167,8 @@ type LanguageSpec = {
 	StringExpr: Expr;
 	InlineCall: InlineCall;
 	Form: Form;
-	Label: FnExtra;
-	Property: FnExtra;
+	Label: string;
+	Property: Property;
 	PrintOType: Print["outType"];
 	PrintAction: Print["action"];
 	PlainCommand: Statement;
@@ -170,6 +176,7 @@ type LanguageSpec = {
 	Assign: Assign;
 	OpAssign: OpAssign;
 	Statement: Statement;
+	Thunk: Thunk;
 	Function: Fn;
 	Language: Fn[];
 };
@@ -177,11 +184,11 @@ type LanguageSpec = {
 const language = P.createLanguage<LanguageSpec>({
 	Variable: (r) => P.seqMap(
 		Identifier,
-		P.string(":").then(P.alt(
+		argument(":", P.alt(
 			ConstInt.map((value) => new ConstIntExpr(value)),
 			Identifier.map((name) => new Variable(name, [])),
 			wrap("(", r.IntExpr, ")"),
-		)).many(),
+		)),
 		(name, index) => new Variable(name, index),
 	),
 	IntExprL0: (r) => P.alt(
@@ -216,7 +223,7 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	IntExprL4: (r) => P.alt(
 		leftAssociate(
-			["<", "<=", ">", ">="],
+			["<=", "<", ">=", ">"],
 			r.IntExprL3,
 			(op, left, right) => new BinaryIntExpr(op, left, right),
 		),
@@ -237,15 +244,12 @@ const language = P.createLanguage<LanguageSpec>({
 	Form: (r) => P.alt(wrap("{", r.IntExpr, "}"), wrap("%", r.StringExpr, "%"), charSeq("{", "%"))
 		.atLeast(1)
 		.map((expr) => new Form(expr)),
-	Label: () => asLine(P.string("$").then(Identifier), false).map((name) => ({
-		type: "label",
-		name,
-	})),
+	Label: () => asLine(P.string("$").then(Identifier), false),
 	Property: () => asLine(P.string("#").then(P.alt(
 		P.string("PRI").map(() => <const>({type: "first"})),
 		P.string("DIM").skip(WS1).then(P.seqMap(
 			Identifier,
-			P.string(",").skip(WS0).then(ConstInt).many(),
+			argument(",", ConstInt),
 			(name, size) => <const>({type: "variable", name, size}),
 		)),
 	))),
@@ -353,11 +357,18 @@ const language = P.createLanguage<LanguageSpec>({
 		P.string("INPUTS").skip(WS1).then(charSeq().fallback(undefined)).map(
 			(def) => new InputS(def),
 		),
+		P.string("WAIT").map(() => new Wait()),
 		P.string("WAITANYKEY").map(() => new WaitAnyKey()),
+		P.string("BREAK").map(() => new Break()),
+		P.string("CONTINUE").map(() => new Continue()),
 		P.string("DUMPRAND").map(() => new DumpRand()),
 		P.string("INITRAND").map(() => new InitRand()),
 		P.string("BEGIN").skip(WS1).then(Identifier).map((target) => new Begin(target)),
-		P.string("CALL").skip(WS1).then(Identifier).map((target) => new Call(target)),
+		P.string("CALL").skip(WS1).then(P.seqMap(
+			Identifier,
+			argument(",", P.alt(r.IntExpr, r.StringExpr)),
+			(target, arg) => new Call(target, arg),
+		)),
 		P.string("GOTO").skip(WS1).then(Identifier).map((target) => new Goto(target)),
 		P.string("RETURN").skip(WS1).then(r.IntExpr).map((expr) => new Return(expr)),
 		P.string("DEBUGCLEAR").map(() => new DebugClear()),
@@ -376,12 +387,12 @@ const language = P.createLanguage<LanguageSpec>({
 		P.seqMap(
 			asLine(P.string("SIF").skip(WS1).then(r.IntExpr)),
 			r.PlainCommand,
-			(cond, then) => new Conditional([[cond, [then]]]),
+			(cond, then) => new Conditional([[cond, new Thunk([then])]]),
 		),
 		P.seqMap(
-			P.seq(asLine(P.string("IF").skip(WS1).then(r.IntExpr)), r.Statement.many()),
-			P.seq(asLine(P.string("ELSEIF").skip(WS1).then(r.IntExpr)), r.Statement.many()).many(),
-			optional(asLine(P.string("ELSE")).then(r.Statement.many()), []),
+			P.seq(asLine(P.string("IF").skip(WS1).then(r.IntExpr)), r.Thunk),
+			P.seq(asLine(P.string("ELSEIF").skip(WS1).then(r.IntExpr)), r.Thunk).many(),
+			optional(asLine(P.string("ELSE")).then(r.Thunk), new Thunk([])),
 			asLine(P.string("ENDIF")),
 			(ifStmt, elifStmt, elseStmt) => new Conditional([
 				ifStmt,
@@ -391,13 +402,9 @@ const language = P.createLanguage<LanguageSpec>({
 		),
 		P.seqMap(
 			asLine(P.string("REPEAT").skip(WS1).then(r.IntExpr)),
-			P.alt(
-				r.Statement,
-				asLine(P.string("BREAK")).map(() => new Break()),
-				asLine(P.string("CONTINUE")).map(() => new Continue()),
-			).many(),
+			r.Thunk,
 			asLine(P.string("REND")),
-			(condition, statement) => new Repeat(condition, statement),
+			(condition, thunk) => new Repeat(condition, thunk),
 		),
 		P.seqMap(
 			asLine(P.string("FOR").skip(WS1).then(P.seq(
@@ -405,13 +412,9 @@ const language = P.createLanguage<LanguageSpec>({
 				P.string(",").then(r.IntExpr.trim(WS0)),
 				P.string(",").then(r.IntExpr.trim(WS0)),
 			))),
-			P.alt(
-				r.Statement,
-				asLine(P.string("BREAK")).map(() => new Break()),
-				asLine(P.string("CONTINUE")).map(() => new Continue()),
-			).many(),
+			r.Thunk,
 			asLine(P.string("NEXT")),
-			([counter, start, end], statement) => new For(counter, start, end, statement),
+			([counter, start, end], thunk) => new For(counter, start, end, thunk),
 		),
 	),
 	Assign: (r) => asLine(P.seqMap(
@@ -427,10 +430,12 @@ const language = P.createLanguage<LanguageSpec>({
 		(dest, op, expr) => new OpAssign(dest, op, expr),
 	)),
 	Statement: (r) => P.alt(r.Command, r.Assign, r.OpAssign),
+	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),
 	Function: (r) => P.seqMap(
 		asLine(P.string("@").then(Identifier), false),
-		P.alt(r.Label, r.Property, r.Statement).many(),
-		(name, statement) => new Fn(name, statement),
+		r.Property.many(),
+		r.Thunk,
+		(name, property, thunk) => new Fn(name, property, thunk),
 	),
 	Language: (r) => r.Function.many().skip(P.eof),
 });

@@ -201,21 +201,11 @@ export default class VM {
 		}
 	}
 
-	public *eval(statementList: Statement[]): ReturnType<Statement["run"]> {
-		for (const statement of statementList) {
-			const result = yield* statement.run(this);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
-	}
-
 	public *call(fnName: string): ReturnType<Statement["run"]> {
 		assert(this.fnMap.has(fnName), `Function ${fnName} does not exist`);
 		for (const fn of this.fnMap.get(fnName)!) {
 			this.pushContext(fn);
-			const result = yield* this.eval(fn.statement);
+			const result = yield* fn.thunk.run(this);
 			this.popContext();
 
 			if (result != null) {

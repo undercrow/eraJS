@@ -1,4 +1,5 @@
 import {assertNumber} from "../../assert";
+import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import type Variable from "../expr/variable";
@@ -8,14 +9,14 @@ export default class For extends Statement {
 	public counter: Variable;
 	public start: Expr;
 	public end: Expr;
-	public statement: Statement[];
+	public thunk: Thunk;
 
-	public constructor(counter: Variable, start: Expr, end: Expr, statement: Statement[]) {
+	public constructor(counter: Variable, start: Expr, end: Expr, thunk: Thunk) {
 		super();
 		this.counter = counter;
 		this.start = start;
 		this.end = end;
-		this.statement = statement;
+		this.thunk = thunk;
 	}
 
 	public *run(vm: VM) {
@@ -27,7 +28,7 @@ export default class For extends Statement {
 
 		loop: for (let i = start; i < end; ++i) {
 			vm.setValue(i, this.counter.name, ...index);
-			const result = yield* vm.eval(this.statement);
+			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {
 				case "begin": return result;
 				case "break": break loop;

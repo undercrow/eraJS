@@ -1,10 +1,11 @@
 import {assertNumber} from "../../assert";
+import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 export default class Conditional extends Statement {
-	public expr: Array<[Expr, Statement[]]>;
+	public expr: Array<[Expr, Thunk]>;
 
 	public constructor(expr: Conditional["expr"]) {
 		super();
@@ -16,7 +17,7 @@ export default class Conditional extends Statement {
 			const cond = expr[0].reduce(vm);
 			assertNumber(cond, "Condition should be an integer");
 			if (cond !== 0) {
-				return yield* vm.eval(expr[1]);
+				return yield* expr[1].run(vm);
 			}
 		}
 

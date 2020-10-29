@@ -1,16 +1,17 @@
 import {assertNumber} from "../../assert";
+import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 export default class Repeat extends Statement {
 	public condition: Expr;
-	public statement: Statement[];
+	public thunk: Thunk;
 
-	public constructor(condition: Expr, statement: Statement[]) {
+	public constructor(condition: Expr, thunk: Thunk) {
 		super();
 		this.condition = condition;
-		this.statement = statement;
+		this.thunk = thunk;
 	}
 
 	public *run(vm: VM) {
@@ -19,7 +20,7 @@ export default class Repeat extends Statement {
 
 		loop: for (let i = 0; i < condition; ++i) {
 			vm.setValue(i, "COUNT");
-			const result = yield* vm.eval(this.statement);
+			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {
 				case "begin": return result;
 				case "break": break loop;

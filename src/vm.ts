@@ -181,10 +181,11 @@ export default class VM {
 		}
 
 		if (name === "CFLAG") {
-			assertNumber(index[0], `1st index of variable CFLAG should be an integer`);
-			assertNumber(index[1], `2nd index of variable CFLAG should be an integer`);
+			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
+			assertNumber(index[1], "2nd index of variable CFLAG should be an integer");
 
 			const character = this.characters[index[0]];
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			assert(character != null, `${index[0]}th character does not exist`);
 
 			return character.flags[index[1]];
@@ -228,11 +229,12 @@ export default class VM {
 
 
 		if (name === "CFLAG") {
-			assertNumber(index[0], `1st index of variable CFLAG should be an integer`);
-			assertNumber(index[1], `2nd index of variable CFLAG should be an integer`);
-			assertNumber(value, `Value for CFLAG should be an integer`);
+			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
+			assertNumber(index[1], "2nd index of variable CFLAG should be an integer");
+			assertNumber(value, "Value for CFLAG should be an integer");
 
 			const character = this.characters[index[0]];
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			assert(character != null, `${index[0]}th character does not exist`);
 
 			character.flags[index[1]] = value;
@@ -269,7 +271,6 @@ export default class VM {
 				case "begin": begin = result.keyword; continue;
 				case "break": return null;
 				case "continue": return null;
-				case "return": return null;
 				case undefined: continue;
 			}
 		}

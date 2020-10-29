@@ -14,11 +14,11 @@ export type Result =
 	| {type: "begin"; keyword: string}
 	| {type: "break"}
 	| {type: "continue"}
-	| {type: "return"; value: string | number | null};
+	| {type: "return"; value: number};
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default class Statement {
-	public *run(_vm: VM): Generator<Output, Result | null, string | null> {
+	public *run(_vm: VM): Generator<Output, Result | null, string> {
 		return null;
 	}
 }

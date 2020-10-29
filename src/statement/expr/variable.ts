@@ -1,4 +1,4 @@
-import {assert, assertNumber} from "../../assert";
+import {assertNumber} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "./index";
 
@@ -15,10 +15,7 @@ export default class Variable implements Expr {
 	public reduce(vm: VM): string | number {
 		const index = this.reduceIndex(vm);
 
-		const result = vm.getValue(this.name, ...index);
-		assert(result != null, `Value of variable ${this.name} is null`);
-
-		return result;
+		return vm.getValue(this.name, ...index);
 	}
 
 	public reduceIndex(vm: VM): number[] {

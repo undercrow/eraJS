@@ -16,7 +16,7 @@ export default class Call extends Statement {
 	public *run(vm: VM) {
 		const arg = this.arg.map((a) => a.reduce(vm));
 		assert(vm.fnMap.has(this.target), `Function ${this.target} does not exist`);
-		for (const fn of vm.fnMap.get(this.target)!) {
+		fnLoop: for (const fn of vm.fnMap.get(this.target)!) {
 			vm.pushContext(fn);
 
 			for (let i = 0; i < fn.arg.length; ++i) {
@@ -29,10 +29,18 @@ export default class Call extends Statement {
 			const result = yield* fn.thunk.run(vm);
 			vm.popContext();
 
-			if (result != null) {
-				return result;
+			switch (result?.type) {
+				case "begin": return result;
+				case "break": return result;
+				case "continue": return result;
+				case "return": {
+					vm.setValue(result.value, "RESULT", 0);
+					break fnLoop;
+				}
+				case undefined: continue fnLoop;
 			}
 		}
+		vm.setValue(0, "RESULT", 0);
 		return null;
 	}
 }

@@ -81,6 +81,7 @@ import ConstIntExpr from "./statement/expr/const-int";
 import ConstStringExpr from "./statement/expr/const-string";
 import Form from "./statement/expr/form";
 import InlineCall from "./statement/expr/inline-call";
+import UnaryInt from "./statement/expr/unary-int";
 import Variable from "./statement/expr/variable";
 import OpAssign from "./statement/op-assign";
 import Thunk from "./thunk";
@@ -182,6 +183,7 @@ type LanguageSpec = {
 	IntExprL4: Expr;
 	IntExprL5: Expr;
 	IntExprL6: Expr;
+	IntExprL7: Expr;
 	IntExpr: Expr;
 	StringExprL0: Expr;
 	StringExpr: Expr;
@@ -218,16 +220,12 @@ const language = P.createLanguage<LanguageSpec>({
 		r.Variable,
 	),
 	IntExprL1: (r) => P.alt(
-		leftAssociate(
-			["*", "/", "%"],
-			r.IntExprL0,
-			(op, left, right) => new BinaryInt(op, left, right),
-		),
+		P.seqMap(oneOf("!", "~"), r.IntExprL0, (op, expr) => new UnaryInt(op, expr)),
 		r.IntExprL0,
 	),
 	IntExprL2: (r) => P.alt(
 		leftAssociate(
-			["+", "-"],
+			["*", "/", "%"],
 			r.IntExprL1,
 			(op, left, right) => new BinaryInt(op, left, right),
 		),
@@ -235,7 +233,7 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	IntExprL3: (r) => P.alt(
 		leftAssociate(
-			["<=", "<", ">=", ">"],
+			["+", "-"],
 			r.IntExprL2,
 			(op, left, right) => new BinaryInt(op, left, right),
 		),
@@ -243,8 +241,16 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	IntExprL4: (r) => P.alt(
 		leftAssociate(
-			["==", "!="],
+			["<=", "<", ">=", ">"],
 			r.IntExprL3,
+			(op, left, right) => new BinaryInt(op, left, right),
+		),
+		r.IntExprL3,
+	),
+	IntExprL5: (r) => P.alt(
+		leftAssociate(
+			["==", "!="],
+			r.IntExprL4,
 			(op, left, right) => new BinaryInt(op, left, right),
 		),
 		leftAssociate(
@@ -252,25 +258,25 @@ const language = P.createLanguage<LanguageSpec>({
 			r.StringExpr,
 			(op, left, right) => new CompareString(op, left, right),
 		),
-		r.IntExprL3,
-	),
-	IntExprL5: (r) => P.alt(
-		leftAssociate(
-			["&", "|", "^"],
-			r.IntExprL4,
-			(op, left, right) => new BinaryInt(op, left, right),
-		),
 		r.IntExprL4,
 	),
 	IntExprL6: (r) => P.alt(
 		leftAssociate(
-			["&&", "!&", "||", "!|", "^^"],
+			["&", "|", "^"],
 			r.IntExprL5,
 			(op, left, right) => new BinaryInt(op, left, right),
 		),
 		r.IntExprL5,
 	),
-	IntExpr: (r) => r.IntExprL6,
+	IntExprL7: (r) => P.alt(
+		leftAssociate(
+			["&&", "!&", "||", "!|", "^^"],
+			r.IntExprL6,
+			(op, left, right) => new BinaryInt(op, left, right),
+		),
+		r.IntExprL6,
+	),
+	IntExpr: (r) => r.IntExprL7,
 	StringExprL0: (r) => P.alt(
 		ConstString.map((value) => new ConstStringExpr(value)),
 		r.InlineCall,

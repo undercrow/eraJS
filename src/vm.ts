@@ -1,4 +1,4 @@
-import {assertNumber} from "./assert";
+import {assert, assertNumber} from "./assert";
 import type Fn from "./fn";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
@@ -7,6 +7,7 @@ import Call from "./statement/command/call";
 type Character = {
 	name: string;
 	nickname: string;
+	flags: Array<number | null>;
 };
 
 export type Config = {
@@ -123,11 +124,22 @@ export default class VM {
 		};
 		context.dynamicMap.set("ARG", Array<null>(1000).fill(null));
 		context.dynamicMap.set("ARGS", Array<null>(100).fill(null));
-		for (const [name, size] of fn.variableMap) {
+		for (const [name, size] of fn.intVariableMap) {
 			if (size.length === 0) {
-				context.dynamicMap.set(name, null);
+				context.dynamicMap.set(name, 0);
 			} else if (size.length === 1) {
-				context.dynamicMap.set(name, Array.from({length: size[0]}, () => null));
+				context.dynamicMap.set(name, Array<number>(size[0]).fill(0));
+			} else if (size.length === 2) {
+				throw new Error("Local 2D array is not implemented yet");
+			} else if (size.length === 3) {
+				throw new Error("Local 3D array is not implemented yet");
+			}
+		}
+		for (const [name, size] of fn.stringVariableMap) {
+			if (size.length === 0) {
+				context.dynamicMap.set(name, "");
+			} else if (size.length === 1) {
+				context.dynamicMap.set(name, Array<string>(size[0]).fill(""));
 			} else if (size.length === 2) {
 				throw new Error("Local 2D array is not implemented yet");
 			} else if (size.length === 3) {
@@ -168,7 +180,15 @@ export default class VM {
 			}
 		}
 
-		if (context.dynamicMap.has(name)) {
+		if (name === "CFLAG") {
+			assertNumber(index[0], `1st index of variable CFLAG should be an integer`);
+			assertNumber(index[1], `2nd index of variable CFLAG should be an integer`);
+
+			const character = this.characters[index[0]];
+			assert(character != null, `${index[0]}th character does not exist`);
+
+			return character.flags[index[1]];
+		} else if (context.dynamicMap.has(name)) {
 			return get(context.dynamicMap.get(name)!);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
 			return get(this.staticMap.get(context.fn)!.get(name)!);
@@ -207,7 +227,16 @@ export default class VM {
 		}
 
 
-		if (context.dynamicMap.has(name)) {
+		if (name === "CFLAG") {
+			assertNumber(index[0], `1st index of variable CFLAG should be an integer`);
+			assertNumber(index[1], `2nd index of variable CFLAG should be an integer`);
+			assertNumber(value, `Value for CFLAG should be an integer`);
+
+			const character = this.characters[index[0]];
+			assert(character != null, `${index[0]}th character does not exist`);
+
+			character.flags[index[1]] = value;
+		} else if (context.dynamicMap.has(name)) {
 			update(context.dynamicMap);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
 			update(this.staticMap.get(context.fn)!);

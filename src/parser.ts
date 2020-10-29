@@ -112,10 +112,14 @@ const WS0 = WS.many().map(nullFn);
 const WS1 = WS.atLeast(1).map(nullFn);
 const Comment = P.seq(WS0, P.string(";"), P.noneOf("\r\n").many());
 const EOL = P.alt(Comment, WS, P.newline).atLeast(1).map(nullFn);
-const ConstInt = P.alt(
+const ConstUInt = P.alt(
 	P.string("0b").then(P.regex(/0x[0-1]+/)).map((val) => parseInt(val, 2)),
 	P.string("0x").then(P.regex(/0x[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
+);
+const ConstInt = P.alt(
+	P.string("-").then(ConstUInt).map((val) => -val),
+	ConstUInt,
 );
 const ConstString = char("\"").many().tie().trim(P.string("\""));
 const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
@@ -277,7 +281,12 @@ const language = P.createLanguage<LanguageSpec>({
 		P.string("DIM").skip(WS1).then(P.seqMap(
 			Identifier,
 			argument(",", ConstInt),
-			(name, size) => <const>({type: "variable", name, size}),
+			(name, size) => <const>({type: "variable-int", name, size}),
+		)),
+		P.string("DIMS").skip(WS1).then(P.seqMap(
+			Identifier,
+			argument(",", ConstInt),
+			(name, size) => <const>({type: "variable-string", name, size}),
 		)),
 	))),
 	PrintOType: () => oneOf("K", "D", "").map((o) => {

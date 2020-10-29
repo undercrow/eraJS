@@ -19,7 +19,10 @@ export default class StrLen extends Statement {
 			const character = vm.characterMap.get(id);
 			assert(character != null, `Character with id ${id} does not exist`);
 
-			vm.characters.push(character);
+			vm.characters.push({
+				...character,
+				flags: [...character.flags],
+			});
 		}
 
 		return null;

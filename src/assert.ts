@@ -5,7 +5,10 @@ export function assert(condition: boolean, message: string): asserts condition {
 }
 
 export function assertNumber(value: any, message: string): asserts value is number {
-	assert(typeof value === "number", message);
+	assert(
+		typeof value === "number" && !isNaN(value),
+		message,
+	);
 }
 
 export function assertString(value: any, message: string): asserts value is string {

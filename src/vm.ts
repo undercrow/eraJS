@@ -1,26 +1,9 @@
 import {assert, assertNumber} from "./assert";
+import {Character, Config} from "./config";
 import type Fn from "./fn";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
-
-type Character = {
-	id: number;
-	name: string;
-	nickname: string;
-	flags: number[];
-};
-
-export type Config = {
-	gamebase?: {
-		author?: string;
-		info?: string;
-		year?: string;
-		title?: string;
-		version?: number;
-	};
-	character: Map<number, Character>;
-};
 
 type LeafValue = string | number;
 type Value = LeafValue | LeafValue[] | LeafValue[][] | LeafValue[][][];
@@ -132,11 +115,11 @@ export default class VM {
 		this.globalMap.set("PBAND", 4);
 		this.globalMap.set("GLOBAL", Array(1000).fill(0));
 		this.globalMap.set("GLOBALS", Array(100).fill(""));
-		this.globalMap.set("GAMEBASE_AUTHOR", config.gamebase?.author ?? "");
-		this.globalMap.set("GAMEBASE_INFO", config.gamebase?.info ?? "");
-		this.globalMap.set("GAMEBASE_YEAR", config.gamebase?.year ?? "");
-		this.globalMap.set("GAMEBASE_TITLE", config.gamebase?.title ?? "");
-		this.globalMap.set("GAMEBASE_VERSION", config.gamebase?.version ?? 0);
+		this.globalMap.set("GAMEBASE_AUTHOR", config.gamebase.author ?? "");
+		this.globalMap.set("GAMEBASE_INFO", config.gamebase.info ?? "");
+		this.globalMap.set("GAMEBASE_YEAR", config.gamebase.year ?? "");
+		this.globalMap.set("GAMEBASE_TITLE", config.gamebase.title ?? "");
+		this.globalMap.set("GAMEBASE_VERSION", config.gamebase.version ?? 0);
 		this.globalMap.set("LINECOUNT", 0);
 
 		for (const [name, fn] of this.fnMap) {
@@ -224,7 +207,7 @@ export default class VM {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			assert(character != null, `${index[0]}th character does not exist`);
 
-			return character.flags[index[1]];
+			return character.flags.get(index[1]) ?? 0;
 		} else if (context.dynamicMap.has(name)) {
 			return get(context.dynamicMap.get(name)!);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
@@ -273,7 +256,7 @@ export default class VM {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			assert(character != null, `${index[0]}th character does not exist`);
 
-			character.flags[index[1]] = value;
+			character.flags.set(index[1], value);
 		} else if (context.dynamicMap.has(name)) {
 			update(context.dynamicMap);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
@@ -317,8 +300,7 @@ export default class VM {
 
 		if (name === "CFLAG") {
 			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
-			const character = this.characters[index[0]];
-			return character.flags.length;
+			return 1000;
 		} else if (context.dynamicMap.has(name)) {
 			return len(context.dynamicMap.get(name)!);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {

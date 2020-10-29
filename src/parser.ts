@@ -556,6 +556,6 @@ const language = P.createLanguage<LanguageSpec>({
 	Language: (r) => EOL.fallback("").then(r.Function.many()).skip(P.eof),
 });
 
-export default function parse(content: string): Fn[] {
+export default function parseERB(content: string): Fn[] {
 	return language.Language.tryParse(content + "\n");
 }

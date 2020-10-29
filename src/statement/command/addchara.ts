@@ -21,7 +21,7 @@ export default class StrLen extends Statement {
 
 			vm.characters.push({
 				...character,
-				flags: [...character.flags],
+				flags: new Map(character.flags),
 			});
 		}
 

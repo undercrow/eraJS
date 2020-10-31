@@ -25,8 +25,11 @@ export type Config = {
 export default function parseCSV(content: Map<string, string>): Config {
 	const values = new Map<string, string[][]>();
 	for (const [fileName, raw] of content) {
-		const parsed = Papa.parse<string[]>(raw, {
+		const normalized = raw.replace(/\r/g, "");
+		const stripped = normalized.split("\n").map((line) => /^[^;]*/.exec(line)![0]).join("\n");
+		const parsed = Papa.parse<string[]>(stripped, {
 			delimiter: ",",
+			skipEmptyLines: true,
 		});
 		values.set(fileName.toUpperCase(), parsed.data);
 	}

@@ -1,3 +1,4 @@
+import Assign from "./statement/assign";
 import Variable from "./statement/expr/variable";
 import Thunk from "./thunk";
 
@@ -10,7 +11,7 @@ export type Property =
 
 export default class Fn {
 	public name: string;
-	public arg: Array<[Variable, string | number]>;
+	public arg: Array<Assign | Variable>;
 	public order?: "first" | "last";
 	public localSize?: number;
 	public localSSize?: number;

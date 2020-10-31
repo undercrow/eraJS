@@ -1,6 +1,9 @@
 import {assert} from "../../assert";
 import type VM from "../../vm";
+import Assign from "../assign";
 import Expr from "../expr";
+import ConstInt from "../expr/const-int";
+import ConstString from "../expr/const-string";
 import Statement from "../index";
 
 export default class Call extends Statement {
@@ -14,18 +17,27 @@ export default class Call extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const arg = this.arg.map((a) => a.reduce(vm));
+		const arg = this.arg.map((a) => {
+			const value = a.reduce(vm);
+			if (typeof value === "string") {
+				return new ConstString(value);
+			} else {
+				return new ConstInt(value);
+			}
+		});
 		assert(vm.fnMap.has(this.target), `Function ${this.target} does not exist`);
 		fnLoop: for (const fn of vm.fnMap.get(this.target)!) {
 			vm.pushContext(fn);
 
 			for (let i = 0; i < fn.arg.length; ++i) {
-				const dest = fn.arg[i][0];
-				const value = arg[i] ?? fn.arg[i][1];
-				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-				assert(value != null, `Function ${this.target}'s ${i}th argument is null'`);
-				const index = dest.reduceIndex(vm);
-				vm.setValue(value, dest.name, ...index);
+				const argExpr = fn.arg[i];
+				const value = arg[i];
+				if (argExpr instanceof Assign) {
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					new Assign(argExpr.dest, value ?? argExpr.expr).run(vm);
+				} else {
+					new Assign(argExpr, value).run(vm);
+				}
 			}
 
 			const result = yield* fn.thunk.run(vm);

@@ -88,8 +88,8 @@ type LanguageSpec = {
 	Label: string;
 	PlainCommand: Statement;
 	Command: Statement;
-	RawAssign: Assign;
 	Assign: Assign;
+	StrAssign: Assign;
 	OpAssign: OpAssign;
 	Statement: Statement;
 	Thunk: Thunk;
@@ -349,13 +349,24 @@ export const language = P.createLanguage<LanguageSpec>({
 		),
 		r.PlainCommand,
 	),
-	RawAssign: () => P.seqMap(
+	Assign: () => U.asLine(P.seqMap(
 		expr.Variable,
-		P.string("=").trim(U.WS0),
-		P.alt(expr.IntExpr, expr.Form).fallback(new Form([{value: ""}])),
-		(dest, _op, e) => new Assign(dest, e),
-	),
-	Assign: (r) => U.asLine(r.RawAssign),
+		P.string("=").trim(U.WS0).then(P.alt(
+			U.sepBy(",", expr.IntExpr),
+			expr.IntExpr,
+			expr.Form,
+			P.succeed(new Form([{value: ""}])),
+		)),
+		(dest, e) => new Assign(dest, e),
+	)),
+	StrAssign: () => U.asLine(P.seqMap(
+		expr.Variable,
+		P.string("'=").trim(U.WS0).then(P.alt(
+			U.sepBy(",", expr.StringExpr),
+			expr.StringExpr,
+		)),
+		(dest, e) => new Assign(dest, e),
+	)),
 	OpAssign: () => U.asLine(P.alt(
 		P.seqMap(
 			expr.Variable,
@@ -370,15 +381,25 @@ export const language = P.createLanguage<LanguageSpec>({
 			(dest) => new OpAssign(dest, "-", new ConstIntExpr(1)),
 		),
 	)),
-	Statement: (r) => P.alt(r.Command, r.Assign, r.OpAssign),
+	Statement: (r) => P.alt(r.Command, r.Assign, r.StrAssign, r.OpAssign),
 	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),
 	Function: (r) => P.seqMap(
-		U.asLine(P.string("@").then(P.alt(
-			P.seq(U.Identifier, U.wrap("(", U.sepBy(",", P.alt(r.RawAssign, expr.Variable)), ")")),
-			U.sepBy(",", U.Identifier, P.alt(r.RawAssign, expr.Variable)).map(
-				([name, ...arg]) => [name, arg] as [string, any[]],
-			),
-		))),
+		U.asLine(P.string("@").chain(() => {
+			const arg = U.sepBy(",", P.alt(
+				P.seqMap(
+					expr.Variable,
+					P.string("=").trim(U.WS0).then(P.alt(expr.IntExpr)),
+					(dest, e) => new Assign(dest, e),
+				),
+				expr.Variable,
+			));
+
+			return P.seq(U.Identifier, P.alt(
+				U.wrap("(", arg, ")"),
+				P.string(",").trim(U.WS0).then(arg),
+				P.succeed([]),
+			));
+		})),
 		prop.many(),
 		r.Thunk,
 		([name, arg], property, thunk) => new Fn(name, arg, property, thunk),

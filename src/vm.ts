@@ -1,12 +1,17 @@
 import {assert, assertNumber} from "./assert";
 import {Character, Config} from "./config";
 import type Fn from "./fn";
+import type Property from "./property";
+import Dim from "./property/dim";
+import DimS from "./property/dims";
+import LocalSize from "./property/localsize";
+import LocalSSize from "./property/localssize";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 
-type LeafValue = string | number;
-type Value = LeafValue | LeafValue[] | LeafValue[][] | LeafValue[][][];
+export type LeafValue = string | number;
+export type Value = LeafValue | LeafValue[] | LeafValue[][] | LeafValue[][][];
 
 type Context = {
 	fn: string;
@@ -35,7 +40,7 @@ export default class VM {
 		};
 	};
 
-	public constructor(fnList: Fn[], config: Config) {
+	public constructor(header: Property[], fnList: Fn[], config: Config) {
 		this.fnMap = new Map();
 		this.characterMap = new Map();
 		this.globalMap = new Map();
@@ -65,10 +70,10 @@ export default class VM {
 		// Reorder functions
 		for (const fn of this.fnMap.keys()) {
 			this.fnMap.get(fn)!.sort((a, b) => {
-				if (a.order === "first") { return -1; }
-				if (b.order === "first") { return 1; }
-				if (a.order === "last") { return 1; }
-				if (b.order === "last") { return -1; }
+				if (a.isFirst()) { return -1; }
+				if (b.isFirst()) { return 1; }
+				if (a.isLast()) { return 1; }
+				if (b.isLast()) { return -1; }
 				return 0;
 			});
 		}
@@ -124,13 +129,28 @@ export default class VM {
 		this.globalMap.set("GAMEBASE_VERSION", config.gamebase.version ?? 0);
 		this.globalMap.set("LINECOUNT", 0);
 
-		for (const [name, fn] of this.fnMap) {
-			const localSize = fn.find((f) => f.localSize != null)?.localSize ?? 1000;
-			const localSSize = fn.find((f) => f.localSSize != null)?.localSSize ?? 100;
+		for (const property of header) {
+			if (property instanceof Dim || property instanceof DimS) {
+				property.apply(this.globalMap);
+			}
+		}
 
-			this.staticMap.set(name, new Map());
-			this.staticMap.get(name)!.set("LOCAL", Array(localSize).fill(0));
-			this.staticMap.get(name)!.set("LOCALS", Array(localSSize).fill(""));
+		for (const fn of this.fnMap.keys()) {
+			this.staticMap.set(fn, new Map());
+			this.staticMap.get(fn)!.set("LOCAL", Array(1000).fill(0));
+			this.staticMap.get(fn)!.set("LOCALS", Array(100).fill(""));
+		}
+
+		for (const fnValues of this.fnMap.values()) {
+			for (const fn of fnValues) {
+				for (const property of fn.property) {
+					if (property instanceof LocalSize) {
+						this.staticMap.get(fn.name)!.set("LOCAL", Array(property.size).fill(0));
+					} else if (property instanceof LocalSSize) {
+						this.staticMap.get(fn.name)!.set("LOCALS", Array(property.size).fill(0));
+					}
+				}
+			}
 		}
 	}
 
@@ -145,26 +165,9 @@ export default class VM {
 		};
 		context.dynamicMap.set("ARG", Array(1000).fill(0));
 		context.dynamicMap.set("ARGS", Array(100).fill(""));
-		for (const [name, size] of fn.intVariableMap) {
-			if (size.length === 0) {
-				context.dynamicMap.set(name, 0);
-			} else if (size.length === 1) {
-				context.dynamicMap.set(name, Array<number>(size[0]).fill(0));
-			} else if (size.length === 2) {
-				throw new Error("Local 2D array is not implemented yet");
-			} else if (size.length === 3) {
-				throw new Error("Local 3D array is not implemented yet");
-			}
-		}
-		for (const [name, size] of fn.stringVariableMap) {
-			if (size.length === 0) {
-				context.dynamicMap.set(name, "");
-			} else if (size.length === 1) {
-				context.dynamicMap.set(name, Array<string>(size[0]).fill(""));
-			} else if (size.length === 2) {
-				throw new Error("Local 2D array is not implemented yet");
-			} else if (size.length === 3) {
-				throw new Error("Local 3D array is not implemented yet");
+		for (const property of fn.property) {
+			if (property instanceof Dim || property instanceof DimS) {
+				property.apply(context.dynamicMap);
 			}
 		}
 

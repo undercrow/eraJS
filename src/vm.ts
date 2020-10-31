@@ -235,6 +235,9 @@ export default class VM {
 			assert(character != null, `${index[0]}th character does not exist`);
 
 			return character.exp[index[1]];
+		} else if (name === "RAND") {
+			assertNumber(index[0], "1st index of variable RAND should be an integer");
+			return Math.floor(Math.random() * index[0]);
 		} else if (context.dynamicMap.has(name)) {
 			return get(context.dynamicMap.get(name)!);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {

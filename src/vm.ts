@@ -129,6 +129,9 @@ export default class VM {
 		this.globalMap.set("GAMEBASE_TITLE", config.gamebase.title ?? "");
 		this.globalMap.set("GAMEBASE_VERSION", config.gamebase.version ?? 0);
 		this.globalMap.set("LINECOUNT", 0);
+		for (let i = 0; i < config.talent.length; ++i) {
+			this.globalMap.set(config.talent[i], i);
+		}
 
 		for (const property of header) {
 			if (property instanceof Dim || property instanceof DimS) {

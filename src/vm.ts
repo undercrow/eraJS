@@ -212,7 +212,16 @@ export default class VM {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			assert(character != null, `${index[0]}th character does not exist`);
 
-			return character.flags.get(index[1]) ?? 0;
+			return character.flags[index[1]];
+		} else if (name === "TALENT") {
+			assertNumber(index[0], "1st index of variable TALENT should be an integer");
+			assertNumber(index[1], "2nd index of variable TALENT should be an integer");
+
+			const character = this.characters[index[0]];
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			assert(character != null, `${index[0]}th character does not exist`);
+
+			return character.talent[index[1]];
 		} else if (context.dynamicMap.has(name)) {
 			return get(context.dynamicMap.get(name)!);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
@@ -261,7 +270,17 @@ export default class VM {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			assert(character != null, `${index[0]}th character does not exist`);
 
-			character.flags.set(index[1], value);
+			character.flags[index[1]] = value;
+		} else if (name === "TALENT") {
+			assertNumber(index[0], "1st index of variable TALENT should be an integer");
+			assertNumber(index[1], "2nd index of variable TALENT should be an integer");
+			assertNumber(value, "Value for TALENT should be an integer");
+
+			const character = this.characters[index[0]];
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			assert(character != null, `${index[0]}th character does not exist`);
+
+			character.talent[index[1]] = value;
 		} else if (context.dynamicMap.has(name)) {
 			update(context.dynamicMap);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
@@ -305,6 +324,9 @@ export default class VM {
 
 		if (name === "CFLAG") {
 			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
+			return 1000;
+		} else if (name === "TALENT") {
+			assertNumber(index[0], "1st index of variable TALENT should be an integer");
 			return 1000;
 		} else if (context.dynamicMap.has(name)) {
 			return len(context.dynamicMap.get(name)!);

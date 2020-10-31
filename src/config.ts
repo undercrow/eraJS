@@ -7,7 +7,8 @@ export type Character = {
 	id: number;
 	name: string;
 	nickname: string;
-	flags: Map<number, number>;
+	talent: number[];
+	flags: number[];
 };
 
 export type Config = {

@@ -21,7 +21,8 @@ export default class StrLen extends Statement {
 
 			vm.characters.push({
 				...character,
-				flags: new Map(character.flags),
+				talent: character.talent.slice(),
+				flags: character.flags.slice(),
 			});
 		}
 		vm.setValue(vm.characters.length, "CHARANUM");

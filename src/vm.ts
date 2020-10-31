@@ -354,6 +354,7 @@ export default class VM {
 
 			switch (result?.type) {
 				case "begin": begin = result.keyword; continue;
+				case "goto": throw new Error(`Label ${result.label} not found`);
 				case "break": return null;
 				case "continue": return null;
 				case undefined: continue;

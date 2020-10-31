@@ -1,4 +1,3 @@
-import type VM from "../../vm";
 import Statement from "../index";
 
 export default class Goto extends Statement {
@@ -9,9 +8,10 @@ export default class Goto extends Statement {
 		this.target = target;
 	}
 
-	public *run(_vm: VM) {
-		throw new Error("GOTO is not implemented yet!");
-
-		return null;
+	public *run() {
+		return <const>{
+			type: "goto",
+			label: this.target,
+		};
 	}
 }

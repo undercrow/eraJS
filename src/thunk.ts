@@ -21,11 +21,20 @@ export default class Thunk extends Statement {
 		}
 	}
 
-	public *run(vm: VM) {
-		for (const statement of this.statement) {
+	public *run(vm: VM, index: number = 0): ReturnType<Statement["run"]> {
+		for (let i = index; i < this.statement.length; ++i) {
+			const statement = this.statement[i];
 			const result = yield* statement.run(vm);
 			switch (result?.type) {
 				case "begin": return result;
+				case "goto": {
+					const label = result.label;
+					if (this.labelMap.has(label)) {
+						return yield* this.run(vm, this.labelMap.get(label));
+					} else {
+						return result;
+					}
+				}
 				case "break": return result;
 				case "continue": return result;
 				case "return": return result;
@@ -33,5 +42,40 @@ export default class Thunk extends Statement {
 			}
 		}
 		return null;
+	}
+
+	private hasLabel(label: string): boolean {
+		if (this.labelMap.has(label)) {
+			return true;
+		}
+
+		for (const statement of this.statement) {
+			for (const subThunk of statement.getThunk()) {
+				if (subThunk.hasLabel(label)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private *tryGoto(vm: VM, label: string): ReturnType<Thunk["run"]> {
+		if (this.labelMap.has(label)) {
+			return yield* this.run(vm, this.labelMap.get(label));
+		} else {
+			for (const statement of this.statement) {
+				for (const subThunk of statement.getThunk()) {
+					const result = yield* subThunk.tryGoto(vm, label);
+					if (!(result?.type === "goto" && result.label === label)) {
+						return result;
+					}
+				}
+			}
+			return <const>{
+				type: "goto",
+				label,
+			};
+		}
 	}
 }

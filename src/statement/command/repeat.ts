@@ -23,6 +23,7 @@ export default class Repeat extends Statement {
 			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {
 				case "begin": return result;
+				case "goto": return result;
 				case "break": break loop;
 				case "continue": continue loop;
 				case "return": return result;
@@ -31,5 +32,9 @@ export default class Repeat extends Statement {
 		}
 
 		return null;
+	}
+
+	public getThunk() {
+		return [this.thunk];
 	}
 }

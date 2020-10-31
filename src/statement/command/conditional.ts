@@ -23,4 +23,8 @@ export default class Conditional extends Statement {
 
 		return null;
 	}
+
+	public getThunk(): Thunk[] {
+		return this.expr.map((expr) => expr[1]);
+	}
 }

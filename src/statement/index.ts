@@ -1,3 +1,4 @@
+import type Thunk from "../thunk";
 import type VM from "../vm";
 
 export type Output =
@@ -12,6 +13,7 @@ export type Output =
 
 export type Result =
 	| {type: "begin"; keyword: string}
+	| {type: "goto"; label: string}
 	| {type: "break"}
 	| {type: "continue"}
 	| {type: "return"; value: number};
@@ -20,5 +22,9 @@ export type Result =
 export default class Statement {
 	public *run(_vm: VM): Generator<Output, Result | null, string> {
 		return null;
+	}
+
+	public getThunk(): Thunk[] {
+		return [];
 	}
 }

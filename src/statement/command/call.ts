@@ -45,6 +45,7 @@ export default class Call extends Statement {
 
 			switch (result?.type) {
 				case "begin": return result;
+				case "goto": return result;
 				case "break": return result;
 				case "continue": return result;
 				case "return": {

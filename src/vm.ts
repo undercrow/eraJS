@@ -120,6 +120,7 @@ export default class VM {
 		this.globalMap.set("PBAND", 4);
 		this.globalMap.set("CHARANUM", 0);
 		this.globalMap.set("SAVESTR", Array(100).fill(""));
+		this.globalMap.set("TALENTNAME", config.talent);
 		this.globalMap.set("GLOBAL", Array(1000).fill(0));
 		this.globalMap.set("GLOBALS", Array(100).fill(""));
 		this.globalMap.set("GAMEBASE_AUTHOR", config.gamebase.author ?? "");
@@ -322,20 +323,14 @@ export default class VM {
 			}
 		}
 
-		if (name === "CFLAG") {
-			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
-			return 1000;
-		} else if (name === "TALENT") {
-			assertNumber(index[0], "1st index of variable TALENT should be an integer");
-			return 1000;
-		} else if (context.dynamicMap.has(name)) {
+		if (context.dynamicMap.has(name)) {
 			return len(context.dynamicMap.get(name)!);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
 			return len(this.staticMap.get(context.fn)!.get(name)!);
 		} else if (this.globalMap.has(name)) {
 			return len(this.globalMap.get(name)!);
 		} else {
-			throw new Error(`Variable ${name} does not exist`);
+			throw new Error(`Cannot get length of variable ${name}`);
 		}
 	}
 

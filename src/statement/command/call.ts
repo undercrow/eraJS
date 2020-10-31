@@ -34,9 +34,9 @@ export default class Call extends Statement {
 				const value = arg[i];
 				if (argExpr instanceof Assign) {
 					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-					new Assign(argExpr.dest, value ?? argExpr.expr).run(vm);
+					yield* new Assign(argExpr.dest, value ?? argExpr.expr).run(vm);
 				} else {
-					new Assign(argExpr, value).run(vm);
+					yield* new Assign(argExpr, value).run(vm);
 				}
 			}
 

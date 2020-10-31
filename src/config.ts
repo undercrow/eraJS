@@ -2,6 +2,7 @@ import * as Papa from "papaparse";
 
 import parseBase from "./csv/base";
 import parseCharacter from "./csv/character";
+import parseTalent from "./csv/talent";
 
 export type Character = {
 	id: number;
@@ -20,6 +21,7 @@ export type Config = {
 		version?: number;
 	};
 	character: Map<number, Character>;
+	talent: string[];
 };
 
 export default function parseCSV(content: Map<string, string>): Config {
@@ -37,5 +39,6 @@ export default function parseCSV(content: Map<string, string>): Config {
 	return {
 		gamebase: parseBase(values),
 		character: parseCharacter(values),
+		talent: parseTalent(values),
 	};
 }

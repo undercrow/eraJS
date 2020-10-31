@@ -10,6 +10,7 @@ export default function parse(values: Map<string, string[][]>): Config["characte
 
 		const character: Partial<Character> = {
 			talent: Array<number>(1000).fill(0),
+			exp: Array<number>(100).fill(0),
 			flags: Array<number>(1000).fill(0),
 		};
 		for (const row of rowList) {
@@ -44,7 +45,20 @@ export default function parse(values: Map<string, string[][]>): Config["characte
 					character.talent![index] = value;
 					break;
 				}
-				// case "経験":
+				case "経験": {
+					const index = parseInt(row[1]);
+					assertNumber(index, `Exp index in ${fileName} should be an integer`);
+					let value: number;
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					if (row[2] != null && row[2] !== "") {
+						value = parseInt(row[2]);
+					} else {
+						value = 0;
+					}
+					assertNumber(value, `Exp value in ${fileName} should be an integer`);
+					character.exp![index] = value;
+					break;
+				}
 				// case "相性":
 				// case "助手":
 				case "フラグ": {

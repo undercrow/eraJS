@@ -9,6 +9,7 @@ export type Character = {
 	name: string;
 	nickname: string;
 	talent: number[];
+	exp: number[];
 	flags: number[];
 };
 

@@ -6,7 +6,6 @@ type Operator =
 	| "*" | "/" | "%"
 	| "+" | "-"
 	| "<" | "<=" | ">" | ">="
-	| "==" | "!="
 	| "&" | "|" | "^"
 	| "&&" | "!&" | "||" | "!|" | "^^";
 
@@ -37,8 +36,6 @@ export default class BinaryInt implements Expr {
 			case "<=": return left <= right ? 1 : 0;
 			case ">": return left > right ? 1 : 0;
 			case ">=": return left >= right ? 1 : 0;
-			case "==": return left === right ? 1 : 0;
-			case "!=": return left !== right ? 1 : 0;
 			// eslint-disable-next-line no-bitwise
 			case "&": return left & right;
 			// eslint-disable-next-line no-bitwise

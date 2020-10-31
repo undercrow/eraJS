@@ -1,12 +1,10 @@
-import {assertString} from "../../assert";
+import {assert} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "./index";
 
-type Operator =
-	| "<" | "<=" | ">" | ">="
-	| "==" | "!=";
+type Operator = "==" | "!=";
 
-export default class CompareString implements Expr {
+export default class Compare implements Expr {
 	public left: Expr;
 	public right: Expr;
 	public op: Operator;
@@ -19,15 +17,13 @@ export default class CompareString implements Expr {
 
 	public reduce(vm: VM): number {
 		const left = this.left.reduce(vm);
-		assertString(left, `Left operand of ${this.op} should be a string`);
 		const right = this.right.reduce(vm);
-		assertString(right, `Right operand of ${this.op} should be a string`);
+
+		if (typeof left !== typeof right) {
+			assert(false, `Type of left and right operand of ${this.op} should be equal`);
+		}
 
 		switch (this.op) {
-			case "<": return left < right ? 1 : 0;
-			case "<=": return left <= right ? 1 : 0;
-			case ">": return left > right ? 1 : 0;
-			case ">=": return left >= right ? 1 : 0;
 			case "==": return left === right ? 1 : 0;
 			case "!=": return left !== right ? 1 : 0;
 		}

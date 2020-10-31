@@ -229,13 +229,25 @@ const language = P.createLanguage<LanguageSpec>({
 		U.wrap("(", U.sepBy(",", P.alt(r.IntExpr, r.StringExpr)), ")"),
 		(name, arg) => new InlineCall(name, arg),
 	),
-	Form: (r) => P.alt(
-		U.wrap("{", r.IntExpr, "}"),
-		U.wrap("%", r.StringExpr, "%"),
-		U.charSeq("{", "%"),
-	)
-		.atLeast(1)
-		.map((expr) => new Form(expr)),
+	Form: (r) => {
+		const chunk = P.alt(
+			U.wrap("{", P.seqMap(
+				r.IntExpr,
+				P.string(",").trim(U.WS0).then(r.IntExpr).fallback(undefined),
+				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+				(value, display, align) => ({value, display, align}),
+			), "}"),
+			U.wrap("%", P.seqMap(
+				r.StringExpr,
+				P.string(",").trim(U.WS0).then(r.IntExpr).fallback(undefined),
+				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+				(value, display, align) => ({value, display, align}),
+			), "%"),
+			U.charSeq("{", "%").map((value) => ({value})),
+		);
+
+		return chunk.atLeast(1).map((expr) => new Form(expr));
+	},
 	Label: () => U.asLine(P.string("$").then(Identifier)),
 	Property: () => U.asLine(P.string("#").then(Identifier).chain<Property>((property) => {
 		switch (property) {
@@ -514,7 +526,7 @@ const language = P.createLanguage<LanguageSpec>({
 	RawAssign: (r) => P.seqMap(
 		r.Variable,
 		P.string("=").trim(U.WS0),
-		P.alt(r.IntExpr, r.Form).fallback(new Form([""])),
+		P.alt(r.IntExpr, r.Form).fallback(new Form([{value: ""}])),
 		(dest, _op, expr) => new Assign(dest, expr),
 	),
 	Assign: (r) => U.asLine(r.RawAssign),

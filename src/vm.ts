@@ -270,7 +270,7 @@ export default class VM {
 		}
 	}
 
-	public lengthOf(name: string, ...index: number[]): LeafValue {
+	public lengthOf(name: string, ...index: number[]): number {
 		const context = this.context();
 		function len(value: Value) {
 			if (Array.isArray(value)) {

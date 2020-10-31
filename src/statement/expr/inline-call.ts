@@ -2,6 +2,7 @@ import type VM from "../../vm";
 import getChara from "../method/getchara";
 import rand from "../method/rand";
 import strLenS from "../method/strlens";
+import varSize from "../method/varsize";
 import type Expr from "./index";
 
 export default class InlineCall implements Expr {
@@ -19,6 +20,7 @@ export default class InlineCall implements Expr {
 			case "GETCHARA": return getChara(vm, arg);
 			case "RAND": return rand(vm, arg);
 			case "STRLENS": return strLenS(vm, arg);
+			case "VARSIZE": return varSize(vm, arg);
 			default: throw new Error(`Inline call to ${this.name} is not implemented yet`);
 		}
 	}

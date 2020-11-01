@@ -10,6 +10,7 @@ export default function parse(values: Map<string, string[][]>): Config["characte
 
 		const character: Partial<Character> = {
 			talent: Array<number>(1000).fill(0),
+			abilities: Array<number>(100).fill(0),
 			exp: Array<number>(100).fill(0),
 			flags: Array<number>(1000).fill(0),
 		};
@@ -30,7 +31,20 @@ export default function parse(values: Map<string, string[][]>): Config["characte
 					break;
 				}
 				// case "基礎":
-				// case "能力":
+				case "能力": {
+					const index = parseInt(row[1]);
+					assertNumber(index, `Ability index in ${fileName} should be an integer`);
+					let value: number;
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					if (row[2] != null && row[2] !== "") {
+						value = parseInt(row[2]);
+					} else {
+						value = 0;
+					}
+					assertNumber(value, `Ability value in ${fileName} should be an integer`);
+					character.abilities![index] = value;
+					break;
+				}
 				case "素質": {
 					const index = parseInt(row[1]);
 					assertNumber(index, `Talent index in ${fileName} should be an integer`);

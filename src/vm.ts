@@ -1,4 +1,4 @@
-import {assert, assertNumber} from "./assert";
+import {assertNumber} from "./assert";
 import {Character, Config} from "./config";
 import type Fn from "./fn";
 import NDArray, {Leaf} from "./ndarray";
@@ -10,6 +10,8 @@ import LocalSSize from "./property/localssize";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
+
+const CHAR_VAR = ["CFLAG", "TALENT", "ABL", "EXP"];
 
 type Context = {
 	fn: string;
@@ -180,33 +182,22 @@ export default class VM {
 
 	public getValue(name: string, ...index: number[]): Leaf {
 		const context = this.context();
-		if (name === "CFLAG") {
-			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
-			assertNumber(index[1], "2nd index of variable CFLAG should be an integer");
-
-			const character = this.characters[index[0]];
+		if (CHAR_VAR.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			assert(character != null, `${index[0]}th character does not exist`);
-
-			return character.flags[index[1]];
-		} else if (name === "TALENT") {
-			assertNumber(index[0], "1st index of variable TALENT should be an integer");
-			assertNumber(index[1], "2nd index of variable TALENT should be an integer");
-
-			const character = this.characters[index[0]];
+			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			assert(character != null, `${index[0]}th character does not exist`);
+			const valIndex = index[1] != null ? index[1] : index[0];
+			assertNumber(charIndex, "Character index should an integer");
+			assertNumber(valIndex, "Index for character variable should be an integer");
 
-			return character.talent[index[1]];
-		} else if (name === "EXP") {
-			assertNumber(index[0], "1st index of variable EXP should be an integer");
-			assertNumber(index[1], "2nd index of variable EXP should be an integer");
-
-			const character = this.characters[index[0]];
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			assert(character != null, `${index[0]}th character does not exist`);
-
-			return character.exp[index[1]];
+			const character = this.characters[charIndex];
+			switch (name) {
+				case "CFLAG": return character.flags[valIndex];
+				case "TALENT": return character.talent[valIndex];
+				case "ABL": return character.abilities[valIndex];
+				case "EXP": return character.abilities[valIndex];
+				default: throw new Error("Unreachable");
+			}
 		} else if (name === "RAND") {
 			assertNumber(index[0], "1st index of variable RAND should be an integer");
 			return Math.floor(Math.random() * index[0]);
@@ -223,36 +214,38 @@ export default class VM {
 
 	public setValue(value: Leaf, name: string, ...index: number[]): void {
 		const context = this.context();
-		if (name === "CFLAG") {
-			assertNumber(index[0], "1st index of variable CFLAG should be an integer");
-			assertNumber(index[1], "2nd index of variable CFLAG should be an integer");
-			assertNumber(value, "Value for CFLAG should be an integer");
-
-			const character = this.characters[index[0]];
+		if (CHAR_VAR.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			assert(character != null, `${index[0]}th character does not exist`);
-
-			character.flags[index[1]] = value;
-		} else if (name === "TALENT") {
-			assertNumber(index[0], "1st index of variable TALENT should be an integer");
-			assertNumber(index[1], "2nd index of variable TALENT should be an integer");
-			assertNumber(value, "Value for TALENT should be an integer");
-
-			const character = this.characters[index[0]];
+			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			assert(character != null, `${index[0]}th character does not exist`);
+			const valIndex = index[1] != null ? index[1] : index[0];
+			assertNumber(charIndex, "Character index should an integer");
+			assertNumber(valIndex, "Index for character variable should be an integer");
 
-			character.talent[index[1]] = value;
-		} else if (name === "EXP") {
-			assertNumber(index[0], "1st index of variable EXP should be an integer");
-			assertNumber(index[1], "2nd index of variable EXP should be an integer");
-			assertNumber(value, "Value for EXP should be an integer");
-
-			const character = this.characters[index[0]];
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			assert(character != null, `${index[0]}th character does not exist`);
-
-			character.exp[index[1]] = value;
+			const character = this.characters[charIndex];
+			switch (name) {
+				case "CFLAG": {
+					assertNumber(value, "Value for CFLAG should be an integer");
+					character.flags[valIndex] = value;
+					break;
+				}
+				case "TALENT": {
+					assertNumber(value, "Value for TALENT should be an integer");
+					character.talent[valIndex] = value;
+					break;
+				}
+				case "ABL": {
+					assertNumber(value, "Value for ABL should be an integer");
+					character.abilities[valIndex] = value;
+					break;
+				}
+				case "EXP": {
+					assertNumber(value, "Value for EXP should be an integer");
+					character.abilities[valIndex] = value;
+					break;
+				}
+				default: throw new Error("Unreachable");
+			}
 		} else if (context.dynamicMap.has(name)) {
 			context.dynamicMap.get(name)!.set(value, ...index, 0);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
@@ -284,6 +277,8 @@ export default class VM {
 		} else if (name === "TALENT") {
 			return "number";
 		} else if (name === "EXP") {
+			return "number";
+		} else if (name === "ABL") {
 			return "number";
 		} else if (name === "RAND") {
 			return "number";

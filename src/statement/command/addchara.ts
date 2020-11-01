@@ -20,8 +20,12 @@ export default class StrLen extends Statement {
 			assert(character != null, `Character with id ${id} does not exist`);
 
 			vm.characters.push({
-				...character,
+				id: character.id,
+				name: character.name,
+				nickname: character.nickname,
 				talent: character.talent.slice(),
+				abilities: character.abilities.slice(),
+				exp: character.exp.slice(),
 				flags: character.flags.slice(),
 			});
 		}

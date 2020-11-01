@@ -11,11 +11,11 @@ import Alignment from "../statement/command/alignment";
 import Begin from "../statement/command/begin";
 import Break from "../statement/command/break";
 import Call from "../statement/command/call";
+import Case from "../statement/command/case";
 import CbgClear from "../statement/command/cbgclear";
 import CbgClearButton from "../statement/command/cbgclearbutton";
 import CbgRemoveBmap from "../statement/command/cbgremovebmap";
 import ClearTextBox from "../statement/command/cleartextbox";
-import Conditional from "../statement/command/conditional";
 import Continue from "../statement/command/continue";
 import CurrentAlign from "../statement/command/currentalign";
 import CurrentRedraw from "../statement/command/currentredraw";
@@ -41,6 +41,7 @@ import GetSecond from "../statement/command/getsecond";
 import GetStyle from "../statement/command/getstyle";
 import GetTime from "../statement/command/gettime";
 import Goto from "../statement/command/goto";
+import If from "../statement/command/if";
 import Input from "../statement/command/input";
 import InputS from "../statement/command/inputs";
 import InitRand from "../statement/command/initrand";
@@ -316,18 +317,21 @@ export const language = P.createLanguage<LanguageSpec>({
 		P.seqMap(
 			U.asLine(P.string("SIF").then(U.arg1R1(expr.Expr))),
 			r.Statement,
-			(cond, then) => new Conditional([[cond, new Thunk([then])]]),
+			(cond, then) => new If([[cond, new Thunk([then])]], new Thunk([])),
 		),
 		P.seqMap(
 			P.seq(U.asLine(P.string("IF").then(U.arg1R1(expr.Expr))), r.Thunk),
 			P.seq(U.asLine(P.string("ELSEIF").then(U.arg1R1(expr.Expr))), r.Thunk).many(),
 			U.asLine(P.string("ELSE")).then(r.Thunk).fallback(new Thunk([])),
 			U.asLine(P.string("ENDIF")),
-			(ifStmt, elifStmt, elseStmt) => new Conditional([
-				ifStmt,
-				...elifStmt,
-				[new ConstIntExpr(1), elseStmt],
-			]),
+			(ifStmt, elifStmt, elseStmt) => new If([ifStmt, ...elifStmt], elseStmt),
+		),
+		P.seqMap(
+			U.asLine(P.string("SELECTCASE").then(U.arg1R1(expr.Expr))),
+			P.seq(U.asLine(P.string("CASE").then(U.arg1R1(expr.Expr))), r.Thunk).many(),
+			U.asLine(P.string("CASEELSE")).then(r.Thunk).fallback(new Thunk([])),
+			U.asLine(P.string("ENDSELECT")),
+			(e, branch, def) => new Case(e, branch, def),
 		),
 		P.seqMap(
 			U.asLine(P.string("REPEAT").then(U.arg1R1(expr.Expr))),

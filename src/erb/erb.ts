@@ -3,6 +3,8 @@ import P from "parsimmon";
 import Fn from "../fn";
 import Statement from "../statement";
 import Assign from "../statement/assign";
+import OpAssign from "../statement/assign-op";
+import StrAssign from "../statement/assign-str";
 import ClearLine from "../statement/command/clearline";
 import AddChara from "../statement/command/addchara";
 import AddDefChara from "../statement/command/adddefchara";
@@ -78,8 +80,6 @@ import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
 import ConstIntExpr from "../statement/expr/const-int";
 import ConstStringExpr from "../statement/expr/const-string";
-import Form from "../statement/expr/form";
-import OpAssign from "../statement/op-assign";
 import Thunk from "../thunk";
 import expr from "./expr";
 import prop from "./property";
@@ -361,21 +361,13 @@ export const language = P.createLanguage<LanguageSpec>({
 	),
 	Assign: () => U.asLine(P.seqMap(
 		expr.Variable,
-		P.string("=").trim(U.WS0).then(P.alt(
-			U.sepBy(",", expr.Expr),
-			expr.Expr,
-			expr.Form,
-			P.succeed(new Form([{value: ""}])),
-		)),
+		P.string("=").trim(U.WS0).then(U.charSeq0()),
 		(dest, e) => new Assign(dest, e),
 	)),
 	StrAssign: () => U.asLine(P.seqMap(
 		expr.Variable,
-		P.string("'=").trim(U.WS0).then(P.alt(
-			U.sepBy(",", expr.Expr),
-			expr.Expr,
-		)),
-		(dest, e) => new Assign(dest, e),
+		P.string("'=").trim(U.WS0).then(U.charSeq()),
+		(dest, e) => new StrAssign(dest, e),
 	)),
 	OpAssign: () => U.asLine(P.alt(
 		P.seqMap(
@@ -398,7 +390,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			const arg = U.sepBy(",", P.alt(
 				P.seqMap(
 					expr.Variable,
-					P.string("=").trim(U.WS0).then(P.alt(expr.Expr)),
+					P.string("=").trim(U.WS0).then(U.charSeq(",", ")")),
 					(dest, e) => new Assign(dest, e),
 				),
 				expr.Variable,

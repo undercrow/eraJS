@@ -277,6 +277,27 @@ export default class VM {
 		}
 	}
 
+	public typeof(name: string): NDArray["type"] {
+		const context = this.context();
+		if (name === "CFLAG") {
+			return "number";
+		} else if (name === "TALENT") {
+			return "number";
+		} else if (name === "EXP") {
+			return "number";
+		} else if (name === "RAND") {
+			return "number";
+		} else if (context.dynamicMap.has(name)) {
+			return context.dynamicMap.get(name)!.type;
+		} else if (this.staticMap.get(context.fn)!.has(name)) {
+			return this.staticMap.get(context.fn)!.get(name)!.type;
+		} else if (this.globalMap.has(name)) {
+			return this.globalMap.get(name)!.type;
+		} else {
+			throw new Error(`Cannot get type of variable ${name}`);
+		}
+	}
+
 	public *start(): ReturnType<Statement["run"]> {
 		let begin = "TITLE";
 		while (true) {

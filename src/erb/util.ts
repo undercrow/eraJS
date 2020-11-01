@@ -91,6 +91,10 @@ export function charSeq(...exclude: string[]): P.Parser<string> {
 	return char(...exclude).atLeast(1).tie();
 }
 
+export function charSeq0(...exclude: string[]): P.Parser<string> {
+	return char(...exclude).many().tie();
+}
+
 export function arg1R0<A0>(a0: P.Parser<A0>): P.Parser<A0 | undefined> {
 	return P.alt(WS1.then(a0), WS0.map(() => undefined));
 }

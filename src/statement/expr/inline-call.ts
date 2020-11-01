@@ -10,7 +10,7 @@ export default class InlineCall implements Expr {
 	public arg: Expr[];
 
 	public constructor(name: string, arg: Expr[]) {
-		this.name = name;
+		this.name = name.toUpperCase();
 		this.arg = arg;
 	}
 

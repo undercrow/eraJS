@@ -5,7 +5,7 @@ export default class Begin extends Statement {
 
 	public constructor(target: string) {
 		super();
-		this.target = target;
+		this.target = target.toUpperCase();
 	}
 
 	public *run() {

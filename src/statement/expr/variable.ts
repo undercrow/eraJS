@@ -8,7 +8,7 @@ export default class Variable implements Expr {
 	public index: Expr[];
 
 	public constructor(name: string, index: Expr[]) {
-		this.name = name;
+		this.name = name.toUpperCase();
 		this.index = index;
 	}
 

@@ -10,5 +10,5 @@ export default function varSize(vm: VM, arg: Array<string | number>): number {
 		"2nd Argument of VARSIZE should be one of 0, 1, 2",
 	);
 
-	return vm.lengthOf(name, depth);
+	return vm.lengthOf(name.toUpperCase(), depth);
 }

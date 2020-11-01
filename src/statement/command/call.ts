@@ -10,7 +10,7 @@ export default class Call extends Statement {
 
 	public constructor(target: string, arg: Expr[]) {
 		super();
-		this.target = target;
+		this.target = target.toUpperCase();
 		this.arg = arg;
 	}
 

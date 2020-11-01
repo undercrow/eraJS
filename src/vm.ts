@@ -211,11 +211,11 @@ export default class VM {
 			assertNumber(index[0], "1st index of variable RAND should be an integer");
 			return Math.floor(Math.random() * index[0]);
 		} else if (context.dynamicMap.has(name)) {
-			return context.dynamicMap.get(name)!.get(...index);
+			return context.dynamicMap.get(name)!.get(...index, 0);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
-			return this.staticMap.get(context.fn)!.get(name)!.get(...index);
+			return this.staticMap.get(context.fn)!.get(name)!.get(...index, 0);
 		} else if (this.globalMap.has(name)) {
-			return this.globalMap.get(name)!.get(...index);
+			return this.globalMap.get(name)!.get(...index, 0);
 		} else {
 			throw new Error(`Variable ${name} does not exist`);
 		}
@@ -254,11 +254,11 @@ export default class VM {
 
 			character.exp[index[1]] = value;
 		} else if (context.dynamicMap.has(name)) {
-			context.dynamicMap.get(name)!.set(value, ...index);
+			context.dynamicMap.get(name)!.set(value, ...index, 0);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
-			this.staticMap.get(context.fn)!.get(name)!.set(value, ...index);
+			this.staticMap.get(context.fn)!.get(name)!.set(value, ...index, 0);
 		} else if (this.globalMap.has(name)) {
-			this.globalMap.get(name)!.set(value, ...index);
+			this.globalMap.get(name)!.set(value, ...index, 0);
 		} else {
 			throw new Error(`Variable ${name} does not exist`);
 		}

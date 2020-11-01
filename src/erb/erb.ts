@@ -300,6 +300,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "GOTO": return U.arg1R1(U.Identifier).map((target) => new Goto(target));
 			case "RETURN": return U.arg1R1(expr.Expr).map((e) => new Return(e));
+			case "RETURNF": return U.arg1R1(expr.Expr).map((e) => new Return(e));
 			case "DEBUGCLEAR": return P.succeed(new DebugClear());
 			case "MOUSEX": return P.succeed(new MouseX());
 			case "MOUSEY": return P.succeed(new MouseY());

@@ -2,7 +2,7 @@ import {assertNumber} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "./index";
 
-export default class TernaryInt implements Expr {
+export default class Ternary implements Expr {
 	public condition: Expr;
 	public left: Expr;
 	public right: Expr;
@@ -13,19 +13,9 @@ export default class TernaryInt implements Expr {
 		this.right = right;
 	}
 
-	public reduce(vm: VM): number {
+	public reduce(vm: VM) {
 		const condition = this.condition.reduce(vm);
 		assertNumber(condition, "Condition of ternary operator should be an integer");
-		if (condition !== 0) {
-			const left = this.left.reduce(vm);
-			assertNumber(left, "Left value of ternary operator should be an integer");
-
-			return left;
-		} else {
-			const right = this.right.reduce(vm);
-			assertNumber(right, "Right value of ternary operator should be an integer");
-
-			return right;
-		}
+		return condition !== 0 ? this.left.reduce(vm) : this.right.reduce(vm);
 	}
 }

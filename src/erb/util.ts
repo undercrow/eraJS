@@ -26,6 +26,16 @@ export function asLine<T>(parser: P.Parser<T>): P.Parser<T> {
 	return lineParser.trim(emptyLine.many());
 }
 
+export function nest<T>(parser: P.Parser<T>) {
+	return (prev: P.Parser<string>) => prev.chain((value) => {
+		try {
+			return P.succeed(parser.skip(P.eof).tryParse(value));
+		} catch (e) {
+			return P.fail((e as Error).message);
+		}
+	});
+}
+
 export function sepBy<T>(sep: string, first: P.Parser<T>): P.Parser<T[]>;
 export function sepBy<T, U>(
 	sep: string,

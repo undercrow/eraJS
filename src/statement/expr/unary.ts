@@ -4,7 +4,7 @@ import type Expr from "./index";
 
 type Operator = "!" | "~";
 
-export default class UnaryInt implements Expr {
+export default class Unary implements Expr {
 	public expr: Expr;
 	public op: Operator;
 

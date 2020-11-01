@@ -64,6 +64,7 @@ import ResetBgColor from "../statement/command/resetbgcolor";
 import ResetColor from "../statement/command/resetcolor";
 import ResetData from "../statement/command/resetdata";
 import ResetGlobal from "../statement/command/resetglobal";
+import Restart from "../statement/command/restart";
 import Return from "../statement/command/return";
 import SaveGame from "../statement/command/savegame";
 import SaveGlobal from "../statement/command/saveglobal";
@@ -299,6 +300,7 @@ export const language = P.createLanguage<LanguageSpec>({
 				),
 			);
 			case "GOTO": return U.arg1R1(U.Identifier).map((target) => new Goto(target));
+			case "RESTART": return P.succeed(new Restart());
 			case "RETURN": return U.arg1R1(expr.Expr).map((e) => new Return(e));
 			case "RETURNF": return U.arg1R1(expr.Expr).map((e) => new Return(e));
 			case "DEBUGCLEAR": return P.succeed(new DebugClear());

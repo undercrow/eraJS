@@ -5,7 +5,7 @@ import Statement from "../index";
 
 export default class Case extends Statement {
 	public expr: Expr;
-	public branch: Array<[Expr, Thunk]>;
+	public branch: Array<[(Expr | [Expr, Expr]), Thunk]>;
 	public def: Thunk;
 
 	public constructor(expr: Case["expr"], branch: Case["branch"], def: Thunk) {
@@ -19,8 +19,16 @@ export default class Case extends Statement {
 		const value = this.expr.reduce(vm);
 
 		for (const [cond, expr] of this.branch) {
-			if (cond.reduce(vm) === value) {
-				return yield* expr.run(vm);
+			if (Array.isArray(cond)) {
+				const start = cond[0].reduce(vm);
+				const end = cond[1].reduce(vm);
+				if (start <= value && value <= end) {
+					return yield* expr.run(vm);
+				}
+			} else {
+				if (cond.reduce(vm) === value) {
+					return yield* expr.run(vm);
+				}
 			}
 		}
 

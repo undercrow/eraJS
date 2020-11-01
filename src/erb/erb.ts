@@ -328,7 +328,13 @@ export const language = P.createLanguage<LanguageSpec>({
 		),
 		P.seqMap(
 			U.asLine(P.string("SELECTCASE").then(U.arg1R1(expr.Expr))),
-			P.seq(U.asLine(P.string("CASE").then(U.arg1R1(expr.Expr))), r.Thunk).many(),
+			P.seq(
+				U.asLine(P.string("CASE").then(U.arg1R1(P.alt(
+					P.seq(expr.Expr, P.string("TO").trim(U.WS1).then(expr.Expr)),
+					expr.Expr
+				)))),
+				r.Thunk,
+			).many(),
 			U.asLine(P.string("CASEELSE")).then(r.Thunk).fallback(new Thunk([])),
 			U.asLine(P.string("ENDSELECT")),
 			(e, branch, def) => new Case(e, branch, def),

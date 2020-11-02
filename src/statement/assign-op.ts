@@ -1,4 +1,4 @@
-import {assertNumber} from "../assert";
+import {assertNumber, assertString} from "../assert";
 import type VM from "../vm";
 import Expr from "./expr";
 import Variable from "./expr/variable";
@@ -18,24 +18,36 @@ export default class OpAssign extends Statement {
 	}
 
 	public *run(vm: VM) {
+		const type = vm.typeof(this.dest.name);
 		const index = this.dest.reduceIndex(vm);
-		const original = vm.getValue(this.dest.name, ...index);
-		assertNumber(original, `Left operand of ${this.operator}= should be an integer`);
-		const value = this.expr.reduce(vm);
-		assertNumber(value, `Right operand of ${this.operator}= should be an integer`);
 
-		switch (this.operator) {
-			case "*": vm.setValue(original * value, this.dest.name, ...index); break;
-			case "/": vm.setValue(Math.floor(original / value), this.dest.name, ...index); break;
-			case "%": vm.setValue(original % value, this.dest.name, ...index); break;
-			case "+": vm.setValue(original + value, this.dest.name, ...index); break;
-			case "-": vm.setValue(original - value, this.dest.name, ...index); break;
-			// eslint-disable-next-line no-bitwise
-			case "&": vm.setValue(original & value, this.dest.name, ...index); break;
-			// eslint-disable-next-line no-bitwise
-			case "|": vm.setValue(original | value, this.dest.name, ...index); break;
-			// eslint-disable-next-line no-bitwise
-			case "^": vm.setValue(original ^ value, this.dest.name, ...index); break;
+		if (type === "number") {
+			const original = vm.getValue(this.dest.name, ...index) as number;
+			const value = this.expr.reduce(vm);
+			assertNumber(value, `Right operand of ${this.operator}= should be an integer`);
+
+			switch (this.operator) {
+				case "*": vm.setValue(original * value, this.dest.name, ...index); break;
+				case "/": vm.setValue(Math.floor(original / value), this.dest.name, ...index); break;
+				case "%": vm.setValue(original % value, this.dest.name, ...index); break;
+				case "+": vm.setValue(original + value, this.dest.name, ...index); break;
+				case "-": vm.setValue(original - value, this.dest.name, ...index); break;
+				// eslint-disable-next-line no-bitwise
+				case "&": vm.setValue(original & value, this.dest.name, ...index); break;
+				// eslint-disable-next-line no-bitwise
+				case "|": vm.setValue(original | value, this.dest.name, ...index); break;
+				// eslint-disable-next-line no-bitwise
+				case "^": vm.setValue(original ^ value, this.dest.name, ...index); break;
+			}
+		} else {
+			const original = vm.getValue(this.dest.name, ...index) as string;
+			const value = this.expr.reduce(vm);
+			assertString(value, `Right operand of ${this.operator}= should be an integer`);
+
+			switch (this.operator) {
+				case "+": vm.setValue(original + value, this.dest.name, ...index); break;
+				default: throw new Error(`Type of operands for ${this.operator} is invalid`);
+			}
 		}
 
 		return null;

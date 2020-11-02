@@ -10,6 +10,7 @@ import AddChara from "../statement/command/addchara";
 import AddDefChara from "../statement/command/adddefchara";
 import AddVoidChara from "../statement/command/addvoidchara";
 import Alignment from "../statement/command/alignment";
+import Bar from "../statement/command/bar";
 import Begin from "../statement/command/begin";
 import Break from "../statement/command/break";
 import Call from "../statement/command/call";
@@ -249,6 +250,12 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "CURRENTREDRAW": return P.succeed(new CurrentRedraw());
 			case "PRINTCPERLINE": return P.succeed(new PrintCPerLine());
 			case "LINEISEMPTY": return P.succeed(new LineIsEmpty());
+			case "BAR": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+				([value, max, length]) => new Bar(value, max, length),
+			);
+			case "BARL": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+				([value, max, length]) => new Bar(value, max, length, true),
+			);
 			case "ISSKIP": return P.succeed(new IsSkip());
 			case "MOUSESKIP": return P.succeed(new MouseSkip());
 			case "STRLEN": return U.arg1R1(U.charSeq()).map(

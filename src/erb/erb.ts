@@ -73,6 +73,7 @@ import SetFont from "../statement/command/setfont";
 import Split from "../statement/command/split";
 import StopCallTrain from "../statement/command/stopcalltrain";
 import StrData from "../statement/command/strdata";
+import StrFind from "../statement/command/strfind";
 import StrLen from "../statement/command/strlen";
 import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
@@ -265,6 +266,12 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "SUBSTRINGU": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
 				([e, start, end]) => new SubstringU(e, start, end),
+			);
+			case "STRFIND": return U.arg2R2(expr.Expr, expr.Expr).map(
+				([val, search]) => new StrFind(val, search),
+			);
+			case "STRFINDU": return U.arg2R2(expr.Expr, expr.Expr).map(
+				([val, search]) => new StrFind(val, search, true),
 			);
 			case "SPLIT": return U.arg3R3(expr.Expr, expr.Expr, expr.Variable).map(
 				([e, sep, dest]) => new Split(e, sep, dest),

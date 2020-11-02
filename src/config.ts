@@ -21,6 +21,7 @@ export type Character = {
 	cstr: string[];
 	mark: number[];
 	palam: number[];
+	juel: number[];
 };
 
 export type Config = {

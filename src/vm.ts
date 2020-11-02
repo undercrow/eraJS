@@ -13,10 +13,10 @@ import Call from "./statement/command/call";
 
 /* eslint-disable array-bracket-newline */
 const CHAR_VAR_ARRAY = [
-	"CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR", "MARK", "PALAM",
+	"CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR", "MARK", "PALAM", "JUEL",
 ];
 /* eslint-enable array-bracket-newline */
-const CHAR_VAR_SINGLE = ["NAME", "CALLNAME"];
+const CHAR_VAR_SINGLE = ["NAME", "CALLNAME", "NO"];
 
 type Context = {
 	fn: string;
@@ -210,6 +210,7 @@ export default class VM {
 				case "CSTR": return character.cstr[valIndex];
 				case "MARK": return character.mark[valIndex];
 				case "PALAM": return character.palam[valIndex];
+				case "JUEL": return character.juel[valIndex];
 				default: throw new Error("Unreachable");
 			}
 		} else if (CHAR_VAR_SINGLE.includes(name)) {
@@ -219,6 +220,7 @@ export default class VM {
 
 			const character = this.characters[charIndex];
 			switch (name) {
+				case "NO": return character.id;
 				case "NAME": return character.name;
 				case "CALLNAME": return character.nickname;
 				default: throw new Error("Unreachable");
@@ -294,6 +296,11 @@ export default class VM {
 					character.palam[valIndex] = value;
 					break;
 				}
+				case "JUEL": {
+					assertNumber(value, "Value for JUEL should be an integer");
+					character.juel[valIndex] = value;
+					break;
+				}
 				default: throw new Error("Unreachable");
 			}
 		} else if (CHAR_VAR_SINGLE.includes(name)) {
@@ -303,6 +310,11 @@ export default class VM {
 
 			const character = this.characters[charIndex];
 			switch (name) {
+				case "NO": {
+					assertNumber(value, "Value for NO should be a number");
+					character.id = value;
+					break;
+				}
 				case "NAME": {
 					assertString(value, "Value for NAME should be a string");
 					character.name = value;
@@ -358,6 +370,10 @@ export default class VM {
 		} else if (name === "MARK") {
 			return "number";
 		} else if (name === "PALAM") {
+			return "number";
+		} else if (name === "JUEL") {
+			return "number";
+		} else if (name === "NO") {
 			return "number";
 		} else if (name === "RAND") {
 			return "number";

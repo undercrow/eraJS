@@ -1,4 +1,3 @@
-import {assertString} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -21,8 +20,10 @@ export default class Print extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.value.reduce(vm);
-		assertString(value, "Argument of PRINT must be a string");
-		yield <const>{type: "string", value};
+		yield <const>{
+			type: "string",
+			value: typeof value === "string" ? value : value.toString(),
+		};
 
 		// TODO: outType
 		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check

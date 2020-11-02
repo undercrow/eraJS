@@ -118,6 +118,7 @@ export default class VM {
 		this.globalMap.set("COUNT", new NDArray("number", []));
 		this.globalMap.set("DAY", new NDArray("number", []));
 		this.globalMap.set("MONEY", new NDArray("number", []));
+		this.globalMap.set("MASTER", new NDArray("number", [], 0));
 		this.globalMap.set("TARGET", new NDArray("number", [], -1));
 		this.globalMap.set("FLAG", new NDArray("number", [10000]));
 		this.globalMap.set("ITEMSALES", new NDArray("number", [100]));

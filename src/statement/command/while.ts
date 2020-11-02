@@ -18,6 +18,9 @@ export default class While extends Statement {
 		loop: for (;;) {
 			const condition = this.condition.reduce(vm);
 			assertNumber(condition, "Condition of WHILE should be an integer");
+			if (condition === 0) {
+				break;
+			}
 
 			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {

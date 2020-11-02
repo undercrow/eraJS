@@ -29,11 +29,15 @@ export default class Assign extends Statement {
 				vm.setValue(value, this.dest.name, ...partialIndex, lastIndex + i);
 			}
 		} else {
-			const rawList = U.sepBy(",", U.charSeq(",")).tryParse(this.value);
-			const formList = rawList.map((raw) => expr.Form.tryParse(raw));
-			for (let i = 0; i < formList.length; ++i) {
-				const value = formList[i].reduce(vm);
-				vm.setValue(value, this.dest.name, ...partialIndex, lastIndex + i);
+			if (this.value.length !== 0) {
+				const rawList = U.sepBy(",", U.charSeq0(",")).tryParse(this.value);
+				const formList = rawList.map((raw) => expr.Form.tryParse(raw));
+				for (let i = 0; i < formList.length; ++i) {
+					const value = formList[i].reduce(vm);
+					vm.setValue(value, this.dest.name, ...partialIndex, lastIndex + i);
+				}
+			} else {
+				vm.setValue("", this.dest.name, ...index);
 			}
 		}
 

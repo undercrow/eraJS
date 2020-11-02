@@ -32,11 +32,11 @@ export default class Call extends Statement {
 						yield* argExpr.run(vm);
 					}
 				} else {
-					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-					assert(value != null, `${i}th argument of ${this.target} is required`);
-
+					const type = vm.typeof(argExpr.name);
+					const fallback = type === "number" ? 0 : "";
 					const index = argExpr.reduceIndex(vm);
-					vm.setValue(value, argExpr.name, ...index);
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					vm.setValue(value ?? fallback, argExpr.name, ...index);
 				}
 			}
 

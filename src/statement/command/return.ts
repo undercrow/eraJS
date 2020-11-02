@@ -1,4 +1,3 @@
-import {assertNumber} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -12,12 +11,9 @@ export default class Return extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const value = this.expr.map((e) => e.reduce(vm));
-		value.forEach((v) => assertNumber(v, "Argument of RETURN should be an integer"));
-
 		return <const>{
 			type: "return",
-			value: value as number[],
+			value: this.expr.map((e) => e.reduce(vm)),
 		};
 	}
 }

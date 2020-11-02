@@ -69,6 +69,7 @@ const UInt = P.alt(
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
 );
 export const Int = P.alt(UInt, P.string("-").then(UInt).map((val) => -val));
+export const Float = P.regex(/[0-9]+\.[0-9]+/).map((val) => parseFloat(val));
 export const Str = char("\"").many().tie().trim(P.string("\""));
 
 export function char(...exclude: string[]): P.Parser<string> {

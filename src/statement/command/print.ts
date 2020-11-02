@@ -6,6 +6,7 @@ import Statement from "../index";
 type OutType = "K" | "D";
 type Action = "newline" | "wait";
 
+// TODO: Plain
 export default class Print extends Statement {
 	public value: Expr;
 	public outType?: OutType;

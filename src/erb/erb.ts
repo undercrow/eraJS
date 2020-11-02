@@ -79,6 +79,7 @@ import StrLen from "../statement/command/strlen";
 import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
 import SubstringU from "../statement/command/substringu";
+import Times from "../statement/command/times";
 import VarSet from "../statement/command/varset";
 import Wait from "../statement/command/wait";
 import WaitAnyKey from "../statement/command/waitanykey";
@@ -214,6 +215,15 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "PRINTFORMDW": return U.arg1R0(expr.Form).map(
 				(val) => new Print(val ?? new ConstStringExpr(""), "D", "wait")
+			);
+			case "PRINTPLAIN": return U.arg1R0(U.charSeq()).map(
+				(val) => new Print(new ConstStringExpr(val ?? "")),
+			);
+			case "PRINTPLAINFORM": return U.arg1R0(expr.Form).map(
+				(val) => new Print(val ?? new ConstStringExpr("")),
+			);
+			case "TIMES": return U.arg2R2(expr.Variable, U.Float).map(
+				([dest, value]) => new Times(dest, value),
 			);
 			case "DRAWLINE": return P.succeed(new DrawLine());
 			case "CLEARLINE": return U.arg1R1(expr.Expr).map((e) => new ClearLine(e));

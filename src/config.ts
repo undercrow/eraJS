@@ -3,6 +3,7 @@ import * as Papa from "papaparse";
 import parseAbility from "./csv/abl";
 import parseBase from "./csv/base";
 import parseCharacter from "./csv/character";
+import parseMark from "./csv/mark";
 import parseTalent from "./csv/talent";
 
 export type Character = {
@@ -16,6 +17,7 @@ export type Character = {
 	exp: number[];
 	flags: number[];
 	cstr: string[];
+	mark: number[];
 };
 
 export type Config = {
@@ -29,6 +31,7 @@ export type Config = {
 	character: Map<number, Character>;
 	ability: string[];
 	talent: string[];
+	mark: string[];
 };
 
 export default function parseCSV(content: Map<string, string>): Config {
@@ -48,5 +51,6 @@ export default function parseCSV(content: Map<string, string>): Config {
 		character: parseCharacter(values),
 		ability: parseAbility(values),
 		talent: parseTalent(values),
+		mark: parseMark(values),
 	};
 }

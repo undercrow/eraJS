@@ -30,6 +30,7 @@ export default class StrLen extends Statement {
 				exp: character.exp.slice(),
 				flags: character.flags.slice(),
 				cstr: character.cstr.slice(),
+				mark: character.mark.slice(),
 			});
 		}
 		vm.setValue(vm.characters.length, "CHARANUM");

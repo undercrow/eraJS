@@ -11,7 +11,7 @@ import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 
-const CHAR_VAR_ARRAY = ["CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR"];
+const CHAR_VAR_ARRAY = ["CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR", "MARK"];
 const CHAR_VAR_SINGLE = ["NAME", "CALLNAME"];
 
 type Context = {
@@ -123,6 +123,7 @@ export default class VM {
 		this.globalMap.set("SAVESTR", new NDArray("string", [100]));
 		this.globalMap.set("ABLNAME", NDArray.fromValue("string", config.ability));
 		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", config.talent));
+		this.globalMap.set("MARKNAME", NDArray.fromValue("string", config.mark));
 		this.globalMap.set("GLOBAL", new NDArray("number", [1000]));
 		this.globalMap.set("GLOBALS", new NDArray("string", [100]));
 		this.globalMap.set("GAMEBASE_AUTHOR", new NDArray("string", [], config.gamebase.author));
@@ -201,6 +202,7 @@ export default class VM {
 				case "ABL": return character.abilities[valIndex];
 				case "EXP": return character.exp[valIndex];
 				case "CSTR": return character.cstr[valIndex];
+				case "MARK": return character.mark[valIndex];
 				default: throw new Error("Unreachable");
 			}
 		} else if (CHAR_VAR_SINGLE.includes(name)) {
@@ -275,6 +277,11 @@ export default class VM {
 					character.cstr[valIndex] = value;
 					break;
 				}
+				case "MARK": {
+					assertNumber(value, "Value for MARK should be an integer");
+					character.mark[valIndex] = value;
+					break;
+				}
 				default: throw new Error("Unreachable");
 			}
 		} else if (CHAR_VAR_SINGLE.includes(name)) {
@@ -336,6 +343,8 @@ export default class VM {
 			return "number";
 		} else if (name === "CSTR") {
 			return "string";
+		} else if (name === "MARK") {
+			return "number";
 		} else if (name === "RAND") {
 			return "number";
 		} else if (context.dynamicMap.has(name)) {

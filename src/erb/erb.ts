@@ -349,7 +349,7 @@ export const language = P.createLanguage<LanguageSpec>({
 		P.seqMap(
 			U.asLine(P.string("SELECTCASE").then(U.arg1R1(expr.Expr))),
 			P.seq(
-				U.asLine(P.string("CASE").then(U.arg1R1(P.alt(
+				U.asLine(P.string("CASE").then(U.argNR0(P.alt(
 					P.seqMap(U.Int, P.string("TO").trim(U.WS1).then(U.Int), (from, to) => ({
 						type: "range",
 						from,
@@ -360,7 +360,8 @@ export const language = P.createLanguage<LanguageSpec>({
 						U.Int,
 						(op, value) => ({type: "compare", op, value}),
 					),
-					U.sepBy(",", P.alt(U.Int, U.Str)),
+					U.Int.map((value) => ({type: "equal", value})),
+					U.Str.map((value) => ({type: "equal", value})),
 				)))),
 				r.Thunk,
 			).many(),

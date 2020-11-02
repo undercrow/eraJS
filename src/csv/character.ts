@@ -17,6 +17,7 @@ export default function parse(values: Map<string, string[][]>): Config["characte
 			flags: Array<number>(1000).fill(0),
 			cstr: Array<string>(100).fill(""),
 			mark: Array<number>(100).fill(0),
+			palam: Array<number>(100).fill(0),
 		};
 		for (const row of rowList) {
 			switch (row[0]) {

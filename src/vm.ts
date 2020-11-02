@@ -11,7 +11,11 @@ import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 
-const CHAR_VAR_ARRAY = ["CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR", "MARK"];
+/* eslint-disable array-bracket-newline */
+const CHAR_VAR_ARRAY = [
+	"CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR", "MARK", "PALAM",
+];
+/* eslint-enable array-bracket-newline */
 const CHAR_VAR_SINGLE = ["NAME", "CALLNAME"];
 
 type Context = {
@@ -123,7 +127,9 @@ export default class VM {
 		this.globalMap.set("SAVESTR", new NDArray("string", [100]));
 		this.globalMap.set("ABLNAME", NDArray.fromValue("string", config.ability));
 		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", config.talent));
+		this.globalMap.set("EXPNAME", NDArray.fromValue("string", config.exp));
 		this.globalMap.set("MARKNAME", NDArray.fromValue("string", config.mark));
+		this.globalMap.set("PALAMNAME", NDArray.fromValue("string", config.palam));
 		this.globalMap.set("GLOBAL", new NDArray("number", [1000]));
 		this.globalMap.set("GLOBALS", new NDArray("string", [100]));
 		this.globalMap.set("GAMEBASE_AUTHOR", new NDArray("string", [], config.gamebase.author));
@@ -203,6 +209,7 @@ export default class VM {
 				case "EXP": return character.exp[valIndex];
 				case "CSTR": return character.cstr[valIndex];
 				case "MARK": return character.mark[valIndex];
+				case "PALAM": return character.palam[valIndex];
 				default: throw new Error("Unreachable");
 			}
 		} else if (CHAR_VAR_SINGLE.includes(name)) {
@@ -282,6 +289,11 @@ export default class VM {
 					character.mark[valIndex] = value;
 					break;
 				}
+				case "PALAM": {
+					assertNumber(value, "Value for PALAM should be an integer");
+					character.palam[valIndex] = value;
+					break;
+				}
 				default: throw new Error("Unreachable");
 			}
 		} else if (CHAR_VAR_SINGLE.includes(name)) {
@@ -344,6 +356,8 @@ export default class VM {
 		} else if (name === "CSTR") {
 			return "string";
 		} else if (name === "MARK") {
+			return "number";
+		} else if (name === "PALAM") {
 			return "number";
 		} else if (name === "RAND") {
 			return "number";

@@ -138,8 +138,30 @@ export default class VM {
 		this.globalMap.set("GAMEBASE_TITLE", new NDArray("string", [], config.gamebase.title));
 		this.globalMap.set("GAMEBASE_VERSION", new NDArray("number", [], config.gamebase.version));
 		this.globalMap.set("LINECOUNT", new NDArray("number", []));
+		for (let i = 0; i < config.ability.length; ++i) {
+			if (config.ability[i] !== "") {
+				this.globalMap.set(config.ability[i], new NDArray("number", [], i));
+			}
+		}
 		for (let i = 0; i < config.talent.length; ++i) {
-			this.globalMap.set(config.talent[i], new NDArray("number", [], i));
+			if (config.talent[i] !== "") {
+				this.globalMap.set(config.talent[i], new NDArray("number", [], i));
+			}
+		}
+		for (let i = 0; i < config.exp.length; ++i) {
+			if (config.exp[i] !== "") {
+				this.globalMap.set(config.exp[i], new NDArray("number", [], i));
+			}
+		}
+		for (let i = 0; i < config.mark.length; ++i) {
+			if (config.mark[i] !== "") {
+				this.globalMap.set(config.mark[i], new NDArray("number", [], i));
+			}
+		}
+		for (let i = 0; i < config.palam.length; ++i) {
+			if (config.palam[i] !== "") {
+				this.globalMap.set(config.palam[i], new NDArray("number", [], i));
+			}
 		}
 
 		for (const property of header) {

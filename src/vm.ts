@@ -11,7 +11,8 @@ import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 
-const CHAR_VAR = ["CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR"];
+const CHAR_VAR_ARRAY = ["CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR"];
+const CHAR_VAR_SINGLE = ["NAME", "CALLNAME"];
 
 type Context = {
 	fn: string;
@@ -182,7 +183,7 @@ export default class VM {
 
 	public getValue(name: string, ...index: number[]): Leaf {
 		const context = this.context();
-		if (CHAR_VAR.includes(name)) {
+		if (CHAR_VAR_ARRAY.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -201,6 +202,17 @@ export default class VM {
 				case "CSTR": return character.cstr[valIndex];
 				default: throw new Error("Unreachable");
 			}
+		} else if (CHAR_VAR_SINGLE.includes(name)) {
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			const charIndex = index[0] ?? this.getValue("TARGET");
+			assertNumber(charIndex, "Character index should an integer");
+
+			const character = this.characters[charIndex];
+			switch (name) {
+				case "NAME": return character.name;
+				case "CALLNAME": return character.nickname;
+				default: throw new Error("Unreachable");
+			}
 		} else if (name === "RAND") {
 			assertNumber(index[0], "1st index of variable RAND should be an integer");
 			return Math.floor(Math.random() * index[0]);
@@ -217,7 +229,7 @@ export default class VM {
 
 	public setValue(value: Leaf, name: string, ...index: number[]): void {
 		const context = this.context();
-		if (CHAR_VAR.includes(name)) {
+		if (CHAR_VAR_ARRAY.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -260,6 +272,25 @@ export default class VM {
 				case "CSTR": {
 					assertString(value, "Value for CSTR should be a string");
 					character.cstr[valIndex] = value;
+					break;
+				}
+				default: throw new Error("Unreachable");
+			}
+		} else if (CHAR_VAR_SINGLE.includes(name)) {
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			const charIndex = index[0] ?? this.getValue("TARGET");
+			assertNumber(charIndex, "Character index should an integer");
+
+			const character = this.characters[charIndex];
+			switch (name) {
+				case "NAME": {
+					assertString(value, "Value for NAME should be a string");
+					character.name = value;
+					break;
+				}
+				case "CALLNAME": {
+					assertString(value, "Value for CALLNAME should be a string");
+					character.nickname = value;
 					break;
 				}
 				default: throw new Error("Unreachable");

@@ -398,7 +398,7 @@ export const language = P.createLanguage<LanguageSpec>({
 	),
 	Assign: () => U.asLine(P.seqMap(
 		expr.Variable,
-		P.string("=").trim(U.WS0).then(U.charSeq0()),
+		P.string("=").trim(U.WS0).then(P.noneOf("\r\n;").many().tie()),
 		(dest, e) => new Assign(dest, e),
 	)),
 	StrAssign: () => U.asLine(P.seqMap(

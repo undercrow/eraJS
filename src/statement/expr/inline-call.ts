@@ -4,6 +4,7 @@ import Assign from "../assign";
 import type Expr from "../expr";
 import getBit from "../method/getbit";
 import getChara from "../method/getchara";
+import inRange from "../method/inrange";
 import rand from "../method/rand";
 import strLenS from "../method/strlens";
 import varSize from "../method/varsize";
@@ -31,6 +32,7 @@ export default class InlineCall implements Expr {
 		switch (this.name) {
 			case "GETBIT": return getBit(vm, arg);
 			case "GETCHARA": return getChara(vm, arg);
+			case "INRANGE": return inRange(vm, arg);
 			case "RAND": return rand(vm, arg);
 			case "STRLENS": return strLenS(vm, arg);
 			case "VARSIZE": return varSize(vm, arg);

@@ -24,9 +24,12 @@ export default class StrLen extends Statement {
 				name: character.name,
 				nickname: character.nickname,
 				talent: character.talent.slice(),
+				maxBase: character.maxBase.slice(),
+				base: character.base.slice(),
 				abilities: character.abilities.slice(),
 				exp: character.exp.slice(),
 				flags: character.flags.slice(),
+				cstr: character.cstr.slice(),
 			});
 		}
 		vm.setValue(vm.characters.length, "CHARANUM");

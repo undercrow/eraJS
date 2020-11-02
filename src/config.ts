@@ -10,9 +10,12 @@ export type Character = {
 	name: string;
 	nickname: string;
 	talent: number[];
+	maxBase: number[];
+	base: number[];
 	abilities: number[];
 	exp: number[];
 	flags: number[];
+	cstr: string[];
 };
 
 export type Config = {

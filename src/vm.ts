@@ -1,4 +1,4 @@
-import {assertNumber} from "./assert";
+import {assertNumber, assertString} from "./assert";
 import {Character, Config} from "./config";
 import type Fn from "./fn";
 import NDArray, {Leaf} from "./ndarray";
@@ -11,7 +11,7 @@ import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 
-const CHAR_VAR = ["CFLAG", "TALENT", "ABL", "EXP"];
+const CHAR_VAR = ["CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR"];
 
 type Context = {
 	fn: string;
@@ -194,8 +194,11 @@ export default class VM {
 			switch (name) {
 				case "CFLAG": return character.flags[valIndex];
 				case "TALENT": return character.talent[valIndex];
+				case "MAXBASE": return character.maxBase[valIndex];
+				case "BASE": return character.base[valIndex];
 				case "ABL": return character.abilities[valIndex];
-				case "EXP": return character.abilities[valIndex];
+				case "EXP": return character.exp[valIndex];
+				case "CSTR": return character.cstr[valIndex];
 				default: throw new Error("Unreachable");
 			}
 		} else if (name === "RAND") {
@@ -234,6 +237,16 @@ export default class VM {
 					character.talent[valIndex] = value;
 					break;
 				}
+				case "MAXBASE": {
+					assertNumber(value, "Value for MAXBASE should be an integer");
+					character.maxBase[valIndex] = value;
+					break;
+				}
+				case "BASE": {
+					assertNumber(value, "Value for BASE should be an integer");
+					character.base[valIndex] = value;
+					break;
+				}
 				case "ABL": {
 					assertNumber(value, "Value for ABL should be an integer");
 					character.abilities[valIndex] = value;
@@ -241,7 +254,12 @@ export default class VM {
 				}
 				case "EXP": {
 					assertNumber(value, "Value for EXP should be an integer");
-					character.abilities[valIndex] = value;
+					character.exp[valIndex] = value;
+					break;
+				}
+				case "CSTR": {
+					assertString(value, "Value for CSTR should be a string");
+					character.cstr[valIndex] = value;
 					break;
 				}
 				default: throw new Error("Unreachable");
@@ -278,8 +296,14 @@ export default class VM {
 			return "number";
 		} else if (name === "EXP") {
 			return "number";
+		} else if (name === "MAXBASE") {
+			return "number";
+		} else if (name === "BASE") {
+			return "number";
 		} else if (name === "ABL") {
 			return "number";
+		} else if (name === "CSTR") {
+			return "string";
 		} else if (name === "RAND") {
 			return "number";
 		} else if (context.dynamicMap.has(name)) {

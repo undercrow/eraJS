@@ -1,4 +1,4 @@
-import {assertNumber, assertString} from "./assert";
+import {assertNumber} from "./assert";
 import {Character, Config} from "./config";
 import type Fn from "./fn";
 import NDArray, {Leaf} from "./ndarray";
@@ -11,12 +11,12 @@ import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 
+const CHAR_VAR_0D = ["NO", "NAME", "CALLNAME"];
 /* eslint-disable array-bracket-newline */
-const CHAR_VAR_ARRAY = [
+const CHAR_VAR_1D = [
 	"CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR", "MARK", "PALAM", "JUEL",
 ];
 /* eslint-enable array-bracket-newline */
-const CHAR_VAR_SINGLE = ["NAME", "CALLNAME", "NO"];
 
 type Context = {
 	fn: string;
@@ -31,7 +31,6 @@ export default class VM {
 	public staticMap: Map<string, Map<string, NDArray>>;
 	private contextStack: Array<Context>;
 
-	public characters: Character[];
 	public alignment: Alignment["align"];
 	public font: {
 		name: string;
@@ -51,7 +50,6 @@ export default class VM {
 		this.globalMap = new Map();
 		this.staticMap = new Map();
 		this.contextStack = [];
-		this.characters = [];
 		this.alignment = "left";
 		this.font = {
 			name: "",
@@ -126,6 +124,19 @@ export default class VM {
 		this.globalMap.set("PBAND", new NDArray("number", [], 4));
 		this.globalMap.set("CHARANUM", new NDArray("number", []));
 		this.globalMap.set("SAVESTR", new NDArray("string", [100]));
+		this.globalMap.set("NO", new NDArray("number", [1000]));
+		this.globalMap.set("NAME", new NDArray("string", [1000]));
+		this.globalMap.set("CALLNAME", new NDArray("string", [1000]));
+		this.globalMap.set("CFLAG", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("TALENT", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("MAXBASE", new NDArray("number", [1000, 100]));
+		this.globalMap.set("BASE", new NDArray("number", [1000, 100]));
+		this.globalMap.set("ABL", new NDArray("number", [1000, 100]));
+		this.globalMap.set("EXP", new NDArray("number", [1000, 100]));
+		this.globalMap.set("CSTR", new NDArray("string", [1000, 100]));
+		this.globalMap.set("MARK", new NDArray("number", [1000, 100]));
+		this.globalMap.set("PALAM", new NDArray("number", [1000, 200]));
+		this.globalMap.set("JUEL", new NDArray("number", [1000, 200]));
 		this.globalMap.set("ABLNAME", NDArray.fromValue("string", config.ability));
 		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", config.talent));
 		this.globalMap.set("EXPNAME", NDArray.fromValue("string", config.exp));
@@ -214,7 +225,10 @@ export default class VM {
 
 	public getValue(name: string, ...index: number[]): Leaf {
 		const context = this.context();
-		if (CHAR_VAR_ARRAY.includes(name)) {
+		if (name === "RAND") {
+			assertNumber(index[0], "1st index of variable RAND should be an integer");
+			return Math.floor(Math.random() * index[0]);
+		} else if (CHAR_VAR_1D.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -222,35 +236,13 @@ export default class VM {
 			assertNumber(charIndex, "Character index should an integer");
 			assertNumber(valIndex, "Index for character variable should be an integer");
 
-			const character = this.characters[charIndex];
-			switch (name) {
-				case "CFLAG": return character.flags[valIndex];
-				case "TALENT": return character.talent[valIndex];
-				case "MAXBASE": return character.maxBase[valIndex];
-				case "BASE": return character.base[valIndex];
-				case "ABL": return character.abilities[valIndex];
-				case "EXP": return character.exp[valIndex];
-				case "CSTR": return character.cstr[valIndex];
-				case "MARK": return character.mark[valIndex];
-				case "PALAM": return character.palam[valIndex];
-				case "JUEL": return character.juel[valIndex];
-				default: throw new Error("Unreachable");
-			}
-		} else if (CHAR_VAR_SINGLE.includes(name)) {
+			return this.globalMap.get(name)!.get(charIndex, valIndex);
+		} else if (CHAR_VAR_0D.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			const charIndex = index[0] ?? this.getValue("TARGET");
 			assertNumber(charIndex, "Character index should an integer");
 
-			const character = this.characters[charIndex];
-			switch (name) {
-				case "NO": return character.id;
-				case "NAME": return character.name;
-				case "CALLNAME": return character.nickname;
-				default: throw new Error("Unreachable");
-			}
-		} else if (name === "RAND") {
-			assertNumber(index[0], "1st index of variable RAND should be an integer");
-			return Math.floor(Math.random() * index[0]);
+			return this.globalMap.get(name)!.get(charIndex);
 		} else if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.get(...index, 0);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
@@ -264,7 +256,7 @@ export default class VM {
 
 	public setValue(value: Leaf, name: string, ...index: number[]): void {
 		const context = this.context();
-		if (CHAR_VAR_ARRAY.includes(name)) {
+		if (CHAR_VAR_1D.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -272,84 +264,13 @@ export default class VM {
 			assertNumber(charIndex, "Character index should an integer");
 			assertNumber(valIndex, "Index for character variable should be an integer");
 
-			const character = this.characters[charIndex];
-			switch (name) {
-				case "CFLAG": {
-					assertNumber(value, "Value for CFLAG should be an integer");
-					character.flags[valIndex] = value;
-					break;
-				}
-				case "TALENT": {
-					assertNumber(value, "Value for TALENT should be an integer");
-					character.talent[valIndex] = value;
-					break;
-				}
-				case "MAXBASE": {
-					assertNumber(value, "Value for MAXBASE should be an integer");
-					character.maxBase[valIndex] = value;
-					break;
-				}
-				case "BASE": {
-					assertNumber(value, "Value for BASE should be an integer");
-					character.base[valIndex] = value;
-					break;
-				}
-				case "ABL": {
-					assertNumber(value, "Value for ABL should be an integer");
-					character.abilities[valIndex] = value;
-					break;
-				}
-				case "EXP": {
-					assertNumber(value, "Value for EXP should be an integer");
-					character.exp[valIndex] = value;
-					break;
-				}
-				case "CSTR": {
-					assertString(value, "Value for CSTR should be a string");
-					character.cstr[valIndex] = value;
-					break;
-				}
-				case "MARK": {
-					assertNumber(value, "Value for MARK should be an integer");
-					character.mark[valIndex] = value;
-					break;
-				}
-				case "PALAM": {
-					assertNumber(value, "Value for PALAM should be an integer");
-					character.palam[valIndex] = value;
-					break;
-				}
-				case "JUEL": {
-					assertNumber(value, "Value for JUEL should be an integer");
-					character.juel[valIndex] = value;
-					break;
-				}
-				default: throw new Error("Unreachable");
-			}
-		} else if (CHAR_VAR_SINGLE.includes(name)) {
+			this.globalMap.get(name)!.set(value, charIndex, valIndex);
+		} else if (CHAR_VAR_0D.includes(name)) {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			const charIndex = index[0] ?? this.getValue("TARGET");
 			assertNumber(charIndex, "Character index should an integer");
 
-			const character = this.characters[charIndex];
-			switch (name) {
-				case "NO": {
-					assertNumber(value, "Value for NO should be a number");
-					character.id = value;
-					break;
-				}
-				case "NAME": {
-					assertString(value, "Value for NAME should be a string");
-					character.name = value;
-					break;
-				}
-				case "CALLNAME": {
-					assertString(value, "Value for CALLNAME should be a string");
-					character.nickname = value;
-					break;
-				}
-				default: throw new Error("Unreachable");
-			}
+			this.globalMap.get(name)!.set(value, charIndex);
 		} else if (context.dynamicMap.has(name)) {
 			context.dynamicMap.get(name)!.set(value, ...index, 0);
 		} else if (this.staticMap.get(context.fn)!.has(name)) {
@@ -374,31 +295,22 @@ export default class VM {
 		}
 	}
 
+	public removeAt(name: string, ...index: number[]) {
+		const context = this.context();
+		if (context.dynamicMap.has(name)) {
+			return context.dynamicMap.get(name)!.removeAt(...index);
+		} else if (this.staticMap.get(context.fn)!.has(name)) {
+			return this.staticMap.get(context.fn)!.get(name)!.removeAt(...index);
+		} else if (this.globalMap.has(name)) {
+			return this.globalMap.get(name)!.removeAt(...index);
+		} else {
+			throw new Error(`Cannot get remove ${index.join(",")} of variable ${name}`);
+		}
+	}
+
 	public typeof(name: string): NDArray["type"] {
 		const context = this.context();
-		if (name === "CFLAG") {
-			return "number";
-		} else if (name === "TALENT") {
-			return "number";
-		} else if (name === "EXP") {
-			return "number";
-		} else if (name === "MAXBASE") {
-			return "number";
-		} else if (name === "BASE") {
-			return "number";
-		} else if (name === "ABL") {
-			return "number";
-		} else if (name === "CSTR") {
-			return "string";
-		} else if (name === "MARK") {
-			return "number";
-		} else if (name === "PALAM") {
-			return "number";
-		} else if (name === "JUEL") {
-			return "number";
-		} else if (name === "NO") {
-			return "number";
-		} else if (name === "RAND") {
+		if (name === "RAND") {
 			return "number";
 		} else if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.type;

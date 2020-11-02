@@ -3,6 +3,10 @@ import {assert, assertNumber, assertString} from "./assert";
 export type Leaf = string | number;
 export type Value = Leaf | Leaf[] | Leaf[][];
 
+function repeat<T>(length: number, valueFn: () => T): T[] {
+	return Array(length).fill(null).map(valueFn);
+}
+
 export default class NDArray {
 	public depth: 0 | 1 | 2;
 	public type: "number" | "string";
@@ -61,7 +65,8 @@ export default class NDArray {
 		this.type = type;
 		switch (size.length) {
 			case 0: this.value = leaf; break;
-			case 1: this.value = Array(size[0]).fill(leaf); break;
+			case 1: this.value = repeat(size[0], () => leaf); break;
+			case 2: this.value = repeat(size[0], () => repeat(size[1], () => leaf)); break;
 			default: throw new Error(`${size.length}D array is not supported`);
 		}
 		this.depth = size.length;
@@ -100,7 +105,7 @@ export default class NDArray {
 		}
 	}
 
-	public length(depth: 0 | 1 | 2) {
+	public length(depth: number) {
 		switch (depth) {
 			case 0: {
 				switch (this.depth) {
@@ -124,5 +129,39 @@ export default class NDArray {
 				}
 			}
 		}
+		throw new Error(`Invalid array depth ${depth}`);
+	}
+
+	public removeAt(...index: number[]) {
+		const leaf = this.type === "number" ? 0 : "";
+		switch (index.length) {
+			case 1: {
+				switch (this.depth) {
+					case 0: throw new Error("Cannot remove depth 1 value of 0D array");
+					case 1: {
+						(this.value as Leaf[]).splice(index[0]);
+						(this.value as Leaf[]).push(leaf);
+						return;
+					}
+					case 2: {
+						(this.value as Leaf[][]).splice(index[0]);
+						(this.value as Leaf[][]).push(repeat(this.length(1), () => leaf));
+						return;
+					}
+				}
+			}
+			case 2: {
+				switch (this.depth) {
+					case 0: throw new Error("Cannot remove depth 2 value of 0D array");
+					case 1: throw new Error("Cannot remove depth 2 value of 1D array");
+					case 2: {
+						(this.value as Leaf[][])[index[0]].splice(index[1]);
+						(this.value as Leaf[][])[index[0]].push(leaf);
+						return;
+					}
+				}
+			}
+		}
+		throw new Error(`Invalid index size ${index.length}`);
 	}
 }

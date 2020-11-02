@@ -19,23 +19,23 @@ export default class StrLen extends Statement {
 			const character = vm.characterMap.get(id);
 			assert(character != null, `Character with id ${id} does not exist`);
 
-			vm.characters.push({
-				id: character.id,
-				name: character.name,
-				nickname: character.nickname,
-				talent: character.talent.slice(),
-				maxBase: character.maxBase.slice(),
-				base: character.base.slice(),
-				abilities: character.abilities.slice(),
-				exp: character.exp.slice(),
-				flags: character.flags.slice(),
-				cstr: character.cstr.slice(),
-				mark: character.mark.slice(),
-				palam: character.palam.slice(),
-				juel: character.juel.slice(),
-			});
+			const charaNum = vm.getValue("CHARANUM") as number;
+			vm.setValue(character.id, "NO", charaNum);
+			vm.setValue(character.name, "NAME", charaNum);
+			vm.setValue(character.nickname, "CALLNAME", charaNum);
+			character.flags.forEach((v, i) => vm.setValue(v, "CFLAG", charaNum, i));
+			character.talent.forEach((v, i) => vm.setValue(v, "TALENT", charaNum, i));
+			character.maxBase.forEach((v, i) => vm.setValue(v, "MAXBASE", charaNum, i));
+			character.base.forEach((v, i) => vm.setValue(v, "BASE", charaNum, i));
+			character.abilities.forEach((v, i) => vm.setValue(v, "ABL", charaNum, i));
+			character.exp.forEach((v, i) => vm.setValue(v, "EXP", charaNum, i));
+			character.cstr.forEach((v, i) => vm.setValue(v, "CSTR", charaNum, i));
+			character.mark.forEach((v, i) => vm.setValue(v, "MARK", charaNum, i));
+			character.palam.forEach((v, i) => vm.setValue(v, "PALAM", charaNum, i));
+			character.juel.forEach((v, i) => vm.setValue(v, "JUEL", charaNum, i));
+
+			vm.setValue(charaNum + 1, "CHARANUM");
 		}
-		vm.setValue(vm.characters.length, "CHARANUM");
 
 		return null;
 	}

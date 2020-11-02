@@ -29,7 +29,7 @@ export function asLine<T>(parser: P.Parser<T>): P.Parser<T> {
 export function nest<T>(parser: P.Parser<T>) {
 	return (prev: P.Parser<string>) => prev.chain((value) => {
 		try {
-			return P.succeed(parser.skip(P.eof).tryParse(value));
+			return P.succeed(parser.tryParse(value.trim()));
 		} catch (e) {
 			return P.fail((e as Error).message);
 		}

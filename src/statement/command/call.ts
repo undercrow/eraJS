@@ -49,7 +49,9 @@ export default class Call extends Statement {
 				case "break": return result;
 				case "continue": return result;
 				case "return": {
-					vm.setValue(result.value, "RESULT", 0);
+					for (let i = 0; i < result.value.length; ++i) {
+						vm.setValue(result.value[i], "RESULT", i);
+					}
 					break fnLoop;
 				}
 				case undefined: continue fnLoop;

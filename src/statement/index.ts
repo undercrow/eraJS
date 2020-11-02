@@ -16,7 +16,7 @@ export type Result =
 	| {type: "goto"; label: string}
 	| {type: "break"}
 	| {type: "continue"}
-	| {type: "return"; value: number};
+	| {type: "return"; value: number[]};
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default class Statement {

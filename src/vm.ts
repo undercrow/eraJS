@@ -121,6 +121,7 @@ export default class VM {
 		this.globalMap.set("PBAND", new NDArray("number", [], 4));
 		this.globalMap.set("CHARANUM", new NDArray("number", []));
 		this.globalMap.set("SAVESTR", new NDArray("string", [100]));
+		this.globalMap.set("ABLNAME", NDArray.fromValue("string", config.ability));
 		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", config.talent));
 		this.globalMap.set("GLOBAL", new NDArray("number", [1000]));
 		this.globalMap.set("GLOBALS", new NDArray("string", [100]));

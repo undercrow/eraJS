@@ -28,7 +28,14 @@ export default class OpAssign extends Statement {
 
 			switch (this.operator) {
 				case "*": vm.setValue(original * value, this.dest.name, ...index); break;
-				case "/": vm.setValue(Math.floor(original / value), this.dest.name, ...index); break;
+				case "/": {
+					vm.setValue(
+						Math.floor(original / value),
+						this.dest.name,
+						...index,
+					);
+					break;
+				}
 				case "%": vm.setValue(original % value, this.dest.name, ...index); break;
 				case "+": vm.setValue(original + value, this.dest.name, ...index); break;
 				case "-": vm.setValue(original - value, this.dest.name, ...index); break;

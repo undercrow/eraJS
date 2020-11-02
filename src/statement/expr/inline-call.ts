@@ -1,4 +1,5 @@
 import type VM from "../../vm";
+import getBit from "../method/getbit";
 import getChara from "../method/getchara";
 import rand from "../method/rand";
 import strLenS from "../method/strlens";
@@ -17,6 +18,7 @@ export default class InlineCall implements Expr {
 	public reduce(vm: VM): string | number {
 		const arg: Array<string | number> = this.arg.map((a) => a.reduce(vm));
 		switch (this.name) {
+			case "GETBIT": return getBit(vm, arg);
 			case "GETCHARA": return getChara(vm, arg);
 			case "RAND": return rand(vm, arg);
 			case "STRLENS": return strLenS(vm, arg);

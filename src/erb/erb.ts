@@ -415,7 +415,7 @@ export const language = P.createLanguage<LanguageSpec>({
 	Statement: (r) => P.alt(r.Command, r.Assign, r.StrAssign, r.OpAssign),
 	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),
 	Function: (r) => P.seqMap(
-		U.asLine(P.string("@").chain(() => {
+		U.asLine(P.string("@").then(P.lazy(() => {
 			const arg = U.sepBy(",", P.alt(
 				P.seqMap(
 					expr.Variable,
@@ -425,12 +425,12 @@ export const language = P.createLanguage<LanguageSpec>({
 				expr.Variable,
 			));
 
-			return P.seq(U.Identifier, P.alt(
+			return P.seq(U.Identifier.skip(U.WS0), P.alt(
 				U.wrap("(", arg, ")"),
 				P.string(",").trim(U.WS0).then(arg),
 				P.succeed([]),
 			));
-		})),
+		}))),
 		prop.many(),
 		r.Thunk,
 		([name, arg], property, thunk) => new Fn(name, arg, property, thunk),

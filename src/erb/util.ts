@@ -103,8 +103,18 @@ export function arg1R1<A0>(a0: P.Parser<A0>): P.Parser<A0> {
 	return WS1.then(a0);
 }
 
+export function arg2R1<A0, A1>(
+	a0: P.Parser<A0>,
+	a1: P.Parser<A1>,
+): P.Parser<[A0, A1 | undefined]> {
+	return WS1.then(P.seq(
+		a0,
+		P.string(",").trim(WS0).then(a1).fallback(undefined),
+	));
+}
+
 export function arg2R2<A0, A1>(a0: P.Parser<A0>, a1: P.Parser<A1>): P.Parser<[A0, A1]> {
-	return WS1.then(P.seqMap(a0, P.string(",").trim(WS0).then(a1), (...arg) => arg));
+	return WS1.then(P.seq(a0, P.string(",").trim(WS0).then(a1)));
 }
 
 export function arg3R3<A0, A1, A2>(

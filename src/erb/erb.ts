@@ -74,7 +74,9 @@ import Split from "../statement/command/split";
 import StopCallTrain from "../statement/command/stopcalltrain";
 import StrData from "../statement/command/strdata";
 import StrLen from "../statement/command/strlen";
+import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
+import SubstringU from "../statement/command/substringu";
 import VarSet from "../statement/command/varset";
 import Wait from "../statement/command/wait";
 import WaitAnyKey from "../statement/command/waitanykey";
@@ -253,8 +255,16 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "STRLENS": return U.arg1R1(expr.Expr).map((e) => new StrLen(e));
 			case "STRLENFORM": return U.arg1R1(expr.Form).map((e) => new StrLen(e));
+			case "STRLENU": return U.arg1R1(U.charSeq()).map(
+				(e) => new StrLenU(new ConstStringExpr(e)),
+			);
+			case "STRLENSU": return U.arg1R1(expr.Expr).map((e) => new StrLenU(e));
+			case "STRLENFORMU": return U.arg1R1(expr.Form).map((e) => new StrLenU(e));
 			case "SUBSTRING": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
 				([e, start, end]) => new Substring(e, start, end),
+			);
+			case "SUBSTRINGU": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+				([e, start, end]) => new SubstringU(e, start, end),
 			);
 			case "SPLIT": return U.arg3R3(expr.Expr, expr.Expr, expr.Variable).map(
 				([e, sep, dest]) => new Split(e, sep, dest),
@@ -269,7 +279,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "DELALLCHARA": return P.succeed(new DelAllChara());
 			case "RESETDATA": return P.succeed(new ResetData());
 			case "RESETGLOBAL": return P.succeed(new ResetGlobal());
-			case "VARSET": return U.arg2R2(expr.Variable, expr.Expr).map(
+			case "VARSET": return U.arg2R1(expr.Variable, expr.Expr).map(
 				([dest, value]) => new VarSet(dest, value),
 			);
 			case "PUTFORM": return U.arg1R1(expr.Form).map((e) => new PutForm(e));

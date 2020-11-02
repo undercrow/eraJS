@@ -12,7 +12,7 @@ export default class Assign extends Statement {
 	public constructor(dest: Variable, value: string) {
 		super();
 		this.dest = dest;
-		this.value = value;
+		this.value = value.trim();
 	}
 
 	public *run(vm: VM) {

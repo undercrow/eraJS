@@ -4,7 +4,7 @@ import Assign from "../assign";
 import Expr from "../expr";
 import Statement from "../index";
 
-export default class Call extends Statement {
+export default class Jump extends Statement {
 	public target: Expr;
 	public arg: Expr[];
 
@@ -16,12 +16,12 @@ export default class Call extends Statement {
 
 	public *run(vm: VM) {
 		let target = this.target.reduce(vm);
-		assertString(target, "1st argument of CALL must be a string");
+		assertString(target, "1st argument of JUMP must be a string");
 		target = target.toUpperCase();
 		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
 
 		const arg = this.arg.map((a) => a.reduce(vm));
-		fnLoop: for (const fn of vm.fnMap.get(target)!) {
+		for (const fn of vm.fnMap.get(target)!) {
 			vm.pushContext(fn);
 
 			for (let i = 0; i < fn.arg.length; ++i) {
@@ -47,21 +47,11 @@ export default class Call extends Statement {
 			const result = yield* fn.thunk.run(vm);
 			vm.popContext();
 
-			switch (result?.type) {
-				case "begin": return result;
-				case "goto": return result;
-				case "break": return result;
-				case "continue": return result;
-				case "return": {
-					for (let i = 0; i < result.value.length; ++i) {
-						vm.setValue(result.value[i], "RESULT", i);
-					}
-					break fnLoop;
-				}
-				case undefined: continue fnLoop;
+			if (result != null) {
+				return result;
 			}
 		}
-		vm.setValue(0, "RESULT", 0);
+
 		return null;
 	}
 }

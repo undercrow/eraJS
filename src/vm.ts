@@ -10,6 +10,7 @@ import LocalSSize from "./property/localssize";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
+import Const from "./statement/expr/const";
 
 const CHAR_VAR_0D = ["NO", "NAME", "CALLNAME"];
 /* eslint-disable array-bracket-newline */
@@ -19,14 +20,13 @@ const CHAR_VAR_1D = [
 /* eslint-enable array-bracket-newline */
 
 type Context = {
-	fn: string;
+	fn: Fn;
 	dynamicMap: Map<string, NDArray>;
 };
 
 export default class VM {
 	public fnMap: Map<string, Fn[]>;
 	public characterMap: Map<number, Character>;
-	public labelSet: Set<string>;
 
 	public globalMap: Map<string, NDArray>;
 	public staticMap: Map<string, Map<string, NDArray>>;
@@ -48,7 +48,6 @@ export default class VM {
 	public constructor(header: Property[], fnList: Fn[], config: Config) {
 		this.fnMap = new Map();
 		this.characterMap = new Map();
-		this.labelSet = new Set();
 		this.globalMap = new Map();
 		this.staticMap = new Map();
 		this.contextStack = [];
@@ -70,7 +69,6 @@ export default class VM {
 				this.fnMap.set(fn.name, []);
 			}
 			this.fnMap.get(fn.name)!.push(fn);
-			fn.thunk.labelMap.forEach((_, l) => this.labelSet.add(l));
 		}
 
 		// Reorder functions
@@ -202,13 +200,13 @@ export default class VM {
 		}
 	}
 
-	private context(): Context {
+	public context(): Context {
 		return this.contextStack[this.contextStack.length - 1];
 	}
 
 	public pushContext(fn: Fn): void {
 		const context: Context = {
-			fn: fn.name,
+			fn,
 			dynamicMap: new Map(),
 		};
 		context.dynamicMap.set("ARG", new NDArray("number", [1000]));
@@ -248,8 +246,8 @@ export default class VM {
 			return this.globalMap.get(name)!.get(charIndex);
 		} else if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.get(...index, 0);
-		} else if (this.staticMap.get(context.fn)!.has(name)) {
-			return this.staticMap.get(context.fn)!.get(name)!.get(...index, 0);
+		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
+			return this.staticMap.get(context.fn.name)!.get(name)!.get(...index, 0);
 		} else if (this.globalMap.has(name)) {
 			return this.globalMap.get(name)!.get(...index, 0);
 		} else {
@@ -276,8 +274,8 @@ export default class VM {
 			this.globalMap.get(name)!.set(value, charIndex);
 		} else if (context.dynamicMap.has(name)) {
 			context.dynamicMap.get(name)!.set(value, ...index, 0);
-		} else if (this.staticMap.get(context.fn)!.has(name)) {
-			this.staticMap.get(context.fn)!.get(name)!.set(value, ...index, 0);
+		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
+			this.staticMap.get(context.fn.name)!.get(name)!.set(value, ...index, 0);
 		} else if (this.globalMap.has(name)) {
 			this.globalMap.get(name)!.set(value, ...index, 0);
 		} else {
@@ -289,8 +287,8 @@ export default class VM {
 		const context = this.context();
 		if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.length(depth);
-		} else if (this.staticMap.get(context.fn)!.has(name)) {
-			return this.staticMap.get(context.fn)!.get(name)!.length(depth);
+		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
+			return this.staticMap.get(context.fn.name)!.get(name)!.length(depth);
 		} else if (this.globalMap.has(name)) {
 			return this.globalMap.get(name)!.length(depth);
 		} else {
@@ -302,8 +300,8 @@ export default class VM {
 		const context = this.context();
 		if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.removeAt(...index);
-		} else if (this.staticMap.get(context.fn)!.has(name)) {
-			return this.staticMap.get(context.fn)!.get(name)!.removeAt(...index);
+		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
+			return this.staticMap.get(context.fn.name)!.get(name)!.removeAt(...index);
 		} else if (this.globalMap.has(name)) {
 			return this.globalMap.get(name)!.removeAt(...index);
 		} else {
@@ -317,8 +315,8 @@ export default class VM {
 			return "number";
 		} else if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.type;
-		} else if (this.staticMap.get(context.fn)!.has(name)) {
-			return this.staticMap.get(context.fn)!.get(name)!.type;
+		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
+			return this.staticMap.get(context.fn.name)!.get(name)!.type;
 		} else if (this.globalMap.has(name)) {
 			return this.globalMap.get(name)!.type;
 		} else {
@@ -332,11 +330,11 @@ export default class VM {
 			let result: Result | null = null;
 			switch (begin) {
 				case "TITLE": {
-					result = yield* new Call("SYSTEM_TITLE", []).run(this);
+					result = yield* new Call(new Const("SYSTEM_TITLE"), []).run(this);
 					break;
 				}
 				case "FIRST": {
-					result = yield* new Call("EVENTFIRST", []).run(this);
+					result = yield* new Call(new Const("EVENTFIRST"), []).run(this);
 					break;
 				}
 				default: {

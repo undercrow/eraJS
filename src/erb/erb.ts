@@ -50,6 +50,7 @@ import InputS from "../statement/command/inputs";
 import InitRand from "../statement/command/initrand";
 import IsActive from "../statement/command/isactive";
 import IsSkip from "../statement/command/isskip";
+import Jump from "../statement/command/jump";
 import LineIsEmpty from "../statement/command/lineisempty";
 import LoadGame from "../statement/command/loadgame";
 import LoadGlobal from "../statement/command/loadglobal";
@@ -80,10 +81,14 @@ import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
 import SubstringU from "../statement/command/substringu";
 import Times from "../statement/command/times";
+import TryCall from "../statement/command/trycall";
+import TryGoto from "../statement/command/trygoto";
+import TryJump from "../statement/command/tryjump";
 import VarSet from "../statement/command/varset";
 import Wait from "../statement/command/wait";
 import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
+import Expr from "../statement/expr";
 import Const from "../statement/expr/const";
 import Thunk from "../thunk";
 import expr from "./expr";
@@ -102,6 +107,15 @@ type LanguageSpec = {
 	Function: Fn;
 	Language: Fn[];
 };
+
+function callArg<T>(target: P.Parser<T>): P.Parser<[T, Expr[]]> {
+	const first = P.noneOf(",(;\r\n").many().tie().thru(U.nest(target));
+
+	return P.alt(
+		U.arg1R1(P.seq(first, U.wrap("(", U.sepBy(",", expr.Expr), ")"))),
+		U.argNR1(first, expr.Expr).map(([f, ...r]) => [f, r]),
+	);
+}
 
 export const language = P.createLanguage<LanguageSpec>({
 	Label: () => U.asLine(P.string("$").then(U.Identifier)),
@@ -324,15 +338,34 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "DUMPRAND": return P.succeed(new DumpRand());
 			case "INITRAND": return P.succeed(new InitRand());
 			case "BEGIN": return U.arg1R1(U.Identifier).map((target) => new Begin(target));
-			case "CALL": return P.alt(
-				U.arg1R1(expr.InlineCall).map(
-					(parsed) => new Call(parsed.name, parsed.arg),
-				),
-				U.argNR1(U.Identifier, expr.Expr).map(
-					([target, ...arg]) => new Call(target, arg),
-				),
+			case "CALL": return callArg(U.Identifier).map(
+				([name, arg]) => new Call(new Const(name), arg),
 			);
-			case "GOTO": return U.arg1R1(U.Identifier).map((target) => new Goto(target));
+			case "CALLFORM": return callArg(expr.Form).map(([name, arg]) => new Call(name, arg));
+			case "TRYCALL": return callArg(U.Identifier).map(
+				([name, arg]) => new TryCall(new Const(name), arg),
+			);
+			case "TRYCALLFORM": return callArg(expr.Form).map(
+				([name, arg]) => new TryCall(name, arg),
+			);
+			case "JUMP": return callArg(U.Identifier).map(
+				([name, arg]) => new Jump(new Const(name), arg),
+			);
+			case "JUMPFORM": return callArg(expr.Form).map(([name, arg]) => new Jump(name, arg));
+			case "TRYJUMP": return callArg(U.Identifier).map(
+				([name, arg]) => new TryJump(new Const(name), arg),
+			);
+			case "TRYJUMPFORM": return callArg(expr.Form).map(
+				([name, arg]) => new TryJump(name, arg),
+			);
+			case "GOTO": return U.arg1R1(U.Identifier).map(
+				(target) => new Goto(new Const(target)),
+			);
+			case "GOTOFORM": return U.arg1R1(expr.Form).map((target) => new Goto(target));
+			case "TRYGOTO": return U.arg1R1(U.Identifier).map(
+				(target) => new TryGoto(new Const(target)),
+			);
+			case "TRYGOTOFORM": return U.arg1R1(expr.Form).map((target) => new TryGoto(target));
 			case "RESTART": return P.succeed(new Restart());
 			case "RETURN": return U.argNR1(expr.Expr, expr.Expr).map((e) => new Return(e));
 			case "RETURNF": return U.argNR1(expr.Expr, expr.Expr).map((e) => new Return(e));

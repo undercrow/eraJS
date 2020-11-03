@@ -2,8 +2,9 @@ import {assertString} from "../../assert";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Statement from "../index";
+import Goto from "./goto";
 
-export default class Goto extends Statement {
+export default class TryGoto extends Statement {
 	public target: Expr;
 
 	public constructor(target: Expr) {
@@ -13,17 +14,13 @@ export default class Goto extends Statement {
 
 	public *run(vm: VM) {
 		let target = this.target.reduce(vm);
-		assertString(target, "1st argument of GOTO must be a string");
+		assertString(target, "1st argument of TRYGOTO must be a string");
 		target = target.toUpperCase();
-
 		const context = vm.context();
-		if (!context.fn.thunk.labelMap.has(target)) {
-			throw new Error(`Label ${target} does not exist`);
+		if (context.fn.thunk.labelMap.has(target)) {
+			return yield* new Goto(this.target).run(vm);
 		}
 
-		return <const>{
-			type: "goto",
-			label: target,
-		};
+		return null;
 	}
 }

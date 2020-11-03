@@ -1,4 +1,3 @@
-import type Thunk from "../thunk";
 import type VM from "../vm";
 
 export type Output =
@@ -20,11 +19,7 @@ export type Result =
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default class Statement {
-	public *run(_vm: VM): Generator<Output, Result | null, string> {
+	public *run(_vm: VM, _label?: string): Generator<Output, Result | null, string> {
 		return null;
-	}
-
-	public getThunk(): Thunk[] {
-		return [];
 	}
 }

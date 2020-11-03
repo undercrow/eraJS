@@ -22,7 +22,15 @@ export default class Case extends Statement {
 		this.def = def;
 	}
 
-	public *run(vm: VM) {
+	public *run(vm: VM, label?: string) {
+		if (label != null) {
+			for (const [, thunk] of this.branch) {
+				if (thunk.labelMap.has(label)) {
+					return yield* thunk.run(vm, label);
+				}
+			}
+		}
+
 		const value = this.expr.reduce(vm);
 
 		for (const [cond, expr] of this.branch) {
@@ -48,9 +56,5 @@ export default class Case extends Statement {
 		}
 
 		return null;
-	}
-
-	public getThunk(): Thunk[] {
-		return [...this.branch.map((b) => b[1]), this.def];
 	}
 }

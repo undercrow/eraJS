@@ -19,7 +19,13 @@ export default class For extends Statement {
 		this.thunk = thunk;
 	}
 
-	public *run(vm: VM) {
+	public *run(vm: VM, label?: string) {
+		if (label != null) {
+			if (this.thunk.labelMap.has(label)) {
+				return yield* this.thunk.run(vm, label);
+			}
+		}
+
 		const start = this.start.reduce(vm);
 		assertNumber(start, "Starting value for FOR should be an integer");
 		const end = this.end.reduce(vm);
@@ -40,9 +46,5 @@ export default class For extends Statement {
 		}
 
 		return null;
-	}
-
-	public getThunk() {
-		return [this.thunk];
 	}
 }

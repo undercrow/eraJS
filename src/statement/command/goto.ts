@@ -1,3 +1,4 @@
+import type VM from "../../vm";
 import Statement from "../index";
 
 export default class Goto extends Statement {
@@ -8,7 +9,11 @@ export default class Goto extends Statement {
 		this.target = target.toUpperCase();
 	}
 
-	public *run() {
+	public *run(vm: VM) {
+		if (!vm.labelSet.has(this.target)) {
+			throw new Error(`Label ${this.target} does not exist`);
+		}
+
 		return <const>{
 			type: "goto",
 			label: this.target,

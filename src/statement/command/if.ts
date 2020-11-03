@@ -14,7 +14,19 @@ export default class If extends Statement {
 		this.elseExpr = elseExpr;
 	}
 
-	public *run(vm: VM) {
+	public *run(vm: VM, label?: string) {
+		if (label != null) {
+			for (const [, thunk] of this.ifExpr) {
+				if (thunk.labelMap.has(label)) {
+					return yield* thunk.run(vm, label);
+				}
+			}
+			if (this.elseExpr.labelMap.has(label)) {
+				return yield* this.elseExpr.run(vm, label);
+			}
+		}
+
+
 		for (const ifExpr of this.ifExpr) {
 			const cond = ifExpr[0].reduce(vm);
 			assertNumber(cond, "Condition should be an integer");
@@ -24,9 +36,5 @@ export default class If extends Statement {
 		}
 
 		return yield* this.elseExpr.run(vm);
-	}
-
-	public getThunk(): Thunk[] {
-		return [...this.ifExpr.map((expr) => expr[1]), this.elseExpr];
 	}
 }

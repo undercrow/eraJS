@@ -26,6 +26,7 @@ type Context = {
 export default class VM {
 	public fnMap: Map<string, Fn[]>;
 	public characterMap: Map<number, Character>;
+	public labelSet: Set<string>;
 
 	public globalMap: Map<string, NDArray>;
 	public staticMap: Map<string, Map<string, NDArray>>;
@@ -47,6 +48,7 @@ export default class VM {
 	public constructor(header: Property[], fnList: Fn[], config: Config) {
 		this.fnMap = new Map();
 		this.characterMap = new Map();
+		this.labelSet = new Set();
 		this.globalMap = new Map();
 		this.staticMap = new Map();
 		this.contextStack = [];
@@ -68,6 +70,7 @@ export default class VM {
 				this.fnMap.set(fn.name, []);
 			}
 			this.fnMap.get(fn.name)!.push(fn);
+			fn.thunk.labelMap.forEach((_, l) => this.labelSet.add(l));
 		}
 
 		// Reorder functions

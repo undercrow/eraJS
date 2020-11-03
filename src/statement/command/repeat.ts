@@ -14,7 +14,13 @@ export default class Repeat extends Statement {
 		this.thunk = thunk;
 	}
 
-	public *run(vm: VM) {
+	public *run(vm: VM, label?: string) {
+		if (label != null) {
+			if (this.thunk.labelMap.has(label)) {
+				return yield* this.thunk.run(vm, label);
+			}
+		}
+
 		const condition = this.condition.reduce(vm);
 		assertNumber(condition, "Condition for REPEAT should be an integer");
 
@@ -32,9 +38,5 @@ export default class Repeat extends Statement {
 		}
 
 		return null;
-	}
-
-	public getThunk() {
-		return [this.thunk];
 	}
 }

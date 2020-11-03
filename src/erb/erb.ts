@@ -239,6 +239,10 @@ export const language = P.createLanguage<LanguageSpec>({
 				([dest, value]) => new Times(dest, value),
 			);
 			case "DRAWLINE": return P.succeed(new DrawLine());
+			case "CUSTOMDRAWLINE": return U.arg1R1(U.charSeq()).map(
+				(e) => new DrawLine(new Const(e)),
+			);
+			case "DRAWLINEFORM": return U.arg1R1(expr.Form).map((e) => new DrawLine(e));
 			case "CLEARLINE": return U.arg1R1(expr.Expr).map((e) => new ClearLine(e));
 			case "RESETCOLOR": return P.succeed(new ResetColor());
 			case "RESETBGCOLOR": return P.succeed(new ResetBgColor());

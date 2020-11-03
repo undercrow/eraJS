@@ -84,8 +84,7 @@ import VarSet from "../statement/command/varset";
 import Wait from "../statement/command/wait";
 import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
-import ConstIntExpr from "../statement/expr/const-int";
-import ConstStringExpr from "../statement/expr/const-string";
+import Const from "../statement/expr/const";
 import Thunk from "../thunk";
 import expr from "./expr";
 import prop from "./property";
@@ -109,31 +108,31 @@ export const language = P.createLanguage<LanguageSpec>({
 	PlainCommand: () => U.asLine(U.Identifier.chain<Statement>((instruction) => {
 		switch (instruction) {
 			case "PRINT": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), undefined, undefined),
+				(val) => new Print(new Const(val ?? ""), undefined, undefined),
 			);
 			case "PRINTK": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), "K", undefined),
+				(val) => new Print(new Const(val ?? ""), "K", undefined),
 			);
 			case "PRINTD": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), "D", undefined)
+				(val) => new Print(new Const(val ?? ""), "D", undefined)
 			);
 			case "PRINTL": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), undefined, "newline"),
+				(val) => new Print(new Const(val ?? ""), undefined, "newline"),
 			);
 			case "PRINTKL": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), "K", "newline"),
+				(val) => new Print(new Const(val ?? ""), "K", "newline"),
 			);
 			case "PRINTDL": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), "D", "newline"),
+				(val) => new Print(new Const(val ?? ""), "D", "newline"),
 			);
 			case "PRINTW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), undefined, "wait"),
+				(val) => new Print(new Const(val ?? ""), undefined, "wait"),
 			);
 			case "PRINTKW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), "K", "wait"),
+				(val) => new Print(new Const(val ?? ""), "K", "wait"),
 			);
 			case "PRINTDW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? ""), "D", "wait"),
+				(val) => new Print(new Const(val ?? ""), "D", "wait"),
 			);
 			case "PRINTV": return U.arg1R1(expr.Expr).map(
 				(val) => new Print(val, undefined, undefined),
@@ -190,37 +189,37 @@ export const language = P.createLanguage<LanguageSpec>({
 				(val) => new Print(val, "D", "wait"),
 			);
 			case "PRINTFORM": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), undefined, undefined),
+				(val) => new Print(val ?? new Const(""), undefined, undefined),
 			);
 			case "PRINTFORMK": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), "K", undefined),
+				(val) => new Print(val ?? new Const(""), "K", undefined),
 			);
 			case "PRINTFORMD": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), "D", undefined),
+				(val) => new Print(val ?? new Const(""), "D", undefined),
 			);
 			case "PRINTFORML": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), undefined, "newline")
+				(val) => new Print(val ?? new Const(""), undefined, "newline")
 			);
 			case "PRINTFORMKL": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), "K", "newline")
+				(val) => new Print(val ?? new Const(""), "K", "newline")
 			);
 			case "PRINTFORMDL": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), "D", "newline")
+				(val) => new Print(val ?? new Const(""), "D", "newline")
 			);
 			case "PRINTFORMW": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), undefined, "wait")
+				(val) => new Print(val ?? new Const(""), undefined, "wait")
 			);
 			case "PRINTFORMKW": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), "K", "wait")
+				(val) => new Print(val ?? new Const(""), "K", "wait")
 			);
 			case "PRINTFORMDW": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr(""), "D", "wait")
+				(val) => new Print(val ?? new Const(""), "D", "wait")
 			);
 			case "PRINTPLAIN": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new ConstStringExpr(val ?? "")),
+				(val) => new Print(new Const(val ?? "")),
 			);
 			case "PRINTPLAINFORM": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new ConstStringExpr("")),
+				(val) => new Print(val ?? new Const("")),
 			);
 			case "TIMES": return U.arg2R2(expr.Variable, U.Float).map(
 				([dest, value]) => new Times(dest, value),
@@ -233,7 +232,7 @@ export const language = P.createLanguage<LanguageSpec>({
 				U.arg3R3(U.Int, U.Int, U.Int).map(
 					([colorR, colorG, colorB]) => {
 						const rgb = colorR * 0x010000 + colorG * 0x000100 + colorB;
-						return new SetColor(new ConstIntExpr(rgb));
+						return new SetColor(new Const(rgb));
 					},
 				),
 				U.arg1R1(expr.Expr).map((e) => new SetColor(e)),
@@ -269,12 +268,12 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "ISSKIP": return P.succeed(new IsSkip());
 			case "MOUSESKIP": return P.succeed(new MouseSkip());
 			case "STRLEN": return U.arg1R1(U.charSeq()).map(
-				(e) => new StrLen(new ConstStringExpr(e)),
+				(e) => new StrLen(new Const(e)),
 			);
 			case "STRLENS": return U.arg1R1(expr.Expr).map((e) => new StrLen(e));
 			case "STRLENFORM": return U.arg1R1(expr.Form).map((e) => new StrLen(e));
 			case "STRLENU": return U.arg1R1(U.charSeq()).map(
-				(e) => new StrLenU(new ConstStringExpr(e)),
+				(e) => new StrLenU(new Const(e)),
 			);
 			case "STRLENSU": return U.arg1R1(expr.Expr).map((e) => new StrLenU(e));
 			case "STRLENFORMU": return U.arg1R1(expr.Form).map((e) => new StrLenU(e));
@@ -424,10 +423,10 @@ export const language = P.createLanguage<LanguageSpec>({
 			(dest, op, e) => new OpAssign(dest, op, e),
 		),
 		expr.Variable.skip(P.string("++")).map(
-			(dest) => new OpAssign(dest, "+", new ConstIntExpr(1)),
+			(dest) => new OpAssign(dest, "+", new Const(1)),
 		),
 		expr.Variable.skip(P.string("--")).map(
-			(dest) => new OpAssign(dest, "-", new ConstIntExpr(1)),
+			(dest) => new OpAssign(dest, "-", new Const(1)),
 		),
 	)),
 	Statement: (r) => P.alt(r.Command, r.Assign, r.StrAssign, r.OpAssign),

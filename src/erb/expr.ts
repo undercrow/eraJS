@@ -2,8 +2,7 @@ import P from "parsimmon";
 
 import Expr from "../statement/expr";
 import Binary from "../statement/expr/binary";
-import ConstIntExpr from "../statement/expr/const-int";
-import ConstStringExpr from "../statement/expr/const-string";
+import Const from "../statement/expr/const";
 import Form from "../statement/expr/form";
 import InlineCall from "../statement/expr/inline-call";
 import Ternary from "../statement/expr/ternary";
@@ -41,7 +40,7 @@ type LanguageSpec = {
 
 const language = P.createLanguage<LanguageSpec>({
 	Variable: (r) => U.sepBy(":", U.Identifier, P.alt(
-		U.Int.map((value) => new ConstIntExpr(value)),
+		U.Int.map((value) => new Const(value)),
 		r.InlineCall,
 		U.Identifier.map((name) => new Variable(name, [])),
 		U.wrap("(", r.Expr, ")"),
@@ -49,8 +48,8 @@ const language = P.createLanguage<LanguageSpec>({
 		.map(([name, ...index]) => new Variable(name, index)),
 	ExprL0: (r) => P.alt(
 		U.wrap("(", r.Expr, ")"),
-		U.Int.map((val) => new ConstIntExpr(val)),
-		U.Str.map((value) => new ConstStringExpr(value)),
+		U.Int.map((val) => new Const(val)),
+		U.Str.map((value) => new Const(value)),
 		r.InlineCall,
 		r.Variable,
 	),

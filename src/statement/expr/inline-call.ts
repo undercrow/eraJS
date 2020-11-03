@@ -29,7 +29,7 @@ export default class InlineCall implements Expr {
 
 	public reduce(vm: VM): string | number {
 		const arg: Array<string | number> = this.arg.map((a) => a.reduce(vm));
-		switch (this.name) {
+		switch (this.name.toUpperCase()) {
 			case "GETBIT": return getBit(vm, arg);
 			case "GETCHARA": return getChara(vm, arg);
 			case "INRANGE": return inRange(vm, arg);

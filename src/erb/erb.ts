@@ -120,7 +120,7 @@ function callArg<T>(target: P.Parser<T>): P.Parser<[T, Expr[]]> {
 export const language = P.createLanguage<LanguageSpec>({
 	Label: () => U.asLine(P.string("$").then(U.Identifier)),
 	PlainCommand: () => U.asLine(U.Identifier.chain<Statement>((instruction) => {
-		switch (instruction) {
+		switch (instruction.toUpperCase()) {
 			case "PRINT": return U.arg1R0(U.charSeq()).map(
 				(val) => new Print(new Const(val ?? ""), undefined, undefined),
 			);

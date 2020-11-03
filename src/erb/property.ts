@@ -10,7 +10,7 @@ import Order from "../property/order";
 import * as U from "./util";
 
 const parser = U.asLine(P.string("#").then(U.Identifier).chain<Property>((property) => {
-	switch (property) {
+	switch (property.toUpperCase()) {
 		case "PRI": return P.succeed(new Order("PRI"));
 		case "LATER": return P.succeed(new Order("LATER"));
 		case "DIM": return U.WS1.then(P.seqMap(

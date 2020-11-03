@@ -328,7 +328,7 @@ export default class VM {
 		let begin = "TITLE";
 		while (true) {
 			let result: Result | null = null;
-			switch (begin) {
+			switch (begin.toUpperCase()) {
 				case "TITLE": {
 					result = yield* new Call(new Const("SYSTEM_TITLE"), []).run(this);
 					break;

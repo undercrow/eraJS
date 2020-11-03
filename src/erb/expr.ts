@@ -50,6 +50,7 @@ const language = P.createLanguage<LanguageSpec>({
 		U.wrap("(", r.Expr, ")"),
 		U.Int.map((val) => new Const(val)),
 		U.Str.map((value) => new Const(value)),
+		U.wrap('@"', P.noneOf('"\r\n').many().tie().thru(U.nest(r.Form)), '"'),
 		r.InlineCall,
 		r.Variable,
 	),

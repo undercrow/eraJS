@@ -32,21 +32,17 @@ export function nest<T>(parser: P.Parser<T>) {
 	});
 }
 
-export function sepBy<T>(sep: string, first: P.Parser<T>): P.Parser<T[]>;
-export function sepBy<T, U>(
+export function sepBy0<T>(sep: string, parser: P.Parser<T>): P.Parser<T[]> {
+	return P.sepBy(parser, P.string(sep).trim(WS0));
+}
+
+export function sepBy1<T, U>(
 	sep: string,
 	first: P.Parser<T>,
 	rest: P.Parser<U>,
-): P.Parser<[T, ...U[]]>;
-export function sepBy<T, U>(
-	sep: string,
-	first: P.Parser<T>,
-	rest?: P.Parser<U>,
-): P.Parser<Array<T | U>> {
-	return P.seqMap(
-		first,
-		P.string(sep).trim(WS0).then<T | U>(rest ?? first).many(),
-		(f, r) => [f, ...r],
+): P.Parser<[T, ...U[]]> {
+	return P.seq(first, P.string(sep).trim(WS0).then(rest).many()).map(
+		([f, r]) => [f, ...r],
 	);
 }
 
@@ -133,9 +129,9 @@ export function arg3R3<A0, A1, A2>(
 }
 
 export function argNR0<AN>(an: P.Parser<AN>): P.Parser<AN[]> {
-	return P.alt(WS1.then(sepBy(",", an)), WS0.map(() => [])).skip(EOL);
+	return P.alt(WS1.then(sepBy0(",", an)), WS0.map(() => [])).skip(EOL);
 }
 
 export function argNR1<A0, AN>(a0: P.Parser<A0>, an: P.Parser<AN>): P.Parser<[A0, ...AN[]]> {
-	return WS1.then(sepBy(",", a0, an)).skip(EOL);
+	return WS1.then(sepBy1(",", a0, an)).skip(EOL);
 }

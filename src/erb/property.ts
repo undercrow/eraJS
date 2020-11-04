@@ -15,9 +15,9 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 		case "LATER": return U.arg0R0().map(() => new Order("LATER"));
 		case "DIM": return U.asLine(P.lazy(() => {
 			const dimArgument = P.seq(
-				U.sepBy(",", U.Identifier, U.Int),
+				U.sepBy1(",", U.Identifier, U.Int),
 				P.alt(
-					P.string("=").trim(U.WS0).then(U.sepBy(",", U.Int)),
+					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Int)),
 					P.succeed(undefined),
 				),
 			);
@@ -32,9 +32,9 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 		}));
 		case "DIMS": return U.asLine(P.lazy(() => {
 			const dimArgument = P.seq(
-				U.sepBy(",", U.Identifier, U.Int),
+				U.sepBy1(",", U.Identifier, U.Int),
 				P.alt(
-					P.string("=").trim(U.WS0).then(U.sepBy(",", U.Str)),
+					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Str)),
 					P.succeed(undefined),
 				),
 			);

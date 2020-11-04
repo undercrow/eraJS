@@ -22,7 +22,7 @@ export default class Assign extends Statement {
 		const lastIndex = index[index.length - 1] ?? 0;
 
 		if (type === "number") {
-			const valueList = U.sepBy(",", expr.Expr).tryParse(this.value);
+			const valueList = U.sepBy0(",", expr.Expr).tryParse(this.value);
 			for (let i = 0; i < valueList.length; ++i) {
 				const value = valueList[i].reduce(vm);
 				assertNumber(value, "Cannot assign a string to an integer variable");
@@ -30,7 +30,7 @@ export default class Assign extends Statement {
 			}
 		} else {
 			if (this.value.length !== 0) {
-				const rawList = U.sepBy(",", U.charSeq0(",")).tryParse(this.value);
+				const rawList = U.sepBy0(",", U.charSeq0(",")).tryParse(this.value);
 				const formList = rawList.map((raw) => expr.Form.tryParse(raw));
 				for (let i = 0; i < formList.length; ++i) {
 					const value = formList[i].reduce(vm);

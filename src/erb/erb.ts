@@ -112,7 +112,7 @@ function callArg<T>(target: P.Parser<T>): P.Parser<[T, Expr[]]> {
 	const first = P.noneOf(",(;\r\n").many().tie().thru(U.nest(target));
 
 	return P.alt(
-		U.arg1R1(P.seq(first, U.wrap("(", U.sepBy(",", expr.Expr), ")"))),
+		U.arg1R1(P.seq(first, U.wrap("(", U.sepBy0(",", expr.Expr), ")"))),
 		U.argNR1(first, expr.Expr).map(([f, ...r]) => [f, r]),
 	);
 }
@@ -476,7 +476,7 @@ export const language = P.createLanguage<LanguageSpec>({
 	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),
 	Function: (r) => P.seqMap(
 		U.asLine(P.string("@").then(P.lazy(() => {
-			const arg = U.sepBy(",", P.alt(
+			const arg = U.sepBy0(",", P.alt(
 				P.seqMap(
 					expr.Variable,
 					P.string("=").trim(U.WS0).then(U.charSeq(",", ")")),

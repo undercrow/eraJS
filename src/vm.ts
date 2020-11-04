@@ -1,6 +1,6 @@
 import {assertNumber} from "./assert";
 import {Character, Config} from "./config";
-import type Fn from "./fn";
+import Fn from "./fn";
 import NDArray, {Leaf} from "./ndarray";
 import type Property from "./property";
 import Dim from "./property/dim";
@@ -11,6 +11,7 @@ import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import Call from "./statement/command/call";
 import Const from "./statement/expr/const";
+import Thunk from "./thunk";
 
 const CHAR_VAR_0D = ["NO", "NAME", "CALLNAME"];
 /* eslint-disable array-bracket-newline */
@@ -119,6 +120,7 @@ export default class VM {
 		this.globalMap.set("MONEY", new NDArray("number", []));
 		this.globalMap.set("MASTER", new NDArray("number", [], 0));
 		this.globalMap.set("TARGET", new NDArray("number", [], -1));
+		this.globalMap.set("ASSI", new NDArray("number", [], -1));
 		this.globalMap.set("FLAG", new NDArray("number", [10000]));
 		this.globalMap.set("ITEMSALES", new NDArray("number", [100]));
 		this.globalMap.set("BOUGHT", new NDArray("number", []));
@@ -197,6 +199,10 @@ export default class VM {
 				}
 			}
 		}
+
+		// Push dummy context for outermost call
+		this.pushContext(new Fn("@DUMMY", [], [], new Thunk([])));
+		this.staticMap.set("@DUMMY", new Map());
 	}
 
 	public context(): Context {
@@ -334,6 +340,16 @@ export default class VM {
 				}
 				case "FIRST": {
 					result = yield* new Call(new Const("EVENTFIRST"), []).run(this);
+					break;
+				}
+				case "SHOP": {
+					if (this.fnMap.has("EVENTSHOP")) {
+						result = yield* new Call(new Const("EVENTSHOP"), []).run(this);
+						if (result != null) {
+							break;
+						}
+					}
+					result = yield* new Call(new Const("SHOW_SHOP"), []).run(this);
 					break;
 				}
 				default: {

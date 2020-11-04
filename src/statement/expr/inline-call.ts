@@ -8,6 +8,7 @@ import inRange from "../method/inrange";
 import rand from "../method/rand";
 import strLenS from "../method/strlens";
 import varSize from "../method/varsize";
+import unicode from "../method/unicode";
 
 function runGenerator<T>(gen: Generator<any, T, any>): T {
 	while (true) {
@@ -36,6 +37,7 @@ export default class InlineCall implements Expr {
 			case "RAND": return rand(vm, arg);
 			case "STRLENS": return strLenS(vm, arg);
 			case "VARSIZE": return varSize(vm, arg);
+			case "UNICODE": return unicode(vm, arg);
 			default: {
 				assert(vm.fnMap.has(this.name), `Method ${this.name} does not exist`);
 				for (const fn of vm.fnMap.get(this.name)!) {

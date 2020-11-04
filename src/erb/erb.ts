@@ -59,6 +59,7 @@ import MouseX from "../statement/command/mousex";
 import MouseY from "../statement/command/mousey";
 import OutputLog from "../statement/command/outputlog";
 import Print from "../statement/command/print";
+import PrintButton from "../statement/command/printbutton";
 import PrintCPerLine from "../statement/command/printcperline";
 import PutForm from "../statement/command/putform";
 import Repeat from "../statement/command/repeat";
@@ -227,6 +228,15 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "PRINTFORMDW": return U.arg1R0(expr.Form).map(
 				(val) => new Print(val ?? new Const(""), "D", "wait")
+			);
+			case "PRINTBUTTON": return U.arg2R2(expr.Expr, expr.Expr).map(
+				([text, value]) => new PrintButton(text, value),
+			);
+			case "PRINTBUTTONC": return U.arg2R2(expr.Expr, expr.Expr).map(
+				([text, value]) => new PrintButton(text, value),
+			);
+			case "PRINTBUTTONLC": return U.arg2R2(expr.Expr, expr.Expr).map(
+				([text, value]) => new PrintButton(text, value),
 			);
 			case "PRINTPLAIN": return U.arg1R0(U.charSeq()).map(
 				(val) => new Print(new Const(val ?? "")),

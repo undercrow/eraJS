@@ -27,11 +27,11 @@ export default class Bar extends Statement {
 		const filled = Math.floor(length * (value / max));
 		yield <const>{
 			type: "string",
-			value: "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]",
+			text: "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]",
 		};
 
 		if (this.newline) {
-			yield <const>{type: "string", value: "\n"};
+			yield <const>{type: "string", text: "\n"};
 		}
 
 		return null;

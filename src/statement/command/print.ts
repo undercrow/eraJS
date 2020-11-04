@@ -6,6 +6,7 @@ type OutType = "K" | "D";
 type Action = "newline" | "wait";
 
 // TODO: Plain
+// TODO: Buttonize some texts
 export default class Print extends Statement {
 	public value: Expr;
 	public outType?: OutType;
@@ -22,14 +23,14 @@ export default class Print extends Statement {
 		const value = this.value.reduce(vm);
 		yield <const>{
 			type: "string",
-			value: typeof value === "string" ? value : value.toString(),
+			text: typeof value === "string" ? value : value.toString(),
 		};
 
 		// TODO: outType
 		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 		switch (this.action) {
 			case "newline": {
-				yield <const>{type: "string", value: "\n"};
+				yield <const>{type: "string", text: "\n"};
 				const lineCount = vm.getValue("LINECOUNT") as number;
 				vm.setValue(lineCount + 1, "LINECOUNT");
 				break;

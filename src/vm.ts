@@ -1,5 +1,8 @@
 import {assertNumber} from "./assert";
-import {Character, Config} from "./config";
+import type Config from "./config";
+import * as color from "./color";
+import type Color from "./color";
+import {Character, Data} from "./data";
 import Fn from "./fn";
 import NDArray, {Leaf} from "./ndarray";
 import type Property from "./property";
@@ -39,14 +42,14 @@ export default class VM {
 		bold: boolean;
 	};
 	public color: {
-		front: {
-			r: number;
-			g: number;
-			b: number;
-		};
+		defaultFront: Color;
+		defaultBack: Color;
+		front: Color;
+		back: Color;
+		focus: Color;
 	};
 
-	public constructor(header: Property[], fnList: Fn[], config: Config) {
+	public constructor(header: Property[], fnList: Fn[], data: Data) {
 		this.fnMap = new Map();
 		this.characterMap = new Map();
 		this.globalMap = new Map();
@@ -57,12 +60,14 @@ export default class VM {
 			name: "",
 			bold: false,
 		};
+
+		// Assign default colors
 		this.color = {
-			front: {
-				r: 255,
-				g: 255,
-				b: 255,
-			},
+			defaultFront: color.hex(0xFFFFFF),
+			defaultBack: color.hex(0x000000),
+			front: color.hex(0xFFFFFF),
+			back: color.hex(0x000000),
+			focus: color.hex(0xFFFF00),
 		};
 
 		for (const fn of fnList) {
@@ -83,7 +88,7 @@ export default class VM {
 			});
 		}
 
-		for (const [id, character] of config.character) {
+		for (const [id, character] of data.character) {
 			this.characterMap.set(id, character);
 		}
 
@@ -141,42 +146,42 @@ export default class VM {
 		this.globalMap.set("MARK", new NDArray("number", [1000, 100]));
 		this.globalMap.set("PALAM", new NDArray("number", [1000, 200]));
 		this.globalMap.set("JUEL", new NDArray("number", [1000, 200]));
-		this.globalMap.set("ABLNAME", NDArray.fromValue("string", config.ability));
-		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", config.talent));
-		this.globalMap.set("EXPNAME", NDArray.fromValue("string", config.exp));
-		this.globalMap.set("MARKNAME", NDArray.fromValue("string", config.mark));
-		this.globalMap.set("PALAMNAME", NDArray.fromValue("string", config.palam));
+		this.globalMap.set("ABLNAME", NDArray.fromValue("string", data.ability));
+		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", data.talent));
+		this.globalMap.set("EXPNAME", NDArray.fromValue("string", data.exp));
+		this.globalMap.set("MARKNAME", NDArray.fromValue("string", data.mark));
+		this.globalMap.set("PALAMNAME", NDArray.fromValue("string", data.palam));
 		this.globalMap.set("GLOBAL", new NDArray("number", [1000]));
 		this.globalMap.set("GLOBALS", new NDArray("string", [100]));
-		this.globalMap.set("GAMEBASE_AUTHOR", new NDArray("string", [], config.gamebase.author));
-		this.globalMap.set("GAMEBASE_INFO", new NDArray("string", [], config.gamebase.info));
-		this.globalMap.set("GAMEBASE_YEAR", new NDArray("string", [], config.gamebase.year));
-		this.globalMap.set("GAMEBASE_TITLE", new NDArray("string", [], config.gamebase.title));
-		this.globalMap.set("GAMEBASE_VERSION", new NDArray("number", [], config.gamebase.version));
+		this.globalMap.set("GAMEBASE_AUTHOR", new NDArray("string", [], data.gamebase.author));
+		this.globalMap.set("GAMEBASE_INFO", new NDArray("string", [], data.gamebase.info));
+		this.globalMap.set("GAMEBASE_YEAR", new NDArray("string", [], data.gamebase.year));
+		this.globalMap.set("GAMEBASE_TITLE", new NDArray("string", [], data.gamebase.title));
+		this.globalMap.set("GAMEBASE_VERSION", new NDArray("number", [], data.gamebase.version));
 		this.globalMap.set("LINECOUNT", new NDArray("number", []));
-		for (let i = 0; i < config.ability.length; ++i) {
-			if (config.ability[i] !== "") {
-				this.globalMap.set(config.ability[i], new NDArray("number", [], i));
+		for (let i = 0; i < data.ability.length; ++i) {
+			if (data.ability[i] !== "") {
+				this.globalMap.set(data.ability[i], new NDArray("number", [], i));
 			}
 		}
-		for (let i = 0; i < config.talent.length; ++i) {
-			if (config.talent[i] !== "") {
-				this.globalMap.set(config.talent[i], new NDArray("number", [], i));
+		for (let i = 0; i < data.talent.length; ++i) {
+			if (data.talent[i] !== "") {
+				this.globalMap.set(data.talent[i], new NDArray("number", [], i));
 			}
 		}
-		for (let i = 0; i < config.exp.length; ++i) {
-			if (config.exp[i] !== "") {
-				this.globalMap.set(config.exp[i], new NDArray("number", [], i));
+		for (let i = 0; i < data.exp.length; ++i) {
+			if (data.exp[i] !== "") {
+				this.globalMap.set(data.exp[i], new NDArray("number", [], i));
 			}
 		}
-		for (let i = 0; i < config.mark.length; ++i) {
-			if (config.mark[i] !== "") {
-				this.globalMap.set(config.mark[i], new NDArray("number", [], i));
+		for (let i = 0; i < data.mark.length; ++i) {
+			if (data.mark[i] !== "") {
+				this.globalMap.set(data.mark[i], new NDArray("number", [], i));
 			}
 		}
-		for (let i = 0; i < config.palam.length; ++i) {
-			if (config.palam[i] !== "") {
-				this.globalMap.set(config.palam[i], new NDArray("number", [], i));
+		for (let i = 0; i < data.palam.length; ++i) {
+			if (data.palam[i] !== "") {
+				this.globalMap.set(data.palam[i], new NDArray("number", [], i));
 			}
 		}
 
@@ -204,6 +209,16 @@ export default class VM {
 		// Push dummy context for outermost call
 		this.pushContext(new Fn("@DUMMY", [], [], new Thunk([])));
 		this.staticMap.set("@DUMMY", new Map());
+	}
+
+	public configure(config: Config) {
+		this.color = {
+			defaultFront: color.copy(config.front),
+			defaultBack: color.copy(config.back),
+			front: color.copy(config.front),
+			back: color.copy(config.back),
+			focus: color.copy(config.focus),
+		};
 	}
 
 	public context(): Context {

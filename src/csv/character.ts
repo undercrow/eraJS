@@ -1,7 +1,7 @@
 import {assert, assertNumber} from "../assert";
-import type {Character, Config} from "../config";
+import type {Character, Data} from "../data";
 
-export default function parse(values: Map<string, string[][]>): Config["character"] {
+export default function parse(values: Map<string, string[][]>): Data["character"] {
 	const result = new Map<number, Character>();
 	for (const [fileName, rowList] of values) {
 		if (!/^CHARA\d+\.CSV$/.test(fileName)) {

@@ -1,10 +1,10 @@
 import {assertNumber} from "../assert";
-import type {Config} from "../config";
+import type {Data} from "../data";
 
-export default function parse(values: Map<string, string[][]>): Config["gamebase"] {
+export default function parse(values: Map<string, string[][]>): Data["gamebase"] {
 	const base = values.get("GAMEBASE.CSV");
 
-	const result: Partial<Config["gamebase"]> = {};
+	const result: Partial<Data["gamebase"]> = {};
 	for (const row of base ?? []) {
 		switch (row[0]) {
 			case "作者": result.author = row[1]; break;

@@ -1,5 +1,6 @@
 import P from "parsimmon";
 
+import * as color from "../color";
 import Fn from "../fn";
 import Statement from "../statement";
 import Assign from "../statement/assign";
@@ -258,7 +259,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "SETCOLOR": return P.alt(
 				U.arg3R3(U.Int, U.Int, U.Int).map(
 					([colorR, colorG, colorB]) => {
-						const rgb = colorR * 0x010000 + colorG * 0x000100 + colorB;
+						const rgb = color.toHex({r: colorR, g: colorG, b: colorB});
 						return new SetColor(new Const(rgb));
 					},
 				),

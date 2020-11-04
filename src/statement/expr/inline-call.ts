@@ -2,8 +2,13 @@ import {assert} from "../../assert";
 import type VM from "../../vm";
 import Assign from "../assign";
 import type Expr from "../expr";
+import getBgColor from "../method/getbgcolor";
 import getBit from "../method/getbit";
 import getChara from "../method/getchara";
+import getColor from "../method/getcolor";
+import getDefBgColor from "../method/getdefbgcolor";
+import getDefColor from "../method/getdefcolor";
+import getFocusColor from "../method/getfocuscolor";
 import inRange from "../method/inrange";
 import rand from "../method/rand";
 import strLenS from "../method/strlens";
@@ -31,8 +36,13 @@ export default class InlineCall implements Expr {
 	public reduce(vm: VM): string | number {
 		const arg: Array<string | number> = this.arg.map((a) => a.reduce(vm));
 		switch (this.name.toUpperCase()) {
+			case "GETBGCOLOR": return getBgColor(vm, arg);
 			case "GETBIT": return getBit(vm, arg);
 			case "GETCHARA": return getChara(vm, arg);
+			case "GETCOLOR": return getColor(vm, arg);
+			case "GETDEFBGCOLOR": return getDefBgColor(vm, arg);
+			case "GETDEFCOLOR": return getDefColor(vm, arg);
+			case "GETFOCUSCOLOR": return getFocusColor(vm, arg);
 			case "INRANGE": return inRange(vm, arg);
 			case "RAND": return rand(vm, arg);
 			case "STRLENS": return strLenS(vm, arg);

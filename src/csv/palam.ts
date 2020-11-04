@@ -1,7 +1,7 @@
 import {assertNumber} from "../assert";
-import type {Config} from "../config";
+import type {Data} from "../data";
 
-export default function parse(values: Map<string, string[][]>): Config["palam"] {
+export default function parse(values: Map<string, string[][]>): Data["palam"] {
 	const rowList = values.get("PALAM.CSV");
 
 	const result = Array<string>(100).fill("");

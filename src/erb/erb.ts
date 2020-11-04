@@ -380,8 +380,8 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "TRYGOTOFORM": return U.arg1R1(expr.Form).map((target) => new TryGoto(target));
 			case "RESTART": return U.arg0R0().map(() => new Restart());
-			case "RETURN": return U.argNR1(expr.Expr, expr.Expr).map((e) => new Return(e));
-			case "RETURNF": return U.argNR1(expr.Expr, expr.Expr).map((e) => new Return(e));
+			case "RETURN": return U.argNR0(expr.Expr).map((e) => new Return(e));
+			case "RETURNF": return U.arg1R1(expr.Expr).map((e) => new Return([e]));
 			case "DEBUGCLEAR": return U.arg0R0().map(() => new DebugClear());
 			case "MOUSEX": return U.arg0R0().map(() => new MouseX());
 			case "MOUSEY": return U.arg0R0().map(() => new MouseY());

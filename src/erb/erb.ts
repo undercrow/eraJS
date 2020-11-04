@@ -97,7 +97,6 @@ import * as U from "./util";
 
 type LanguageSpec = {
 	Label: string;
-	PlainCommand: Statement;
 	Command: Statement;
 	Assign: Assign;
 	StrAssign: Assign;
@@ -119,7 +118,7 @@ function callArg<T>(target: P.Parser<T>): P.Parser<[T, Expr[]]> {
 
 export const language = P.createLanguage<LanguageSpec>({
 	Label: () => U.asLine(P.string("$").then(U.Identifier)),
-	PlainCommand: () => U.asLine(U.Identifier.chain<Statement>((instruction) => {
+	Command: (r) => U.Identifier.chain<Statement>((instruction) => {
 		switch (instruction.toUpperCase()) {
 			case "PRINT": return U.arg1R0(U.charSeq()).map(
 				(val) => new Print(new Const(val ?? ""), undefined, undefined),
@@ -238,14 +237,14 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "TIMES": return U.arg2R2(expr.Variable, U.Float).map(
 				([dest, value]) => new Times(dest, value),
 			);
-			case "DRAWLINE": return P.succeed(new DrawLine());
+			case "DRAWLINE": return U.arg0R0().map(() => new DrawLine());
 			case "CUSTOMDRAWLINE": return U.arg1R1(U.charSeq()).map(
 				(e) => new DrawLine(new Const(e)),
 			);
 			case "DRAWLINEFORM": return U.arg1R1(expr.Form).map((e) => new DrawLine(e));
 			case "CLEARLINE": return U.arg1R1(expr.Expr).map((e) => new ClearLine(e));
-			case "RESETCOLOR": return P.succeed(new ResetColor());
-			case "RESETBGCOLOR": return P.succeed(new ResetBgColor());
+			case "RESETCOLOR": return U.arg0R0().map(() => new ResetColor());
+			case "RESETBGCOLOR": return U.arg0R0().map(() => new ResetBgColor());
 			case "SETCOLOR": return P.alt(
 				U.arg3R3(U.Int, U.Int, U.Int).map(
 					([colorR, colorG, colorB]) => {
@@ -255,17 +254,17 @@ export const language = P.createLanguage<LanguageSpec>({
 				),
 				U.arg1R1(expr.Expr).map((e) => new SetColor(e)),
 			);
-			case "GETCOLOR": return P.succeed(new GetColor());
-			case "GETDEFCOLOR": return P.succeed(new GetDefColor());
-			case "GETBGCOLOR": return P.succeed(new GetBgColor());
-			case "GETDEFBGCOLOR": return P.succeed(new GetDefBgColor());
-			case "GETFOCUSCOLOR": return P.succeed(new GetFocusColor());
-			case "FONTBOLD": return P.succeed(new FontBold());
-			case "FONTITALIC": return P.succeed(new FontItalic());
-			case "FONTREGULAR": return P.succeed(new FontRegular());
-			case "GETSTYLE": return P.succeed(new GetStyle());
+			case "GETCOLOR": return U.arg0R0().map(() => new GetColor());
+			case "GETDEFCOLOR": return U.arg0R0().map(() => new GetDefColor());
+			case "GETBGCOLOR": return U.arg0R0().map(() => new GetBgColor());
+			case "GETDEFBGCOLOR": return U.arg0R0().map(() => new GetDefBgColor());
+			case "GETFOCUSCOLOR": return U.arg0R0().map(() => new GetFocusColor());
+			case "FONTBOLD": return U.arg0R0().map(() => new FontBold());
+			case "FONTITALIC": return U.arg0R0().map(() => new FontItalic());
+			case "FONTREGULAR": return U.arg0R0().map(() => new FontRegular());
+			case "GETSTYLE": return U.arg0R0().map(() => new GetStyle());
 			case "SETFONT": return U.arg1R0(expr.Expr).map((font) => new SetFont(font));
-			case "GETFONT": return P.succeed(new GetFont());
+			case "GETFONT": return U.arg0R0().map(() => new GetFont());
 			case "ALIGNMENT": return U.arg1R1(U.alt("LEFT", "CENTER", "RIGHT")).map((align) => {
 				switch (align) {
 					case "LEFT": return new Alignment("left");
@@ -273,18 +272,18 @@ export const language = P.createLanguage<LanguageSpec>({
 					case "RIGHT": return new Alignment("right");
 				}
 			});
-			case "CURRENTALIGN": return P.succeed(new CurrentAlign());
-			case "CURRENTREDRAW": return P.succeed(new CurrentRedraw());
-			case "PRINTCPERLINE": return P.succeed(new PrintCPerLine());
-			case "LINEISEMPTY": return P.succeed(new LineIsEmpty());
+			case "CURRENTALIGN": return U.arg0R0().map(() => new CurrentAlign());
+			case "CURRENTREDRAW": return U.arg0R0().map(() => new CurrentRedraw());
+			case "PRINTCPERLINE": return U.arg0R0().map(() => new PrintCPerLine());
+			case "LINEISEMPTY": return U.arg0R0().map(() => new LineIsEmpty());
 			case "BAR": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
 				([value, max, length]) => new Bar(value, max, length),
 			);
 			case "BARL": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
 				([value, max, length]) => new Bar(value, max, length, true),
 			);
-			case "ISSKIP": return P.succeed(new IsSkip());
-			case "MOUSESKIP": return P.succeed(new MouseSkip());
+			case "ISSKIP": return U.arg0R0().map(() => new IsSkip());
+			case "MOUSESKIP": return U.arg0R0().map(() => new MouseSkip());
 			case "STRLEN": return U.arg1R1(U.charSeq()).map(
 				(e) => new StrLen(new Const(e)),
 			);
@@ -314,33 +313,33 @@ export const language = P.createLanguage<LanguageSpec>({
 				([e, index]) => new GetBit(e, index),
 			);
 			case "ADDCHARA": return U.argNR0(expr.Expr).map((e) => new AddChara(e));
-			case "ADDDEFCHARA": return P.succeed(new AddDefChara());
-			case "ADDVOIDCHARA": return P.succeed(new AddVoidChara());
+			case "ADDDEFCHARA": return U.arg0R0().map(() => new AddDefChara());
+			case "ADDVOIDCHARA": return U.arg0R0().map(() => new AddVoidChara());
 			case "DELCHARA": return U.argNR0(expr.Expr).map((e) => new DelChara(e));
-			case "DELALLCHARA": return P.succeed(new DelAllChara());
-			case "RESETDATA": return P.succeed(new ResetData());
-			case "RESETGLOBAL": return P.succeed(new ResetGlobal());
+			case "DELALLCHARA": return U.arg0R0().map(() => new DelAllChara());
+			case "RESETDATA": return U.arg0R0().map(() => new ResetData());
+			case "RESETGLOBAL": return U.arg0R0().map(() => new ResetGlobal());
 			case "VARSET": return U.arg2R1(expr.Variable, expr.Expr).map(
 				([dest, value]) => new VarSet(dest, value),
 			);
 			case "PUTFORM": return U.arg1R1(expr.Form).map((e) => new PutForm(e));
-			case "SAVEGAME": return P.succeed(new SaveGame());
-			case "LOADGAME": return P.succeed(new LoadGame());
-			case "SAVEGLOBAL": return P.succeed(new SaveGlobal());
-			case "LOADGLOBAL": return P.succeed(new LoadGlobal());
-			case "OUTPUTLOG": return P.succeed(new OutputLog());
-			case "GETTIME": return P.succeed(new GetTime());
-			case "GETMILLISECOND": return P.succeed(new GetMillisecond());
-			case "GETSECOND": return P.succeed(new GetSecond());
-			case "FORCEWAIT": return P.succeed(new ForceWait());
+			case "SAVEGAME": return U.arg0R0().map(() => new SaveGame());
+			case "LOADGAME": return U.arg0R0().map(() => new LoadGame());
+			case "SAVEGLOBAL": return U.arg0R0().map(() => new SaveGlobal());
+			case "LOADGLOBAL": return U.arg0R0().map(() => new LoadGlobal());
+			case "OUTPUTLOG": return U.arg0R0().map(() => new OutputLog());
+			case "GETTIME": return U.arg0R0().map(() => new GetTime());
+			case "GETMILLISECOND": return U.arg0R0().map(() => new GetMillisecond());
+			case "GETSECOND": return U.arg0R0().map(() => new GetSecond());
+			case "FORCEWAIT": return U.arg0R0().map(() => new ForceWait());
 			case "INPUT": return U.arg1R0(U.Int).map((def) => new Input(def));
 			case "INPUTS": return U.arg1R0(U.charSeq()).map((def) => new InputS(def));
-			case "WAIT": return P.succeed(new Wait());
-			case "WAITANYKEY": return P.succeed(new WaitAnyKey());
-			case "BREAK": return P.succeed(new Break());
-			case "CONTINUE": return P.succeed(new Continue());
-			case "DUMPRAND": return P.succeed(new DumpRand());
-			case "INITRAND": return P.succeed(new InitRand());
+			case "WAIT": return U.arg0R0().map(() => new Wait());
+			case "WAITANYKEY": return U.arg0R0().map(() => new WaitAnyKey());
+			case "BREAK": return U.arg0R0().map(() => new Break());
+			case "CONTINUE": return U.arg0R0().map(() => new Continue());
+			case "DUMPRAND": return U.arg0R0().map(() => new DumpRand());
+			case "INITRAND": return U.arg0R0().map(() => new InitRand());
 			case "BEGIN": return U.arg1R1(U.Identifier).map((target) => new Begin(target));
 			case "CALL": return callArg(U.Identifier).map(
 				([name, arg]) => new Call(new Const(name), arg),
@@ -370,78 +369,75 @@ export const language = P.createLanguage<LanguageSpec>({
 				(target) => new TryGoto(new Const(target)),
 			);
 			case "TRYGOTOFORM": return U.arg1R1(expr.Form).map((target) => new TryGoto(target));
-			case "RESTART": return P.succeed(new Restart());
+			case "RESTART": return U.arg0R0().map(() => new Restart());
 			case "RETURN": return U.argNR1(expr.Expr, expr.Expr).map((e) => new Return(e));
 			case "RETURNF": return U.argNR1(expr.Expr, expr.Expr).map((e) => new Return(e));
-			case "DEBUGCLEAR": return P.succeed(new DebugClear());
-			case "MOUSEX": return P.succeed(new MouseX());
-			case "MOUSEY": return P.succeed(new MouseY());
-			case "ISACTIVE": return P.succeed(new IsActive());
-			case "CBGCLEAR": return P.succeed(new CbgClear());
-			case "CBGCLEARBUTTON": return P.succeed(new CbgClearButton());
-			case "CBGREMOVEBMAP": return P.succeed(new CbgRemoveBmap());
-			case "CLEARTEXTBOX": return P.succeed(new ClearTextBox());
-			case "STRDATA": return P.succeed(new StrData());
-			case "STOPCALLTRAIN": return P.succeed(new StopCallTrain());
+			case "DEBUGCLEAR": return U.arg0R0().map(() => new DebugClear());
+			case "MOUSEX": return U.arg0R0().map(() => new MouseX());
+			case "MOUSEY": return U.arg0R0().map(() => new MouseY());
+			case "ISACTIVE": return U.arg0R0().map(() => new IsActive());
+			case "CBGCLEAR": return U.arg0R0().map(() => new CbgClear());
+			case "CBGCLEARBUTTON": return U.arg0R0().map(() => new CbgClearButton());
+			case "CBGREMOVEBMAP": return U.arg0R0().map(() => new CbgRemoveBmap());
+			case "CLEARTEXTBOX": return U.arg0R0().map(() => new ClearTextBox());
+			case "STRDATA": return U.arg0R0().map(() => new StrData());
+			case "STOPCALLTRAIN": return U.arg0R0().map(() => new StopCallTrain());
+			case "SIF": return P.seqMap(
+				U.arg1R1(expr.Expr),
+				r.Statement,
+				(cond, then) => new If([[cond, new Thunk([then])]], new Thunk([])),
+			);
+			case "IF": return P.seqMap(
+				P.seq(U.arg1R1(expr.Expr), r.Thunk),
+				P.seq(P.string("ELSEIF").then(U.arg1R1(expr.Expr)), r.Thunk).many(),
+				U.asLine(P.string("ELSE")).then(r.Thunk).fallback(new Thunk([])),
+				U.asLine(P.string("ENDIF")),
+				(ifStmt, elifStmt, elseStmt) => new If([ifStmt, ...elifStmt], elseStmt),
+			);
+			case "SELECTCASE": return P.seqMap(
+				U.arg1R1(expr.Expr),
+				P.seq(
+					P.string("CASE").then(U.argNR0(P.alt(
+						P.seqMap(U.Int, P.string("TO").trim(U.WS1).then(U.Int), (from, to) => ({
+							type: "range",
+							from,
+							to,
+						})),
+						P.seqMap(
+							P.string("IS").then(U.alt("<=", "<", ">=", ">").trim(U.WS0)),
+							U.Int,
+							(op, value) => ({type: "compare", op, value}),
+						),
+						U.Int.map((value) => ({type: "equal", value})),
+						U.Str.map((value) => ({type: "equal", value})),
+					))),
+					r.Thunk,
+				).many(),
+				U.asLine(P.string("CASEELSE")).then(r.Thunk).fallback(new Thunk([])),
+				U.asLine(P.string("ENDSELECT")),
+				(e, branch, def) => new Case(e, branch, def),
+			);
+			case "REPEAT": return P.seqMap(
+				U.arg1R1(expr.Expr),
+				r.Thunk,
+				U.asLine(P.string("REND")),
+				(condition, thunk) => new Repeat(condition, thunk),
+			);
+			case "FOR": return P.seqMap(
+				U.arg3R3(expr.Variable, expr.Expr, expr.Expr),
+				r.Thunk,
+				U.asLine(P.string("NEXT")),
+				([counter, start, end], thunk) => new For(counter, start, end, thunk),
+			);
+			case "WHILE": return P.seqMap(
+				U.arg1R1(expr.Expr),
+				r.Thunk,
+				U.asLine(P.string("WEND")),
+				(condition, thunk) => new While(condition, thunk),
+			);
 			default: return P.fail("Valid instruction");
 		}
-	})),
-	Command: (r) => P.alt(
-		P.seqMap(
-			U.asLine(P.string("SIF").then(U.arg1R1(expr.Expr))),
-			r.Statement,
-			(cond, then) => new If([[cond, new Thunk([then])]], new Thunk([])),
-		),
-		P.seqMap(
-			P.seq(U.asLine(P.string("IF").then(U.arg1R1(expr.Expr))), r.Thunk),
-			P.seq(U.asLine(P.string("ELSEIF").then(U.arg1R1(expr.Expr))), r.Thunk).many(),
-			U.asLine(P.string("ELSE")).then(r.Thunk).fallback(new Thunk([])),
-			U.asLine(P.string("ENDIF")),
-			(ifStmt, elifStmt, elseStmt) => new If([ifStmt, ...elifStmt], elseStmt),
-		),
-		P.seqMap(
-			U.asLine(P.string("SELECTCASE").then(U.arg1R1(expr.Expr))),
-			P.seq(
-				U.asLine(P.string("CASE").then(U.argNR0(P.alt(
-					P.seqMap(U.Int, P.string("TO").trim(U.WS1).then(U.Int), (from, to) => ({
-						type: "range",
-						from,
-						to,
-					})),
-					P.seqMap(
-						P.string("IS").then(U.alt("<=", "<", ">=", ">").trim(U.WS0)),
-						U.Int,
-						(op, value) => ({type: "compare", op, value}),
-					),
-					U.Int.map((value) => ({type: "equal", value})),
-					U.Str.map((value) => ({type: "equal", value})),
-				)))),
-				r.Thunk,
-			).many(),
-			U.asLine(P.string("CASEELSE")).then(r.Thunk).fallback(new Thunk([])),
-			U.asLine(P.string("ENDSELECT")),
-			(e, branch, def) => new Case(e, branch, def),
-		),
-		P.seqMap(
-			U.asLine(P.string("REPEAT").then(U.arg1R1(expr.Expr))),
-			r.Thunk,
-			U.asLine(P.string("REND")),
-			(condition, thunk) => new Repeat(condition, thunk),
-		),
-		P.seqMap(
-			U.asLine(P.string("FOR").then(U.arg3R3(expr.Variable, expr.Expr, expr.Expr))),
-			r.Thunk,
-			U.asLine(P.string("NEXT")),
-			([counter, start, end], thunk) => new For(counter, start, end, thunk),
-		),
-		P.seqMap(
-			U.asLine(P.string("WHILE").then(U.arg1R1(expr.Expr))),
-			r.Thunk,
-			U.asLine(P.string("WEND")),
-			(condition, thunk) => new While(condition, thunk),
-		),
-		r.PlainCommand,
-	),
+	}),
 	Assign: () => U.asLine(P.seqMap(
 		expr.Variable,
 		P.string("=").trim(U.WS0).then(P.noneOf("\r\n;").many().tie()),
@@ -493,5 +489,17 @@ export const language = P.createLanguage<LanguageSpec>({
 });
 
 export default function parseERB(content: string): Fn[] {
-	return language.Language.tryParse(content + "\n");
+	// Convert \r\n and \r to \n
+	const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+	// Strip comments
+	const stripped = normalized.replace(/;.*/g, "");
+
+	// Trim leading/trailing whitespaces
+	const trimmed = stripped.replace(/^( |\t)+/mg, "").replace(/( |\t)+$/mg, "");
+
+	// Remove leading empty lines
+	const filtered = trimmed.replace(/^\n*/, "");
+
+	return language.Language.tryParse(filtered + "\n");
 }

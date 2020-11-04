@@ -19,11 +19,7 @@ export function alt<T extends string>(...values: T[]): P.Parser<T> {
 }
 
 export function asLine<T>(parser: P.Parser<T>): P.Parser<T> {
-	const comment = P.seq(WS0, P.string(";"), char().many());
-	const emptyLine = P.alt(comment, WS0).skip(P.newline);
-
-	const lineParser = parser.trim(WS0).skip(comment.fallback(null)).skip(P.newline);
-	return lineParser.trim(emptyLine.many());
+	return parser.skip(EOL);
 }
 
 export function nest<T>(parser: P.Parser<T>) {
@@ -58,6 +54,7 @@ export function wrap<T>(left: string, parser: P.Parser<T>, right: string): P.Par
 	return parser.wrap(P.string(left).skip(WS0), WS0.then(P.string(right)));
 }
 
+const EOL = P.string("\n").atLeast(1).map(nullFn);
 // eslint-disable-next-line no-irregular-whitespace
 const WS = alt(" ", "\t", "　");
 export const WS0 = WS.many().map(nullFn);
@@ -96,12 +93,16 @@ export function charSeq0(...exclude: string[]): P.Parser<string> {
 	return char(...exclude).many().tie();
 }
 
+export function arg0R0(): P.Parser<null> {
+	return EOL;
+}
+
 export function arg1R0<A0>(a0: P.Parser<A0>): P.Parser<A0 | undefined> {
-	return P.alt(WS1.then(a0), WS0.map(() => undefined));
+	return P.alt(WS1.then(a0), WS0.map(() => undefined)).skip(EOL);
 }
 
 export function arg1R1<A0>(a0: P.Parser<A0>): P.Parser<A0> {
-	return WS1.then(a0);
+	return WS1.then(a0).skip(EOL);
 }
 
 export function arg2R1<A0, A1>(
@@ -111,11 +112,11 @@ export function arg2R1<A0, A1>(
 	return WS1.then(P.seq(
 		a0,
 		P.string(",").trim(WS0).then(a1).fallback(undefined),
-	));
+	)).skip(EOL);
 }
 
 export function arg2R2<A0, A1>(a0: P.Parser<A0>, a1: P.Parser<A1>): P.Parser<[A0, A1]> {
-	return WS1.then(P.seq(a0, P.string(",").trim(WS0).then(a1)));
+	return WS1.then(P.seq(a0, P.string(",").trim(WS0).then(a1))).skip(EOL);
 }
 
 export function arg3R3<A0, A1, A2>(
@@ -128,13 +129,13 @@ export function arg3R3<A0, A1, A2>(
 		P.string(",").trim(WS0).then(a1),
 		P.string(",").trim(WS0).then(a2),
 		(...arg) => arg,
-	));
+	)).skip(EOL);
 }
 
 export function argNR0<AN>(an: P.Parser<AN>): P.Parser<AN[]> {
-	return P.alt(WS1.then(sepBy(",", an)), WS0.map(() => []));
+	return P.alt(WS1.then(sepBy(",", an)), WS0.map(() => [])).skip(EOL);
 }
 
 export function argNR1<A0, AN>(a0: P.Parser<A0>, an: P.Parser<AN>): P.Parser<[A0, ...AN[]]> {
-	return WS1.then(sepBy(",", a0, an));
+	return WS1.then(sepBy(",", a0, an)).skip(EOL);
 }

@@ -4,7 +4,7 @@ import type Fn from "./fn";
 import NDArray, {Leaf} from "./ndarray";
 import type Property from "./property";
 import Dim from "./property/dim";
-import DimS from "./property/dims";
+import DimDynamic from "./property/dim-dynamic";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import type {default as Statement, Result} from "./statement";
@@ -178,21 +178,20 @@ export default class VM {
 		}
 
 		for (const property of header) {
-			if (property instanceof Dim || property instanceof DimS) {
+			if (property instanceof Dim) {
 				property.apply(this.globalMap);
 			}
 		}
 
-		for (const fn of this.fnMap.keys()) {
-			this.staticMap.set(fn, new Map());
-			this.staticMap.get(fn)!.set("LOCAL", new NDArray("number", [1000]));
-			this.staticMap.get(fn)!.set("LOCALS", new NDArray("string", [100]));
-		}
-
 		for (const fnValues of this.fnMap.values()) {
 			for (const fn of fnValues) {
+				this.staticMap.set(fn.name, new Map());
+				this.staticMap.get(fn.name)!.set("LOCAL", new NDArray("number", [1000]));
+				this.staticMap.get(fn.name)!.set("LOCALS", new NDArray("string", [100]));
 				for (const property of fn.property) {
-					if (property instanceof LocalSize || property instanceof LocalSSize) {
+					if (property instanceof Dim) {
+						property.apply(this.staticMap.get(fn.name)!);
+					} else if (property instanceof LocalSize || property instanceof LocalSSize) {
 						property.apply(this, fn.name);
 					}
 				}
@@ -212,7 +211,7 @@ export default class VM {
 		context.dynamicMap.set("ARG", new NDArray("number", [1000]));
 		context.dynamicMap.set("ARGS", new NDArray("string", [100]));
 		for (const property of fn.property) {
-			if (property instanceof Dim || property instanceof DimS) {
+			if (property instanceof DimDynamic) {
 				property.apply(context.dynamicMap);
 			}
 		}

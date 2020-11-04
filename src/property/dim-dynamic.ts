@@ -1,16 +1,16 @@
 import NDArray from "../ndarray";
 
-export default class Dim {
+export default class DimDynamic {
 	public name: string;
 	public type: "number" | "string";
 	public size: number[];
 	public value?: number | string | number[] | string[];
 
 	public constructor(
-		name: Dim["name"],
-		type: Dim["type"],
-		size: Dim["size"],
-		value: Dim["value"],
+		name: DimDynamic["name"],
+		type: DimDynamic["type"],
+		size: DimDynamic["size"],
+		value: DimDynamic["value"],
 	) {
 		this.name = name;
 		this.type = type;

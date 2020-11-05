@@ -12,6 +12,7 @@ import getFocusColor from "../method/getfocuscolor";
 import inRange from "../method/inrange";
 import rand from "../method/rand";
 import strLenS from "../method/strlens";
+import toStr from "../method/tostr";
 import varSize from "../method/varsize";
 import unicode from "../method/unicode";
 
@@ -46,6 +47,7 @@ export default class InlineCall implements Expr {
 			case "INRANGE": return inRange(vm, arg);
 			case "RAND": return rand(vm, arg);
 			case "STRLENS": return strLenS(vm, arg);
+			case "TOSTR": return toStr(vm, arg);
 			case "VARSIZE": return varSize(vm, arg);
 			case "UNICODE": return unicode(vm, arg);
 			default: {

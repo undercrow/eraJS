@@ -35,6 +35,7 @@ export default class While extends Statement {
 				case "goto": return result;
 				case "break": return null;
 				case "continue": continue;
+				case "throw": return result;
 				case "return": return result;
 				case undefined: continue;
 			}

@@ -88,6 +88,7 @@ import StrLen from "../statement/command/strlen";
 import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
 import SubstringU from "../statement/command/substringu";
+import Throw from "../statement/command/throw";
 import Times from "../statement/command/times";
 import TryCall from "../statement/command/trycall";
 import TryGoto from "../statement/command/trygoto";
@@ -370,6 +371,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "DUMPRAND": return U.arg0R0().map(() => new DumpRand());
 			case "INITRAND": return U.arg0R0().map(() => new InitRand());
 			case "BEGIN": return U.arg1R1(U.Identifier).map((target) => new Begin(target));
+			case "THROW": return U.arg1R1(expr.Form).map((e) => new Throw(e));
 			case "CALL": return callArg(U.Identifier).map(
 				([name, arg]) => new Call(new Const(name), arg),
 			);

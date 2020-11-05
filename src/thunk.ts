@@ -71,6 +71,7 @@ export default class Thunk extends Statement {
 				}
 				case "break": return result;
 				case "continue": return result;
+				case "throw": return result;
 				case "return": return result;
 				case undefined: continue;
 			}

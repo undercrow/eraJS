@@ -32,6 +32,7 @@ export default class Repeat extends Statement {
 				case "goto": return result;
 				case "break": break loop;
 				case "continue": continue loop;
+				case "throw": return result;
 				case "return": return result;
 				case undefined: continue loop;
 			}

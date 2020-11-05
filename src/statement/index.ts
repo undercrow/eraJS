@@ -16,6 +16,7 @@ export type Result =
 	| {type: "goto"; label: string}
 	| {type: "break"}
 	| {type: "continue"}
+	| {type: "throw"; value: string}
 	| {type: "return"; value: Array<number | string>};
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

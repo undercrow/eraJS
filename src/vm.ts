@@ -384,6 +384,7 @@ export default class VM {
 				case "goto": throw new Error(`Label ${result.label} not found`);
 				case "break": return null;
 				case "continue": return null;
+				case "throw": throw new Error(`Uncaught error ${result.value}`);
 				case "return": continue;
 				case undefined: continue;
 			}

@@ -20,6 +20,7 @@ import Case from "../statement/command/case";
 import CbgClear from "../statement/command/cbgclear";
 import CbgClearButton from "../statement/command/cbgclearbutton";
 import CbgRemoveBmap from "../statement/command/cbgremovebmap";
+import ClearBit from "../statement/command/clearbit";
 import ClearTextBox from "../statement/command/cleartextbox";
 import Continue from "../statement/command/continue";
 import CurrentAlign from "../statement/command/currentalign";
@@ -51,6 +52,7 @@ import If from "../statement/command/if";
 import Input from "../statement/command/input";
 import InputS from "../statement/command/inputs";
 import InitRand from "../statement/command/initrand";
+import InvertBit from "../statement/command/invertbit";
 import IsActive from "../statement/command/isactive";
 import IsSkip from "../statement/command/isskip";
 import Jump from "../statement/command/jump";
@@ -74,6 +76,7 @@ import Restart from "../statement/command/restart";
 import Return from "../statement/command/return";
 import SaveGame from "../statement/command/savegame";
 import SaveGlobal from "../statement/command/saveglobal";
+import SetBit from "../statement/command/setbit";
 import SetColor from "../statement/command/setcolor";
 import SetFont from "../statement/command/setfont";
 import Split from "../statement/command/split";
@@ -327,6 +330,15 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "GETBIT": return U.arg2R2(expr.Expr, expr.Expr).map(
 				([e, index]) => new GetBit(e, index),
+			);
+			case "SETBIT": return U.argNR1(expr.Variable, expr.Expr).map(
+				([v, ...bits]) => new SetBit(v, bits),
+			);
+			case "CLEARBIT": return U.argNR1(expr.Variable, expr.Expr).map(
+				([v, ...bits]) => new ClearBit(v, bits),
+			);
+			case "INVERTBIT": return U.argNR1(expr.Variable, expr.Expr).map(
+				([v, ...bits]) => new InvertBit(v, bits),
 			);
 			case "ADDCHARA": return U.argNR0(expr.Expr).map((e) => new AddChara(e));
 			case "ADDDEFCHARA": return U.arg0R0().map(() => new AddDefChara());

@@ -12,8 +12,7 @@ import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
-import Call from "./statement/command/call";
-import Const from "./statement/expr/const";
+import * as scene from "./scene";
 import Thunk from "./thunk";
 
 const CHAR_VAR_0D = ["NO", "NAME", "CALLNAME"];
@@ -358,24 +357,9 @@ export default class VM {
 		while (true) {
 			let result: Result | null = null;
 			switch (begin.toUpperCase()) {
-				case "TITLE": {
-					result = yield* new Call(new Const("SYSTEM_TITLE"), []).run(this);
-					break;
-				}
-				case "FIRST": {
-					result = yield* new Call(new Const("EVENTFIRST"), []).run(this);
-					break;
-				}
-				case "SHOP": {
-					if (this.fnMap.has("EVENTSHOP")) {
-						result = yield* new Call(new Const("EVENTSHOP"), []).run(this);
-						if (result != null) {
-							break;
-						}
-					}
-					result = yield* new Call(new Const("SHOW_SHOP"), []).run(this);
-					break;
-				}
+				case "TITLE": result = yield* scene.TITLE.run(this); break;
+				case "FIRST": result = yield* scene.FIRST.run(this); break;
+				case "SHOP": result = yield* scene.SHOP.run(this); break;
 				default: {
 					throw new Error(`${begin} is not a valid keyword`);
 				}
@@ -386,6 +370,7 @@ export default class VM {
 				case "goto": throw new Error(`Label ${result.label} not found`);
 				case "break": return null;
 				case "continue": return null;
+				case "return": continue;
 				case undefined: continue;
 			}
 		}

@@ -22,7 +22,7 @@ export default class Call extends Statement {
 
 		const arg = this.arg.map((a) => a.reduce(vm));
 		fnLoop: for (const fn of vm.fnMap.get(target)!) {
-			vm.pushContext(fn);
+			const context = vm.pushContext(fn);
 
 			for (let i = 0; i < fn.arg.length; ++i) {
 				const argExpr = fn.arg[i];
@@ -36,11 +36,13 @@ export default class Call extends Statement {
 						yield* argExpr.run(vm);
 					}
 				} else {
-					const type = vm.typeof(argExpr.name);
-					const fallback = type === "number" ? 0 : "";
-					const index = argExpr.reduceIndex(vm);
-					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-					vm.setValue(value ?? fallback, argExpr.name, ...index);
+					if (!context.refMap.has(argExpr.name)) {
+						const type = vm.typeof(argExpr.name);
+						const fallback = type === "number" ? 0 : "";
+						const index = argExpr.reduceIndex(vm);
+						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+						vm.setValue(value ?? fallback, argExpr.name, ...index);
+					}
 				}
 			}
 

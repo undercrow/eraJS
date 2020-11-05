@@ -25,6 +25,7 @@ const CHAR_VAR_1D = [
 type Context = {
 	fn: Fn;
 	dynamicMap: Map<string, NDArray>;
+	refMap: Map<string, string>;
 };
 
 export default class VM {
@@ -232,20 +233,23 @@ export default class VM {
 		return this.contextStack[this.contextStack.length - 1];
 	}
 
-	public pushContext(fn: Fn): void {
+	public pushContext(fn: Fn): Context {
 		const context: Context = {
 			fn,
 			dynamicMap: new Map(),
+			refMap: new Map(),
 		};
 		context.dynamicMap.set("ARG", new NDArray("number", [1000]));
 		context.dynamicMap.set("ARGS", new NDArray("string", [100]));
 		for (const property of fn.property) {
 			if (property instanceof DimDynamic) {
-				property.apply(context.dynamicMap);
+				property.apply(this);
 			}
 		}
 
 		this.contextStack.push(context);
+
+		return context;
 	}
 
 	public popContext(): void {
@@ -272,6 +276,8 @@ export default class VM {
 			assertNumber(charIndex, "Character index should an integer");
 
 			return this.globalMap.get(name)!.get(charIndex);
+		} else if (context.refMap.has(name)) {
+			return this.getValue(context.refMap.get(name)!, ...index);
 		} else if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.get(...index, 0);
 		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
@@ -300,6 +306,8 @@ export default class VM {
 			assertNumber(charIndex, "Character index should an integer");
 
 			this.globalMap.get(name)!.set(value, charIndex);
+		} else if (context.refMap.has(name)) {
+			this.setValue(value, context.refMap.get(name)!, ...index);
 		} else if (context.dynamicMap.has(name)) {
 			context.dynamicMap.get(name)!.set(value, ...index, 0);
 		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
@@ -313,7 +321,9 @@ export default class VM {
 
 	public lengthOf(name: string, depth: 0 | 1 | 2): number {
 		const context = this.context();
-		if (context.dynamicMap.has(name)) {
+		if (context.refMap.has(name)) {
+			return this.lengthOf(context.refMap.get(name)!, depth);
+		} else if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.length(depth);
 		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
 			return this.staticMap.get(context.fn.name)!.get(name)!.length(depth);
@@ -326,12 +336,14 @@ export default class VM {
 
 	public removeAt(name: string, ...index: number[]) {
 		const context = this.context();
-		if (context.dynamicMap.has(name)) {
-			return context.dynamicMap.get(name)!.removeAt(...index);
+		if (context.refMap.has(name)) {
+			this.removeAt(context.refMap.get(name)!, ...index);
+		} else if (context.dynamicMap.has(name)) {
+			context.dynamicMap.get(name)!.removeAt(...index);
 		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
-			return this.staticMap.get(context.fn.name)!.get(name)!.removeAt(...index);
+			this.staticMap.get(context.fn.name)!.get(name)!.removeAt(...index);
 		} else if (this.globalMap.has(name)) {
-			return this.globalMap.get(name)!.removeAt(...index);
+			this.globalMap.get(name)!.removeAt(...index);
 		} else {
 			throw new Error(`Cannot get remove ${index.join(",")} of variable ${name}`);
 		}
@@ -341,6 +353,8 @@ export default class VM {
 		const context = this.context();
 		if (name === "RAND") {
 			return "number";
+		} else if (context.refMap.has(name)) {
+			return this.typeof(context.refMap.get(name)!);
 		} else if (context.dynamicMap.has(name)) {
 			return context.dynamicMap.get(name)!.type;
 		} else if (this.staticMap.get(context.fn.name)!.has(name)) {

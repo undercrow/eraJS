@@ -65,7 +65,7 @@ export default class InlineCall implements Expr {
 			default: {
 				assert(vm.fnMap.has(this.name), `Method ${this.name} does not exist`);
 				for (const fn of vm.fnMap.get(this.name)!) {
-					vm.pushContext(fn);
+					const context = vm.pushContext(fn);
 					for (let i = 0; i < fn.arg.length; ++i) {
 						const argExpr = fn.arg[i];
 						const value = arg[i];
@@ -78,11 +78,14 @@ export default class InlineCall implements Expr {
 								runGenerator(argExpr.run(vm));
 							}
 						} else {
-							const type = vm.typeof(argExpr.name);
-							const fallback = type === "number" ? 0 : "";
-							const index = argExpr.reduceIndex(vm);
+							if (!context.refMap.has(argExpr.name)) {
+								const type = vm.typeof(argExpr.name);
+								const fallback = type === "number" ? 0 : "";
+								const index = argExpr.reduceIndex(vm);
+								// eslint-disable-next-line @typescript-eslint/indent
 							// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-							vm.setValue(value ?? fallback, argExpr.name, ...index);
+								vm.setValue(value ?? fallback, argExpr.name, ...index);
+							}
 						}
 					}
 

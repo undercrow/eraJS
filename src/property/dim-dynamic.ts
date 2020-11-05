@@ -1,4 +1,5 @@
 import NDArray from "../ndarray";
+import type VM from "../vm";
 
 export default class DimDynamic {
 	public name: string;
@@ -18,11 +19,12 @@ export default class DimDynamic {
 		this.value = value;
 	}
 
-	public apply(variableMap: Map<string, NDArray>) {
+	public apply(vm: VM) {
+		const context = vm.context();
 		if (this.value == null) {
-			variableMap.set(this.name, new NDArray(this.type, this.size));
+			context.dynamicMap.set(this.name, new NDArray(this.type, this.size));
 		} else {
-			variableMap.set(this.name, NDArray.fromValue(this.type, this.value));
+			context.dynamicMap.set(this.name, NDArray.fromValue(this.type, this.value));
 		}
 	}
 }

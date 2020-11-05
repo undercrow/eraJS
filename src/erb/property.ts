@@ -3,6 +3,7 @@ import P from "parsimmon";
 import type Property from "../property";
 import Dim from "../property/dim";
 import DimDynamic from "../property/dim-dynamic";
+import DimRef from "../property/dim-ref";
 import LocalSize from "../property/localsize";
 import LocalSSize from "../property/localssize";
 import Method from "../property/method";
@@ -13,7 +14,7 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 	switch (property.toUpperCase()) {
 		case "PRI": return U.arg0R0().map(() => new Order("PRI"));
 		case "LATER": return U.arg0R0().map(() => new Order("LATER"));
-		case "DIM": return U.asLine(P.lazy(() => {
+		case "DIM": return U.asLine<Property>(P.lazy(() => {
 			const dimArgument = P.seq(
 				U.sepBy1(",", U.Identifier, U.Int),
 				P.alt(
@@ -25,12 +26,15 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 				U.WS1.then(P.string("DYNAMIC").skip(U.WS1).then(dimArgument).map(
 					([[name, ...size], value]) => new DimDynamic(name, "number", size, value),
 				)),
+				U.WS1.then(P.string("REF").skip(U.WS1).then(dimArgument).map(
+					([[name]]) => new DimRef(name),
+				)),
 				U.WS1.then(dimArgument).map(
 					([[name, ...size], value]) => new Dim(name, "number", size, value),
 				),
 			);
 		}));
-		case "DIMS": return U.asLine(P.lazy(() => {
+		case "DIMS": return U.asLine<Property>(P.lazy(() => {
 			const dimArgument = P.seq(
 				U.sepBy1(",", U.Identifier, U.Int),
 				P.alt(
@@ -41,6 +45,9 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 			return P.alt(
 				U.WS1.then(P.string("DYNAMIC").skip(U.WS1).then(dimArgument).map(
 					([[name, ...size], value]) => new DimDynamic(name, "string", size, value),
+				)),
+				U.WS1.then(P.string("REF").skip(U.WS1).then(dimArgument).map(
+					([[name]]) => new DimRef(name),
 				)),
 				U.WS1.then(dimArgument).map(
 					([[name, ...size], value]) => new Dim(name, "string", size, value),

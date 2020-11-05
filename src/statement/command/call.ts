@@ -21,7 +21,7 @@ export default class Call extends Statement {
 		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
 
 		const arg = this.arg.map((a) => a.reduce(vm));
-		fnLoop: for (const fn of vm.fnMap.get(target)!) {
+		for (const fn of vm.fnMap.get(target)!) {
 			const context = vm.pushContext(fn);
 
 			for (let i = 0; i < fn.arg.length; ++i) {
@@ -59,9 +59,9 @@ export default class Call extends Statement {
 					for (let i = 0; i < result.value.length; ++i) {
 						vm.setValue(result.value[i], "RESULT", i);
 					}
-					break fnLoop;
+					return null;
 				}
-				case undefined: continue fnLoop;
+				case undefined: continue;
 			}
 		}
 		vm.setValue(0, "RESULT", 0);

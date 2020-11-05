@@ -66,6 +66,7 @@ import OutputLog from "../statement/command/outputlog";
 import Print from "../statement/command/print";
 import PrintButton from "../statement/command/printbutton";
 import PrintCPerLine from "../statement/command/printcperline";
+import PrintData from "../statement/command/printdata";
 import PutForm from "../statement/command/putform";
 import Repeat from "../statement/command/repeat";
 import ResetBgColor from "../statement/command/resetbgcolor";
@@ -410,6 +411,27 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "CLEARTEXTBOX": return U.arg0R0().map(() => new ClearTextBox());
 			case "STRDATA": return U.arg0R0().map(() => new StrData());
 			case "STOPCALLTRAIN": return U.arg0R0().map(() => new StopCallTrain());
+			case "PRINTDATA": {
+				const dataParser: P.Parser<Expr> = P.lazy(() => P.alt(
+					P.string("DATA").then(U.arg1R1(U.charSeq())).map((str) => new Const(str)),
+					P.string("DATAFORM").then(U.arg1R1(expr.Form)),
+				));
+
+				return P.seqMap(
+					U.arg0R0(),
+					P.alt(
+						dataParser,
+						P.seqMap(
+							P.string("DATALIST").then(U.arg0R0()),
+							dataParser.many(),
+							P.string("ENDLIST").then(U.arg0R0()),
+							(_, data) => data,
+						),
+					).many(),
+					P.string("ENDDATA").then(U.arg0R0()),
+					(_, data) => new PrintData(data),
+				);
+			}
 			case "SIF": return P.seqMap(
 				U.arg1R1(expr.Expr),
 				r.Statement,

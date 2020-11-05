@@ -132,9 +132,11 @@ export function arg3R3<A0, A1, A2>(
 }
 
 export function argNR0<AN>(an: P.Parser<AN>): P.Parser<AN[]> {
-	return P.alt(WS1.then(sepBy0(",", an)), WS0.map(() => [])).skip(EOL);
+	return P.alt(WS1.then(sepBy0(",", an)), WS0.map(() => []))
+		.skip(P.string(",").fallback(""))
+		.skip(EOL);
 }
 
 export function argNR1<A0, AN>(a0: P.Parser<A0>, an: P.Parser<AN>): P.Parser<[A0, ...AN[]]> {
-	return WS1.then(sepBy1(",", a0, an)).skip(EOL);
+	return WS1.then(sepBy1(",", a0, an)).skip(P.string(",").fallback("")).skip(EOL);
 }

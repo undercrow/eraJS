@@ -258,7 +258,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "RESETCOLOR": return U.arg0R0().map(() => new ResetColor());
 			case "RESETBGCOLOR": return U.arg0R0().map(() => new ResetBgColor());
 			case "SETCOLOR": return P.alt(
-				U.arg3R3(U.Int, U.Int, U.Int).map(
+				U.arg3R3(U.UInt, U.UInt, U.UInt).map(
 					([colorR, colorG, colorB]) => {
 						const rgb = color.toHex({r: colorR, g: colorG, b: colorB});
 						return new SetColor(new Const(rgb));

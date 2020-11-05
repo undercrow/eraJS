@@ -49,8 +49,8 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 		}));
 		case "FUNCTION": return U.arg0R0().map(() => new Method());
 		case "FUNCTIONS": return U.arg0R0().map(() => new Method());
-		case "LOCALSIZE": return U.arg1R1(U.Int).map((size) => new LocalSize(size));
-		case "LOCALSSIZE": return U.arg1R1(U.Int).map((size) => new LocalSSize(size));
+		case "LOCALSIZE": return U.arg1R1(U.UInt).map((size) => new LocalSize(size));
+		case "LOCALSSIZE": return U.arg1R1(U.UInt).map((size) => new LocalSSize(size));
 		default: return P.fail(`${property} is not a valid property`);
 	}
 });

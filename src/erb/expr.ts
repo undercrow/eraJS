@@ -40,7 +40,7 @@ type LanguageSpec = {
 
 const language = P.createLanguage<LanguageSpec>({
 	Variable: (r) => U.sepBy1(":", U.Identifier, P.alt(
-		U.Int.map((value) => new Const(value)),
+		U.UInt.map((value) => new Const(value)),
 		r.InlineCall,
 		U.Identifier.map((name) => new Variable(name, [])),
 		U.wrap("(", r.Expr, ")"),
@@ -48,14 +48,14 @@ const language = P.createLanguage<LanguageSpec>({
 		.map(([name, ...index]) => new Variable(name, index)),
 	ExprL0: (r) => P.alt(
 		U.wrap("(", r.Expr, ")"),
-		U.Int.map((val) => new Const(val)),
+		U.UInt.map((val) => new Const(val)),
 		U.Str.map((value) => new Const(value)),
 		U.wrap('@"', P.noneOf('"\r\n').many().tie().thru(U.nest(r.Form)), '"'),
 		r.InlineCall,
 		r.Variable,
 	),
 	ExprL1: (r) => P.alt(
-		P.seqMap(U.alt("!", "~"), r.ExprL0, (op, expr) => new Unary(op, expr)),
+		P.seqMap(U.alt("-", "!", "~").skip(U.WS0), r.ExprL0, (op, expr) => new Unary(op, expr)),
 		r.ExprL0,
 	),
 	ExprL2: (r) => leftAssociate(

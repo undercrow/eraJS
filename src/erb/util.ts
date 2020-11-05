@@ -56,12 +56,15 @@ const WS = alt(" ", "\t", "　");
 export const WS0 = WS.many().map(nullFn);
 export const WS1 = WS.atLeast(1).map(nullFn);
 export const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
-const UInt = P.alt(
+export const UInt = P.alt(
 	P.string("0b").then(P.regex(/[0-1]+/)).map((val) => parseInt(val, 2)),
 	P.string("0x").then(P.regex(/[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
 );
-export const Int = P.alt(UInt, P.string("-").then(UInt).map((val) => -val));
+export const Int = P.alt(
+	P.string("-").then(UInt).map((val) => -val),
+	UInt,
+);
 export const Float = P.regex(/[0-9]+\.[0-9]+/).map((val) => parseFloat(val));
 export const Str = char("\"").many().tie().trim(P.string("\""));
 

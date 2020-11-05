@@ -1,8 +1,11 @@
+import Fn from "../../fn";
 import Statement from "../index";
 
 export default class Restart extends Statement {
 	public *run() {
-		throw new Error("RESTART is not implemented yet!");
-		return null;
+		return <const>{
+			type: "goto",
+			label: Fn.START_OF_FN,
+		};
 	}
 }

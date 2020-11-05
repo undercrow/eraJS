@@ -5,6 +5,8 @@ import Order from "./property/order";
 import Thunk from "./thunk";
 
 export default class Fn {
+	public static START_OF_FN = "@@START";
+
 	public name: string;
 	public arg: Array<Assign | Variable>;
 	public property: Property[];
@@ -16,6 +18,8 @@ export default class Fn {
 		this.arg = arg;
 		this.thunk = thunk;
 		this.property = property;
+
+		this.thunk.labelMap.set(Fn.START_OF_FN, 0);
 	}
 
 	public isFirst(): boolean {

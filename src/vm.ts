@@ -146,9 +146,12 @@ export default class VM {
 		this.globalMap.set("MARK", new NDArray("number", [1000, 100]));
 		this.globalMap.set("PALAM", new NDArray("number", [1000, 200]));
 		this.globalMap.set("JUEL", new NDArray("number", [1000, 200]));
+		this.globalMap.set("ITEM", new NDArray("number", [1000]));
+		this.globalMap.set("ITEMSALES", new NDArray("number", [1000]));
 		this.globalMap.set("ABLNAME", NDArray.fromValue("string", data.ability));
 		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", data.talent));
 		this.globalMap.set("EXPNAME", NDArray.fromValue("string", data.exp));
+		this.globalMap.set("ITEMNAME", NDArray.fromValue("string", data.item));
 		this.globalMap.set("MARKNAME", NDArray.fromValue("string", data.mark));
 		this.globalMap.set("PALAMNAME", NDArray.fromValue("string", data.palam));
 		this.globalMap.set("GLOBAL", new NDArray("number", [1000]));
@@ -164,14 +167,19 @@ export default class VM {
 				this.globalMap.set(data.ability[i], new NDArray("number", [], i));
 			}
 		}
-		for (let i = 0; i < data.talent.length; ++i) {
-			if (data.talent[i] !== "") {
-				this.globalMap.set(data.talent[i], new NDArray("number", [], i));
-			}
-		}
 		for (let i = 0; i < data.exp.length; ++i) {
 			if (data.exp[i] !== "") {
 				this.globalMap.set(data.exp[i], new NDArray("number", [], i));
+			}
+		}
+		for (let i = 0; i < data.item.length; ++i) {
+			if (data.item[i] !== "") {
+				this.globalMap.set(data.item[i], new NDArray("number", [], i));
+			}
+		}
+		for (let i = 0; i < data.talent.length; ++i) {
+			if (data.talent[i] !== "") {
+				this.globalMap.set(data.talent[i], new NDArray("number", [], i));
 			}
 		}
 		for (let i = 0; i < data.mark.length; ++i) {

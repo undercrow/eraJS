@@ -4,6 +4,7 @@ import parseAbility from "./csv/abl";
 import parseBase from "./csv/base";
 import parseCharacter from "./csv/character";
 import parseExp from "./csv/exp";
+import parseItem from "./csv/item";
 import parseMark from "./csv/mark";
 import parsePalam from "./csv/palam";
 import parseTalent from "./csv/talent";
@@ -35,6 +36,7 @@ export type Data = {
 	character: Map<number, Character>;
 	ability: string[];
 	exp: string[];
+	item: string[];
 	talent: string[];
 	mark: string[];
 	palam: string[];
@@ -57,6 +59,7 @@ export default function parseCSV(content: Map<string, string>): Data {
 		character: parseCharacter(values),
 		ability: parseAbility(values),
 		exp: parseExp(values),
+		item: parseItem(values),
 		talent: parseTalent(values),
 		mark: parseMark(values),
 		palam: parsePalam(values),

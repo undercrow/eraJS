@@ -27,6 +27,7 @@ import CurrentRedraw from "../statement/command/currentredraw";
 import DebugClear from "../statement/command/debugclear";
 import DelAllChara from "../statement/command/delallchara";
 import DelChara from "../statement/command/delchara";
+import DoWhile from "../statement/command/dowhile";
 import DrawLine from "../statement/command/drawline";
 import DumpRand from "../statement/command/dumprand";
 import FontBold from "../statement/command/fontbold";
@@ -449,6 +450,12 @@ export const language = P.createLanguage<LanguageSpec>({
 				r.Thunk,
 				U.asLine(P.string("WEND")),
 				(condition, thunk) => new While(condition, thunk),
+			);
+			case "DO": return P.seqMap(
+				U.arg0R0(),
+				r.Thunk,
+				P.string("LOOP").then(U.arg1R1(expr.Expr)),
+				(_, thunk, condition) => new DoWhile(condition, thunk),
 			);
 			default: return P.fail("Valid instruction");
 		}

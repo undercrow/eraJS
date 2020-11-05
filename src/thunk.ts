@@ -1,5 +1,6 @@
 import Statement from "./statement";
 import Case from "./statement/command/case";
+import DoWhile from "./statement/command/dowhile";
 import For from "./statement/command/for";
 import If from "./statement/command/if";
 import Repeat from "./statement/command/repeat";
@@ -43,6 +44,8 @@ export default class Thunk extends Statement {
 			} else if (s instanceof Repeat) {
 				s.thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 			} else if (s instanceof While) {
+				s.thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
+			} else if (s instanceof DoWhile) {
 				s.thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 			}
 		}

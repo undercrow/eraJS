@@ -108,7 +108,7 @@ const language = P.createLanguage<LanguageSpec>({
 	Expr: (r) => r.ExprL8,
 	InlineCall: (r) => P.seqMap(
 		U.Identifier,
-		U.wrap("(", U.sepBy0(",", r.Expr), ")"),
+		U.WS0.then(U.wrap("(", U.sepBy0(",", r.Expr), ")")),
 		(name, arg) => new InlineCall(name, arg),
 	),
 	Form: (r) => {

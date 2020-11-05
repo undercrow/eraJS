@@ -3,6 +3,7 @@ import type VM from "../../vm";
 import Assign from "../assign";
 import type Expr from "../expr";
 import abs from "../method/abs";
+import barStr from "../method/barstr";
 import getBgColor from "../method/getbgcolor";
 import getBit from "../method/getbit";
 import getChara from "../method/getchara";
@@ -43,6 +44,7 @@ export default class InlineCall implements Expr {
 		const arg: Array<string | number> = this.arg.map((a) => a.reduce(vm));
 		switch (this.name.toUpperCase()) {
 			case "ABS": return abs(vm, arg);
+			case "BARSTR": return barStr(vm, arg);
 			case "GETBGCOLOR": return getBgColor(vm, arg);
 			case "GETBIT": return getBit(vm, arg);
 			case "GETCHARA": return getChara(vm, arg);

@@ -12,6 +12,7 @@ import AddDefChara from "../statement/command/adddefchara";
 import AddVoidChara from "../statement/command/addvoidchara";
 import Alignment from "../statement/command/alignment";
 import Bar from "../statement/command/bar";
+import BarStr from "../statement/command/barstr";
 import Begin from "../statement/command/begin";
 import Break from "../statement/command/break";
 import Call from "../statement/command/call";
@@ -292,6 +293,9 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "BARL": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
 				([value, max, length]) => new Bar(value, max, length, true),
+			);
+			case "BARSTR": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+				([value, max, length]) => new BarStr(value, max, length),
 			);
 			case "ISSKIP": return U.arg0R0().map(() => new IsSkip());
 			case "MOUSESKIP": return U.arg0R0().map(() => new MouseSkip());

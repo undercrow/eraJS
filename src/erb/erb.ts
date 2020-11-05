@@ -237,6 +237,19 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTFORMDW": return U.arg1R0(expr.Form).map(
 				(val) => new Print(val ?? new Const(""), "D", "wait")
 			);
+			// TODO: Use PrintC
+			case "PRINTC": return U.arg1R0(U.charSeq0()).map(
+				(val) => new Print(new Const(val ?? ""), undefined, undefined)
+			);
+			case "PRINTLC": return U.arg1R0(U.charSeq0()).map(
+				(val) => new Print(new Const(val ?? ""), undefined, undefined)
+			);
+			case "PRINTFORMC": return U.arg1R0(U.charSeq0()).map(
+				(val) => new Print(new Const(val ?? ""), undefined, undefined)
+			);
+			case "PRINTFORMLC": return U.arg1R0(U.charSeq0()).map(
+				(val) => new Print(new Const(val ?? ""), undefined, undefined)
+			);
 			case "PRINTBUTTON": return U.arg2R2(expr.Expr, expr.Expr).map(
 				([text, value]) => new PrintButton(text, value),
 			);

@@ -374,6 +374,7 @@ export default class VM {
 				case "TITLE": result = yield* scene.TITLE.run(this); break;
 				case "FIRST": result = yield* scene.FIRST.run(this); break;
 				case "SHOP": result = yield* scene.SHOP.run(this); break;
+				case "TRAIN": result = yield* scene.TRAIN.run(this); break;
 				default: {
 					throw new Error(`${begin} is not a valid keyword`);
 				}

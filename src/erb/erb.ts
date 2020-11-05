@@ -553,8 +553,11 @@ export default function parseERB(content: string): Fn[] {
 	// Strip comments
 	const stripped = normalized.replace(/;.*/g, "");
 
+	// Remove [SKIPSTART]~[SKIPEND] lines
+	const processed = stripped.replace(/\[SKIPSTART\](.|\n)*?\[SKIPEND\]/g, "");
+
 	// Trim leading/trailing whitespaces
-	const trimmed = stripped.replace(/^( |\t)+/mg, "").replace(/( |\t)+$/mg, "");
+	const trimmed = processed.replace(/^( |\t)+/mg, "").replace(/( |\t)+$/mg, "");
 
 	// Remove leading empty lines
 	const filtered = trimmed.replace(/^\n*/, "");

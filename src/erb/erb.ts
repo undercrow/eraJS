@@ -489,10 +489,10 @@ export const language = P.createLanguage<LanguageSpec>({
 			expr.Expr,
 			(dest, op, e) => new OpAssign(dest, op, e),
 		),
-		expr.Variable.skip(P.string("++")).map(
+		expr.Variable.skip(U.WS0).skip(P.string("++")).map(
 			(dest) => new OpAssign(dest, "+", new Const(1)),
 		),
-		expr.Variable.skip(P.string("--")).map(
+		expr.Variable.skip(U.WS0).skip(P.string("--")).map(
 			(dest) => new OpAssign(dest, "-", new Const(1)),
 		),
 	)),

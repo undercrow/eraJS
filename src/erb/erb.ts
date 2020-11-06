@@ -77,6 +77,7 @@ import PrintForm from "../statement/command/printform";
 import PrintPalam from "../statement/command/print_palam";
 import PrintPlain from "../statement/command/printplain";
 import PrintS from "../statement/command/prints";
+import PrintShopItem from "../statement/command/print_shopitem";
 import PrintV from "../statement/command/printv";
 import PutForm from "../statement/command/putform";
 import Quit from "../statement/command/quit";
@@ -227,6 +228,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINT_PALAM": return U.arg1R1(E.expr).map(
 				(index) => new PrintPalam(index),
 			);
+			case "PRINT_SHOPITEM": return U.arg0R0().map(() => new PrintShopItem());
 			case "TIMES": return U.arg2R2(E.variable, U.Float).map(
 				([dest, value]) => new Times(dest, value),
 			);

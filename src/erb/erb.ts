@@ -582,7 +582,7 @@ export const language = P.createLanguage<LanguageSpec>({
 		r.Thunk,
 		([name, arg], property, thunk) => new Fn(name, arg, property, thunk),
 	),
-	Language: (r) => r.Function.many().skip(P.eof),
+	Language: (r) => r.Function.many().skip(P.string("\n").many()).skip(P.eof),
 });
 
 export default function parseERB(content: string): Fn[] {

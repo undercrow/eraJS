@@ -150,4 +150,6 @@ const language = P.createLanguage<LanguageSpec>({
 	},
 });
 
-export default language;
+export const variable = language.Variable;
+export const form = language.Form;
+export const expr = language.Expr;

@@ -107,7 +107,7 @@ import Expr from "../statement/expr";
 import Const from "../statement/expr/const";
 import Form from "../statement/expr/form";
 import Thunk from "../thunk";
-import expr from "./expr";
+import * as E from "./expr";
 import prop from "./property";
 import * as U from "./util";
 
@@ -127,8 +127,8 @@ function callArg<T>(target: P.Parser<T>): P.Parser<[T, Expr[]]> {
 	const first = P.noneOf(",(;\r\n").many().tie().thru(U.nest(target));
 
 	return P.alt(
-		U.arg1R1(P.seq(first, U.wrap("(", U.sepBy0(",", expr.Expr), ")"))),
-		U.argNR1(first, expr.Expr).map(([f, ...r]) => [f, r]),
+		U.arg1R1(P.seq(first, U.wrap("(", U.sepBy0(",", E.expr), ")"))),
+		U.argNR1(first, E.expr).map(([f, ...r]) => [f, r]),
 	);
 }
 
@@ -158,7 +158,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTVDW": {
 				const argParser = P.alt(
 					P.string("'").then(U.charSeq(",")),
-					expr.Expr,
+					E.expr,
 				);
 				return U.argNR0(argParser).map(
 					(val) => new PrintV(instruction, val),
@@ -172,7 +172,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTSKW":
 			case "PRINTSD":
 			case "PRINTSDL":
-			case "PRINTSDW": return U.arg1R1(expr.Expr).map(
+			case "PRINTSDW": return U.arg1R1(E.expr).map(
 				(val) => new PrintS(instruction, val),
 			);
 			case "PRINTFORM":
@@ -183,7 +183,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTFORMKW":
 			case "PRINTFORMD":
 			case "PRINTFORMDL":
-			case "PRINTFORMDW": return U.arg1R0(expr.Form).map(
+			case "PRINTFORMDW": return U.arg1R0(E.form).map(
 				(val) => new PrintForm(instruction, val ?? new Form([{value: ""}])),
 			);
 			case "PRINTC":
@@ -199,32 +199,32 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTFORMCD":
 			case "PRINTFORMLC":
 			case "PRINTFORMLCK":
-			case "PRINTFORMLCD": return U.arg1R0(expr.Form).map(
+			case "PRINTFORMLCD": return U.arg1R0(E.form).map(
 				(val) => new PrintC(instruction, val ?? new Const("")),
 			);
 			case "PRINTBUTTON":
 			case "PRINTBUTTONC":
-			case "PRINTBUTTONLC": return U.arg2R2(expr.Expr, expr.Expr).map(
+			case "PRINTBUTTONLC": return U.arg2R2(E.expr, E.expr).map(
 				([text, value]) => new PrintButton(text, value),
 			);
 			case "PRINTPLAIN": return U.arg1R0(U.charSeq()).map(
 				(val) => new PrintPlain(new Const(val ?? "")),
 			);
-			case "PRINTPLAINFORM": return U.arg1R0(expr.Form).map(
+			case "PRINTPLAINFORM": return U.arg1R0(E.form).map(
 				(val) => new PrintPlain(val ?? new Const("")),
 			);
-			case "PRINT_PALAM": return U.arg1R1(expr.Expr).map(
+			case "PRINT_PALAM": return U.arg1R1(E.expr).map(
 				(index) => new PrintPalam(index),
 			);
-			case "TIMES": return U.arg2R2(expr.Variable, U.Float).map(
+			case "TIMES": return U.arg2R2(E.variable, U.Float).map(
 				([dest, value]) => new Times(dest, value),
 			);
 			case "DRAWLINE": return U.arg0R0().map(() => new DrawLine());
 			case "CUSTOMDRAWLINE": return U.arg1R1(U.charSeq()).map(
 				(e) => new DrawLine(new Const(e)),
 			);
-			case "DRAWLINEFORM": return U.arg1R1(expr.Form).map((e) => new DrawLine(e));
-			case "CLEARLINE": return U.arg1R1(expr.Expr).map((e) => new ClearLine(e));
+			case "DRAWLINEFORM": return U.arg1R1(E.form).map((e) => new DrawLine(e));
+			case "CLEARLINE": return U.arg1R1(E.expr).map((e) => new ClearLine(e));
 			case "RESETCOLOR": return U.arg0R0().map(() => new ResetColor());
 			case "RESETBGCOLOR": return U.arg0R0().map(() => new ResetBgColor());
 			case "SETCOLOR": return P.alt(
@@ -234,7 +234,7 @@ export const language = P.createLanguage<LanguageSpec>({
 						return new SetColor(new Const(rgb));
 					},
 				),
-				U.arg1R1(expr.Expr).map((e) => new SetColor(e)),
+				U.arg1R1(E.expr).map((e) => new SetColor(e)),
 			);
 			case "GETCOLOR": return U.arg0R0().map(() => new GetColor());
 			case "GETDEFCOLOR": return U.arg0R0().map(() => new GetDefColor());
@@ -245,7 +245,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "FONTITALIC": return U.arg0R0().map(() => new FontItalic());
 			case "FONTREGULAR": return U.arg0R0().map(() => new FontRegular());
 			case "GETSTYLE": return U.arg0R0().map(() => new GetStyle());
-			case "SETFONT": return U.arg1R0(expr.Expr).map((font) => new SetFont(font));
+			case "SETFONT": return U.arg1R0(E.expr).map((font) => new SetFont(font));
 			case "GETFONT": return U.arg0R0().map(() => new GetFont());
 			case "ALIGNMENT": return U.arg1R1(U.alt("LEFT", "CENTER", "RIGHT")).map((align) => {
 				switch (align) {
@@ -258,13 +258,13 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "CURRENTREDRAW": return U.arg0R0().map(() => new CurrentRedraw());
 			case "PRINTCPERLINE": return U.arg0R0().map(() => new PrintCPerLine());
 			case "LINEISEMPTY": return U.arg0R0().map(() => new LineIsEmpty());
-			case "BAR": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+			case "BAR": return U.arg3R3(E.expr, E.expr, E.expr).map(
 				([value, max, length]) => new Bar(value, max, length),
 			);
-			case "BARL": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+			case "BARL": return U.arg3R3(E.expr, E.expr, E.expr).map(
 				([value, max, length]) => new Bar(value, max, length, true),
 			);
-			case "BARSTR": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+			case "BARSTR": return U.arg3R3(E.expr, E.expr, E.expr).map(
 				([value, max, length]) => new BarStr(value, max, length),
 			);
 			case "ISSKIP": return U.arg0R0().map(() => new IsSkip());
@@ -272,51 +272,51 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "STRLEN": return U.arg1R1(U.charSeq()).map(
 				(e) => new StrLen(new Const(e)),
 			);
-			case "STRLENS": return U.arg1R1(expr.Expr).map((e) => new StrLen(e));
-			case "STRLENFORM": return U.arg1R1(expr.Form).map((e) => new StrLen(e));
+			case "STRLENS": return U.arg1R1(E.expr).map((e) => new StrLen(e));
+			case "STRLENFORM": return U.arg1R1(E.form).map((e) => new StrLen(e));
 			case "STRLENU": return U.arg1R1(U.charSeq()).map(
 				(e) => new StrLenU(new Const(e)),
 			);
-			case "STRLENSU": return U.arg1R1(expr.Expr).map((e) => new StrLenU(e));
-			case "STRLENFORMU": return U.arg1R1(expr.Form).map((e) => new StrLenU(e));
-			case "SUBSTRING": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+			case "STRLENSU": return U.arg1R1(E.expr).map((e) => new StrLenU(e));
+			case "STRLENFORMU": return U.arg1R1(E.form).map((e) => new StrLenU(e));
+			case "SUBSTRING": return U.arg3R3(E.expr, E.expr, E.expr).map(
 				([e, start, end]) => new Substring(e, start, end),
 			);
-			case "SUBSTRINGU": return U.arg3R3(expr.Expr, expr.Expr, expr.Expr).map(
+			case "SUBSTRINGU": return U.arg3R3(E.expr, E.expr, E.expr).map(
 				([e, start, end]) => new SubstringU(e, start, end),
 			);
-			case "STRFIND": return U.arg2R2(expr.Expr, expr.Expr).map(
+			case "STRFIND": return U.arg2R2(E.expr, E.expr).map(
 				([val, search]) => new StrFind(val, search),
 			);
-			case "STRFINDU": return U.arg2R2(expr.Expr, expr.Expr).map(
+			case "STRFINDU": return U.arg2R2(E.expr, E.expr).map(
 				([val, search]) => new StrFind(val, search, true),
 			);
-			case "SPLIT": return U.arg3R3(expr.Expr, expr.Expr, expr.Variable).map(
+			case "SPLIT": return U.arg3R3(E.expr, E.expr, E.variable).map(
 				([e, sep, dest]) => new Split(e, sep, dest),
 			);
-			case "GETBIT": return U.arg2R2(expr.Expr, expr.Expr).map(
+			case "GETBIT": return U.arg2R2(E.expr, E.expr).map(
 				([e, index]) => new GetBit(e, index),
 			);
-			case "SETBIT": return U.argNR1(expr.Variable, expr.Expr).map(
+			case "SETBIT": return U.argNR1(E.variable, E.expr).map(
 				([v, ...bits]) => new SetBit(v, bits),
 			);
-			case "CLEARBIT": return U.argNR1(expr.Variable, expr.Expr).map(
+			case "CLEARBIT": return U.argNR1(E.variable, E.expr).map(
 				([v, ...bits]) => new ClearBit(v, bits),
 			);
-			case "INVERTBIT": return U.argNR1(expr.Variable, expr.Expr).map(
+			case "INVERTBIT": return U.argNR1(E.variable, E.expr).map(
 				([v, ...bits]) => new InvertBit(v, bits),
 			);
-			case "ADDCHARA": return U.argNR0(expr.Expr).map((e) => new AddChara(e));
+			case "ADDCHARA": return U.argNR0(E.expr).map((e) => new AddChara(e));
 			case "ADDDEFCHARA": return U.arg0R0().map(() => new AddDefChara());
 			case "ADDVOIDCHARA": return U.arg0R0().map(() => new AddVoidChara());
-			case "DELCHARA": return U.argNR0(expr.Expr).map((e) => new DelChara(e));
+			case "DELCHARA": return U.argNR0(E.expr).map((e) => new DelChara(e));
 			case "DELALLCHARA": return U.arg0R0().map(() => new DelAllChara());
 			case "RESETDATA": return U.arg0R0().map(() => new ResetData());
 			case "RESETGLOBAL": return U.arg0R0().map(() => new ResetGlobal());
-			case "VARSET": return U.arg2R1(expr.Variable, expr.Expr).map(
+			case "VARSET": return U.arg2R1(E.variable, E.expr).map(
 				([dest, value]) => new VarSet(dest, value),
 			);
-			case "PUTFORM": return U.arg1R1(expr.Form).map((e) => new PutForm(e));
+			case "PUTFORM": return U.arg1R1(E.form).map((e) => new PutForm(e));
 			case "SAVEGAME": return U.arg0R0().map(() => new SaveGame());
 			case "LOADGAME": return U.arg0R0().map(() => new LoadGame());
 			case "SAVEGLOBAL": return U.arg0R0().map(() => new SaveGlobal());
@@ -335,38 +335,38 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "DUMPRAND": return U.arg0R0().map(() => new DumpRand());
 			case "INITRAND": return U.arg0R0().map(() => new InitRand());
 			case "BEGIN": return U.arg1R1(U.Identifier).map((target) => new Begin(target));
-			case "THROW": return U.arg1R1(expr.Form).map((e) => new Throw(e));
+			case "THROW": return U.arg1R1(E.form).map((e) => new Throw(e));
 			case "CALL": return callArg(U.Identifier).map(
 				([name, arg]) => new Call(new Const(name), arg),
 			);
-			case "CALLFORM": return callArg(expr.Form).map(([name, arg]) => new Call(name, arg));
+			case "CALLFORM": return callArg(E.form).map(([name, arg]) => new Call(name, arg));
 			case "TRYCALL": return callArg(U.Identifier).map(
 				([name, arg]) => new TryCall(new Const(name), arg),
 			);
-			case "TRYCALLFORM": return callArg(expr.Form).map(
+			case "TRYCALLFORM": return callArg(E.form).map(
 				([name, arg]) => new TryCall(name, arg),
 			);
 			case "JUMP": return callArg(U.Identifier).map(
 				([name, arg]) => new Jump(new Const(name), arg),
 			);
-			case "JUMPFORM": return callArg(expr.Form).map(([name, arg]) => new Jump(name, arg));
+			case "JUMPFORM": return callArg(E.form).map(([name, arg]) => new Jump(name, arg));
 			case "TRYJUMP": return callArg(U.Identifier).map(
 				([name, arg]) => new TryJump(new Const(name), arg),
 			);
-			case "TRYJUMPFORM": return callArg(expr.Form).map(
+			case "TRYJUMPFORM": return callArg(E.form).map(
 				([name, arg]) => new TryJump(name, arg),
 			);
 			case "GOTO": return U.arg1R1(U.Identifier).map(
 				(target) => new Goto(new Const(target)),
 			);
-			case "GOTOFORM": return U.arg1R1(expr.Form).map((target) => new Goto(target));
+			case "GOTOFORM": return U.arg1R1(E.form).map((target) => new Goto(target));
 			case "TRYGOTO": return U.arg1R1(U.Identifier).map(
 				(target) => new TryGoto(new Const(target)),
 			);
-			case "TRYGOTOFORM": return U.arg1R1(expr.Form).map((target) => new TryGoto(target));
+			case "TRYGOTOFORM": return U.arg1R1(E.form).map((target) => new TryGoto(target));
 			case "RESTART": return U.arg0R0().map(() => new Restart());
-			case "RETURN": return U.argNR0(expr.Expr).map((e) => new Return(e));
-			case "RETURNF": return U.arg1R1(expr.Expr).map((e) => new Return([e]));
+			case "RETURN": return U.argNR0(E.expr).map((e) => new Return(e));
+			case "RETURNF": return U.arg1R1(E.expr).map((e) => new Return([e]));
 			case "DEBUGCLEAR": return U.arg0R0().map(() => new DebugClear());
 			case "MOUSEX": return U.arg0R0().map(() => new MouseX());
 			case "MOUSEY": return U.arg0R0().map(() => new MouseY());
@@ -380,7 +380,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTDATA": {
 				const dataParser: P.Parser<Expr> = P.lazy(() => P.alt(
 					P.string("DATA").then(U.arg1R1(U.charSeq())).map((str) => new Const(str)),
-					P.string("DATAFORM").then(U.arg1R1(expr.Form)),
+					P.string("DATAFORM").then(U.arg1R1(E.form)),
 				));
 
 				return P.seqMap(
@@ -399,19 +399,19 @@ export const language = P.createLanguage<LanguageSpec>({
 				);
 			}
 			case "SIF": return P.seqMap(
-				U.arg1R1(expr.Expr),
+				U.arg1R1(E.expr),
 				r.Statement,
 				(cond, then) => new If([[cond, new Thunk([then])]], new Thunk([])),
 			);
 			case "IF": return P.seqMap(
-				P.seq(U.arg1R1(expr.Expr), r.Thunk),
-				P.seq(P.string("ELSEIF").then(U.arg1R1(expr.Expr)), r.Thunk).many(),
+				P.seq(U.arg1R1(E.expr), r.Thunk),
+				P.seq(P.string("ELSEIF").then(U.arg1R1(E.expr)), r.Thunk).many(),
 				U.asLine(P.string("ELSE")).then(r.Thunk).fallback(new Thunk([])),
 				U.asLine(P.string("ENDIF")),
 				(ifStmt, elifStmt, elseStmt) => new If([ifStmt, ...elifStmt], elseStmt),
 			);
 			case "SELECTCASE": return P.seqMap(
-				U.arg1R1(expr.Expr),
+				U.arg1R1(E.expr),
 				P.seq(
 					P.string("CASE").then(U.argNR0(P.alt(
 						P.seqMap(U.Int, P.string("TO").trim(U.WS1).then(U.Int), (from, to) => ({
@@ -434,19 +434,19 @@ export const language = P.createLanguage<LanguageSpec>({
 				(e, branch, def) => new Case(e, branch, def),
 			);
 			case "REPEAT": return P.seqMap(
-				U.arg1R1(expr.Expr),
+				U.arg1R1(E.expr),
 				r.Thunk,
 				U.asLine(P.string("REND")),
 				(condition, thunk) => new Repeat(condition, thunk),
 			);
 			case "FOR": return P.seqMap(
-				U.arg3R3(expr.Variable, expr.Expr, expr.Expr),
+				U.arg3R3(E.variable, E.expr, E.expr),
 				r.Thunk,
 				U.asLine(P.string("NEXT")),
 				([counter, start, end], thunk) => new For(counter, start, end, thunk),
 			);
 			case "WHILE": return P.seqMap(
-				U.arg1R1(expr.Expr),
+				U.arg1R1(E.expr),
 				r.Thunk,
 				U.asLine(P.string("WEND")),
 				(condition, thunk) => new While(condition, thunk),
@@ -454,33 +454,33 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "DO": return P.seqMap(
 				U.arg0R0(),
 				r.Thunk,
-				P.string("LOOP").then(U.arg1R1(expr.Expr)),
+				P.string("LOOP").then(U.arg1R1(E.expr)),
 				(_, thunk, condition) => new DoWhile(condition, thunk),
 			);
 			default: return P.fail("Valid instruction");
 		}
 	}),
 	Assign: () => U.asLine(P.seqMap(
-		expr.Variable,
+		E.variable,
 		P.string("=").trim(U.WS0).then(P.noneOf("\r\n;").many().tie()),
 		(dest, e) => new Assign(dest, e),
 	)),
 	StrAssign: () => U.asLine(P.seqMap(
-		expr.Variable,
+		E.variable,
 		P.string("'=").trim(U.WS0).then(U.charSeq()),
 		(dest, e) => new StrAssign(dest, e),
 	)),
 	OpAssign: () => U.asLine(P.alt(
 		P.seqMap(
-			expr.Variable,
+			E.variable,
 			U.alt("*", "/", "%", "+", "-", "&", "|", "^").skip(P.string("=")).trim(U.WS0),
-			expr.Expr,
+			E.expr,
 			(dest, op, e) => new OpAssign(dest, op, e),
 		),
-		expr.Variable.skip(U.WS0).skip(P.string("++")).map(
+		E.variable.skip(U.WS0).skip(P.string("++")).map(
 			(dest) => new OpAssign(dest, "+", new Const(1)),
 		),
-		expr.Variable.skip(U.WS0).skip(P.string("--")).map(
+		E.variable.skip(U.WS0).skip(P.string("--")).map(
 			(dest) => new OpAssign(dest, "-", new Const(1)),
 		),
 	)),
@@ -490,11 +490,11 @@ export const language = P.createLanguage<LanguageSpec>({
 		U.asLine(P.string("@").then(P.lazy(() => {
 			const arg = U.sepBy0(",", P.alt(
 				P.seqMap(
-					expr.Variable,
+					E.variable,
 					P.string("=").trim(U.WS0).then(U.charSeq(",", ")")),
 					(dest, e) => new Assign(dest, e),
 				),
-				expr.Variable,
+				E.variable,
 			));
 
 			return P.seq(U.Identifier.skip(U.WS0), P.alt(

@@ -67,6 +67,7 @@ import Print from "../statement/command/print";
 import PrintButton from "../statement/command/printbutton";
 import PrintCPerLine from "../statement/command/printcperline";
 import PrintData from "../statement/command/printdata";
+import PrintPalam from "../statement/command/print_palam";
 import PutForm from "../statement/command/putform";
 import Repeat from "../statement/command/repeat";
 import ResetBgColor from "../statement/command/resetbgcolor";
@@ -264,6 +265,9 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "PRINTPLAINFORM": return U.arg1R0(expr.Form).map(
 				(val) => new Print(val ?? new Const("")),
+			);
+			case "PRINT_PALAM": return U.arg1R1(expr.Expr).map(
+				(index) => new PrintPalam(index),
 			);
 			case "TIMES": return U.arg2R2(expr.Variable, U.Float).map(
 				([dest, value]) => new Times(dest, value),

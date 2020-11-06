@@ -77,6 +77,7 @@ import PrintS from "../statement/command/prints";
 import PrintV from "../statement/command/printv";
 import PutForm from "../statement/command/putform";
 import Quit from "../statement/command/quit";
+import Redraw from "../statement/command/redraw";
 import Repeat from "../statement/command/repeat";
 import ResetBgColor from "../statement/command/resetbgcolor";
 import ResetColor from "../statement/command/resetcolor";
@@ -257,6 +258,7 @@ export const language = P.createLanguage<LanguageSpec>({
 				}
 			});
 			case "CURRENTALIGN": return U.arg0R0().map(() => new CurrentAlign());
+			case "REDRAW": return U.arg1R1(E.expr).map((expr) => new Redraw(expr));
 			case "CURRENTREDRAW": return U.arg0R0().map(() => new CurrentRedraw());
 			case "PRINTCPERLINE": return U.arg0R0().map(() => new PrintCPerLine());
 			case "LINEISEMPTY": return U.arg0R0().map(() => new LineIsEmpty());

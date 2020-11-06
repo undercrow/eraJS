@@ -9,7 +9,9 @@ export type Output =
 	| {type: "loadgame"}
 	| {type: "loadglobal"}
 	| {type: "wait"}
-	| {type: "input"};
+	| {type: "input"}
+	// TODO: remove this output
+	| {type: "redraw", value: number};
 
 export type Result =
 	| {type: "begin"; keyword: string}

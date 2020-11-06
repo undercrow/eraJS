@@ -37,6 +37,7 @@ export default class VM {
 	private contextStack: Array<Context>;
 
 	public alignment: Alignment["align"];
+	public draw: boolean;
 	public skipDisp: boolean;
 	public font: {
 		name: string;
@@ -57,6 +58,7 @@ export default class VM {
 		this.staticMap = new Map();
 		this.contextStack = [];
 		this.alignment = "left";
+		this.draw = true;
 		this.skipDisp = false;
 		this.font = {
 			name: "",

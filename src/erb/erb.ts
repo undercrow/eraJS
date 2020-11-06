@@ -149,7 +149,8 @@ function callArg<T>(first: P.Parser<T>): P.Parser<[T, Expr[]]> {
 export const language = P.createLanguage<LanguageSpec>({
 	Label: () => U.asLine(P.string("$").then(U.Identifier)),
 	Command: (r) => U.Identifier.chain<Statement>((instruction) => {
-		switch (instruction.toUpperCase()) {
+		const INSTRUCTION = instruction.toUpperCase();
+		switch (INSTRUCTION) {
 			case "PRINT":
 			case "PRINTL":
 			case "PRINTW":
@@ -159,7 +160,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTD":
 			case "PRINTDL":
 			case "PRINTDW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(instruction, new Const(val ?? "")),
+				(val) => new Print(INSTRUCTION, new Const(val ?? "")),
 			);
 			case "PRINTV":
 			case "PRINTVL":
@@ -175,7 +176,7 @@ export const language = P.createLanguage<LanguageSpec>({
 					E.expr,
 				);
 				return U.argNR0(argParser).map(
-					(val) => new PrintV(instruction, val),
+					(val) => new PrintV(INSTRUCTION, val),
 				);
 			}
 			case "PRINTS":
@@ -187,7 +188,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTSD":
 			case "PRINTSDL":
 			case "PRINTSDW": return U.arg1R1(E.expr).map(
-				(val) => new PrintS(instruction, val),
+				(val) => new PrintS(INSTRUCTION, val),
 			);
 			case "PRINTFORM":
 			case "PRINTFORML":
@@ -198,7 +199,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTFORMD":
 			case "PRINTFORMDL":
 			case "PRINTFORMDW": return U.arg1R0(E.form()).map(
-				(val) => new PrintForm(instruction, val ?? new Form([{value: ""}])),
+				(val) => new PrintForm(INSTRUCTION, val ?? new Form([{value: ""}])),
 			);
 			case "PRINTC":
 			case "PRINTCK":
@@ -206,7 +207,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTLC":
 			case "PRINTLCK":
 			case "PRINTLCD": return U.arg1R0(U.charSeq0()).map(
-				(val) => new PrintC(instruction, new Const(val ?? "")),
+				(val) => new PrintC(INSTRUCTION, new Const(val ?? "")),
 			);
 			case "PRINTFORMC":
 			case "PRINTFORMCK":
@@ -214,7 +215,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTFORMLC":
 			case "PRINTFORMLCK":
 			case "PRINTFORMLCD": return U.arg1R0(E.form()).map(
-				(val) => new PrintC(instruction, val ?? new Const("")),
+				(val) => new PrintC(INSTRUCTION, val ?? new Const("")),
 			);
 			case "PRINTBUTTON":
 			case "PRINTBUTTONC":
@@ -478,7 +479,7 @@ export const language = P.createLanguage<LanguageSpec>({
 						),
 					).many(),
 					P.regex(/ENDDATA/i).then(U.arg0R0()),
-					(_, data) => new PrintData(instruction, data),
+					(_, data) => new PrintData(INSTRUCTION, data),
 				);
 			}
 			case "SIF": return P.seqMap(

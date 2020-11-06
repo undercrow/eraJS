@@ -9,13 +9,15 @@ export default class For extends Statement {
 	public counter: Variable;
 	public start: Expr;
 	public end: Expr;
+	public step?: Expr;
 	public thunk: Thunk;
 
-	public constructor(counter: Variable, start: Expr, end: Expr, thunk: Thunk) {
+	public constructor(counter: Variable, start: Expr, end: Expr, thunk: Thunk, step?: Expr) {
 		super();
 		this.counter = counter;
 		this.start = start;
 		this.end = end;
+		this.step = step;
 		this.thunk = thunk;
 	}
 
@@ -30,9 +32,11 @@ export default class For extends Statement {
 		assertNumber(start, "Starting value for FOR should be an integer");
 		const end = this.end.reduce(vm);
 		assertNumber(end, "Ending value for FOR should be an integer");
+		const step = this.step?.reduce(vm) ?? 1;
+		assertNumber(step, "Step of FOR should be an integer");
 		const index = this.counter.reduceIndex(vm);
 
-		loop: for (let i = start; i < end; ++i) {
+		loop: for (let i = start; i < end; i += step) {
 			vm.setValue(i, this.counter.name, ...index);
 			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {

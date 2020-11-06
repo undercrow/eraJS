@@ -448,10 +448,10 @@ export const language = P.createLanguage<LanguageSpec>({
 				(condition, thunk) => new Repeat(condition, thunk),
 			);
 			case "FOR": return P.seqMap(
-				U.arg3R3(E.variable, E.expr, E.expr),
+				U.arg4R3(E.variable, E.expr, E.expr, E.expr),
 				r.Thunk,
 				U.asLine(P.regex(/NEXT/i)),
-				([counter, start, end], thunk) => new For(counter, start, end, thunk),
+				([counter, start, end, step], thunk) => new For(counter, start, end, thunk, step),
 			);
 			case "WHILE": return P.seqMap(
 				U.arg1R1(E.expr),

@@ -76,6 +76,7 @@ import PrintPlain from "../statement/command/printplain";
 import PrintS from "../statement/command/prints";
 import PrintV from "../statement/command/printv";
 import PutForm from "../statement/command/putform";
+import Quit from "../statement/command/quit";
 import Repeat from "../statement/command/repeat";
 import ResetBgColor from "../statement/command/resetbgcolor";
 import ResetColor from "../statement/command/resetcolor";
@@ -342,6 +343,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "BEGIN": return U.arg1R1(U.Identifier).map((target) => new Begin(target));
 			case "CALLTRAIN": return U.arg1R1(E.expr).map((expr) => new CallTrain(expr));
 			case "THROW": return U.arg1R1(E.form()).map((e) => new Throw(e));
+			case "QUIT": return U.arg0R0().map(() => new Quit());
 			case "CALL": return callArg(U.Identifier).map(
 				([name, arg]) => new Call(new Const(name), arg),
 			);

@@ -42,6 +42,7 @@ export default class For extends Statement {
 				case "continue": continue loop;
 				case "throw": return result;
 				case "return": return result;
+				case "quit": return result;
 				case undefined: continue loop;
 			}
 		}

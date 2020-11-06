@@ -33,6 +33,7 @@ export default class DoWhile extends Statement {
 				case "continue": continue;
 				case "throw": return result;
 				case "return": return result;
+				case "quit": return result;
 				case undefined: continue;
 			}
 		}

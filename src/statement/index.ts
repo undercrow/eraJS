@@ -17,7 +17,8 @@ export type Result =
 	| {type: "break"}
 	| {type: "continue"}
 	| {type: "throw"; value: string}
-	| {type: "return"; value: Array<number | string>};
+	| {type: "return"; value: Array<number | string>}
+	| {type: "quit"};
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default class Statement {

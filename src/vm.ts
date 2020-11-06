@@ -416,6 +416,7 @@ export default class VM {
 				case "continue": return null;
 				case "throw": throw new Error(`Uncaught error ${result.value}`);
 				case "return": continue;
+				case "quit": return null;
 				case undefined: continue;
 			}
 		}

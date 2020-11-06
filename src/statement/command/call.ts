@@ -61,6 +61,7 @@ export default class Call extends Statement {
 					}
 					return null;
 				}
+				case "quit": return result;
 				case undefined: continue;
 			}
 		}

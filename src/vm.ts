@@ -127,6 +127,7 @@ export default class VM {
 		this.globalMap.set("MASTER", new NDArray("number", [], 0));
 		this.globalMap.set("TARGET", new NDArray("number", [], -1));
 		this.globalMap.set("ASSI", new NDArray("number", [], -1));
+		this.globalMap.set("PLAYER", new NDArray("number", []));
 		this.globalMap.set("ASSIPLAY", new NDArray("number", []));
 		this.globalMap.set("SELECTCOM", new NDArray("number", []));
 		this.globalMap.set("PREVCOM", new NDArray("number", []));

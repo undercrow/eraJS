@@ -88,6 +88,7 @@ import ResetData from "../statement/command/resetdata";
 import ResetGlobal from "../statement/command/resetglobal";
 import Restart from "../statement/command/restart";
 import Return from "../statement/command/return";
+import ReuseLastLine from "../statement/command/reuselastline";
 import SaveData from "../statement/command/savedata";
 import SaveGame from "../statement/command/savegame";
 import SaveGlobal from "../statement/command/saveglobal";
@@ -234,6 +235,7 @@ export const language = P.createLanguage<LanguageSpec>({
 				(e) => new DrawLine(new Const(e)),
 			);
 			case "DRAWLINEFORM": return U.arg1R1(E.form()).map((e) => new DrawLine(e));
+			case "REUSELASTLINE": return U.arg1R0(E.form()).map((expr) => new ReuseLastLine(expr));
 			case "CLEARLINE": return U.arg1R1(E.expr).map((e) => new ClearLine(e));
 			case "RESETCOLOR": return U.arg0R0().map(() => new ResetColor());
 			case "RESETBGCOLOR": return U.arg0R0().map(() => new ResetBgColor());

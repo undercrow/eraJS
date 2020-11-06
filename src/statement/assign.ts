@@ -31,7 +31,7 @@ export default class Assign extends Statement {
 		} else {
 			if (this.value.length !== 0) {
 				const rawList = U.sepBy0(",", U.charSeq0(",")).tryParse(this.value);
-				const formList = rawList.map((raw) => E.form.tryParse(raw));
+				const formList = rawList.map((raw) => E.form().tryParse(raw));
 				for (let i = 0; i < formList.length; ++i) {
 					const value = formList[i].reduce(vm);
 					vm.setValue(value, this.dest.name, ...partialIndex, lastIndex + i);

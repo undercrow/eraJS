@@ -35,7 +35,6 @@ type LanguageSpec = {
 	ExprL8: Expr;
 	Expr: Expr;
 	InlineCall: InlineCall;
-	Form: Form;
 };
 
 const language = P.createLanguage<LanguageSpec>({
@@ -50,7 +49,7 @@ const language = P.createLanguage<LanguageSpec>({
 		U.wrap("(", r.Expr, ")"),
 		U.UInt.map((val) => new Const(val)),
 		U.Str.map((value) => new Const(value)),
-		U.wrap('@"', P.noneOf('"\r\n').many().tie().thru(U.nest(r.Form)), '"'),
+		U.wrap('@"', P.noneOf('"\r\n').many().tie().thru(U.nest(form())), '"'),
 		r.InlineCall,
 		r.Variable,
 	),
@@ -115,41 +114,41 @@ const language = P.createLanguage<LanguageSpec>({
 		U.WS0.then(U.wrap("(", U.sepBy0(",", r.Expr), ")")),
 		(name, arg) => new InlineCall(name, arg),
 	),
-	Form: (r) => {
-		const chunk: P.Parser<Form["expr"][number]> = P.alt(
-			U.wrap("{", P.noneOf("}\r\n").many().tie(), "}").thru(U.nest(P.seqMap(
-				r.Expr,
-				P.string(",").trim(U.WS0).then(r.Expr).fallback(undefined),
-				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-				(value, display, align) => ({value, display, align}),
-			))),
-			U.wrap("%", P.noneOf("%\r\n").many().tie(), "%").thru(U.nest(P.seqMap(
-				r.Expr,
-				P.string(",").trim(U.WS0).then(r.Expr).fallback(undefined),
-				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-				(value, display, align) => ({value, display, align}),
-			))),
-			U.wrap(
-				"\\@",
-				P.alt(P.noneOf("\r\n\\"), P.string("\\").notFollowedBy(P.string("@"))).many().tie(),
-				"\\@",
-			).thru(
-				U.nest(P.lazy(() => P.seqMap(
-					r.Expr,
-					P.string("?").trim(U.WS0).then(chunk),
-					P.string("#").trim(U.WS0).then(chunk),
-					(expr, left, right) => ({
-						value: new Ternary(expr, new Form([left]), new Form([right])),
-					}),
-				))),
-			),
-			U.charSeq("{", "%").map((value) => ({value})),
-		);
-
-		return chunk.atLeast(1).map((expr) => new Form(expr));
-	},
 });
 
+export function form(...exclude: string[]): P.Parser<Form> {
+	const chunk: P.Parser<Form["expr"][number]> = P.alt(
+		U.wrap("{", P.noneOf("}\r\n").many().tie(), "}").thru(U.nest(P.seqMap(
+			language.Expr,
+			P.string(",").trim(U.WS0).then(language.Expr).fallback(undefined),
+			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+			(value, display, align) => ({value, display, align}),
+		))),
+		U.wrap("%", P.noneOf("%\r\n").many().tie(), "%").thru(U.nest(P.seqMap(
+			language.Expr,
+			P.string(",").trim(U.WS0).then(language.Expr).fallback(undefined),
+			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+			(value, display, align) => ({value, display, align}),
+		))),
+		U.wrap(
+			"\\@",
+			P.any.notFollowedBy(P.string("\\@")).many().tie(),
+			"\\@",
+		).thru(
+			U.nest(P.lazy(() => P.seqMap(
+				language.Expr,
+				P.string("?").trim(U.WS0).then(chunk),
+				P.string("#").trim(U.WS0).then(chunk),
+				(expr, left, right) => ({
+					value: new Ternary(expr, new Form([left]), new Form([right])),
+				}),
+			))),
+		),
+		U.charSeq("{", "%", ...exclude).map((value) => ({value})),
+	);
+
+	return chunk.atLeast(1).map((expr) => new Form(expr));
+}
+
 export const variable = language.Variable;
-export const form = language.Form;
 export const expr = language.Expr;

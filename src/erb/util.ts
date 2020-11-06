@@ -132,6 +132,21 @@ export function arg3R3<A0, A1, A2>(
 	)).skip(EOL);
 }
 
+export function arg4R1<A0, A1, A2, A3>(
+	a0: P.Parser<A0>,
+	a1: P.Parser<A1>,
+	a2: P.Parser<A2>,
+	a3: P.Parser<A3>,
+): P.Parser<[A0, A1 | undefined, A2 | undefined, A3 | undefined]> {
+	return WS1.then(P.seqMap(
+		a0,
+		P.string(",").trim(WS0).then(a1).fallback(undefined),
+		P.string(",").trim(WS0).then(a2).fallback(undefined),
+		P.string(",").trim(WS0).then(a3).fallback(undefined),
+		(...arg) => arg,
+	)).skip(EOL);
+}
+
 export function arg4R3<A0, A1, A2, A3>(
 	a0: P.Parser<A0>,
 	a1: P.Parser<A1>,

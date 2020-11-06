@@ -321,8 +321,8 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "DELALLCHARA": return U.arg0R0().map(() => new DelAllChara());
 			case "RESETDATA": return U.arg0R0().map(() => new ResetData());
 			case "RESETGLOBAL": return U.arg0R0().map(() => new ResetGlobal());
-			case "VARSET": return U.arg2R1(E.variable, E.expr).map(
-				([dest, value]) => new VarSet(dest, value),
+			case "VARSET": return U.arg4R1(E.variable, E.expr, E.expr, E.expr).map(
+				([dest, value, start, end]) => new VarSet(dest, value, start, end),
 			);
 			case "ARRAYSHIFT": return U.arg3R3(E.variable, E.expr, E.expr).map(
 				([target, count, fill]) => new ArrayShift(target, count, fill),

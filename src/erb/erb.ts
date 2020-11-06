@@ -65,9 +65,14 @@ import MouseY from "../statement/command/mousey";
 import OutputLog from "../statement/command/outputlog";
 import Print from "../statement/command/print";
 import PrintButton from "../statement/command/printbutton";
+import PrintC from "../statement/command/printc";
 import PrintCPerLine from "../statement/command/printcperline";
 import PrintData from "../statement/command/printdata";
+import PrintForm from "../statement/command/printform";
 import PrintPalam from "../statement/command/print_palam";
+import PrintPlain from "../statement/command/printplain";
+import PrintS from "../statement/command/prints";
+import PrintV from "../statement/command/printv";
 import PutForm from "../statement/command/putform";
 import Repeat from "../statement/command/repeat";
 import ResetBgColor from "../statement/command/resetbgcolor";
@@ -100,6 +105,7 @@ import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
 import Expr from "../statement/expr";
 import Const from "../statement/expr/const";
+import Form from "../statement/expr/form";
 import Thunk from "../thunk";
 import expr from "./expr";
 import prop from "./property";
@@ -130,141 +136,82 @@ export const language = P.createLanguage<LanguageSpec>({
 	Label: () => U.asLine(P.string("$").then(U.Identifier)),
 	Command: (r) => U.Identifier.chain<Statement>((instruction) => {
 		switch (instruction.toUpperCase()) {
-			case "PRINT": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), undefined, undefined),
-			);
-			case "PRINTK": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), "K", undefined),
-			);
-			case "PRINTD": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), "D", undefined)
-			);
-			case "PRINTL": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), undefined, "newline"),
-			);
-			case "PRINTKL": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), "K", "newline"),
-			);
-			case "PRINTDL": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), "D", "newline"),
-			);
-			case "PRINTW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), undefined, "wait"),
-			);
-			case "PRINTKW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), "K", "wait"),
-			);
+			case "PRINT":
+			case "PRINTL":
+			case "PRINTW":
+			case "PRINTK":
+			case "PRINTKL":
+			case "PRINTKW":
+			case "PRINTD":
+			case "PRINTDL":
 			case "PRINTDW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? ""), "D", "wait"),
+				(val) => new Print(instruction, new Const(val ?? "")),
 			);
-			case "PRINTV": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, undefined, undefined),
-			);
-			case "PRINTVK": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "K", undefined),
-			);
-			case "PRINTVD": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "D", undefined),
-			);
-			case "PRINTVL": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, undefined, "newline"),
-			);
-			case "PRINTVKL": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "K", "newline"),
-			);
-			case "PRINTVDL": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "D", "newline"),
-			);
-			case "PRINTVW": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, undefined, "wait"),
-			);
-			case "PRINTVKW": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "K", "wait"),
-			);
-			case "PRINTVDW": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "D", "wait"),
-			);
-			case "PRINTS": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, undefined, undefined),
-			);
-			case "PRINTSK": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "K", undefined),
-			);
-			case "PRINTSD": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "D", undefined),
-			);
-			case "PRINTSL": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, undefined, "newline"),
-			);
-			case "PRINTSKL": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "K", "newline"),
-			);
-			case "PRINTSDL": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "D", "newline"),
-			);
-			case "PRINTSW": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, undefined, "wait"),
-			);
-			case "PRINTSKW": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "K", "wait"),
-			);
+			case "PRINTV":
+			case "PRINTVL":
+			case "PRINTVW":
+			case "PRINTVK":
+			case "PRINTVKL":
+			case "PRINTVKW":
+			case "PRINTVD":
+			case "PRINTVDL":
+			case "PRINTVDW": {
+				const argParser = P.alt(
+					P.string("'").then(U.charSeq(",")),
+					expr.Expr,
+				);
+				return U.argNR0(argParser).map(
+					(val) => new PrintV(instruction, val),
+				);
+			}
+			case "PRINTS":
+			case "PRINTSL":
+			case "PRINTSW":
+			case "PRINTSK":
+			case "PRINTSKL":
+			case "PRINTSKW":
+			case "PRINTSD":
+			case "PRINTSDL":
 			case "PRINTSDW": return U.arg1R1(expr.Expr).map(
-				(val) => new Print(val, "D", "wait"),
+				(val) => new PrintS(instruction, val),
 			);
-			case "PRINTFORM": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), undefined, undefined),
-			);
-			case "PRINTFORMK": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), "K", undefined),
-			);
-			case "PRINTFORMD": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), "D", undefined),
-			);
-			case "PRINTFORML": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), undefined, "newline")
-			);
-			case "PRINTFORMKL": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), "K", "newline")
-			);
-			case "PRINTFORMDL": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), "D", "newline")
-			);
-			case "PRINTFORMW": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), undefined, "wait")
-			);
-			case "PRINTFORMKW": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), "K", "wait")
-			);
+			case "PRINTFORM":
+			case "PRINTFORML":
+			case "PRINTFORMW":
+			case "PRINTFORMK":
+			case "PRINTFORMKL":
+			case "PRINTFORMKW":
+			case "PRINTFORMD":
+			case "PRINTFORMDL":
 			case "PRINTFORMDW": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), "D", "wait")
+				(val) => new PrintForm(instruction, val ?? new Form([{value: ""}])),
 			);
-			// TODO: Use PrintC
-			case "PRINTC": return U.arg1R0(U.charSeq0()).map(
-				(val) => new Print(new Const(val ?? ""), undefined, undefined)
+			case "PRINTC":
+			case "PRINTCK":
+			case "PRINTCD":
+			case "PRINTLC":
+			case "PRINTLCK":
+			case "PRINTLCD": return U.arg1R0(U.charSeq0()).map(
+				(val) => new PrintC(instruction, new Const(val ?? "")),
 			);
-			case "PRINTLC": return U.arg1R0(U.charSeq0()).map(
-				(val) => new Print(new Const(val ?? ""), undefined, undefined)
+			case "PRINTFORMC":
+			case "PRINTFORMCK":
+			case "PRINTFORMCD":
+			case "PRINTFORMLC":
+			case "PRINTFORMLCK":
+			case "PRINTFORMLCD": return U.arg1R0(expr.Form).map(
+				(val) => new PrintC(instruction, val ?? new Const("")),
 			);
-			case "PRINTFORMC": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), undefined, undefined)
-			);
-			case "PRINTFORMLC": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const(""), undefined, undefined)
-			);
-			case "PRINTBUTTON": return U.arg2R2(expr.Expr, expr.Expr).map(
-				([text, value]) => new PrintButton(text, value),
-			);
-			case "PRINTBUTTONC": return U.arg2R2(expr.Expr, expr.Expr).map(
-				([text, value]) => new PrintButton(text, value),
-			);
+			case "PRINTBUTTON":
+			case "PRINTBUTTONC":
 			case "PRINTBUTTONLC": return U.arg2R2(expr.Expr, expr.Expr).map(
 				([text, value]) => new PrintButton(text, value),
 			);
 			case "PRINTPLAIN": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(new Const(val ?? "")),
+				(val) => new PrintPlain(new Const(val ?? "")),
 			);
 			case "PRINTPLAINFORM": return U.arg1R0(expr.Form).map(
-				(val) => new Print(val ?? new Const("")),
+				(val) => new PrintPlain(val ?? new Const("")),
 			);
 			case "PRINT_PALAM": return U.arg1R1(expr.Expr).map(
 				(index) => new PrintPalam(index),

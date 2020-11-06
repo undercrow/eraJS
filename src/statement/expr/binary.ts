@@ -4,6 +4,7 @@ import type Expr from "./index";
 type Operator =
 	| "*" | "/" | "%"
 	| "+" | "-"
+	| "<<" | ">>"
 	| "<" | "<=" | ">" | ">="
 	| "==" | "!="
 	| "&" | "|" | "^"
@@ -30,6 +31,10 @@ export default class Binary implements Expr {
 				case "%": return left % right;
 				case "+": return left + right;
 				case "-": return left - right;
+				// eslint-disable-next-line no-bitwise
+				case "<<": return left << right;
+				// eslint-disable-next-line no-bitwise
+				case ">>": return left >> right;
 				case "<": return left < right ? 1 : 0;
 				case "<=": return left <= right ? 1 : 0;
 				case ">": return left > right ? 1 : 0;

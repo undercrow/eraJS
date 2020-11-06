@@ -33,6 +33,7 @@ type LanguageSpec = {
 	ExprL6: Expr;
 	ExprL7: Expr;
 	ExprL8: Expr;
+	ExprL9: Expr;
 	Expr: Expr;
 	InlineCall: InlineCall;
 };
@@ -72,31 +73,36 @@ const language = P.createLanguage<LanguageSpec>({
 		(op, left, right) => new Binary(op, left, right),
 	),
 	ExprL4: (r) => leftAssociate(
-		["<=", "<", ">=", ">"],
+		["<<", ">>"],
 		r.ExprL3,
 		(op, left, right) => new Binary(op, left, right),
 	),
 	ExprL5: (r) => leftAssociate(
-		["==", "!="],
+		["<=", "<", ">=", ">"],
 		r.ExprL4,
 		(op, left, right) => new Binary(op, left, right),
 	),
 	ExprL6: (r) => leftAssociate(
-		["&", "|", "^"],
+		["==", "!="],
 		r.ExprL5,
 		(op, left, right) => new Binary(op, left, right),
 	),
 	ExprL7: (r) => leftAssociate(
-		["&&", "!&", "||", "!|", "^^"],
+		["&", "|", "^"],
 		r.ExprL6,
 		(op, left, right) => new Binary(op, left, right),
 	),
-	ExprL8: (r) => P.seqMap(
+	ExprL8: (r) => leftAssociate(
+		["&&", "!&", "||", "!|", "^^"],
 		r.ExprL7,
+		(op, left, right) => new Binary(op, left, right),
+	),
+	ExprL9: (r) => P.seqMap(
+		r.ExprL8,
 		P.alt(
 			P.seq(
-				P.string("?").trim(U.WS0).then(r.ExprL7),
-				P.string("#").trim(U.WS0).then(r.ExprL7),
+				P.string("?").trim(U.WS0).then(r.ExprL8),
+				P.string("#").trim(U.WS0).then(r.ExprL8),
 			),
 			P.succeed(undefined),
 		),
@@ -108,7 +114,7 @@ const language = P.createLanguage<LanguageSpec>({
 			}
 		},
 	),
-	Expr: (r) => r.ExprL8,
+	Expr: (r) => r.ExprL9,
 	InlineCall: (r) => P.seqMap(
 		U.Identifier,
 		U.WS0.then(U.wrap("(", U.sepBy0(",", r.Expr), ")")),

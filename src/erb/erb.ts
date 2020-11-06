@@ -102,6 +102,9 @@ import SubstringU from "../statement/command/substringu";
 import Throw from "../statement/command/throw";
 import Times from "../statement/command/times";
 import TryCall from "../statement/command/trycall";
+import TryCCall from "../statement/command/tryccall";
+import TryCGoto from "../statement/command/trycgoto";
+import TryCJump from "../statement/command/trycjump";
 import TryGoto from "../statement/command/trygoto";
 import TryJump from "../statement/command/tryjump";
 import VarSet from "../statement/command/varset";
@@ -356,6 +359,20 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "TRYCALLFORM": return callArg(E.form("(")).map(
 				([name, arg]) => new TryCall(name, arg),
 			);
+			case "TRYCCALL": return P.seqMap(
+				callArg(U.Identifier),
+				P.regex(/CATCH/i).then(U.arg0R0()),
+				r.Thunk,
+				P.regex(/ENDCATCH/i).then(U.arg0R0()),
+				([name, arg], _, thunk) => new TryCCall(new Const(name), arg, thunk),
+			);
+			case "TRYCCALLFORM": return P.seqMap(
+				callArg(E.form()),
+				P.regex(/CATCH/i).then(U.arg0R0()),
+				r.Thunk,
+				P.regex(/ENDCATCH/i).then(U.arg0R0()),
+				([name, arg], _, thunk) => new TryCCall(name, arg, thunk),
+			);
 			case "JUMP": return callArg(U.Identifier).map(
 				([name, arg]) => new Jump(new Const(name), arg),
 			);
@@ -366,6 +383,20 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "TRYJUMPFORM": return callArg(E.form("(")).map(
 				([name, arg]) => new TryJump(name, arg),
 			);
+			case "TRYCJUMP": return P.seqMap(
+				callArg(U.Identifier),
+				P.regex(/CATCH/i).then(U.arg0R0()),
+				r.Thunk,
+				P.regex(/ENDCATCH/i).then(U.arg0R0()),
+				([name, arg], _, thunk) => new TryCJump(new Const(name), arg, thunk),
+			);
+			case "TRYCJUMPFORM": return P.seqMap(
+				callArg(E.form()),
+				P.regex(/CATCH/i).then(U.arg0R0()),
+				r.Thunk,
+				P.regex(/ENDCATCH/i).then(U.arg0R0()),
+				([name, arg], _, thunk) => new TryCJump(name, arg, thunk),
+			);
 			case "GOTO": return U.arg1R1(U.Identifier).map(
 				(target) => new Goto(new Const(target)),
 			);
@@ -374,6 +405,20 @@ export const language = P.createLanguage<LanguageSpec>({
 				(target) => new TryGoto(new Const(target)),
 			);
 			case "TRYGOTOFORM": return U.arg1R1(E.form()).map((target) => new TryGoto(target));
+			case "TRYCGOTO": return P.seqMap(
+				U.arg1R1(U.Identifier),
+				P.regex(/CATCH/i).then(U.arg0R0()),
+				r.Thunk,
+				P.regex(/ENDCATCH/i).then(U.arg0R0()),
+				(name, _, thunk) => new TryCGoto(new Const(name), thunk),
+			);
+			case "TRYCGOTOFORM": return P.seqMap(
+				U.arg1R1(E.form()),
+				P.regex(/CATCH/i).then(U.arg0R0()),
+				r.Thunk,
+				P.regex(/ENDCATCH/i).then(U.arg0R0()),
+				(name, _, thunk) => new TryCGoto(name, thunk),
+			);
 			case "RESTART": return U.arg0R0().map(() => new Restart());
 			case "RETURN": return U.argNR0(E.expr).map((e) => new Return(e));
 			case "RETURNF": return U.arg1R1(E.expr).map((e) => new Return([e]));

@@ -35,6 +35,7 @@ import DelData from "../statement/command/deldata";
 import DoWhile from "../statement/command/dowhile";
 import DrawLine from "../statement/command/drawline";
 import DumpRand from "../statement/command/dumprand";
+import ExistCSV from "../statement/command/existcsv";
 import FontBold from "../statement/command/fontbold";
 import FontItalic from "../statement/command/fontitalic";
 import FontRegular from "../statement/command/fontregular";
@@ -105,6 +106,7 @@ import StrLen from "../statement/command/strlen";
 import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
 import SubstringU from "../statement/command/substringu";
+import Swap from "../statement/command/swap";
 import Throw from "../statement/command/throw";
 import Times from "../statement/command/times";
 import TryCall from "../statement/command/trycall";
@@ -327,6 +329,10 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "ADDVOIDCHARA": return U.arg0R0().map(() => new AddVoidChara());
 			case "DELCHARA": return U.argNR0(E.expr).map((e) => new DelChara(e));
 			case "DELALLCHARA": return U.arg0R0().map(() => new DelAllChara());
+			case "EXISTCSV": return U.arg1R1(E.expr).map((expr) => new ExistCSV(expr));
+			case "SWAP": return U.arg2R2(E.variable, E.variable).map(
+				([left, right]) => new Swap(left, right),
+			);
 			case "RESETDATA": return U.arg0R0().map(() => new ResetData());
 			case "RESETGLOBAL": return U.arg0R0().map(() => new ResetGlobal());
 			case "VARSET": return U.arg4R1(E.variable, E.expr, E.expr, E.expr).map(

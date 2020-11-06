@@ -385,7 +385,15 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "CLEARTEXTBOX": return U.arg0R0().map(() => new ClearTextBox());
 			case "STRDATA": return U.arg0R0().map(() => new StrData());
 			case "STOPCALLTRAIN": return U.arg0R0().map(() => new StopCallTrain());
-			case "PRINTDATA": {
+			case "PRINTDATA":
+			case "PRINTDATAL":
+			case "PRINTDATAW":
+			case "PRINTDATAK":
+			case "PRINTDATAKL":
+			case "PRINTDATAKW":
+			case "PRINTDATAD":
+			case "PRINTDATADL":
+			case "PRINTDATADW": {
 				const dataParser: P.Parser<Expr> = P.lazy(() => P.alt(
 					P.regex(/DATA/i).then(U.arg1R1(U.charSeq())).map((str) => new Const(str)),
 					P.regex(/DATAFORM/i).then(U.arg1R1(E.form())),
@@ -403,7 +411,7 @@ export const language = P.createLanguage<LanguageSpec>({
 						),
 					).many(),
 					P.regex(/ENDDATA/i).then(U.arg0R0()),
-					(_, data) => new PrintData(data),
+					(_, data) => new PrintData(instruction, data),
 				);
 			}
 			case "SIF": return P.seqMap(

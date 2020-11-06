@@ -188,6 +188,7 @@ export default class VM {
 		this.globalMap.set("GAMEBASE_TITLE", new NDArray("string", [], data.gamebase.title));
 		this.globalMap.set("GAMEBASE_VERSION", new NDArray("number", [], data.gamebase.version));
 		this.globalMap.set("LINECOUNT", new NDArray("number", []));
+		this.globalMap.set("COM", new NDArray("number", []));
 		for (let i = 0; i < data.ability.length; ++i) {
 			if (data.ability[i] !== "") {
 				this.globalMap.set(data.ability[i], new NDArray("number", [], i));

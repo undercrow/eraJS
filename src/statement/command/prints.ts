@@ -15,6 +15,10 @@ export default class PrintS extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		const text = this.value.reduce(vm);
 		assertString(text, "1st argument of PRINTS must be a string");
 

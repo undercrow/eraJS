@@ -11,11 +11,13 @@ import AddChara from "../statement/command/addchara";
 import AddDefChara from "../statement/command/adddefchara";
 import AddVoidChara from "../statement/command/addvoidchara";
 import Alignment from "../statement/command/alignment";
+import ArrayShift from "../statement/command/arrayshift";
 import Bar from "../statement/command/bar";
 import BarStr from "../statement/command/barstr";
 import Begin from "../statement/command/begin";
 import Break from "../statement/command/break";
 import Call from "../statement/command/call";
+import CallTrain from "../statement/command/calltrain";
 import Case from "../statement/command/case";
 import CbgClear from "../statement/command/cbgclear";
 import CbgClearButton from "../statement/command/cbgclearbutton";
@@ -86,6 +88,7 @@ import SaveGlobal from "../statement/command/saveglobal";
 import SetBit from "../statement/command/setbit";
 import SetColor from "../statement/command/setcolor";
 import SetFont from "../statement/command/setfont";
+import SkipDisp from "../statement/command/skipdisp";
 import Split from "../statement/command/split";
 import StopCallTrain from "../statement/command/stopcalltrain";
 import StrData from "../statement/command/strdata";
@@ -256,6 +259,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "CURRENTREDRAW": return U.arg0R0().map(() => new CurrentRedraw());
 			case "PRINTCPERLINE": return U.arg0R0().map(() => new PrintCPerLine());
 			case "LINEISEMPTY": return U.arg0R0().map(() => new LineIsEmpty());
+			case "SKIPDISP": return U.arg1R1(E.expr).map((expr) => new SkipDisp(expr));
 			case "BAR": return U.arg3R3(E.expr, E.expr, E.expr).map(
 				([value, max, length]) => new Bar(value, max, length),
 			);
@@ -314,6 +318,9 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "VARSET": return U.arg2R1(E.variable, E.expr).map(
 				([dest, value]) => new VarSet(dest, value),
 			);
+			case "ARRAYSHIFT": return U.arg3R3(E.variable, E.expr, E.expr).map(
+				([target, count, fill]) => new ArrayShift(target, count, fill),
+			);
 			case "PUTFORM": return U.arg1R1(E.form()).map((e) => new PutForm(e));
 			case "SAVEGAME": return U.arg0R0().map(() => new SaveGame());
 			case "LOADGAME": return U.arg0R0().map(() => new LoadGame());
@@ -333,6 +340,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "DUMPRAND": return U.arg0R0().map(() => new DumpRand());
 			case "INITRAND": return U.arg0R0().map(() => new InitRand());
 			case "BEGIN": return U.arg1R1(U.Identifier).map((target) => new Begin(target));
+			case "CALLTRAIN": return U.arg1R1(E.expr).map((expr) => new CallTrain(expr));
 			case "THROW": return U.arg1R1(E.form()).map((e) => new Throw(e));
 			case "CALL": return callArg(U.Identifier).map(
 				([name, arg]) => new Call(new Const(name), arg),

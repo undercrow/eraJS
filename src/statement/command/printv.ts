@@ -14,6 +14,10 @@ export default class PrintV extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		let text = "";
 		for (const value of this.value) {
 			text += value.reduce(vm).toString();

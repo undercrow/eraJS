@@ -3,7 +3,7 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-export default class Print extends Statement {
+export default class PrintData extends Statement {
 	public data: Expr[];
 
 	public constructor(data: Expr[]) {
@@ -12,6 +12,10 @@ export default class Print extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		const index = Math.floor(Math.random() * this.data.length);
 		const value = this.data[index].reduce(vm);
 		assertString(value, "Item of PRINTDATA must be a string");

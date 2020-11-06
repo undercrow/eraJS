@@ -55,6 +55,10 @@ export default class Print extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		const value = this.value.reduce(vm);
 		yield <const>{
 			type: "string",

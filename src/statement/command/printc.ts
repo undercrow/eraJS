@@ -15,6 +15,10 @@ export default class PrintC extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		const text = this.value.reduce(vm);
 		assertString(text, "1st argument of PRINTC must be a string");
 

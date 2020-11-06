@@ -37,6 +37,7 @@ export default class VM {
 	private contextStack: Array<Context>;
 
 	public alignment: Alignment["align"];
+	public skipDisp: boolean;
 	public font: {
 		name: string;
 		bold: boolean;
@@ -56,6 +57,7 @@ export default class VM {
 		this.staticMap = new Map();
 		this.contextStack = [];
 		this.alignment = "left";
+		this.skipDisp = false;
 		this.font = {
 			name: "",
 			bold: false,
@@ -129,7 +131,7 @@ export default class VM {
 		this.globalMap.set("ASSI", new NDArray("number", [], -1));
 		this.globalMap.set("PLAYER", new NDArray("number", []));
 		this.globalMap.set("ASSIPLAY", new NDArray("number", []));
-		this.globalMap.set("SELECTCOM", new NDArray("number", []));
+		this.globalMap.set("SELECTCOM", new NDArray("number", [1000]));
 		this.globalMap.set("PREVCOM", new NDArray("number", []));
 		this.globalMap.set("NEXTCOM", new NDArray("number", []));
 		this.globalMap.set("LOSEBASE", new NDArray("number", [1000]));
@@ -188,7 +190,7 @@ export default class VM {
 		this.globalMap.set("GAMEBASE_TITLE", new NDArray("string", [], data.gamebase.title));
 		this.globalMap.set("GAMEBASE_VERSION", new NDArray("number", [], data.gamebase.version));
 		this.globalMap.set("LINECOUNT", new NDArray("number", []));
-		this.globalMap.set("COM", new NDArray("number", []));
+		this.globalMap.set("CTRAIN_COUNT", new NDArray("number", []));
 		for (let i = 0; i < data.ability.length; ++i) {
 			if (data.ability[i] !== "") {
 				this.globalMap.set(data.ability[i], new NDArray("number", [], i));

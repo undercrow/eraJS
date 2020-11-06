@@ -17,6 +17,10 @@ export default class Bar extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		const value = this.value.reduce(vm);
 		assertNumber(value, "1st argument of BAR must be a number");
 		const max = this.max.reduce(vm);

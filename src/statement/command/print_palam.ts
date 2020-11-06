@@ -12,6 +12,10 @@ export default class PrintPalam extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		const index = this.index.reduce(vm);
 		assertNumber(index, "1st argument of PRINT_PALAM must be a number");
 		const palamLength = vm.lengthOf("PALAMNAME", 0);

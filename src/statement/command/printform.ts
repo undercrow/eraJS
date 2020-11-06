@@ -14,6 +14,10 @@ export default class PrintForm extends Statement {
 	}
 
 	public *run(vm: VM) {
+		if (vm.skipDisp) {
+			return null;
+		}
+
 		const text = this.value.reduce(vm);
 
 		yield <const>{

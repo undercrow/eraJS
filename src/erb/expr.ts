@@ -55,7 +55,11 @@ const language = P.createLanguage<LanguageSpec>({
 		r.Variable,
 	),
 	ExprL1: (r) => P.alt(
-		P.seqMap(U.alt("-", "!", "~").skip(U.WS0), r.ExprL0, (op, expr) => new Unary(op, expr)),
+		P.seqMap(
+			U.alt("+", "-", "!", "~").skip(U.WS0),
+			r.ExprL0,
+			(op, expr) => new Unary(op, expr),
+		),
 		r.ExprL0,
 	),
 	ExprL2: (r) => leftAssociate(

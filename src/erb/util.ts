@@ -62,6 +62,7 @@ export const UInt = P.alt(
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
 );
 export const Int = P.alt(
+	P.string("+").then(UInt),
 	P.string("-").then(UInt).map((val) => -val),
 	UInt,
 );

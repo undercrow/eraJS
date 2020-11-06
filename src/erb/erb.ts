@@ -387,8 +387,8 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "STOPCALLTRAIN": return U.arg0R0().map(() => new StopCallTrain());
 			case "PRINTDATA": {
 				const dataParser: P.Parser<Expr> = P.lazy(() => P.alt(
-					P.string("DATA").then(U.arg1R1(U.charSeq())).map((str) => new Const(str)),
-					P.string("DATAFORM").then(U.arg1R1(E.form())),
+					P.regex(/DATA/i).then(U.arg1R1(U.charSeq())).map((str) => new Const(str)),
+					P.regex(/DATAFORM/i).then(U.arg1R1(E.form())),
 				));
 
 				return P.seqMap(
@@ -396,13 +396,13 @@ export const language = P.createLanguage<LanguageSpec>({
 					P.alt(
 						dataParser,
 						P.seqMap(
-							P.string("DATALIST").then(U.arg0R0()),
+							P.regex(/DATALIST/i).then(U.arg0R0()),
 							dataParser.many(),
-							P.string("ENDLIST").then(U.arg0R0()),
+							P.regex(/ENDLIST/i).then(U.arg0R0()),
 							(_, data) => data,
 						),
 					).many(),
-					P.string("ENDDATA").then(U.arg0R0()),
+					P.regex(/ENDDATA/i).then(U.arg0R0()),
 					(_, data) => new PrintData(data),
 				);
 			}
@@ -413,22 +413,22 @@ export const language = P.createLanguage<LanguageSpec>({
 			);
 			case "IF": return P.seqMap(
 				P.seq(U.arg1R1(E.expr), r.Thunk),
-				P.seq(P.string("ELSEIF").then(U.arg1R1(E.expr)), r.Thunk).many(),
-				U.asLine(P.string("ELSE")).then(r.Thunk).fallback(new Thunk([])),
-				U.asLine(P.string("ENDIF")),
+				P.seq(P.regex(/ELSEIF/i).then(U.arg1R1(E.expr)), r.Thunk).many(),
+				U.asLine(P.regex(/ELSE/i)).then(r.Thunk).fallback(new Thunk([])),
+				U.asLine(P.regex(/ENDIF/i)),
 				(ifStmt, elifStmt, elseStmt) => new If([ifStmt, ...elifStmt], elseStmt),
 			);
 			case "SELECTCASE": return P.seqMap(
 				U.arg1R1(E.expr),
 				P.seq(
-					P.string("CASE").then(U.argNR0(P.alt(
-						P.seqMap(U.Int, P.string("TO").trim(U.WS1).then(U.Int), (from, to) => ({
+					P.regex(/CASE/i).then(U.argNR0(P.alt(
+						P.seqMap(U.Int, P.regex(/TO/i).trim(U.WS1).then(U.Int), (from, to) => ({
 							type: "range",
 							from,
 							to,
 						})),
 						P.seqMap(
-							P.string("IS").then(U.alt("<=", "<", ">=", ">").trim(U.WS0)),
+							P.regex(/IS/i).then(U.alt("<=", "<", ">=", ">").trim(U.WS0)),
 							U.Int,
 							(op, value) => ({type: "compare", op, value}),
 						),
@@ -437,32 +437,32 @@ export const language = P.createLanguage<LanguageSpec>({
 					))),
 					r.Thunk,
 				).many(),
-				U.asLine(P.string("CASEELSE")).then(r.Thunk).fallback(new Thunk([])),
-				U.asLine(P.string("ENDSELECT")),
+				U.asLine(P.regex(/CASEELSE/i)).then(r.Thunk).fallback(new Thunk([])),
+				U.asLine(P.regex(/ENDSELECT/i)),
 				(e, branch, def) => new Case(e, branch, def),
 			);
 			case "REPEAT": return P.seqMap(
 				U.arg1R1(E.expr),
 				r.Thunk,
-				U.asLine(P.string("REND")),
+				U.asLine(P.regex(/REND/i)),
 				(condition, thunk) => new Repeat(condition, thunk),
 			);
 			case "FOR": return P.seqMap(
 				U.arg3R3(E.variable, E.expr, E.expr),
 				r.Thunk,
-				U.asLine(P.string("NEXT")),
+				U.asLine(P.regex(/NEXT/i)),
 				([counter, start, end], thunk) => new For(counter, start, end, thunk),
 			);
 			case "WHILE": return P.seqMap(
 				U.arg1R1(E.expr),
 				r.Thunk,
-				U.asLine(P.string("WEND")),
+				U.asLine(P.regex(/WEND/i)),
 				(condition, thunk) => new While(condition, thunk),
 			);
 			case "DO": return P.seqMap(
 				U.arg0R0(),
 				r.Thunk,
-				P.string("LOOP").then(U.arg1R1(E.expr)),
+				P.regex(/LOOP/i).then(U.arg1R1(E.expr)),
 				(_, thunk, condition) => new DoWhile(condition, thunk),
 			);
 			default: return P.fail("Valid instruction");

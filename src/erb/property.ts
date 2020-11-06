@@ -23,10 +23,10 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 				),
 			);
 			return P.alt(
-				U.WS1.then(P.string("DYNAMIC").skip(U.WS1).then(dimArgument).map(
+				U.WS1.then(P.regex(/DYNAMIC/i).skip(U.WS1).then(dimArgument).map(
 					([[name, ...size], value]) => new DimDynamic(name, "number", size, value),
 				)),
-				U.WS1.then(P.string("REF").skip(U.WS1).then(dimArgument).map(
+				U.WS1.then(P.regex(/REF/i).skip(U.WS1).then(dimArgument).map(
 					([[name]]) => new DimRef(name),
 				)),
 				U.WS1.then(dimArgument).map(
@@ -43,10 +43,10 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 				),
 			);
 			return P.alt(
-				U.WS1.then(P.string("DYNAMIC").skip(U.WS1).then(dimArgument).map(
+				U.WS1.then(P.regex(/DYNAMIC/i).skip(U.WS1).then(dimArgument).map(
 					([[name, ...size], value]) => new DimDynamic(name, "string", size, value),
 				)),
-				U.WS1.then(P.string("REF").skip(U.WS1).then(dimArgument).map(
+				U.WS1.then(P.regex(/REF/i).skip(U.WS1).then(dimArgument).map(
 					([[name]]) => new DimRef(name),
 				)),
 				U.WS1.then(dimArgument).map(

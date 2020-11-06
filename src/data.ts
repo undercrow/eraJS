@@ -8,6 +8,7 @@ import parseItem from "./csv/item";
 import parseMark from "./csv/mark";
 import parsePalam from "./csv/palam";
 import parseTalent from "./csv/talent";
+import parseTrain from "./csv/train";
 
 export type Character = {
 	id: number;
@@ -40,6 +41,7 @@ export type Data = {
 	talent: string[];
 	mark: string[];
 	palam: string[];
+	train: string[];
 };
 
 export default function parseCSV(content: Map<string, string>): Data {
@@ -63,5 +65,6 @@ export default function parseCSV(content: Map<string, string>): Data {
 		talent: parseTalent(values),
 		mark: parseMark(values),
 		palam: parsePalam(values),
+		train: parseTrain(values),
 	};
 }

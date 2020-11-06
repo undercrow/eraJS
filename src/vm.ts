@@ -179,6 +179,7 @@ export default class VM {
 		this.globalMap.set("ITEMNAME", NDArray.fromValue("string", data.item));
 		this.globalMap.set("MARKNAME", NDArray.fromValue("string", data.mark));
 		this.globalMap.set("PALAMNAME", NDArray.fromValue("string", data.palam));
+		this.globalMap.set("TRAINNAME", NDArray.fromValue("string", data.train));
 		this.globalMap.set("GLOBAL", new NDArray("number", [1000]));
 		this.globalMap.set("GLOBALS", new NDArray("string", [100]));
 		this.globalMap.set("GAMEBASE_AUTHOR", new NDArray("string", [], data.gamebase.author));

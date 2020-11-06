@@ -127,7 +127,24 @@ export default class VM {
 		this.globalMap.set("MASTER", new NDArray("number", [], 0));
 		this.globalMap.set("TARGET", new NDArray("number", [], -1));
 		this.globalMap.set("ASSI", new NDArray("number", [], -1));
+		this.globalMap.set("ASSIPLAY", new NDArray("number", []));
+		this.globalMap.set("SELECTCOM", new NDArray("number", []));
+		this.globalMap.set("PREVCOM", new NDArray("number", []));
+		this.globalMap.set("NEXTCOM", new NDArray("number", []));
+		this.globalMap.set("LOSEBASE", new NDArray("number", [1000]));
+		this.globalMap.set("UP", new NDArray("number", [1000]));
+		this.globalMap.set("DOWN", new NDArray("number", [1000]));
+		this.globalMap.set("PALAMLV", NDArray.fromValue(
+			"number",
+			[0, 100, 500, 3000, 10000, 30000, 60000, 100000, 150000, 250000],
+		));
+		this.globalMap.set("EXPLV", NDArray.fromValue(
+			"number",
+			[0, 1, 4, 20, 50, 200],
+		));
+		this.globalMap.set("EJAC", new NDArray("number", [], 10000));
 		this.globalMap.set("FLAG", new NDArray("number", [10000]));
+		this.globalMap.set("TFLAG", new NDArray("number", [1000]));
 		this.globalMap.set("ITEMSALES", new NDArray("number", [100]));
 		this.globalMap.set("BOUGHT", new NDArray("number", []));
 		this.globalMap.set("PBAND", new NDArray("number", [], 4));
@@ -146,6 +163,13 @@ export default class VM {
 		this.globalMap.set("MARK", new NDArray("number", [1000, 100]));
 		this.globalMap.set("PALAM", new NDArray("number", [1000, 200]));
 		this.globalMap.set("JUEL", new NDArray("number", [1000, 200]));
+		this.globalMap.set("EQUIP", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("TEQUIP", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("STAIN", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("EX", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("SOURCE", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("NOWEX", new NDArray("number", [1000, 1000]));
+		this.globalMap.set("GOTJUEL", new NDArray("number", [1000, 1000]));
 		this.globalMap.set("ITEM", new NDArray("number", [1000]));
 		this.globalMap.set("ITEMSALES", new NDArray("number", [1000]));
 		this.globalMap.set("ABLNAME", NDArray.fromValue("string", data.ability));

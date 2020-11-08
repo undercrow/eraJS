@@ -2,6 +2,7 @@ import {assertNumber} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
+import Print from "./print";
 
 export default class PrintPalam extends Statement {
 	public index: Expr;
@@ -54,10 +55,7 @@ export default class PrintPalam extends Statement {
 
 			text += value.toString();
 
-			yield <const>{
-				type: "string",
-				text,
-			};
+			yield* Print.print(vm, text);
 		}
 
 		return null;

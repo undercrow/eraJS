@@ -1,5 +1,4 @@
 import type VM from "../../vm";
-import type Expr from "../expr";
 import Statement from "../index";
 
 // type OutType = "K" | "D" | null;
@@ -7,6 +6,18 @@ type Action = "newline" | "wait" | null;
 
 // TODO: Buttonize some texts
 export default class Print extends Statement {
+	public static *print(vm: VM, text: string): ReturnType<Statement["run"]> {
+		yield <const>{
+			type: "string",
+			text,
+		};
+
+		const lineCount = vm.getValue("LINECOUNT").get(vm, []) as number;
+		vm.getValue("LINECOUNT").set(vm, lineCount + (text.match(/\n/g) ?? []).length, []);
+
+		return null;
+	}
+
 	public static *runPostfix(vm: VM, value: string): ReturnType<Statement["run"]> {
 		// let out: OutType = null;
 		let action: Action = null;
@@ -27,9 +38,7 @@ export default class Print extends Statement {
 		// TODO: Apply outType
 		switch (action) {
 			case "newline": {
-				yield <const>{type: "string", text: "\n"};
-				const lineCount = vm.getValue("LINECOUNT").get(vm, []) as number;
-				vm.getValue("LINECOUNT").set(vm, lineCount + 1, []);
+				yield* Print.print(vm, "\n");
 				break;
 			}
 			case "wait": {
@@ -46,9 +55,9 @@ export default class Print extends Statement {
 	}
 
 	public postfix: string;
-	public value: Expr;
+	public value: string;
 
-	public constructor(instruction: string, value: Expr) {
+	public constructor(instruction: string, value: string) {
 		super();
 		this.postfix = instruction.replace(/^PRINT/, "");
 		this.value = value;
@@ -59,12 +68,7 @@ export default class Print extends Statement {
 			return null;
 		}
 
-		const value = this.value.reduce(vm);
-		yield <const>{
-			type: "string",
-			text: typeof value === "string" ? value : value.toString(),
-		};
-
+		yield* Print.print(vm, this.value);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

@@ -2,6 +2,7 @@ import {assertString} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
+import Print from "./print";
 
 export default class PrintS extends Statement {
 	public value: Expr;
@@ -19,10 +20,7 @@ export default class PrintS extends Statement {
 		const text = this.value.reduce(vm);
 		assertString(text, "1st argument of PRINTPLAIN must be a string");
 
-		yield <const>{
-			type: "string",
-			text,
-		};
+		yield* Print.print(vm, text);
 
 		return null;
 	}

@@ -18,13 +18,7 @@ export default class PrintForm extends Statement {
 			return null;
 		}
 
-		const text = this.value.reduce(vm);
-
-		yield <const>{
-			type: "string",
-			text,
-		};
-
+		yield* Print.print(vm, this.value.reduce(vm));
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

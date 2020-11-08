@@ -23,11 +23,7 @@ export default class PrintData extends Statement {
 		const value = this.data[index].reduce(vm);
 		assertString(value, "Item of PRINTDATA must be a string");
 
-		yield <const>{
-			type: "string",
-			text: value,
-		};
-
+		yield* Print.print(vm, value);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

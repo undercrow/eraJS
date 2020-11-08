@@ -2,6 +2,7 @@ import {assertNumber} from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
+import Print from "./print";
 
 export default class Bar extends Statement {
 	public value: Expr;
@@ -29,13 +30,10 @@ export default class Bar extends Statement {
 		assertNumber(length, "3rd argument of BAR must be a number");
 
 		const filled = Math.floor(length * (value / max));
-		yield <const>{
-			type: "string",
-			text: "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]",
-		};
+		yield* Print.print(vm, "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]");
 
 		if (this.newline) {
-			yield <const>{type: "string", text: "\n"};
+			yield* Print.print(vm, "\n");
 		}
 
 		return null;

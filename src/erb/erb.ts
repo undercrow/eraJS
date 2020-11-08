@@ -160,7 +160,7 @@ export const language = P.createLanguage<LanguageSpec>({
 			case "PRINTD":
 			case "PRINTDL":
 			case "PRINTDW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(INSTRUCTION, new Const(val ?? "")),
+				(val) => new Print(INSTRUCTION, val ?? ""),
 			);
 			case "PRINTV":
 			case "PRINTVL":

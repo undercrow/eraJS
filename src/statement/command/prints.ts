@@ -22,11 +22,7 @@ export default class PrintS extends Statement {
 		const text = this.value.reduce(vm);
 		assertString(text, "1st argument of PRINTS must be a string");
 
-		yield <const>{
-			type: "string",
-			text,
-		};
-
+		yield* Print.print(vm, text);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

@@ -23,11 +23,7 @@ export default class PrintV extends Statement {
 			text += value.reduce(vm).toString();
 		}
 
-		yield <const>{
-			type: "string",
-			text,
-		};
-
+		yield* Print.print(vm, text);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

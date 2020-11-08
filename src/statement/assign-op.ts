@@ -18,41 +18,34 @@ export default class OpAssign extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const type = vm.typeof(this.dest.name);
+		const dest = vm.getValue(this.dest.name);
 		const index = this.dest.reduceIndex(vm);
 
-		if (type === "number") {
-			const original = vm.getValue(this.dest.name, ...index) as number;
+		if (dest.type === "number") {
+			const original = dest.get(vm, index) as number;
 			const value = this.expr.reduce(vm);
 			assertNumber(value, `Right operand of ${this.operator}= should be an integer`);
 
 			switch (this.operator) {
-				case "*": vm.setValue(original * value, this.dest.name, ...index); break;
-				case "/": {
-					vm.setValue(
-						Math.floor(original / value),
-						this.dest.name,
-						...index,
-					);
-					break;
-				}
-				case "%": vm.setValue(original % value, this.dest.name, ...index); break;
-				case "+": vm.setValue(original + value, this.dest.name, ...index); break;
-				case "-": vm.setValue(original - value, this.dest.name, ...index); break;
+				case "*": dest.set(vm, original * value, index); break;
+				case "/": dest.set(vm, Math.floor(original / value), index); break;
+				case "%": dest.set(vm, original % value, index); break;
+				case "+": dest.set(vm, original + value, index); break;
+				case "-": dest.set(vm, original - value, index); break;
 				// eslint-disable-next-line no-bitwise
-				case "&": vm.setValue(original & value, this.dest.name, ...index); break;
+				case "&": dest.set(vm, original & value, index); break;
 				// eslint-disable-next-line no-bitwise
-				case "|": vm.setValue(original | value, this.dest.name, ...index); break;
+				case "|": dest.set(vm, original | value, index); break;
 				// eslint-disable-next-line no-bitwise
-				case "^": vm.setValue(original ^ value, this.dest.name, ...index); break;
+				case "^": dest.set(vm, original ^ value, index); break;
 			}
 		} else {
-			const original = vm.getValue(this.dest.name, ...index) as string;
+			const original = dest.get(vm, index) as string;
 			const value = this.expr.reduce(vm);
-			assertString(value, `Right operand of ${this.operator}= should be an integer`);
+			assertString(value, `Right operand of ${this.operator}= should be a string`);
 
 			switch (this.operator) {
-				case "+": vm.setValue(original + value, this.dest.name, ...index); break;
+				case "+": dest.set(vm, original + value, index); break;
 				default: throw new Error(`Type of operands for ${this.operator} is invalid`);
 			}
 		}

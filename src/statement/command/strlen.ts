@@ -14,7 +14,7 @@ export default class StrLen extends Statement {
 	public *run(vm: VM) {
 		const value = this.expr.reduce(vm);
 		assertString(value, "Argument of STRLEN must be a string!");
-		vm.setValue(value.length, "RESULT", 0);
+		vm.getValue("RESULT").set(vm, value.length, [0]);
 
 		return null;
 	}

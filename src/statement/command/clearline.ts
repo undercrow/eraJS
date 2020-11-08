@@ -17,8 +17,8 @@ export default class ClearLine extends Statement {
 
 		yield <const>{type: "clearline", count: value};
 
-		const lineCount = vm.getValue("LINECOUNT") as number;
-		vm.setValue(lineCount - value, "LINECOUNT");
+		const lineCount = vm.getValue("LINECOUNT").get(vm, [0]) as number;
+		vm.getValue("LINECOUNT").set(vm, lineCount - value, []);
 
 		return null;
 	}

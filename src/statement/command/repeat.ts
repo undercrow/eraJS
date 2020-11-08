@@ -25,7 +25,7 @@ export default class Repeat extends Statement {
 		assertNumber(condition, "Condition for REPEAT should be an integer");
 
 		loop: for (let i = 0; i < condition; ++i) {
-			vm.setValue(i, "COUNT");
+			vm.getValue("COUNT").set(vm, i, []);
 			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {
 				case "begin": return result;

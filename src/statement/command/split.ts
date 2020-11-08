@@ -21,12 +21,14 @@ export default class Split extends Statement {
 		assertString(value, "1st argument of SPLIT must be a string!");
 		const sep = this.sep.reduce(vm);
 		assertString(sep, "2nd argument of SPLIT must be a number!");
+		const dest = vm.getValue(this.dest.name);
 		const index = this.dest.reduceIndex(vm);
+
 		const chunkList = value.split(sep);
 		for (let i = 0; i < chunkList.length; ++i) {
-			vm.setValue(chunkList[i], this.dest.name, ...index, i);
+			dest.set(vm, chunkList[i], [...index, i]);
 		}
-		vm.setValue(chunkList.length, "RESULT", 0);
+		vm.getValue("RESULT").set(vm, chunkList.length, [0]);
 
 		return null;
 	}

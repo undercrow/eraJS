@@ -18,20 +18,21 @@ export default class PrintPalam extends Statement {
 
 		const index = this.index.reduce(vm);
 		assertNumber(index, "1st argument of PRINT_PALAM must be a number");
-		const palamLength = vm.lengthOf("PALAMNAME", 0);
-		for (let i = 0; i < palamLength; ++i) {
-			const name = vm.getValue("PALAMNAME", i) as string;
+
+		const palamName = vm.getValue("PALAMNAME");
+		for (let i = 0; i < palamName.length(0); ++i) {
+			const name = palamName.get(vm, [i]) as string;
 			if (name === "") {
 				continue;
 			}
 
-			const value = vm.getValue("PALAM", index, i) as number;
+			const value = vm.getValue("PALAM").get(vm, [index, i]) as number;
 			const palamLv = [
-				vm.getValue("PALAMLV", 0) as number,
-				vm.getValue("PALAMLV", 1) as number,
-				vm.getValue("PALAMLV", 2) as number,
-				vm.getValue("PALAMLV", 3) as number,
-				vm.getValue("PALAMLV", 4) as number,
+				vm.getValue("PALAMLV").get(vm, [0]) as number,
+				vm.getValue("PALAMLV").get(vm, [1]) as number,
+				vm.getValue("PALAMLV").get(vm, [2]) as number,
+				vm.getValue("PALAMLV").get(vm, [3]) as number,
+				vm.getValue("PALAMLV").get(vm, [4]) as number,
 			];
 
 			let text = name;

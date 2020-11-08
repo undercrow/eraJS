@@ -21,7 +21,7 @@ export default class GetBit extends Statement {
 
 		// eslint-disable-next-line no-bitwise
 		const result = (value & (1 << index)) !== 0 ? 1 : 0;
-		vm.setValue(result, "RESULT", 0);
+		vm.getValue("RESULT").set(vm, result, [0]);
 
 		return null;
 	}

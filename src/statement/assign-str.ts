@@ -1,4 +1,4 @@
-import {assert, assertString} from "../assert";
+import {assert} from "../assert";
 import * as E from "../erb/expr";
 import * as U from "../erb/util";
 import type VM from "../vm";
@@ -16,17 +16,16 @@ export default class StrAssign extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const type = vm.typeof(this.dest.name);
+		const dest = vm.getValue(this.dest.name);
 		const index = this.dest.reduceIndex(vm);
 		const partialIndex = index.slice(0, -1);
 		const lastIndex = index[index.length - 1] ?? 0;
 
-		assert(type === "string", "Cannot use '= for an integer variable");
+		assert(dest.type === "string", "Cannot use '= for an integer variable");
 		const valueList = U.sepBy0(",", E.expr).tryParse(this.value);
 		for (let i = 0; i < valueList.length; ++i) {
 			const value = valueList[i].reduce(vm);
-			assertString(value, "Cannot assign an integer to a string variable");
-			vm.setValue(value, this.dest.name, ...partialIndex, lastIndex + i);
+			dest.set(vm, value, [...partialIndex, lastIndex + i]);
 		}
 
 		return null;

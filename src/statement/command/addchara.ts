@@ -1,4 +1,8 @@
 import {assert, assertNumber} from "../../assert";
+import IntChar0DValue from "../../value/int-char-0d";
+import IntChar1DValue from "../../value/int-char-1d";
+import StrChar0DValue from "../../value/str-char-0d";
+import StrChar1DValue from "../../value/str-char-1d";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -19,22 +23,50 @@ export default class StrLen extends Statement {
 			const character = vm.characterMap.get(id);
 			assert(character != null, `Character with id ${id} does not exist`);
 
-			const charaNum = vm.getValue("CHARANUM") as number;
-			vm.setValue(character.id, "NO", charaNum);
-			vm.setValue(character.name, "NAME", charaNum);
-			vm.setValue(character.nickname, "CALLNAME", charaNum);
-			character.flags.forEach((v, i) => vm.setValue(v, "CFLAG", charaNum, i));
-			character.talent.forEach((v, i) => vm.setValue(v, "TALENT", charaNum, i));
-			character.maxBase.forEach((v, i) => vm.setValue(v, "MAXBASE", charaNum, i));
-			character.base.forEach((v, i) => vm.setValue(v, "BASE", charaNum, i));
-			character.abilities.forEach((v, i) => vm.setValue(v, "ABL", charaNum, i));
-			character.exp.forEach((v, i) => vm.setValue(v, "EXP", charaNum, i));
-			character.cstr.forEach((v, i) => vm.setValue(v, "CSTR", charaNum, i));
-			character.mark.forEach((v, i) => vm.setValue(v, "MARK", charaNum, i));
-			character.palam.forEach((v, i) => vm.setValue(v, "PALAM", charaNum, i));
-			character.juel.forEach((v, i) => vm.setValue(v, "JUEL", charaNum, i));
+			const charaNum = vm.getValue("CHARANUM").get(vm, []) as number;
+			vm.getValue<IntChar0DValue>("NO").value.set(charaNum, character.id);
+			vm.getValue<StrChar0DValue>("NAME").value.set(charaNum, character.name);
+			vm.getValue<StrChar0DValue>("CALLNAME").value.set(charaNum, character.nickname);
+			vm.getValue<IntChar1DValue>("CFLAG").value.set(charaNum, character.flags.slice());
+			vm.getValue<IntChar1DValue>("TALENT").value.set(charaNum, character.talent.slice());
+			vm.getValue<IntChar1DValue>("MAXBASE").value.set(charaNum, character.maxBase.slice());
+			vm.getValue<IntChar1DValue>("BASE").value.set(charaNum, character.base.slice());
+			vm.getValue<IntChar1DValue>("ABL").value.set(charaNum, character.abilities.slice());
+			vm.getValue<IntChar1DValue>("EXP").value.set(charaNum, character.exp.slice());
+			vm.getValue<StrChar1DValue>("CSTR").value.set(charaNum, character.cstr.slice());
+			vm.getValue<IntChar1DValue>("MARK").value.set(charaNum, character.mark.slice());
+			vm.getValue<IntChar1DValue>("PALAM").value.set(charaNum, character.palam.slice());
+			vm.getValue<IntChar1DValue>("JUEL").value.set(charaNum, character.juel.slice());
+			vm.getValue<IntChar1DValue>("EQUIP").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("EQUIP").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("TEQUIP").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("TEQUIP").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("STAIN").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("STAIN").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("EX").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("EX").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("SOURCE").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("SOURCE").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("NOWEX").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("NOWEX").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("GOTJUEL").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("GOTJUEL").size).fill(0),
+			);
 
-			vm.setValue(charaNum + 1, "CHARANUM");
+			vm.getValue("CHARANUM").set(vm, charaNum + 1, []);
 		}
 
 		return null;

@@ -9,15 +9,14 @@ export default class PrintShopItem extends Statement {
 			return null;
 		}
 
-		const itemLength = vm.lengthOf("ITEMNAME", 0);
-		for (let i = 0; i < itemLength; ++i) {
-			const name = vm.getValue("ITEMNAME", i) as string;
+		const itemName = vm.getValue("ITEMNAME");
+		for (let i = 0; i < itemName.length(0); ++i) {
+			const name = itemName.get(vm, [i]) as string;
 			if (name === "") {
 				continue;
 			}
 
-			const price = vm.getValue("ITEMPRICE", i) as number;
-
+			const price = vm.getValue("ITEMPRICE").get(vm, [i]) as number;
 			const text = `[${i}] ${name}(${price}$)`;
 			yield* new PrintC("PRINTC", new Const(text)).run(vm);
 		}

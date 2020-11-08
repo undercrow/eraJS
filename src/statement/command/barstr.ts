@@ -24,7 +24,7 @@ export default class BarStr extends Statement {
 
 		const filled = Math.floor(length * (value / max));
 		const result = "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]";
-		vm.setValue(result, "RESULTS", 0);
+		vm.getValue("RESULTS").set(vm, result, [0]);
 
 		return null;
 	}

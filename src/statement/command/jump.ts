@@ -31,17 +31,17 @@ export default class Jump extends Statement {
 					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 					if (value != null) {
 						const index = argExpr.dest.reduceIndex(vm);
-						vm.setValue(value, argExpr.dest.name, ...index);
+						vm.getValue(argExpr.dest.name).set(vm, value, index);
 					} else {
 						yield* argExpr.run(vm);
 					}
 				} else {
 					if (!context.refMap.has(argExpr.name)) {
-						const type = vm.typeof(argExpr.name);
+						const type = vm.getValue(argExpr.name).type;
 						const fallback = type === "number" ? 0 : "";
 						const index = argExpr.reduceIndex(vm);
 						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-						vm.setValue(value ?? fallback, argExpr.name, ...index);
+						vm.getValue(argExpr.name).set(vm, value ?? fallback, index);
 					}
 				}
 			}

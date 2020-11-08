@@ -28,8 +28,8 @@ export default class Print extends Statement {
 		switch (action) {
 			case "newline": {
 				yield <const>{type: "string", text: "\n"};
-				const lineCount = vm.getValue("LINECOUNT") as number;
-				vm.setValue(lineCount + 1, "LINECOUNT");
+				const lineCount = vm.getValue("LINECOUNT").get(vm, []) as number;
+				vm.getValue("LINECOUNT").set(vm, lineCount + 1, []);
 				break;
 			}
 			case "wait": {

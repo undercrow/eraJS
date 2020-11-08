@@ -15,6 +15,7 @@ export default class SetBit extends Statement {
 	}
 
 	public *run(vm: VM) {
+		const dest = vm.getValue(this.dest.name);
 		const value = this.dest.reduce(vm);
 		assertNumber(value, "1st argument of SETBIT must be a number");
 		const bitList = this.bitList.map((bit) => bit.reduce(vm));
@@ -25,7 +26,8 @@ export default class SetBit extends Statement {
 			// eslint-disable-next-line no-bitwise
 			result |= 1 << bit;
 		}
-		vm.setValue(result, this.dest.name, ...this.dest.reduceIndex(vm));
+
+		dest.set(vm, result, this.dest.reduceIndex(vm));
 
 		return null;
 	}

@@ -23,9 +23,9 @@ export default class Substring extends Statement {
 		const end = this.end.reduce(vm);
 		assertNumber(end, "3rd argument of SUBSTRING must be a number!");
 		if (end < 0) {
-			vm.setValue(original.slice(start), "RESULTS", 0);
+			vm.getValue("RESULTS").set(vm, original.slice(start), [0]);
 		} else {
-			vm.setValue(original.slice(start, end), "RESULTS", 0);
+			vm.getValue("RESULTS").set(vm, original.slice(start, end), [0]);
 		}
 
 		return null;

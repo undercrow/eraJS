@@ -31,17 +31,17 @@ export default class Call extends Statement {
 					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 					if (value != null) {
 						const index = argExpr.dest.reduceIndex(vm);
-						vm.setValue(value, argExpr.dest.name, ...index);
+						vm.getValue(argExpr.dest.name).set(vm, value, index);
 					} else {
 						yield* argExpr.run(vm);
 					}
 				} else {
 					if (!context.refMap.has(argExpr.name)) {
-						const type = vm.typeof(argExpr.name);
+						const type = vm.getValue(argExpr.name).type;
 						const fallback = type === "number" ? 0 : "";
 						const index = argExpr.reduceIndex(vm);
 						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-						vm.setValue(value ?? fallback, argExpr.name, ...index);
+						vm.getValue(argExpr.name).set(vm, value ?? fallback, index);
 					}
 				}
 			}
@@ -57,7 +57,7 @@ export default class Call extends Statement {
 				case "throw": return result;
 				case "return": {
 					for (let i = 0; i < result.value.length; ++i) {
-						vm.setValue(result.value[i], "RESULT", i);
+						vm.getValue("RESULT").set(vm, result.value[i], [i]);
 					}
 					return null;
 				}
@@ -65,7 +65,7 @@ export default class Call extends Statement {
 				case undefined: continue;
 			}
 		}
-		vm.setValue(0, "RESULT", 0);
+		vm.getValue("RESULT").set(vm, 0, [0]);
 		return null;
 	}
 }

@@ -13,9 +13,7 @@ export default class Variable implements Expr {
 	}
 
 	public reduce(vm: VM): string | number {
-		const index = this.reduceIndex(vm);
-
-		return vm.getValue(this.name, ...index);
+		return vm.getValue(this.name).get(vm, this.reduceIndex(vm));
 	}
 
 	public reduceIndex(vm: VM): number[] {

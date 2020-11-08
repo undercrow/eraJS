@@ -1,10 +1,8 @@
-import {assertNumber} from "./assert";
 import type Config from "./config";
 import * as color from "./color";
 import type Color from "./color";
 import {Character, Data} from "./data";
 import Fn from "./fn";
-import NDArray, {Leaf} from "./ndarray";
 import type Property from "./property";
 import Dim from "./property/dim";
 import DimDynamic from "./property/dim-dynamic";
@@ -14,17 +12,20 @@ import type {default as Statement, Result} from "./statement";
 import type Alignment from "./statement/command/alignment";
 import * as scene from "./scene";
 import Thunk from "./thunk";
-
-const CHAR_VAR_0D = ["NO", "NAME", "CALLNAME"];
-/* eslint-disable array-bracket-newline */
-const CHAR_VAR_1D = [
-	"CFLAG", "TALENT", "MAXBASE", "BASE", "ABL", "EXP", "CSTR", "MARK", "PALAM", "JUEL",
-];
-/* eslint-enable array-bracket-newline */
+import type Value from "./value";
+import Int0DValue from "./value/int-0d";
+import Int1DValue from "./value/int-1d";
+import IntChar0DValue from "./value/int-char-0d";
+import IntChar1DValue from "./value/int-char-1d";
+import RandValue from "./value/rand";
+import Str0DValue from "./value/str-0d";
+import Str1DValue from "./value/str-1d";
+import StrChar0DValue from "./value/str-char-0d";
+import StrChar1DValue from "./value/str-char-1d";
 
 type Context = {
 	fn: Fn;
-	dynamicMap: Map<string, NDArray>;
+	dynamicMap: Map<string, Value>;
 	refMap: Map<string, string>;
 };
 
@@ -32,8 +33,8 @@ export default class VM {
 	public fnMap: Map<string, Fn[]>;
 	public characterMap: Map<number, Character>;
 
-	public globalMap: Map<string, NDArray>;
-	public staticMap: Map<string, Map<string, NDArray>>;
+	public globalMap: Map<string, Value>;
+	public staticMap: Map<string, Map<string, Value>>;
 	private contextStack: Array<Context>;
 
 	public alignment: Alignment["align"];
@@ -96,131 +97,128 @@ export default class VM {
 			this.characterMap.set(id, character);
 		}
 
-		this.globalMap.set("RESULT", new NDArray("number", [1000]));
-		this.globalMap.set("RESULTS", new NDArray("string", [100]));
-		this.globalMap.set("A", new NDArray("number", []));
-		this.globalMap.set("B", new NDArray("number", []));
-		this.globalMap.set("C", new NDArray("number", []));
-		this.globalMap.set("D", new NDArray("number", []));
-		this.globalMap.set("E", new NDArray("number", []));
-		this.globalMap.set("F", new NDArray("number", []));
-		this.globalMap.set("G", new NDArray("number", []));
-		this.globalMap.set("H", new NDArray("number", []));
-		this.globalMap.set("I", new NDArray("number", []));
-		this.globalMap.set("J", new NDArray("number", []));
-		this.globalMap.set("K", new NDArray("number", []));
-		this.globalMap.set("L", new NDArray("number", []));
-		this.globalMap.set("M", new NDArray("number", []));
-		this.globalMap.set("N", new NDArray("number", []));
-		this.globalMap.set("O", new NDArray("number", []));
-		this.globalMap.set("P", new NDArray("number", []));
-		this.globalMap.set("Q", new NDArray("number", []));
-		this.globalMap.set("R", new NDArray("number", []));
-		this.globalMap.set("S", new NDArray("number", []));
-		this.globalMap.set("T", new NDArray("number", []));
-		this.globalMap.set("U", new NDArray("number", []));
-		this.globalMap.set("V", new NDArray("number", []));
-		this.globalMap.set("W", new NDArray("number", []));
-		this.globalMap.set("X", new NDArray("number", []));
-		this.globalMap.set("Y", new NDArray("number", []));
-		this.globalMap.set("Z", new NDArray("number", []));
-		this.globalMap.set("COUNT", new NDArray("number", []));
-		this.globalMap.set("DAY", new NDArray("number", []));
-		this.globalMap.set("TIME", new NDArray("number", []));
-		this.globalMap.set("MONEY", new NDArray("number", []));
-		this.globalMap.set("MASTER", new NDArray("number", [], 0));
-		this.globalMap.set("TARGET", new NDArray("number", [], -1));
-		this.globalMap.set("ASSI", new NDArray("number", [], -1));
-		this.globalMap.set("PLAYER", new NDArray("number", []));
-		this.globalMap.set("ASSIPLAY", new NDArray("number", []));
-		this.globalMap.set("SELECTCOM", new NDArray("number", [1000]));
-		this.globalMap.set("PREVCOM", new NDArray("number", []));
-		this.globalMap.set("NEXTCOM", new NDArray("number", []));
-		this.globalMap.set("LOSEBASE", new NDArray("number", [1000]));
-		this.globalMap.set("UP", new NDArray("number", [1000]));
-		this.globalMap.set("DOWN", new NDArray("number", [1000]));
-		this.globalMap.set("PALAMLV", NDArray.fromValue(
-			"number",
+		this.globalMap.set("RAND", new RandValue());
+		this.globalMap.set("RESULT", new Int1DValue(1000));
+		this.globalMap.set("RESULTS", new Str1DValue(100));
+		this.globalMap.set("A", new Int1DValue(100));
+		this.globalMap.set("B", new Int1DValue(100));
+		this.globalMap.set("C", new Int1DValue(100));
+		this.globalMap.set("D", new Int1DValue(100));
+		this.globalMap.set("E", new Int1DValue(100));
+		this.globalMap.set("F", new Int1DValue(100));
+		this.globalMap.set("G", new Int1DValue(100));
+		this.globalMap.set("H", new Int1DValue(100));
+		this.globalMap.set("I", new Int1DValue(100));
+		this.globalMap.set("J", new Int1DValue(100));
+		this.globalMap.set("K", new Int1DValue(100));
+		this.globalMap.set("L", new Int1DValue(100));
+		this.globalMap.set("M", new Int1DValue(100));
+		this.globalMap.set("N", new Int1DValue(100));
+		this.globalMap.set("O", new Int1DValue(100));
+		this.globalMap.set("P", new Int1DValue(100));
+		this.globalMap.set("Q", new Int1DValue(100));
+		this.globalMap.set("R", new Int1DValue(100));
+		this.globalMap.set("S", new Int1DValue(100));
+		this.globalMap.set("T", new Int1DValue(100));
+		this.globalMap.set("U", new Int1DValue(100));
+		this.globalMap.set("V", new Int1DValue(100));
+		this.globalMap.set("W", new Int1DValue(100));
+		this.globalMap.set("X", new Int1DValue(100));
+		this.globalMap.set("Y", new Int1DValue(100));
+		this.globalMap.set("Z", new Int1DValue(100));
+		this.globalMap.set("COUNT", new Int0DValue());
+		this.globalMap.set("DAY", new Int1DValue(1000));
+		this.globalMap.set("TIME", new Int0DValue());
+		this.globalMap.set("MONEY", new Int0DValue());
+		this.globalMap.set("MASTER", new Int0DValue());
+		this.globalMap.set("TARGET", Int0DValue.from(-1));
+		this.globalMap.set("ASSI", Int0DValue.from(-1));
+		this.globalMap.set("PLAYER", new Int0DValue());
+		this.globalMap.set("ASSIPLAY", new Int0DValue());
+		this.globalMap.set("SELECTCOM", new Int1DValue(1000));
+		this.globalMap.set("PREVCOM", new Int0DValue());
+		this.globalMap.set("NEXTCOM", new Int0DValue());
+		this.globalMap.set("LOSEBASE", new Int1DValue(1000));
+		this.globalMap.set("UP", new Int1DValue(1000));
+		this.globalMap.set("DOWN", new Int1DValue(1000));
+		this.globalMap.set("PALAMLV", Int1DValue.from(
 			[0, 100, 500, 3000, 10000, 30000, 60000, 100000, 150000, 250000],
 		));
-		this.globalMap.set("EXPLV", NDArray.fromValue(
-			"number",
-			[0, 1, 4, 20, 50, 200],
-		));
-		this.globalMap.set("EJAC", new NDArray("number", [], 10000));
-		this.globalMap.set("FLAG", new NDArray("number", [10000]));
-		this.globalMap.set("TFLAG", new NDArray("number", [1000]));
-		this.globalMap.set("ITEMSALES", new NDArray("number", [100]));
-		this.globalMap.set("BOUGHT", new NDArray("number", []));
-		this.globalMap.set("PBAND", new NDArray("number", [], 4));
-		this.globalMap.set("CHARANUM", new NDArray("number", []));
-		this.globalMap.set("SAVESTR", new NDArray("string", [100]));
-		this.globalMap.set("NO", new NDArray("number", [1000]));
-		this.globalMap.set("NAME", new NDArray("string", [1000]));
-		this.globalMap.set("CALLNAME", new NDArray("string", [1000]));
-		this.globalMap.set("CFLAG", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("TALENT", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("MAXBASE", new NDArray("number", [1000, 100]));
-		this.globalMap.set("BASE", new NDArray("number", [1000, 100]));
-		this.globalMap.set("ABL", new NDArray("number", [1000, 100]));
-		this.globalMap.set("EXP", new NDArray("number", [1000, 100]));
-		this.globalMap.set("CSTR", new NDArray("string", [1000, 100]));
-		this.globalMap.set("MARK", new NDArray("number", [1000, 100]));
-		this.globalMap.set("PALAM", new NDArray("number", [1000, 200]));
-		this.globalMap.set("JUEL", new NDArray("number", [1000, 200]));
-		this.globalMap.set("EQUIP", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("TEQUIP", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("STAIN", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("EX", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("SOURCE", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("NOWEX", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("GOTJUEL", new NDArray("number", [1000, 1000]));
-		this.globalMap.set("ITEM", new NDArray("number", [1000]));
-		this.globalMap.set("ITEMSALES", new NDArray("number", [1000]));
-		this.globalMap.set("ABLNAME", NDArray.fromValue("string", data.ability));
-		this.globalMap.set("TALENTNAME", NDArray.fromValue("string", data.talent));
-		this.globalMap.set("EXPNAME", NDArray.fromValue("string", data.exp));
-		this.globalMap.set("ITEMNAME", NDArray.fromValue("string", data.item));
-		this.globalMap.set("MARKNAME", NDArray.fromValue("string", data.mark));
-		this.globalMap.set("PALAMNAME", NDArray.fromValue("string", data.palam));
-		this.globalMap.set("TRAINNAME", NDArray.fromValue("string", data.train));
-		this.globalMap.set("GLOBAL", new NDArray("number", [1000]));
-		this.globalMap.set("GLOBALS", new NDArray("string", [100]));
-		this.globalMap.set("GAMEBASE_AUTHOR", new NDArray("string", [], data.gamebase.author));
-		this.globalMap.set("GAMEBASE_INFO", new NDArray("string", [], data.gamebase.info));
-		this.globalMap.set("GAMEBASE_YEAR", new NDArray("string", [], data.gamebase.year));
-		this.globalMap.set("GAMEBASE_TITLE", new NDArray("string", [], data.gamebase.title));
-		this.globalMap.set("GAMEBASE_VERSION", new NDArray("number", [], data.gamebase.version));
-		this.globalMap.set("LINECOUNT", new NDArray("number", []));
-		this.globalMap.set("CTRAIN_COUNT", new NDArray("number", []));
+		this.globalMap.set("EXPLV", Int1DValue.from([0, 1, 4, 20, 50, 200]));
+		this.globalMap.set("EJAC", Int0DValue.from(10000));
+		this.globalMap.set("FLAG", new Int1DValue(10000));
+		this.globalMap.set("TFLAG", new Int1DValue(1000));
+		this.globalMap.set("ITEMSALES", new Int1DValue(100));
+		this.globalMap.set("BOUGHT", new Int0DValue());
+		this.globalMap.set("PBAND", Int0DValue.from(4));
+		this.globalMap.set("CHARANUM", new Int0DValue());
+		this.globalMap.set("SAVESTR", new Str1DValue(100));
+		this.globalMap.set("NO", new IntChar0DValue());
+		this.globalMap.set("NAME", new StrChar0DValue());
+		this.globalMap.set("CALLNAME", new StrChar0DValue());
+		this.globalMap.set("CFLAG", new IntChar1DValue(1000));
+		this.globalMap.set("TALENT", new IntChar1DValue(1000));
+		this.globalMap.set("MAXBASE", new IntChar1DValue(100));
+		this.globalMap.set("BASE", new IntChar1DValue(100));
+		this.globalMap.set("ABL", new IntChar1DValue(100));
+		this.globalMap.set("EXP", new IntChar1DValue(100));
+		this.globalMap.set("CSTR", new StrChar1DValue(100));
+		this.globalMap.set("MARK", new IntChar1DValue(100));
+		this.globalMap.set("PALAM", new IntChar1DValue(1000));
+		this.globalMap.set("JUEL", new IntChar1DValue(1000));
+		this.globalMap.set("EQUIP", new IntChar1DValue(1000));
+		this.globalMap.set("TEQUIP", new IntChar1DValue(1000));
+		this.globalMap.set("STAIN", new IntChar1DValue(1000));
+		this.globalMap.set("EX", new IntChar1DValue(1000));
+		this.globalMap.set("SOURCE", new IntChar1DValue(1000));
+		this.globalMap.set("NOWEX", new IntChar1DValue(1000));
+		this.globalMap.set("GOTJUEL", new IntChar1DValue(1000));
+		this.globalMap.set("ITEM", new Int1DValue(1000));
+		this.globalMap.set("ITEMSALES", new Int1DValue(1000));
+		this.globalMap.set("ABLNAME", Str1DValue.from(data.ability));
+		this.globalMap.set("TALENTNAME", Str1DValue.from(data.talent));
+		this.globalMap.set("EXPNAME", Str1DValue.from(data.exp));
+		this.globalMap.set("ITEMNAME", Str1DValue.from(data.item));
+		this.globalMap.set("MARKNAME", Str1DValue.from(data.mark));
+		this.globalMap.set("PALAMNAME", Str1DValue.from(data.palam));
+		this.globalMap.set("TRAINNAME", Str1DValue.from(data.train));
+		this.globalMap.set("GLOBAL", new Int1DValue(1000));
+		this.globalMap.set("GLOBALS", new Str1DValue(100));
+		this.globalMap.set("GAMEBASE_AUTHOR", Str0DValue.from(data.gamebase.author ?? ""));
+		this.globalMap.set("GAMEBASE_INFO", Str0DValue.from(data.gamebase.info ?? ""));
+		this.globalMap.set("GAMEBASE_YEAR", Str0DValue.from(data.gamebase.year ?? ""));
+		this.globalMap.set("GAMEBASE_TITLE", Str0DValue.from(data.gamebase.title ?? ""));
+		this.globalMap.set("GAMEBASE_VERSION", Int0DValue.from(data.gamebase.version ?? 0));
+		this.globalMap.set("LINECOUNT", new Int0DValue());
+		this.globalMap.set("CTRAIN_COUNT", new Int0DValue());
 		for (let i = 0; i < data.ability.length; ++i) {
 			if (data.ability[i] !== "") {
-				this.globalMap.set(data.ability[i], new NDArray("number", [], i));
+				this.globalMap.set(data.ability[i], Int0DValue.from(i));
 			}
 		}
 		for (let i = 0; i < data.exp.length; ++i) {
 			if (data.exp[i] !== "") {
-				this.globalMap.set(data.exp[i], new NDArray("number", [], i));
+				this.globalMap.set(data.exp[i], Int0DValue.from(i));
 			}
 		}
 		for (let i = 0; i < data.item.length; ++i) {
 			if (data.item[i] !== "") {
-				this.globalMap.set(data.item[i], new NDArray("number", [], i));
+				this.globalMap.set(data.item[i], Int0DValue.from(i));
 			}
 		}
 		for (let i = 0; i < data.talent.length; ++i) {
 			if (data.talent[i] !== "") {
-				this.globalMap.set(data.talent[i], new NDArray("number", [], i));
+				this.globalMap.set(data.talent[i], Int0DValue.from(i));
 			}
 		}
 		for (let i = 0; i < data.mark.length; ++i) {
 			if (data.mark[i] !== "") {
-				this.globalMap.set(data.mark[i], new NDArray("number", [], i));
+				this.globalMap.set(data.mark[i], Int0DValue.from(i));
 			}
 		}
 		for (let i = 0; i < data.palam.length; ++i) {
 			if (data.palam[i] !== "") {
-				this.globalMap.set(data.palam[i], new NDArray("number", [], i));
+				this.globalMap.set(data.palam[i], Int0DValue.from(i));
 			}
 		}
 
@@ -233,8 +231,8 @@ export default class VM {
 		for (const fnValues of this.fnMap.values()) {
 			for (const fn of fnValues) {
 				this.staticMap.set(fn.name, new Map());
-				this.staticMap.get(fn.name)!.set("LOCAL", new NDArray("number", [1000]));
-				this.staticMap.get(fn.name)!.set("LOCALS", new NDArray("string", [100]));
+				this.staticMap.get(fn.name)!.set("LOCAL", new Int1DValue(1000));
+				this.staticMap.get(fn.name)!.set("LOCALS", new Str1DValue(100));
 				for (const property of fn.property) {
 					if (property instanceof Dim) {
 						property.apply(this.staticMap.get(fn.name)!);
@@ -270,8 +268,8 @@ export default class VM {
 			dynamicMap: new Map(),
 			refMap: new Map(),
 		};
-		context.dynamicMap.set("ARG", new NDArray("number", [1000]));
-		context.dynamicMap.set("ARGS", new NDArray("string", [100]));
+		context.dynamicMap.set("ARG", new Int1DValue(1000));
+		context.dynamicMap.set("ARGS", new Str1DValue(100));
 		for (const property of fn.property) {
 			if (property instanceof DimDynamic) {
 				property.apply(this);
@@ -287,113 +285,18 @@ export default class VM {
 		this.contextStack.pop();
 	}
 
-	public getValue(name: string, ...index: number[]): Leaf {
-		const context = this.context();
-		if (name === "RAND") {
-			assertNumber(index[0], "1st index of variable RAND should be an integer");
-			return Math.floor(Math.random() * index[0]);
-		} else if (CHAR_VAR_1D.includes(name)) {
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			const valIndex = index[1] != null ? index[1] : index[0];
-			assertNumber(charIndex, "Character index should an integer");
-			assertNumber(valIndex, "Index for character variable should be an integer");
-
-			return this.globalMap.get(name)!.get(charIndex, valIndex);
-		} else if (CHAR_VAR_0D.includes(name)) {
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			const charIndex = index[0] ?? this.getValue("TARGET");
-			assertNumber(charIndex, "Character index should an integer");
-
-			return this.globalMap.get(name)!.get(charIndex);
-		} else if (context.refMap.has(name)) {
-			return this.getValue(context.refMap.get(name)!, ...index);
-		} else if (context.dynamicMap.has(name)) {
-			return context.dynamicMap.get(name)!.get(...index, 0);
-		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
-			return this.staticMap.get(context.fn.name)!.get(name)!.get(...index, 0);
-		} else if (this.globalMap.has(name)) {
-			return this.globalMap.get(name)!.get(...index, 0);
-		} else {
-			throw new Error(`Variable ${name} does not exist`);
-		}
-	}
-
-	public setValue(value: Leaf, name: string, ...index: number[]): void {
-		const context = this.context();
-		if (CHAR_VAR_1D.includes(name)) {
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			const charIndex = index[1] != null ? index[0] : this.getValue("TARGET");
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			const valIndex = index[1] != null ? index[1] : index[0];
-			assertNumber(charIndex, "Character index should an integer");
-			assertNumber(valIndex, "Index for character variable should be an integer");
-
-			this.globalMap.get(name)!.set(value, charIndex, valIndex);
-		} else if (CHAR_VAR_0D.includes(name)) {
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			const charIndex = index[0] ?? this.getValue("TARGET");
-			assertNumber(charIndex, "Character index should an integer");
-
-			this.globalMap.get(name)!.set(value, charIndex);
-		} else if (context.refMap.has(name)) {
-			this.setValue(value, context.refMap.get(name)!, ...index);
-		} else if (context.dynamicMap.has(name)) {
-			context.dynamicMap.get(name)!.set(value, ...index, 0);
-		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
-			this.staticMap.get(context.fn.name)!.get(name)!.set(value, ...index, 0);
-		} else if (this.globalMap.has(name)) {
-			this.globalMap.get(name)!.set(value, ...index, 0);
-		} else {
-			throw new Error(`Variable ${name} does not exist`);
-		}
-	}
-
-	public lengthOf(name: string, depth: 0 | 1 | 2): number {
+	public getValue<T extends Value>(name: string): T {
 		const context = this.context();
 		if (context.refMap.has(name)) {
-			return this.lengthOf(context.refMap.get(name)!, depth);
+			return this.getValue(context.refMap.get(name)!);
 		} else if (context.dynamicMap.has(name)) {
-			return context.dynamicMap.get(name)!.length(depth);
+			return context.dynamicMap.get(name)! as T;
 		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
-			return this.staticMap.get(context.fn.name)!.get(name)!.length(depth);
+			return this.staticMap.get(context.fn.name)!.get(name)! as T;
 		} else if (this.globalMap.has(name)) {
-			return this.globalMap.get(name)!.length(depth);
+			return this.globalMap.get(name)! as T;
 		} else {
-			throw new Error(`Cannot get length of variable ${name}`);
-		}
-	}
-
-	public removeAt(name: string, ...index: number[]) {
-		const context = this.context();
-		if (context.refMap.has(name)) {
-			this.removeAt(context.refMap.get(name)!, ...index);
-		} else if (context.dynamicMap.has(name)) {
-			context.dynamicMap.get(name)!.removeAt(...index);
-		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
-			this.staticMap.get(context.fn.name)!.get(name)!.removeAt(...index);
-		} else if (this.globalMap.has(name)) {
-			this.globalMap.get(name)!.removeAt(...index);
-		} else {
-			throw new Error(`Cannot get remove ${index.join(",")} of variable ${name}`);
-		}
-	}
-
-	public typeof(name: string): NDArray["type"] {
-		const context = this.context();
-		if (name === "RAND") {
-			return "number";
-		} else if (context.refMap.has(name)) {
-			return this.typeof(context.refMap.get(name)!);
-		} else if (context.dynamicMap.has(name)) {
-			return context.dynamicMap.get(name)!.type;
-		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
-			return this.staticMap.get(context.fn.name)!.get(name)!.type;
-		} else if (this.globalMap.has(name)) {
-			return this.globalMap.get(name)!.type;
-		} else {
-			throw new Error(`Cannot get type of variable ${name}`);
+			throw new Error(`Variable ${name} does not exist`);
 		}
 	}
 

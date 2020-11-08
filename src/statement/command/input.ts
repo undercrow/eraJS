@@ -14,7 +14,7 @@ export default class Input extends Statement {
 			const raw = yield <const>{type: "input"};
 			const value = parseInt(raw);
 			if (!isNaN(value)) {
-				vm.setValue(value, "RESULT", 0);
+				vm.getValue("RESULT").set(vm, value, [0]);
 				break;
 			}
 		}

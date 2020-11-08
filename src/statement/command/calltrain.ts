@@ -15,7 +15,7 @@ export default class CallTrain extends Statement {
 		const value = this.value.reduce(vm);
 		assertNumber(value, "Argument of CALLTRAIN must be a number");
 
-		vm.setValue(value, "CTRAIN_COUNT");
+		vm.getValue("CTRAIN_COUNT").set(vm, value, []);
 
 		return null;
 	}

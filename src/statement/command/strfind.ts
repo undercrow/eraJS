@@ -21,7 +21,7 @@ export default class StrFind extends Statement {
 		const search = this.search.reduce(vm);
 		assertString(search, "2nd argument of STRFIND must be a string!");
 		// TODO: unicode
-		vm.setValue(value.indexOf(search), "RESULT", 0);
+		vm.getValue("RESULT").set(vm, value.indexOf(search), [0]);
 
 		return null;
 	}

@@ -4,7 +4,7 @@ import Statement from "../index";
 
 export default class GetBgColor extends Statement {
 	public *run(vm: VM) {
-		vm.setValue(color.toHex(vm.color.back), "RESULT", 0);
+		vm.getValue("RESULT").set(vm, color.toHex(vm.color.back), [0]);
 
 		return null;
 	}

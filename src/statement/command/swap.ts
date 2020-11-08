@@ -13,15 +13,17 @@ export default class Swap extends Statement {
 	}
 
 	public *run(vm: VM) {
+		const left = vm.getValue(this.left.name);
 		const leftIndex = this.left.reduceIndex(vm);
+		const right = vm.getValue(this.right.name);
 		const rightIndex = this.right.reduceIndex(vm);
 
-		const length = vm.lengthOf(this.left.name, leftIndex.length as 0 | 1 | 2);
+		const length = left.length(leftIndex.length);
 		for (let i = 0; i < length; ++i) {
-			const left = vm.getValue(this.left.name, ...leftIndex, i);
-			const right = vm.getValue(this.right.name, ...rightIndex, i);
-			vm.setValue(right, this.left.name, ...leftIndex, i);
-			vm.setValue(left, this.right.name, ...rightIndex, i);
+			const leftValue = left.get(vm, [...leftIndex, i]);
+			const rightValue = right.get(vm, [...rightIndex, i]);
+			left.set(vm, rightValue, [...leftIndex, i]);
+			right.set(vm, leftValue, [...rightIndex, i]);
 		}
 
 		return null;

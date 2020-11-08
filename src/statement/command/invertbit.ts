@@ -25,7 +25,7 @@ export default class InvertBit extends Statement {
 			// eslint-disable-next-line no-bitwise
 			result ^= 1 << bit;
 		}
-		vm.setValue(result, this.dest.name, ...this.dest.reduceIndex(vm));
+		vm.getValue(this.dest.name)!.set(vm, result, this.dest.reduceIndex(vm));
 
 		return null;
 	}

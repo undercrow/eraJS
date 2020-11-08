@@ -18,7 +18,7 @@ export default class Times extends Statement {
 		assertNumber(original, "1st argument of TIMES must be a number");
 		const index = this.dest.reduceIndex(vm);
 
-		vm.setValue(Math.floor(original * this.value), this.dest.name, ...index);
+		vm.getValue(this.dest.name).set(vm, Math.floor(original * this.value), index);
 
 		return null;
 	}

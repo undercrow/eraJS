@@ -1,4 +1,4 @@
-import NDArray from "../ndarray";
+import Int1DValue from "../value/int-1d";
 import type VM from "../vm";
 
 export default class LocalSize {
@@ -9,6 +9,6 @@ export default class LocalSize {
 	}
 
 	public apply(vm: VM, fn: string) {
-		vm.staticMap.get(fn)!.set("LOCAL", new NDArray("number", [this.size]));
+		vm.staticMap.get(fn)!.set("LOCAL", new Int1DValue(this.size));
 	}
 }

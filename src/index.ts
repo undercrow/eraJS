@@ -13,4 +13,4 @@ export function compile(erh: string[], erb: string[], csv: Map<string, string>):
 	return new VM(header, fnList, data);
 }
 
-export type {Config};
+export type {Config, VM};

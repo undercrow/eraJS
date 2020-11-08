@@ -25,18 +25,21 @@ export default class StrLen extends Statement {
 
 			const charaNum = vm.getValue("CHARANUM").get(vm, []) as number;
 			vm.getValue<IntChar0DValue>("NO").value.set(charaNum, character.id);
+			vm.getValue<IntChar0DValue>("ISASSI").value.set(charaNum, 0);
 			vm.getValue<StrChar0DValue>("NAME").value.set(charaNum, character.name);
 			vm.getValue<StrChar0DValue>("CALLNAME").value.set(charaNum, character.nickname);
-			vm.getValue<IntChar1DValue>("CFLAG").value.set(charaNum, character.flags.slice());
-			vm.getValue<IntChar1DValue>("TALENT").value.set(charaNum, character.talent.slice());
-			vm.getValue<IntChar1DValue>("MAXBASE").value.set(charaNum, character.maxBase.slice());
 			vm.getValue<IntChar1DValue>("BASE").value.set(charaNum, character.base.slice());
+			vm.getValue<IntChar1DValue>("MAXBASE").value.set(charaNum, character.maxBase.slice());
 			vm.getValue<IntChar1DValue>("ABL").value.set(charaNum, character.abilities.slice());
+			vm.getValue<IntChar1DValue>("TALENT").value.set(charaNum, character.talent.slice());
 			vm.getValue<IntChar1DValue>("EXP").value.set(charaNum, character.exp.slice());
-			vm.getValue<StrChar1DValue>("CSTR").value.set(charaNum, character.cstr.slice());
 			vm.getValue<IntChar1DValue>("MARK").value.set(charaNum, character.mark.slice());
-			vm.getValue<IntChar1DValue>("PALAM").value.set(charaNum, character.palam.slice());
+			vm.getValue<IntChar1DValue>("RELATION").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("RELATION").size).fill(0),
+			);
 			vm.getValue<IntChar1DValue>("JUEL").value.set(charaNum, character.juel.slice());
+			vm.getValue<IntChar1DValue>("CFLAG").value.set(charaNum, character.flags.slice());
 			vm.getValue<IntChar1DValue>("EQUIP").value.set(
 				charaNum,
 				Array<number>(vm.getValue<IntChar1DValue>("EQUIP").size).fill(0),
@@ -45,6 +48,7 @@ export default class StrLen extends Statement {
 				charaNum,
 				Array<number>(vm.getValue<IntChar1DValue>("TEQUIP").size).fill(0),
 			);
+			vm.getValue<IntChar1DValue>("PALAM").value.set(charaNum, character.palam.slice());
 			vm.getValue<IntChar1DValue>("STAIN").value.set(
 				charaNum,
 				Array<number>(vm.getValue<IntChar1DValue>("STAIN").size).fill(0),
@@ -65,6 +69,7 @@ export default class StrLen extends Statement {
 				charaNum,
 				Array<number>(vm.getValue<IntChar1DValue>("GOTJUEL").size).fill(0),
 			);
+			vm.getValue<StrChar1DValue>("CSTR").value.set(charaNum, character.cstr.slice());
 
 			vm.getValue("CHARANUM").set(vm, charaNum + 1, []);
 		}

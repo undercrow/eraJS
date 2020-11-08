@@ -42,25 +42,27 @@ export default class DelChara extends Statement {
 		const charaNum = vm.getValue("CHARANUM");
 		for (const id of idList as number[]) {
 			removeCharacter(vm, "NO", id);
+			removeCharacter(vm, "ISASSI", id);
 			removeCharacter(vm, "NAME", id);
 			removeCharacter(vm, "CALLNAME", id);
-			removeCharacter(vm, "CFLAG", id);
-			removeCharacter(vm, "TALENT", id);
-			removeCharacter(vm, "MAXBASE", id);
 			removeCharacter(vm, "BASE", id);
+			removeCharacter(vm, "MAXBASE", id);
 			removeCharacter(vm, "ABL", id);
+			removeCharacter(vm, "TALENT", id);
 			removeCharacter(vm, "EXP", id);
-			removeCharacter(vm, "CSTR", id);
 			removeCharacter(vm, "MARK", id);
-			removeCharacter(vm, "PALAM", id);
+			removeCharacter(vm, "RELATION", id);
 			removeCharacter(vm, "JUEL", id);
+			removeCharacter(vm, "CFLAG", id);
 			removeCharacter(vm, "EQUIP", id);
 			removeCharacter(vm, "TEQUIP", id);
+			removeCharacter(vm, "PALAM", id);
 			removeCharacter(vm, "STAIN", id);
 			removeCharacter(vm, "EX", id);
 			removeCharacter(vm, "SOURCE", id);
 			removeCharacter(vm, "NOWEX", id);
 			removeCharacter(vm, "GOTJUEL", id);
+			removeCharacter(vm, "CSTR", id);
 			charaNum.set(vm, charaNum.get(vm, []) as number - 1, []);
 		}
 

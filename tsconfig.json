@@ -3,6 +3,8 @@
 		"allowJs": true,
 		"esModuleInterop": true,
 		"lib": ["ES2015", "ES2017", "ES2019"],
+		"declaration": true,
+		"outDir": "./build",
 		"moduleResolution": "Node",
 		"skipLibCheck": true,
 		"strict": true,

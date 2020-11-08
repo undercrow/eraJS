@@ -2,13 +2,16 @@
 	"name": "erajs",
 	"version": "0.1.0",
 	"description": "Javascript implementation of emuera",
+	"author": "Undercrow <undercrow@protonmail.com>",
+	"license": "MIT",
+	"main": "build/index.js",
+	"types": "build/index.d.ts",
 	"scripts": {
+		"build": "tsc",
 		"lint": "run-s lint:tsc lint:eslint",
 		"lint:tsc": "tsc -p . --noEmit",
 		"lint:eslint": "eslint 'src/**/*.ts'"
 	},
-	"author": "Undercrow <undercrow@protonmail.com>",
-	"license": "MIT",
 	"devDependencies": {
 		"@types/papaparse": "^5.2.4",
 		"@types/parsimmon": "^1.10.3",

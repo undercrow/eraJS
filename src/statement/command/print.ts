@@ -7,10 +7,16 @@ type Action = "newline" | "wait" | null;
 // TODO: Buttonize some texts
 export default class Print extends Statement {
 	public static *print(vm: VM, text: string): ReturnType<Statement["run"]> {
-		yield <const>{
-			type: "string",
-			text,
-		};
+		if (text.length === 0) {
+			return null;
+		}
+
+		const lines = text.split("\n");
+		for (let i = 0; i < lines.length - 1; ++i) {
+			yield <const>{type: "string", text: lines[i]};
+			yield <const>{type: "string", text: "\n"};
+		}
+		yield <const>{type: "string", text: lines[lines.length - 1]};
 
 		const lineCount = vm.getValue("LINECOUNT").get(vm, []) as number;
 		vm.getValue("LINECOUNT").set(vm, lineCount + (text.match(/\n/g) ?? []).length, []);

@@ -1,4 +1,7 @@
 import {assert, assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import IntChar0DValue from "../../value/int-char-0d";
 import IntChar1DValue from "../../value/int-char-1d";
 import StrChar0DValue from "../../value/str-char-0d";
@@ -7,16 +10,16 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-export default class StrLen extends Statement {
-	public charaters: Expr[];
+export default class AddChara extends Statement {
+	public characters: Lazy<Expr[]>;
 
-	public constructor(characters: Expr[]) {
+	public constructor(raw: string) {
 		super();
-		this.charaters = characters;
+		this.characters = new Lazy(raw, U.argNR0(E.expr));
 	}
 
 	public *run(vm: VM) {
-		for (const expr of this.charaters) {
+		for (const expr of this.characters.get()) {
 			const id = expr.reduce(vm);
 			assertNumber(id, "Character id should be an integer");
 

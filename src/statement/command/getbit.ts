@@ -1,22 +1,24 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 export default class GetBit extends Statement {
-	public expr: Expr;
-	public index: Expr;
+	public arg: Lazy<[Expr, Expr]>;
 
-	public constructor(expr: Expr, index: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.expr = expr;
-		this.index = index;
+		this.arg = new Lazy(arg, U.arg2R2(E.expr, E.expr));
 	}
 
 	public *run(vm: VM) {
-		const value = this.expr.reduce(vm);
+		const [valueExpr, indexExpr] = this.arg.get();
+		const value = valueExpr.reduce(vm);
 		assertNumber(value, "1st Argument of GETBIT should be an integer");
-		const index = this.index.reduce(vm);
+		const index = indexExpr.reduce(vm);
 		assertNumber(index, "2nd Argument of GETBIT should be an integer");
 
 		// eslint-disable-next-line no-bitwise

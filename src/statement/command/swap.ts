@@ -1,22 +1,24 @@
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
 export default class Swap extends Statement {
-	public left: Variable;
-	public right: Variable;
+	public arg: Lazy<[Variable, Variable]>;
 
-	public constructor(left: Variable, right: Variable) {
+	public constructor(arg: string) {
 		super();
-		this.left = left;
-		this.right = right;
+		this.arg = new Lazy(arg, U.arg2R2(E.variable, E.variable));
 	}
 
 	public *run(vm: VM) {
-		const left = vm.getValue(this.left.name);
-		const leftIndex = this.left.reduceIndex(vm);
-		const right = vm.getValue(this.right.name);
-		const rightIndex = this.right.reduceIndex(vm);
+		const [leftExpr, rightExpr] = this.arg.get();
+		const left = vm.getValue(leftExpr.name);
+		const leftIndex = leftExpr.reduceIndex(vm);
+		const right = vm.getValue(rightExpr.name);
+		const rightIndex = rightExpr.reduceIndex(vm);
 
 		const length = left.length(leftIndex.length);
 		for (let i = 0; i < length; ++i) {

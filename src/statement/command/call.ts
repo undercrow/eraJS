@@ -1,23 +1,39 @@
-import {assert, assertString} from "../../assert";
+import P from "parsimmon";
+
+import {assert} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
 import type VM from "../../vm";
 import Assign from "../assign";
 import Expr from "../expr";
 import Statement from "../index";
 
 export default class Call extends Statement {
-	public target: Expr;
+	public static parse(raw: string): Call {
+		const [target, arg] = Call.compileArg(raw);
+		return new Call(target, arg);
+	}
+
+	public static compileArg(arg: string): [string, Expr[]] {
+		const parser = P.alt(
+			U.arg1R1(P.seq(U.Identifier, U.wrap("(", U.sepBy0(",", E.expr), ")"))),
+			U.argNR1(U.Identifier, E.expr).map(([f, ...r]) => [f, r]),
+		);
+
+		return parser.tryParse(arg) as [string, Expr[]];
+	}
+
+	public target: string;
 	public arg: Expr[];
 
-	public constructor(target: Expr, arg: Expr[]) {
+	public constructor(target: string, arg: Expr[]) {
 		super();
 		this.target = target;
 		this.arg = arg;
 	}
 
 	public *run(vm: VM) {
-		let target = this.target.reduce(vm);
-		assertString(target, "1st argument of CALL must be a string");
-		target = target.toUpperCase();
+		const target = this.target.toUpperCase();
 		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
 
 		const arg = this.arg.map((a) => a.reduce(vm));

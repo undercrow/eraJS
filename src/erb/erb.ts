@@ -1,6 +1,5 @@
 import P from "parsimmon";
 
-import * as color from "../color";
 import Fn from "../fn";
 import Statement from "../statement";
 import Assign from "../statement/assign";
@@ -17,6 +16,7 @@ import BarStr from "../statement/command/barstr";
 import Begin from "../statement/command/begin";
 import Break from "../statement/command/break";
 import Call from "../statement/command/call";
+import CallForm from "../statement/command/callform";
 import CallTrain from "../statement/command/calltrain";
 import Case from "../statement/command/case";
 import CbgClear from "../statement/command/cbgclear";
@@ -28,12 +28,14 @@ import ClearTextBox from "../statement/command/cleartextbox";
 import Continue from "../statement/command/continue";
 import CurrentAlign from "../statement/command/currentalign";
 import CurrentRedraw from "../statement/command/currentredraw";
+import CustomDrawLine from "../statement/command/customdrawline";
 import DebugClear from "../statement/command/debugclear";
 import DelAllChara from "../statement/command/delallchara";
 import DelChara from "../statement/command/delchara";
 import DelData from "../statement/command/deldata";
 import DoWhile from "../statement/command/dowhile";
 import DrawLine from "../statement/command/drawline";
+import DrawLineForm from "../statement/command/drawlineform";
 import DumpRand from "../statement/command/dumprand";
 import ExistCSV from "../statement/command/existcsv";
 import FontBold from "../statement/command/fontbold";
@@ -53,6 +55,7 @@ import GetSecond from "../statement/command/getsecond";
 import GetStyle from "../statement/command/getstyle";
 import GetTime from "../statement/command/gettime";
 import Goto from "../statement/command/goto";
+import GotoForm from "../statement/command/gotoform";
 import If from "../statement/command/if";
 import Input from "../statement/command/input";
 import InputS from "../statement/command/inputs";
@@ -61,6 +64,7 @@ import InvertBit from "../statement/command/invertbit";
 import IsActive from "../statement/command/isactive";
 import IsSkip from "../statement/command/isskip";
 import Jump from "../statement/command/jump";
+import JumpForm from "../statement/command/jumpform";
 import LineIsEmpty from "../statement/command/lineisempty";
 import LoadData from "../statement/command/loaddata";
 import LoadGame from "../statement/command/loadgame";
@@ -75,6 +79,7 @@ import PrintC from "../statement/command/printc";
 import PrintCPerLine from "../statement/command/printcperline";
 import PrintData from "../statement/command/printdata";
 import PrintForm from "../statement/command/printform";
+import PrintFormC from "../statement/command/printformc";
 import PrintPalam from "../statement/command/print_palam";
 import PrintPlain from "../statement/command/printplain";
 import PrintS from "../statement/command/prints";
@@ -90,6 +95,7 @@ import ResetData from "../statement/command/resetdata";
 import ResetGlobal from "../statement/command/resetglobal";
 import Restart from "../statement/command/restart";
 import Return from "../statement/command/return";
+import ReturnF from "../statement/command/returnf";
 import ReuseLastLine from "../statement/command/reuselastline";
 import SaveData from "../statement/command/savedata";
 import SaveGame from "../statement/command/savegame";
@@ -102,7 +108,12 @@ import Split from "../statement/command/split";
 import StopCallTrain from "../statement/command/stopcalltrain";
 import StrData from "../statement/command/strdata";
 import StrFind from "../statement/command/strfind";
+import StrFindU from "../statement/command/strfindu";
 import StrLen from "../statement/command/strlen";
+import StrLenForm from "../statement/command/strlenform";
+import StrLenFormU from "../statement/command/strlenformu";
+import StrLenS from "../statement/command/strlens";
+import StrLenSU from "../statement/command/strlensu";
 import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
 import SubstringU from "../statement/command/substringu";
@@ -110,18 +121,22 @@ import Swap from "../statement/command/swap";
 import Throw from "../statement/command/throw";
 import Times from "../statement/command/times";
 import TryCall from "../statement/command/trycall";
+import TryCallForm from "../statement/command/trycallform";
 import TryCCall from "../statement/command/tryccall";
+import TryCCallForm from "../statement/command/tryccallform";
 import TryCGoto from "../statement/command/trycgoto";
+import TryCGotoForm from "../statement/command/trycgotoform";
 import TryCJump from "../statement/command/trycjump";
+import TryCJumpForm from "../statement/command/trycjumpform";
 import TryGoto from "../statement/command/trygoto";
+import TryGotoForm from "../statement/command/trygotoform";
 import TryJump from "../statement/command/tryjump";
+import TryJumpForm from "../statement/command/tryjumpform";
 import VarSet from "../statement/command/varset";
 import Wait from "../statement/command/wait";
 import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
-import Expr from "../statement/expr";
 import Const from "../statement/expr/const";
-import Form from "../statement/expr/form";
 import Thunk from "../thunk";
 import * as E from "./expr";
 import prop from "./property";
@@ -129,432 +144,24 @@ import * as U from "./util";
 
 type LanguageSpec = {
 	Label: string;
-	Command: Statement;
 	Assign: Assign;
 	StrAssign: Assign;
 	OpAssign: OpAssign;
-	Statement: Statement;
-	Thunk: Thunk;
-	Function: Fn;
-	Language: Fn[];
 };
-
-function callArg<T>(first: P.Parser<T>): P.Parser<[T, Expr[]]> {
-	return P.alt(
-		U.arg1R1(P.seq(first, U.wrap("(", U.sepBy0(",", E.expr), ")"))),
-		U.argNR1(first, E.expr).map(([f, ...r]) => [f, r]),
-	);
-}
 
 export const language = P.createLanguage<LanguageSpec>({
 	Label: () => U.asLine(P.string("$").then(U.Identifier)),
-	Command: (r) => U.Identifier.chain<Statement>((instruction) => {
-		const INSTRUCTION = instruction.toUpperCase();
-		switch (INSTRUCTION) {
-			case "PRINT":
-			case "PRINTL":
-			case "PRINTW":
-			case "PRINTK":
-			case "PRINTKL":
-			case "PRINTKW":
-			case "PRINTD":
-			case "PRINTDL":
-			case "PRINTDW": return U.arg1R0(U.charSeq()).map(
-				(val) => new Print(INSTRUCTION, val ?? ""),
-			);
-			case "PRINTV":
-			case "PRINTVL":
-			case "PRINTVW":
-			case "PRINTVK":
-			case "PRINTVKL":
-			case "PRINTVKW":
-			case "PRINTVD":
-			case "PRINTVDL":
-			case "PRINTVDW": {
-				const argParser = P.alt(
-					P.string("'").then(U.charSeq(",")),
-					E.expr,
-				);
-				return U.argNR0(argParser).map(
-					(val) => new PrintV(INSTRUCTION, val),
-				);
-			}
-			case "PRINTS":
-			case "PRINTSL":
-			case "PRINTSW":
-			case "PRINTSK":
-			case "PRINTSKL":
-			case "PRINTSKW":
-			case "PRINTSD":
-			case "PRINTSDL":
-			case "PRINTSDW": return U.arg1R1(E.expr).map(
-				(val) => new PrintS(INSTRUCTION, val),
-			);
-			case "PRINTFORM":
-			case "PRINTFORML":
-			case "PRINTFORMW":
-			case "PRINTFORMK":
-			case "PRINTFORMKL":
-			case "PRINTFORMKW":
-			case "PRINTFORMD":
-			case "PRINTFORMDL":
-			case "PRINTFORMDW": return U.arg1R0(E.form()).map(
-				(val) => new PrintForm(INSTRUCTION, val ?? new Form([{value: ""}])),
-			);
-			case "PRINTC":
-			case "PRINTCK":
-			case "PRINTCD":
-			case "PRINTLC":
-			case "PRINTLCK":
-			case "PRINTLCD": return U.arg1R0(U.charSeq0()).map(
-				(val) => new PrintC(INSTRUCTION, new Const(val ?? "")),
-			);
-			case "PRINTFORMC":
-			case "PRINTFORMCK":
-			case "PRINTFORMCD":
-			case "PRINTFORMLC":
-			case "PRINTFORMLCK":
-			case "PRINTFORMLCD": return U.arg1R0(E.form()).map(
-				(val) => new PrintC(INSTRUCTION, val ?? new Const("")),
-			);
-			case "PRINTBUTTON":
-			case "PRINTBUTTONC":
-			case "PRINTBUTTONLC": return U.arg2R2(E.expr, E.expr).map(
-				([text, value]) => new PrintButton(text, value),
-			);
-			case "PRINTPLAIN": return U.arg1R0(U.charSeq()).map(
-				(val) => new PrintPlain(new Const(val ?? "")),
-			);
-			case "PRINTPLAINFORM": return U.arg1R0(E.form()).map(
-				(val) => new PrintPlain(val ?? new Const("")),
-			);
-			case "PRINT_PALAM": return U.arg1R1(E.expr).map(
-				(index) => new PrintPalam(index),
-			);
-			case "PRINT_SHOPITEM": return U.arg0R0().map(() => new PrintShopItem());
-			case "TIMES": return U.arg2R2(E.variable, U.Float).map(
-				([dest, value]) => new Times(dest, value),
-			);
-			case "DRAWLINE": return U.arg0R0().map(() => new DrawLine());
-			case "CUSTOMDRAWLINE": return U.arg1R1(U.charSeq()).map(
-				(e) => new DrawLine(new Const(e)),
-			);
-			case "DRAWLINEFORM": return U.arg1R1(E.form()).map((e) => new DrawLine(e));
-			case "REUSELASTLINE": return U.arg1R0(E.form()).map((expr) => new ReuseLastLine(expr));
-			case "CLEARLINE": return U.arg1R1(E.expr).map((e) => new ClearLine(e));
-			case "RESETCOLOR": return U.arg0R0().map(() => new ResetColor());
-			case "RESETBGCOLOR": return U.arg0R0().map(() => new ResetBgColor());
-			case "SETCOLOR": return P.alt(
-				U.arg3R3(U.UInt, U.UInt, U.UInt).map(
-					([colorR, colorG, colorB]) => {
-						const rgb = color.toHex({r: colorR, g: colorG, b: colorB});
-						return new SetColor(new Const(rgb));
-					},
-				),
-				U.arg1R1(E.expr).map((e) => new SetColor(e)),
-			);
-			case "GETCOLOR": return U.arg0R0().map(() => new GetColor());
-			case "GETDEFCOLOR": return U.arg0R0().map(() => new GetDefColor());
-			case "GETBGCOLOR": return U.arg0R0().map(() => new GetBgColor());
-			case "GETDEFBGCOLOR": return U.arg0R0().map(() => new GetDefBgColor());
-			case "GETFOCUSCOLOR": return U.arg0R0().map(() => new GetFocusColor());
-			case "FONTBOLD": return U.arg0R0().map(() => new FontBold());
-			case "FONTITALIC": return U.arg0R0().map(() => new FontItalic());
-			case "FONTREGULAR": return U.arg0R0().map(() => new FontRegular());
-			case "GETSTYLE": return U.arg0R0().map(() => new GetStyle());
-			case "SETFONT": return U.arg1R0(E.expr).map((font) => new SetFont(font));
-			case "GETFONT": return U.arg0R0().map(() => new GetFont());
-			case "ALIGNMENT": return U.arg1R1(U.alt("LEFT", "CENTER", "RIGHT")).map((align) => {
-				switch (align) {
-					case "LEFT": return new Alignment("left");
-					case "CENTER": return new Alignment("center");
-					case "RIGHT": return new Alignment("right");
-				}
-			});
-			case "CURRENTALIGN": return U.arg0R0().map(() => new CurrentAlign());
-			case "REDRAW": return U.arg1R1(E.expr).map((expr) => new Redraw(expr));
-			case "CURRENTREDRAW": return U.arg0R0().map(() => new CurrentRedraw());
-			case "PRINTCPERLINE": return U.arg0R0().map(() => new PrintCPerLine());
-			case "LINEISEMPTY": return U.arg0R0().map(() => new LineIsEmpty());
-			case "SKIPDISP": return U.arg1R1(E.expr).map((expr) => new SkipDisp(expr));
-			case "BAR": return U.arg3R3(E.expr, E.expr, E.expr).map(
-				([value, max, length]) => new Bar(value, max, length),
-			);
-			case "BARL": return U.arg3R3(E.expr, E.expr, E.expr).map(
-				([value, max, length]) => new Bar(value, max, length, true),
-			);
-			case "BARSTR": return U.arg3R3(E.expr, E.expr, E.expr).map(
-				([value, max, length]) => new BarStr(value, max, length),
-			);
-			case "ISSKIP": return U.arg0R0().map(() => new IsSkip());
-			case "MOUSESKIP": return U.arg0R0().map(() => new MouseSkip());
-			case "STRLEN": return U.arg1R1(U.charSeq()).map(
-				(e) => new StrLen(new Const(e)),
-			);
-			case "STRLENS": return U.arg1R1(E.expr).map((e) => new StrLen(e));
-			case "STRLENFORM": return U.arg1R1(E.form()).map((e) => new StrLen(e));
-			case "STRLENU": return U.arg1R1(U.charSeq()).map(
-				(e) => new StrLenU(new Const(e)),
-			);
-			case "STRLENSU": return U.arg1R1(E.expr).map((e) => new StrLenU(e));
-			case "STRLENFORMU": return U.arg1R1(E.form()).map((e) => new StrLenU(e));
-			case "SUBSTRING": return U.arg3R3(E.expr, E.expr, E.expr).map(
-				([e, start, end]) => new Substring(e, start, end),
-			);
-			case "SUBSTRINGU": return U.arg3R3(E.expr, E.expr, E.expr).map(
-				([e, start, end]) => new SubstringU(e, start, end),
-			);
-			case "STRFIND": return U.arg2R2(E.expr, E.expr).map(
-				([val, search]) => new StrFind(val, search),
-			);
-			case "STRFINDU": return U.arg2R2(E.expr, E.expr).map(
-				([val, search]) => new StrFind(val, search, true),
-			);
-			case "SPLIT": return U.arg3R3(E.expr, E.expr, E.variable).map(
-				([e, sep, dest]) => new Split(e, sep, dest),
-			);
-			case "GETBIT": return U.arg2R2(E.expr, E.expr).map(
-				([e, index]) => new GetBit(e, index),
-			);
-			case "SETBIT": return U.argNR1(E.variable, E.expr).map(
-				([v, ...bits]) => new SetBit(v, bits),
-			);
-			case "CLEARBIT": return U.argNR1(E.variable, E.expr).map(
-				([v, ...bits]) => new ClearBit(v, bits),
-			);
-			case "INVERTBIT": return U.argNR1(E.variable, E.expr).map(
-				([v, ...bits]) => new InvertBit(v, bits),
-			);
-			case "ADDCHARA": return U.argNR0(E.expr).map((e) => new AddChara(e));
-			case "ADDDEFCHARA": return U.arg0R0().map(() => new AddDefChara());
-			case "ADDVOIDCHARA": return U.arg0R0().map(() => new AddVoidChara());
-			case "DELCHARA": return U.argNR0(E.expr).map((e) => new DelChara(e));
-			case "DELALLCHARA": return U.arg0R0().map(() => new DelAllChara());
-			case "EXISTCSV": return U.arg1R1(E.expr).map((expr) => new ExistCSV(expr));
-			case "SWAP": return U.arg2R2(E.variable, E.variable).map(
-				([left, right]) => new Swap(left, right),
-			);
-			case "RESETDATA": return U.arg0R0().map(() => new ResetData());
-			case "RESETGLOBAL": return U.arg0R0().map(() => new ResetGlobal());
-			case "VARSET": return U.arg4R1(E.variable, E.expr, E.expr, E.expr).map(
-				([dest, value, start, end]) => new VarSet(dest, value, start, end),
-			);
-			case "ARRAYSHIFT": return U.arg3R3(E.variable, E.expr, E.expr).map(
-				([target, count, fill]) => new ArrayShift(target, count, fill),
-			);
-			case "PUTFORM": return U.arg1R1(E.form()).map((e) => new PutForm(e));
-			case "SAVEGAME": return U.arg0R0().map(() => new SaveGame());
-			case "LOADGAME": return U.arg0R0().map(() => new LoadGame());
-			case "SAVEDATA": return U.arg2R2(E.expr, E.expr).map(
-				([expr, comment]) => new SaveData(expr, comment),
-			);
-			case "LOADDATA": return U.arg1R1(E.expr).map((expr) => new LoadData(expr));
-			case "DELDATA": return U.arg1R1(E.expr).map((expr) => new DelData(expr));
-			case "CHKDATA": return U.arg1R1(E.expr).map((expr) => new ChkData(expr));
-			case "SAVEGLOBAL": return U.arg0R0().map(() => new SaveGlobal());
-			case "LOADGLOBAL": return U.arg0R0().map(() => new LoadGlobal());
-			case "OUTPUTLOG": return U.arg0R0().map(() => new OutputLog());
-			case "GETTIME": return U.arg0R0().map(() => new GetTime());
-			case "GETMILLISECOND": return U.arg0R0().map(() => new GetMillisecond());
-			case "GETSECOND": return U.arg0R0().map(() => new GetSecond());
-			case "FORCEWAIT": return U.arg0R0().map(() => new ForceWait());
-			case "INPUT": return U.arg1R0(U.Int).map((def) => new Input(def));
-			case "INPUTS": return U.arg1R0(U.charSeq()).map((def) => new InputS(def));
-			case "WAIT": return U.arg0R0().map(() => new Wait());
-			case "WAITANYKEY": return U.arg0R0().map(() => new WaitAnyKey());
-			case "BREAK": return U.arg0R0().map(() => new Break());
-			case "CONTINUE": return U.arg0R0().map(() => new Continue());
-			case "DUMPRAND": return U.arg0R0().map(() => new DumpRand());
-			case "INITRAND": return U.arg0R0().map(() => new InitRand());
-			case "BEGIN": return U.arg1R1(U.Identifier).map((target) => new Begin(target));
-			case "CALLTRAIN": return U.arg1R1(E.expr).map((expr) => new CallTrain(expr));
-			case "THROW": return U.arg1R1(E.form()).map((e) => new Throw(e));
-			case "QUIT": return U.arg0R0().map(() => new Quit());
-			case "CALL": return callArg(U.Identifier).map(
-				([name, arg]) => new Call(new Const(name), arg),
-			);
-			case "CALLFORM": return callArg(E.form("(")).map(([name, arg]) => new Call(name, arg));
-			case "TRYCALL": return callArg(U.Identifier).map(
-				([name, arg]) => new TryCall(new Const(name), arg),
-			);
-			case "TRYCALLFORM": return callArg(E.form("(")).map(
-				([name, arg]) => new TryCall(name, arg),
-			);
-			case "TRYCCALL": return P.seqMap(
-				callArg(U.Identifier),
-				P.regex(/CATCH/i).then(U.arg0R0()),
-				r.Thunk,
-				P.regex(/ENDCATCH/i).then(U.arg0R0()),
-				([name, arg], _, thunk) => new TryCCall(new Const(name), arg, thunk),
-			);
-			case "TRYCCALLFORM": return P.seqMap(
-				callArg(E.form()),
-				P.regex(/CATCH/i).then(U.arg0R0()),
-				r.Thunk,
-				P.regex(/ENDCATCH/i).then(U.arg0R0()),
-				([name, arg], _, thunk) => new TryCCall(name, arg, thunk),
-			);
-			case "JUMP": return callArg(U.Identifier).map(
-				([name, arg]) => new Jump(new Const(name), arg),
-			);
-			case "JUMPFORM": return callArg(E.form("(")).map(([name, arg]) => new Jump(name, arg));
-			case "TRYJUMP": return callArg(U.Identifier).map(
-				([name, arg]) => new TryJump(new Const(name), arg),
-			);
-			case "TRYJUMPFORM": return callArg(E.form("(")).map(
-				([name, arg]) => new TryJump(name, arg),
-			);
-			case "TRYCJUMP": return P.seqMap(
-				callArg(U.Identifier),
-				P.regex(/CATCH/i).then(U.arg0R0()),
-				r.Thunk,
-				P.regex(/ENDCATCH/i).then(U.arg0R0()),
-				([name, arg], _, thunk) => new TryCJump(new Const(name), arg, thunk),
-			);
-			case "TRYCJUMPFORM": return P.seqMap(
-				callArg(E.form()),
-				P.regex(/CATCH/i).then(U.arg0R0()),
-				r.Thunk,
-				P.regex(/ENDCATCH/i).then(U.arg0R0()),
-				([name, arg], _, thunk) => new TryCJump(name, arg, thunk),
-			);
-			case "GOTO": return U.arg1R1(U.Identifier).map(
-				(target) => new Goto(new Const(target)),
-			);
-			case "GOTOFORM": return U.arg1R1(E.form()).map((target) => new Goto(target));
-			case "TRYGOTO": return U.arg1R1(U.Identifier).map(
-				(target) => new TryGoto(new Const(target)),
-			);
-			case "TRYGOTOFORM": return U.arg1R1(E.form()).map((target) => new TryGoto(target));
-			case "TRYCGOTO": return P.seqMap(
-				U.arg1R1(U.Identifier),
-				P.regex(/CATCH/i).then(U.arg0R0()),
-				r.Thunk,
-				P.regex(/ENDCATCH/i).then(U.arg0R0()),
-				(name, _, thunk) => new TryCGoto(new Const(name), thunk),
-			);
-			case "TRYCGOTOFORM": return P.seqMap(
-				U.arg1R1(E.form()),
-				P.regex(/CATCH/i).then(U.arg0R0()),
-				r.Thunk,
-				P.regex(/ENDCATCH/i).then(U.arg0R0()),
-				(name, _, thunk) => new TryCGoto(name, thunk),
-			);
-			case "RESTART": return U.arg0R0().map(() => new Restart());
-			case "RETURN": return U.argNR0(E.expr).map((e) => new Return(e));
-			case "RETURNF": return U.arg1R1(E.expr).map((e) => new Return([e]));
-			case "DEBUGCLEAR": return U.arg0R0().map(() => new DebugClear());
-			case "MOUSEX": return U.arg0R0().map(() => new MouseX());
-			case "MOUSEY": return U.arg0R0().map(() => new MouseY());
-			case "ISACTIVE": return U.arg0R0().map(() => new IsActive());
-			case "CBGCLEAR": return U.arg0R0().map(() => new CbgClear());
-			case "CBGCLEARBUTTON": return U.arg0R0().map(() => new CbgClearButton());
-			case "CBGREMOVEBMAP": return U.arg0R0().map(() => new CbgRemoveBmap());
-			case "CLEARTEXTBOX": return U.arg0R0().map(() => new ClearTextBox());
-			case "STRDATA": return U.arg0R0().map(() => new StrData());
-			case "STOPCALLTRAIN": return U.arg0R0().map(() => new StopCallTrain());
-			case "PRINTDATA":
-			case "PRINTDATAL":
-			case "PRINTDATAW":
-			case "PRINTDATAK":
-			case "PRINTDATAKL":
-			case "PRINTDATAKW":
-			case "PRINTDATAD":
-			case "PRINTDATADL":
-			case "PRINTDATADW": {
-				const dataParser: P.Parser<Expr> = P.lazy(() => P.alt(
-					P.regex(/DATA/i).then(U.arg1R1(U.charSeq())).map((str) => new Const(str)),
-					P.regex(/DATAFORM/i).then(U.arg1R1(E.form())),
-				));
-
-				return P.seqMap(
-					U.arg0R0(),
-					P.alt(
-						dataParser,
-						P.seqMap(
-							P.regex(/DATALIST/i).then(U.arg0R0()),
-							dataParser.many(),
-							P.regex(/ENDLIST/i).then(U.arg0R0()),
-							(_, data) => data,
-						),
-					).many(),
-					P.regex(/ENDDATA/i).then(U.arg0R0()),
-					(_, data) => new PrintData(INSTRUCTION, data),
-				);
-			}
-			case "SIF": return P.seqMap(
-				U.arg1R1(E.expr),
-				r.Statement,
-				(cond, then) => new If([[cond, new Thunk([then])]], new Thunk([])),
-			);
-			case "IF": return P.seqMap(
-				P.seq(U.arg1R1(E.expr), r.Thunk),
-				P.seq(P.regex(/ELSEIF/i).then(U.arg1R1(E.expr)), r.Thunk).many(),
-				U.asLine(P.regex(/ELSE/i)).then(r.Thunk).fallback(new Thunk([])),
-				U.asLine(P.regex(/ENDIF/i)),
-				(ifStmt, elifStmt, elseStmt) => new If([ifStmt, ...elifStmt], elseStmt),
-			);
-			case "SELECTCASE": return P.seqMap(
-				U.arg1R1(E.expr),
-				P.seq(
-					P.regex(/CASE/i).then(U.argNR0(P.alt(
-						P.seqMap(U.Int, P.regex(/TO/i).trim(U.WS1).then(U.Int), (from, to) => ({
-							type: "range",
-							from,
-							to,
-						})),
-						P.seqMap(
-							P.regex(/IS/i).then(U.alt("<=", "<", ">=", ">").trim(U.WS0)),
-							U.Int,
-							(op, value) => ({type: "compare", op, value}),
-						),
-						U.Int.map((value) => ({type: "equal", value})),
-						U.Str.map((value) => ({type: "equal", value})),
-					))),
-					r.Thunk,
-				).many(),
-				U.asLine(P.regex(/CASEELSE/i)).then(r.Thunk).fallback(new Thunk([])),
-				U.asLine(P.regex(/ENDSELECT/i)),
-				(e, branch, def) => new Case(e, branch, def),
-			);
-			case "REPEAT": return P.seqMap(
-				U.arg1R1(E.expr),
-				r.Thunk,
-				U.asLine(P.regex(/REND/i)),
-				(condition, thunk) => new Repeat(condition, thunk),
-			);
-			case "FOR": return P.seqMap(
-				U.arg4R3(E.variable, E.expr, E.expr, E.expr),
-				r.Thunk,
-				U.asLine(P.regex(/NEXT/i)),
-				([counter, start, end, step], thunk) => new For(counter, start, end, thunk, step),
-			);
-			case "WHILE": return P.seqMap(
-				U.arg1R1(E.expr),
-				r.Thunk,
-				U.asLine(P.regex(/WEND/i)),
-				(condition, thunk) => new While(condition, thunk),
-			);
-			case "DO": return P.seqMap(
-				U.arg0R0(),
-				r.Thunk,
-				P.regex(/LOOP/i).then(U.arg1R1(E.expr)),
-				(_, thunk, condition) => new DoWhile(condition, thunk),
-			);
-			default: return P.fail("Valid instruction");
-		}
-	}),
-	Assign: () => U.asLine(P.seqMap(
+	Assign: () => P.seqMap(
 		E.variable,
 		P.string("=").trim(U.WS0).then(P.noneOf("\r\n;").many().tie()),
 		(dest, e) => new Assign(dest, e),
-	)),
-	StrAssign: () => U.asLine(P.seqMap(
+	),
+	StrAssign: () => P.seqMap(
 		E.variable,
 		P.string("'=").trim(U.WS0).then(U.charSeq()),
 		(dest, e) => new StrAssign(dest, e),
-	)),
-	OpAssign: () => U.asLine(P.alt(
+	),
+	OpAssign: () => P.alt(
 		P.seqMap(
 			E.variable,
 			U.alt("*", "/", "%", "+", "-", "&", "|", "^").skip(P.string("=")).trim(U.WS0),
@@ -567,48 +174,326 @@ export const language = P.createLanguage<LanguageSpec>({
 		E.variable.skip(U.WS0).skip(P.string("--")).map(
 			(dest) => new OpAssign(dest, "-", new Const(1)),
 		),
-	)),
-	Statement: (r) => P.alt(r.Command, r.Assign, r.StrAssign, r.OpAssign),
-	Thunk: (r) => P.alt(r.Label, r.Statement).many().map((statement) => new Thunk(statement)),
-	Function: (r) => P.seqMap(
-		U.asLine(P.string("@").then(P.lazy(() => {
-			const arg = U.sepBy0(",", P.alt(
-				P.seqMap(
-					E.variable,
-					P.string("=").trim(U.WS0).then(U.charSeq(",", ")")),
-					(dest, e) => new Assign(dest, e),
-				),
-				E.variable,
-			));
-
-			return P.seq(U.Identifier.skip(U.WS0), P.alt(
-				U.wrap("(", arg, ")"),
-				P.string(",").trim(U.WS0).then(arg),
-				P.succeed([]),
-			));
-		}))),
-		prop.many(),
-		r.Thunk,
-		([name, arg], property, thunk) => new Fn(name, arg, property, thunk),
 	),
-	Language: (r) => r.Function.many().skip(P.string("\n").many()).skip(P.eof),
 });
 
 export default function parseERB(content: string): Fn[] {
 	// Convert \r\n and \r to \n
 	const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
-	// Strip comments
-	const stripped = normalized.replace(/;.*/g, "");
+	const lineList = normalized.split("\n");
 
-	// Remove [SKIPSTART]~[SKIPEND] lines
-	const processed = stripped.replace(/\[SKIPSTART\](.|\n)*?\[SKIPEND\]/g, "");
+	// Strip comments
+	const stripped = lineList.map((line) => line.replace(/;.*$/, ""));
 
 	// Trim leading/trailing whitespaces
-	const trimmed = processed.replace(/^( |\t)+/mg, "").replace(/( |\t)+$/mg, "");
+	const trimmed = stripped.map((line) => line.replace(/^\s+/, "").replace(/\s+$/, ""));
 
-	// Remove leading empty lines
-	const filtered = trimmed.replace(/^\n*/, "");
+	// Remove empty lines
+	const filtered = trimmed.filter((line) => line !== "");
 
-	return language.Language.tryParse(filtered + "\n");
+	// Remove [SKIPSTART]~[SKIPEND] lines
+	const processed: string[] = [];
+	for (let i = 0; i < filtered.length; ++i) {
+		const line = filtered[i];
+		if (line === "[SKIPSTART]") {
+			for (; i < filtered.length; ++i) {
+				if (filtered[i] === "[SKIPEND]") {
+					break;
+				}
+			}
+		} else {
+			processed.push(line);
+		}
+	}
+
+	const result: Fn[] = [];
+	let rest = processed.slice();
+	while (rest.length > 0) {
+		const [fn, restF] = parseFn(rest);
+		result.push(fn);
+		rest = restF;
+	}
+
+	return result;
+}
+
+function parseFn(lines: string[]): [Fn, string[]] {
+	if (lines.length === 0) {
+		throw new Error("Expected a function");
+	}
+
+	const rest = lines.slice();
+	// Prepare definition, property and body of function
+	const rawDef = rest.shift()!;
+	const rawProp: string[] = [];
+	const rawBody: string[] = [];
+
+	while (rest.length > 0) {
+		if (!rest[0].startsWith("#")) {
+			break;
+		}
+		rawProp.push(rest.shift()!);
+	}
+	while (rest.length > 0) {
+		if (rest[0].startsWith("@")) {
+			break;
+		}
+		rawBody.push(rest.shift()!);
+	}
+
+	const argParser = U.sepBy0(",", P.alt(
+		P.seqMap(
+			E.variable,
+			P.string("=").trim(U.WS0).then(U.charSeq(",", ")")),
+			(dest, e) => new Assign(dest, e),
+		),
+		E.variable,
+	));
+	const defParser = P.string("@").then(P.seq(U.Identifier.skip(U.WS0), P.alt(
+		U.wrap("(", argParser, ")"),
+		P.string(",").trim(U.WS0).then(argParser),
+		P.succeed([]),
+	)));
+
+	const definition = defParser.tryParse(rawDef);
+
+	const property = rawProp.map((p) => prop.tryParse(p));
+	const [body] = parseThunk(rawBody);
+
+	return [
+		new Fn(definition[0], definition[1], property, body),
+		rest,
+	];
+}
+
+export function parseThunk(lines: string[], until?: (l: string) => boolean): [Thunk, string[]] {
+	let rest = lines.slice();
+
+	const body: Array<string | Statement> = [];
+	while (rest.length > 0) {
+		const current = rest[0];
+		// eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+		if (until != null && until(current)) {
+			break;
+		}
+		if (current.startsWith("$")) {
+			body.push(current.slice(1));
+			rest.shift();
+		} else {
+			const [statement, restS] = parseStatement(rest);
+			body.push(statement);
+			rest = restS;
+		}
+	}
+
+	return [new Thunk(body), rest];
+}
+
+// eslint-disable-next-line no-useless-escape
+const ID_REGEX = /^[^\+\-\*\/\%\=\!\<\>\|\&\^\~\?\#\(\)\{\}\[\]\.\,\:\$\\\'\"\@\;\s]+/;
+function parseStatement(lines: string[]): [Statement, string[]] {
+	const rest = lines.slice();
+	const current = rest.shift()!;
+	const match = ID_REGEX.exec(current);
+	if (match != null) {
+		const IDENTIFIER = match[0].toUpperCase();
+		const arg = current.slice(match[0].length);
+		switch (IDENTIFIER) {
+			case "PRINT": return [new Print("PRINT", arg), rest];
+			case "PRINTL": return [new Print("PRINTL", arg), rest];
+			case "PRINTW": return [new Print("PRINTW", arg), rest];
+			case "PRINTK": return [new Print("PRINTK", arg), rest];
+			case "PRINTKL": return [new Print("PRINTKL", arg), rest];
+			case "PRINTKW": return [new Print("PRINTKW", arg), rest];
+			case "PRINTD": return [new Print("PRINTD", arg), rest];
+			case "PRINTDL": return [new Print("PRINTDL", arg), rest];
+			case "PRINTDW": return [new Print("PRINTDW", arg), rest];
+			case "PRINTV": return [new PrintV("PRINTV", arg), rest];
+			case "PRINTVL": return [new PrintV("PRINTVL", arg), rest];
+			case "PRINTVW": return [new PrintV("PRINTVW", arg), rest];
+			case "PRINTVK": return [new PrintV("PRINTVK", arg), rest];
+			case "PRINTVKL": return [new PrintV("PRINTVKL", arg), rest];
+			case "PRINTVKW": return [new PrintV("PRINTVKW", arg), rest];
+			case "PRINTVD": return [new PrintV("PRINTVD", arg), rest];
+			case "PRINTVDL": return [new PrintV("PRINTVDL", arg), rest];
+			case "PRINTVDW": return [new PrintV("PRINTVDW", arg), rest];
+			case "PRINTS": return [new PrintS("PRINTS", arg), rest];
+			case "PRINTSL": return [new PrintS("PRINTSL", arg), rest];
+			case "PRINTSW": return [new PrintS("PRINTSW", arg), rest];
+			case "PRINTSK": return [new PrintS("PRINTSK", arg), rest];
+			case "PRINTSKL": return [new PrintS("PRINTSKL", arg), rest];
+			case "PRINTSKW": return [new PrintS("PRINTSKW", arg), rest];
+			case "PRINTSD": return [new PrintS("PRINTSD", arg), rest];
+			case "PRINTSDL": return [new PrintS("PRINTSDL", arg), rest];
+			case "PRINTSDW": return [new PrintS("PRINTSDW", arg), rest];
+			case "PRINTFORM": return [new PrintForm("PRINTFORM", arg), rest];
+			case "PRINTFORML": return [new PrintForm("PRINTFORML", arg), rest];
+			case "PRINTFORMW": return [new PrintForm("PRINTFORMW", arg), rest];
+			case "PRINTFORMK": return [new PrintForm("PRINTFORMK", arg), rest];
+			case "PRINTFORMKL": return [new PrintForm("PRINTFORMKL", arg), rest];
+			case "PRINTFORMKW": return [new PrintForm("PRINTFORMKW", arg), rest];
+			case "PRINTFORMD": return [new PrintForm("PRINTFORMD", arg), rest];
+			case "PRINTFORMDL": return [new PrintForm("PRINTFORMDL", arg), rest];
+			case "PRINTFORMDW": return [new PrintForm("PRINTFORMDW", arg), rest];
+			case "PRINTC": return [new PrintC("", arg), rest];
+			case "PRINTCK": return [new PrintC("K", arg), rest];
+			case "PRINTCD": return [new PrintC("D", arg), rest];
+			case "PRINTLC": return [new PrintC("L", arg), rest];
+			case "PRINTLCK": return [new PrintC("KL", arg), rest];
+			case "PRINTLCD": return [new PrintC("DL", arg), rest];
+			case "PRINTFORMC": return [new PrintFormC("", arg), rest];
+			case "PRINTFORMCK": return [new PrintFormC("K", arg), rest];
+			case "PRINTFORMCD": return [new PrintFormC("D", arg), rest];
+			case "PRINTFORMLC": return [new PrintFormC("L", arg), rest];
+			case "PRINTFORMLCK": return [new PrintFormC("KL", arg), rest];
+			case "PRINTFORMLCD": return [new PrintFormC("DL", arg), rest];
+			case "PRINTBUTTON": return [new PrintButton(arg), rest];
+			case "PRINTBUTTONC": return [new PrintButton(arg), rest];
+			case "PRINTBUTTONLC": return [new PrintButton(arg), rest];
+			case "PRINTPLAIN": return [new PrintPlain(null, arg), rest];
+			case "PRINTPLAINFORM": return [new PrintPlain("FORM", arg), rest];
+			case "PRINT_PALAM": return [new PrintPalam(arg), rest];
+			case "PRINT_SHOPITEM": return [new PrintShopItem(arg), rest];
+			case "TIMES": return [new Times(arg), rest];
+			case "DRAWLINE": return [new DrawLine(arg), rest];
+			case "CUSTOMDRAWLINE": return [new CustomDrawLine(arg), rest];
+			case "DRAWLINEFORM": return [new DrawLineForm(arg), rest];
+			case "REUSELASTLINE": return [new ReuseLastLine(arg), rest];
+			case "CLEARLINE": return [new ClearLine(arg), rest];
+			case "RESETCOLOR": return [new ResetColor(arg), rest];
+			case "RESETBGCOLOR": return [new ResetBgColor(arg), rest];
+			case "SETCOLOR": return [new SetColor(arg), rest];
+			case "GETCOLOR": return [new GetColor(arg), rest];
+			case "GETDEFCOLOR": return [new GetDefColor(arg), rest];
+			case "GETBGCOLOR": return [new GetBgColor(arg), rest];
+			case "GETDEFBGCOLOR": return [new GetDefBgColor(arg), rest];
+			case "GETFOCUSCOLOR": return [new GetFocusColor(arg), rest];
+			case "FONTBOLD": return [new FontBold(arg), rest];
+			case "FONTITALIC": return [new FontItalic(arg), rest];
+			case "FONTREGULAR": return [new FontRegular(arg), rest];
+			case "GETSTYLE": return [new GetStyle(arg), rest];
+			case "SETFONT": return [new SetFont(arg), rest];
+			case "GETFONT": return [new GetFont(arg), rest];
+			case "ALIGNMENT": return [new Alignment(arg), rest];
+			case "CURRENTALIGN": return [new CurrentAlign(arg), rest];
+			case "REDRAW": return [new Redraw(arg), rest];
+			case "CURRENTREDRAW": return [new CurrentRedraw(arg), rest];
+			case "PRINTCPERLINE": return [new PrintCPerLine(arg), rest];
+			case "LINEISEMPTY": return [new LineIsEmpty(arg), rest];
+			case "SKIPDISP": return [new SkipDisp(arg), rest];
+			case "BAR": return [new Bar(arg), rest];
+			case "BARL": return [new Bar(arg, true), rest];
+			case "BARSTR": return [new BarStr(arg), rest];
+			case "ISSKIP": return [new IsSkip(arg), rest];
+			case "MOUSESKIP": return [new MouseSkip(arg), rest];
+			case "STRLEN": return [new StrLen(arg), rest];
+			case "STRLENS": return [new StrLenS(arg), rest];
+			case "STRLENFORM": return [new StrLenForm(arg), rest];
+			case "STRLENU": return [new StrLenU(arg), rest];
+			case "STRLENSU": return [new StrLenSU(arg), rest];
+			case "STRLENFORMU": return [new StrLenFormU(arg), rest];
+			case "SUBSTRING": return [new Substring(arg), rest];
+			case "SUBSTRINGU": return [new SubstringU(arg), rest];
+			case "STRFIND": return [new StrFind(arg), rest];
+			case "STRFINDU": return [new StrFindU(arg), rest];
+			case "SPLIT": return [new Split(arg), rest];
+			case "GETBIT": return [new GetBit(arg), rest];
+			case "SETBIT": return [new SetBit(arg), rest];
+			case "CLEARBIT": return [new ClearBit(arg), rest];
+			case "INVERTBIT": return [new InvertBit(arg), rest];
+			case "ADDCHARA": return [new AddChara(arg), rest];
+			case "ADDDEFCHARA": return [new AddDefChara(arg), rest];
+			case "ADDVOIDCHARA": return [new AddVoidChara(arg), rest];
+			case "DELCHARA": return [new DelChara(arg), rest];
+			case "DELALLCHARA": return [new DelAllChara(arg), rest];
+			case "EXISTCSV": return [new ExistCSV(arg), rest];
+			case "SWAP": return [new Swap(arg), rest];
+			case "RESETDATA": return [new ResetData(arg), rest];
+			case "RESETGLOBAL": return [new ResetGlobal(arg), rest];
+			case "VARSET": return [new VarSet(arg), rest];
+			case "ARRAYSHIFT": return [new ArrayShift(arg), rest];
+			case "PUTFORM": return [new PutForm(arg), rest];
+			case "SAVEGAME": return [new SaveGame(arg), rest];
+			case "LOADGAME": return [new LoadGame(arg), rest];
+			case "SAVEDATA": return [new SaveData(arg), rest];
+			case "LOADDATA": return [new LoadData(arg), rest];
+			case "DELDATA": return [new DelData(arg), rest];
+			case "CHKDATA": return [new ChkData(arg), rest];
+			case "SAVEGLOBAL": return [new SaveGlobal(arg), rest];
+			case "LOADGLOBAL": return [new LoadGlobal(arg), rest];
+			case "OUTPUTLOG": return [new OutputLog(arg), rest];
+			case "GETTIME": return [new GetTime(arg), rest];
+			case "GETMILLISECOND": return [new GetMillisecond(arg), rest];
+			case "GETSECOND": return [new GetSecond(arg), rest];
+			case "FORCEWAIT": return [new ForceWait(arg), rest];
+			case "INPUT": return [new Input(arg), rest];
+			case "INPUTS": return [new InputS(arg), rest];
+			case "WAIT": return [new Wait(arg), rest];
+			case "WAITANYKEY": return [new WaitAnyKey(arg), rest];
+			case "BREAK": return [new Break(arg), rest];
+			case "CONTINUE": return [new Continue(arg), rest];
+			case "DUMPRAND": return [new DumpRand(arg), rest];
+			case "INITRAND": return [new InitRand(arg), rest];
+			case "BEGIN": return [new Begin(arg), rest];
+			case "CALLTRAIN": return [new CallTrain(arg), rest];
+			case "THROW": return [new Throw(arg), rest];
+			case "QUIT": return [new Quit(arg), rest];
+			case "CALL": return [Call.parse(arg), rest];
+			case "CALLFORM": return [CallForm.parse(arg), rest];
+			case "TRYCALL": return [TryCall.parse(arg), rest];
+			case "TRYCALLFORM": return [TryCallForm.parse(arg), rest];
+			case "TRYCCALL": return TryCCall.parse(lines);
+			case "TRYCCALLFORM": return TryCCallForm.parse(lines);
+			case "JUMP": return [Jump.parse(arg), rest];
+			case "JUMPFORM": return [JumpForm.parse(arg), rest];
+			case "TRYJUMP": return [TryJump.parse(arg), rest];
+			case "TRYJUMPFORM": return [TryJumpForm.parse(arg), rest];
+			case "TRYCJUMP": return TryCJump.parse(lines);
+			case "TRYCJUMPFORM": return TryCJumpForm.parse(lines);
+			case "GOTO": return [Goto.parse(arg), rest];
+			case "GOTOFORM": return [GotoForm.parse(arg), rest];
+			case "TRYGOTO": return [TryGoto.parse(arg), rest];
+			case "TRYGOTOFORM": return [TryGotoForm.parse(arg), rest];
+			case "TRYCGOTO": return TryCGoto.parse(lines);
+			case "TRYCGOTOFORM": return TryCGotoForm.parse(lines);
+			case "RESTART": return [new Restart(arg), rest];
+			case "RETURN": return [new Return(arg), rest];
+			case "RETURNF": return [new ReturnF(arg), rest];
+			case "DEBUGCLEAR": return [new DebugClear(arg), rest];
+			case "MOUSEX": return [new MouseX(arg), rest];
+			case "MOUSEY": return [new MouseY(arg), rest];
+			case "ISACTIVE": return [new IsActive(arg), rest];
+			case "CBGCLEAR": return [new CbgClear(arg), rest];
+			case "CBGCLEARBUTTON": return [new CbgClearButton(arg), rest];
+			case "CBGREMOVEBMAP": return [new CbgRemoveBmap(arg), rest];
+			case "CLEARTEXTBOX": return [new ClearTextBox(arg), rest];
+			case "STRDATA": return [new StrData(arg), rest];
+			case "STOPCALLTRAIN": return [new StopCallTrain(arg), rest];
+			case "PRINTDATA": return PrintData.parse("", rest);
+			case "PRINTDATAL": return PrintData.parse("L", rest);
+			case "PRINTDATAW": return PrintData.parse("W", rest);
+			case "PRINTDATAK": return PrintData.parse("K", rest);
+			case "PRINTDATAKL": return PrintData.parse("KL", rest);
+			case "PRINTDATAKW": return PrintData.parse("KW", rest);
+			case "PRINTDATAD": return PrintData.parse("D", rest);
+			case "PRINTDATADL": return PrintData.parse("DL", rest);
+			case "PRINTDATADW": return PrintData.parse("DW", rest);
+			case "SIF": {
+				const [statement, restS] = parseStatement(rest);
+				return [new If([[arg, new Thunk([statement])]], new Thunk([])), restS];
+			}
+			case "IF": return If.parse(lines);
+			case "SELECTCASE": return Case.parse(lines);
+			case "REPEAT": return Repeat.parse(arg, rest);
+			case "FOR": return For.parse(arg, rest);
+			case "WHILE": return While.parse(arg, rest);
+			case "DO": return DoWhile.parse(arg, rest);
+		}
+	}
+
+	return [
+		P.alt<Statement>(language.Assign, language.StrAssign, language.OpAssign).tryParse(current),
+		rest,
+	];
 }

@@ -1,16 +1,29 @@
 import {assertNumber} from "../../assert";
+import {parseThunk} from "../../erb/erb";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement, {Result} from "../index";
 
+const WEND = /^WEND$/i;
 export default class While extends Statement {
-	public condition: Expr;
+	public static parse(arg: string, lines: string[]): [While, string[]] {
+		const [thunk, rest] = parseThunk(lines, (l) => WEND.test(l));
+		rest.shift(); // Remove REND statement
+
+		return [new While(arg, thunk), rest];
+	}
+
+
+	public condition: Lazy<Expr>;
 	public thunk: Thunk;
 
-	public constructor(condition: Expr, thunk: Thunk) {
+	public constructor(arg: string, thunk: Thunk) {
 		super();
-		this.condition = condition;
+		this.condition = new Lazy(arg, U.arg1R1(E.expr));
 		this.thunk = thunk;
 	}
 
@@ -21,7 +34,7 @@ export default class While extends Statement {
 			if (firstLoop && label != null && this.thunk.labelMap.has(label)) {
 				result = yield* this.thunk.run(vm, label);
 			} else {
-				const condition = this.condition.reduce(vm);
+				const condition = this.condition.get().reduce(vm);
 				assertNumber(condition, "Condition of WHILE should be an integer");
 				if (condition === 0) {
 					break;

@@ -1,9 +1,14 @@
+import * as U from "../../erb/util";
 import type VM from "../../vm";
-import Const from "../expr/const";
 import Statement from "../index";
 import PrintC from "./printc";
 
 export default class PrintShopItem extends Statement {
+	public constructor(arg: string) {
+		super();
+		U.arg0R0().tryParse(arg);
+	}
+
 	public *run(vm: VM) {
 		if (vm.skipDisp) {
 			return null;
@@ -18,7 +23,7 @@ export default class PrintShopItem extends Statement {
 
 			const price = vm.getValue("ITEMPRICE").get(vm, [i]) as number;
 			const text = `[${i}] ${name}(${price}$)`;
-			yield* new PrintC("PRINTC", new Const(text)).run(vm);
+			yield* new PrintC("PRINTC", text).run(vm);
 		}
 
 		return null;

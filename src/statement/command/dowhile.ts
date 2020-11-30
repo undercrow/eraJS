@@ -1,16 +1,29 @@
 import {assertNumber} from "../../assert";
+import {parseThunk} from "../../erb/erb";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+const LOOP = /^LOOP\s+/i;
 export default class DoWhile extends Statement {
-	public condition: Expr;
+	public static parse(arg: string, lines: string[]): [DoWhile, string[]] {
+		U.arg0R0().tryParse(arg);
+		const [thunk, rest] = parseThunk(lines, (l) => LOOP.test(l));
+		const expr = rest.shift()!.slice("LOOP".length);
+
+		return [new DoWhile(expr, thunk), rest];
+	}
+
+	public condition: Lazy<Expr>;
 	public thunk: Thunk;
 
-	public constructor(condition: Expr, thunk: Thunk) {
+	public constructor(condition: string, thunk: Thunk) {
 		super();
-		this.condition = condition;
+		this.condition = new Lazy(condition, U.arg1R1(E.expr));
 		this.thunk = thunk;
 	}
 
@@ -19,7 +32,7 @@ export default class DoWhile extends Statement {
 		while (true) {
 			const result = yield* this.thunk.run(vm, firstLoop ? label : undefined);
 
-			const condition = this.condition.reduce(vm);
+			const condition = this.condition.get().reduce(vm);
 			assertNumber(condition, "Condition of DO should be an integer");
 			if (condition === 0) {
 				break;

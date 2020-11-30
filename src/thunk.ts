@@ -37,10 +37,10 @@ export default class Thunk extends Statement {
 			} else if (s instanceof For) {
 				s.thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 			} else if (s instanceof If) {
-				for (const branch of s.ifExpr) {
-					branch[1].labelMap.forEach((_, l) => this.labelMap.set(l, i));
+				for (const [, thunk] of s.ifThunk) {
+					thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 				}
-				s.elseExpr.labelMap.forEach((_, l) => this.labelMap.set(l, i));
+				s.elseThunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 			} else if (s instanceof Repeat) {
 				s.thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 			} else if (s instanceof While) {

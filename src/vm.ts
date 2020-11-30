@@ -9,7 +9,7 @@ import DimDynamic from "./property/dim-dynamic";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import type {default as Statement, Result} from "./statement";
-import type Alignment from "./statement/command/alignment";
+import type {Align} from "./statement/command/alignment";
 import * as scene from "./scene";
 import Thunk from "./thunk";
 import type Value from "./value";
@@ -37,7 +37,7 @@ export default class VM {
 	public staticMap: Map<string, Map<string, Value>>;
 	private contextStack: Array<Context>;
 
-	public alignment: Alignment["align"];
+	public alignment: Align;
 	public draw: boolean;
 	public skipDisp: boolean;
 	public font: {
@@ -58,7 +58,7 @@ export default class VM {
 		this.globalMap = new Map();
 		this.staticMap = new Map();
 		this.contextStack = [];
-		this.alignment = "left";
+		this.alignment = "LEFT";
 		this.draw = true;
 		this.skipDisp = false;
 		this.font = {

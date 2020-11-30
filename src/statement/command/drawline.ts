@@ -1,27 +1,14 @@
-import {assertString} from "../../assert";
-import type VM from "../../vm";
-import type Expr from "../expr";
+import * as U from "../../erb/util";
 import Statement from "../index";
 
 export default class DrawLine extends Statement {
-	public expr?: Expr;
-
-	public constructor(expr?: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.expr = expr;
+		U.arg0R0().tryParse(arg);
 	}
 
-	public *run(vm: VM) {
-		const value = this.expr?.reduce(vm);
-		if (value != null) {
-			assertString(value, "Argument of DRAWLINE must be a string");
-		}
-
-		yield <const>{
-			type: "line",
-			value,
-		};
-
+	public *run() {
+		yield <const>{type: "line"};
 		return null;
 	}
 }

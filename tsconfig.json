@@ -13,5 +13,6 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"target": "ESNext"
-	}
+	},
+	"include": ["src/**/*"]
 }

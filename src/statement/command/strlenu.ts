@@ -1,18 +1,19 @@
 import {assertString} from "../../assert";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
-import type Expr from "../expr";
 import Statement from "../index";
 
-export default class StrLenU extends Statement {
-	public expr: Expr;
+export default class StrLen extends Statement {
+	public value: Lazy<string>;
 
-	public constructor(expr: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.expr = expr;
+		this.value = new Lazy(arg, U.arg1R1(U.charSeq()));
 	}
 
 	public *run(vm: VM) {
-		const value = this.expr.reduce(vm);
+		const value = this.value.get();
 		assertString(value, "Argument of STRLENU must be a string!");
 		vm.getValue("RESULT").set(vm, value.length, [0]);
 

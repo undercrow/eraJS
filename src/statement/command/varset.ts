@@ -1,33 +1,32 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
 export default class VarSet extends Statement {
-	public dest: Variable;
-	public value?: Expr;
-	public start?: Expr;
-	public end?: Expr;
+	public arg: Lazy<[Variable, Expr | undefined, Expr | undefined, Expr | undefined]>;
 
-	public constructor(dest: Variable, value?: Expr, start?: Expr, end?: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.dest = dest;
-		this.value = value;
-		this.start = start;
-		this.end = end;
+		this.arg = new Lazy(arg, U.arg4R1(E.variable, E.expr, E.expr, E.expr));
 	}
 
 	public *run(vm: VM) {
-		const dest = vm.getValue(this.dest.name);
-		const index = this.dest.reduceIndex(vm);
-		const start = this.start?.reduce(vm) ?? 0;
+		const [destExpr, valueExpr, startExpr, endExpr] = this.arg.get();
+
+		const dest = vm.getValue(destExpr.name);
+		const index = destExpr.reduceIndex(vm);
+		const start = startExpr?.reduce(vm) ?? 0;
 		assertNumber(start, "3rd argument of VARSET must be a number");
-		const end = this.end?.reduce(vm) ?? dest.length(index.length);
+		const end = endExpr?.reduce(vm) ?? dest.length(index.length);
 		assertNumber(end, "4th argument of VARSET must be a number");
 
-		if (this.value != null) {
-			const value = this.value.reduce(vm);
+		if (valueExpr != null) {
+			const value = valueExpr.reduce(vm);
 
 			for (let i = start; i < end; ++i) {
 				dest.set(vm, value, [...index, i]);

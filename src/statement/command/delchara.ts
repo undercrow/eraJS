@@ -1,4 +1,7 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import IntChar0DValue from "../../value/int-char-0d";
 import IntChar1DValue from "../../value/int-char-1d";
 import StrChar0DValue from "../../value/str-char-0d";
@@ -26,15 +29,15 @@ function removeCharacter(vm: VM, varName: string, index: number) {
 }
 
 export default class DelChara extends Statement {
-	public charaters: Expr[];
+	public charaters: Lazy<Expr[]>;
 
-	public constructor(characters: Expr[]) {
+	public constructor(raw: string) {
 		super();
-		this.charaters = characters;
+		this.charaters = new Lazy(raw, U.argNR0(E.expr));
 	}
 
 	public *run(vm: VM) {
-		const idList = this.charaters.map((c) => c.reduce(vm));
+		const idList = this.charaters.get().map((c) => c.reduce(vm));
 		idList.forEach((id) => assertNumber(id, "Character id should be an integer"));
 		idList.sort();
 		idList.reverse();

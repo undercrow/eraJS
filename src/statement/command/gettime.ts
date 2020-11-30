@@ -1,6 +1,12 @@
+import * as U from "../../erb/util";
 import Statement from "../index";
 
 export default class GetTime extends Statement {
+	public constructor(arg: string) {
+		super();
+		U.arg0R0().tryParse(arg);
+	}
+
 	public *run() {
 		throw new Error("GETTIME is not implemented yet!");
 

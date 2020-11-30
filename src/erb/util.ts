@@ -100,15 +100,15 @@ export function charSeq0(...exclude: string[]): P.Parser<string> {
 }
 
 export function arg0R0(): P.Parser<null> {
-	return EOL;
+	return P.succeed(null);
 }
 
 export function arg1R0<A0>(a0: P.Parser<A0>): P.Parser<A0 | undefined> {
-	return P.alt(WS1.then(a0), WS0.map(() => undefined)).skip(EOL);
+	return P.alt(WS1.then(a0), WS0.map(() => undefined));
 }
 
 export function arg1R1<A0>(a0: P.Parser<A0>): P.Parser<A0> {
-	return WS1.then(a0).skip(EOL);
+	return WS1.then(a0);
 }
 
 export function arg2R1<A0, A1>(
@@ -118,11 +118,11 @@ export function arg2R1<A0, A1>(
 	return WS1.then(P.seq(
 		a0,
 		P.string(",").trim(WS0).then(a1).fallback(undefined),
-	)).skip(EOL);
+	));
 }
 
 export function arg2R2<A0, A1>(a0: P.Parser<A0>, a1: P.Parser<A1>): P.Parser<[A0, A1]> {
-	return WS1.then(P.seq(a0, P.string(",").trim(WS0).then(a1))).skip(EOL);
+	return WS1.then(P.seq(a0, P.string(",").trim(WS0).then(a1)));
 }
 
 export function arg3R3<A0, A1, A2>(
@@ -135,7 +135,7 @@ export function arg3R3<A0, A1, A2>(
 		P.string(",").trim(WS0).then(a1),
 		P.string(",").trim(WS0).then(a2),
 		(...arg) => arg,
-	)).skip(EOL);
+	));
 }
 
 export function arg4R1<A0, A1, A2, A3>(
@@ -150,7 +150,7 @@ export function arg4R1<A0, A1, A2, A3>(
 		P.string(",").trim(WS0).then(a2).fallback(undefined),
 		P.string(",").trim(WS0).then(a3).fallback(undefined),
 		(...arg) => arg,
-	)).skip(EOL);
+	));
 }
 
 export function arg4R3<A0, A1, A2, A3>(
@@ -165,15 +165,14 @@ export function arg4R3<A0, A1, A2, A3>(
 		P.string(",").trim(WS0).then(a2),
 		P.string(",").trim(WS0).then(a3).fallback(undefined),
 		(...arg) => arg,
-	)).skip(EOL);
+	));
 }
 
 export function argNR0<AN>(an: P.Parser<AN>): P.Parser<AN[]> {
 	return P.alt(WS1.then(sepBy0(",", an)), WS0.map(() => []))
-		.skip(P.string(",").fallback(""))
-		.skip(EOL);
+		.skip(P.string(",").fallback(""));
 }
 
 export function argNR1<A0, AN>(a0: P.Parser<A0>, an: P.Parser<AN>): P.Parser<[A0, ...AN[]]> {
-	return WS1.then(sepBy1(",", a0, an)).skip(P.string(",").fallback("")).skip(EOL);
+	return WS1.then(sepBy1(",", a0, an)).skip(P.string(",").fallback(""));
 }

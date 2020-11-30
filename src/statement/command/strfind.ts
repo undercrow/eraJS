@@ -1,26 +1,26 @@
 import {assertString} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 export default class StrFind extends Statement {
-	public expr: Expr;
-	public search: Expr;
-	public unicode: boolean;
+	public arg: Lazy<[Expr, Expr]>;
 
-	public constructor(expr: Expr, search: Expr, unicode: boolean = false) {
+	public constructor(arg: string) {
 		super();
-		this.expr = expr;
-		this.search = search;
-		this.unicode = unicode;
+		this.arg = new Lazy(arg, U.arg2R2(E.expr, E.expr));
 	}
 
 	public *run(vm: VM) {
-		const value = this.expr.reduce(vm);
+		const [valueExpr, searchExpr] = this.arg.get();
+
+		const value = valueExpr.reduce(vm);
 		assertString(value, "1st argument of STRFIND must be a string!");
-		const search = this.search.reduce(vm);
+		const search = searchExpr.reduce(vm);
 		assertString(search, "2nd argument of STRFIND must be a string!");
-		// TODO: unicode
 		vm.getValue("RESULT").set(vm, value.indexOf(search), [0]);
 
 		return null;

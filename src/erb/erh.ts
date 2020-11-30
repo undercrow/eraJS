@@ -1,25 +1,35 @@
-import P from "parsimmon";
-
 import Property from "../property";
 import prop from "./property";
-
-const parser = prop.many().skip(P.eof);
 
 export default function parseERH(content: string): Property[] {
 	// Convert \r\n and \r to \n
 	const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
-	// Strip comments
-	const stripped = normalized.replace(/;.*/g, "");
+	const lineList = normalized.split("\n");
 
-	// Remove [SKIPSTART]~[SKIPEND] lines
-	const processed = stripped.replace(/\[SKIPSTART\](.|\n)*?\[SKIPEND\]/g, "");
+	// Strip comments
+	const stripped = lineList.map((line) => line.replace(/;.*$/, ""));
 
 	// Trim leading/trailing whitespaces
-	const trimmed = processed.replace(/^( |\t)+/mg, "").replace(/( |\t)+$/mg, "");
+	const trimmed = stripped.map((line) => line.replace(/^\s+/, "").replace(/\s+$/, ""));
 
-	// Remove leading empty lines
-	const filtered = trimmed.replace(/^\n*/, "");
+	// Remove empty lines
+	const filtered = trimmed.filter((line) => line !== "");
 
-	return parser.tryParse(filtered + "\n");
+	// Remove [SKIPSTART]~[SKIPEND] lines
+	const processed: string[] = [];
+	for (let i = 0; i < filtered.length; ++i) {
+		const line = filtered[i];
+		if (line === "[SKIPSTART]") {
+			for (; i < filtered.length; ++i) {
+				if (filtered[i] === "[SKIPEND]") {
+					break;
+				}
+			}
+		} else {
+			processed.push(line);
+		}
+	}
+
+	return processed.map((line) => prop.tryParse(line));
 }

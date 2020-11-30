@@ -1,28 +1,29 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
 export default class ArrayShift extends Statement {
-	public target: Variable;
-	public count: Expr;
-	public fill: Expr;
+	public arg: Lazy<[Variable, Expr, Expr]>;
 
-	public constructor(target: Variable, count: Expr, fill: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.target = target;
-		this.count = count;
-		this.fill = fill;
+		this.arg = new Lazy(arg, U.arg3R3(E.variable, E.expr, E.expr));
 	}
 
 	public *run(vm: VM) {
-		const target = vm.getValue(this.target.name);
-		const index = this.target.reduceIndex(vm);
+		const [targetExpr, countExpr, fillExpr] = this.arg.get();
+
+		const target = vm.getValue(targetExpr.name);
+		const index = targetExpr.reduceIndex(vm);
 		const length = target.length(index.length);
-		const count = this.count.reduce(vm);
+		const count = countExpr.reduce(vm);
 		assertNumber(count, "2nd argument of ARRAYSHIFT must be a number");
-		const fill = this.fill.reduce(vm);
+		const fill = fillExpr.reduce(vm);
 
 		if (count > 0) {
 			for (let i = length - 1; i >= count; --i) {

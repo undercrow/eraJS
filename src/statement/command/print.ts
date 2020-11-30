@@ -1,10 +1,11 @@
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Statement from "../index";
 
 // type OutType = "K" | "D" | null;
 type Action = "newline" | "wait" | null;
 
-// TODO: Buttonize some texts
 export default class Print extends Statement {
 	public static *print(vm: VM, text: string): ReturnType<Statement["run"]> {
 		if (text.length === 0) {
@@ -61,12 +62,12 @@ export default class Print extends Statement {
 	}
 
 	public postfix: string;
-	public value: string;
+	public value: Lazy<string>;
 
-	public constructor(instruction: string, value: string) {
+	public constructor(instruction: string, raw: string) {
 		super();
 		this.postfix = instruction.replace(/^PRINT/, "");
-		this.value = value;
+		this.value = new Lazy(raw, U.arg1R0(U.charSeq()).map((str) => str ?? ""));
 	}
 
 	public *run(vm: VM) {
@@ -74,7 +75,7 @@ export default class Print extends Statement {
 			return null;
 		}
 
-		yield* Print.print(vm, this.value);
+		yield* Print.print(vm, this.value.get());
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

@@ -1,23 +1,27 @@
 import {assertString} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 // TODO: Alignment
+// TODO: postfix
 export default class PrintButton extends Statement {
-	public text: Expr;
-	public value: Expr;
+	public arg: Lazy<[Expr, Expr]>;
 
-	public constructor(text: Expr, value: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.text = text;
-		this.value = value;
+		this.arg = new Lazy(arg, U.arg2R2(E.expr, E.expr));
 	}
 
 	public *run(vm: VM) {
-		const text = this.text.reduce(vm);
+		const [textExpr, valueExpr] = this.arg.get();
+
+		const text = textExpr.reduce(vm);
 		assertString(text, "1st argument of PRINTBUTTON must be a string");
-		const value = this.value.reduce(vm);
+		const value = valueExpr.reduce(vm);
 
 		yield <const>{
 			type: "button",

@@ -1,20 +1,22 @@
-import {assertString} from "../../assert";
+import * as U from "../../erb/util";
 import type VM from "../../vm";
-import Expr from "../expr";
 import Statement from "../index";
 
 export default class Goto extends Statement {
-	public target: Expr;
+	public static parse(raw: string): Goto {
+		const target = U.arg1R1(U.Identifier).tryParse(raw);
+		return new Goto(target);
+	}
 
-	public constructor(target: Expr) {
+	public target: string;
+
+	public constructor(target: string) {
 		super();
 		this.target = target;
 	}
 
 	public *run(vm: VM) {
-		let target = this.target.reduce(vm);
-		assertString(target, "1st argument of GOTO must be a string");
-		target = target.toUpperCase();
+		const target = this.target.toUpperCase();
 
 		const context = vm.context();
 		if (!context.fn.thunk.labelMap.has(target)) {

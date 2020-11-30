@@ -1,19 +1,19 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 import Print from "./print";
 
 export default class Bar extends Statement {
-	public value: Expr;
-	public max: Expr;
-	public length: Expr;
+	public arg: Lazy<[Expr, Expr, Expr]>;
 	public newline: boolean;
-	public constructor(value: Expr, max: Expr, length: Expr, newline: boolean = false) {
+
+	public constructor(raw: string, newline: boolean = false) {
 		super();
-		this.value = value;
-		this.max = max;
-		this.length = length;
+		this.arg = new Lazy(raw, U.arg3R3(E.expr, E.expr, E.expr));
 		this.newline = newline;
 	}
 
@@ -22,11 +22,13 @@ export default class Bar extends Statement {
 			return null;
 		}
 
-		const value = this.value.reduce(vm);
+		const [valueExpr, maxExpr, lengthExpr] = this.arg.get();
+
+		const value = valueExpr.reduce(vm);
 		assertNumber(value, "1st argument of BAR must be a number");
-		const max = this.max.reduce(vm);
+		const max = maxExpr.reduce(vm);
 		assertNumber(max, "2nd argument of BAR must be a number");
-		const length = this.length.reduce(vm);
+		const length = lengthExpr.reduce(vm);
 		assertNumber(length, "3rd argument of BAR must be a number");
 
 		const filled = Math.floor(length * (value / max));

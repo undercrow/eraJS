@@ -1,29 +1,45 @@
-import {assertString} from "../../assert";
+import {parseThunk} from "../../erb/erb";
+import * as U from "../../erb/util";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
-import Expr from "../expr";
 import Statement from "../index";
 import Goto from "./goto";
 
+const CATCH = /^CATCH$/i;
+const ENDCATCH = /^ENDCATCH$/i;
 export default class TryCGoto extends Statement {
-	public target: Expr;
-	public catchExpr: Thunk;
+	public static parse(lines: string[]): [TryCGoto, string[]] {
+		let rest = lines.slice();
 
-	public constructor(target: Expr, catchExpr: Thunk) {
+		const target = U.arg1R1(U.Identifier).tryParse(rest.shift()!.slice("TRYCGOTO".length));
+		if (rest.length === 0 || !CATCH.test(rest[0])) {
+			throw new Error("Expected CATCH statement");
+		}
+		rest.shift(); // Remove CATCH statement
+
+		const [catchThunk, restC] = parseThunk(rest, (l) => ENDCATCH.test(l));
+		rest = restC;
+		rest.shift(); // Remove ENDCATCH statement
+
+		return [new TryCGoto(target, catchThunk), rest];
+	}
+
+	public target: string;
+	public catchThunk: Thunk;
+
+	public constructor(target: string, catchThunk: Thunk) {
 		super();
 		this.target = target;
-		this.catchExpr = catchExpr;
+		this.catchThunk = catchThunk;
 	}
 
 	public *run(vm: VM, label?: string) {
-		let target = this.target.reduce(vm);
-		assertString(target, "1st argument of TRYGOTO must be a string");
-		target = target.toUpperCase();
+		const target = this.target.toUpperCase();
 		const context = vm.context();
 		if (context.fn.thunk.labelMap.has(target)) {
-			return yield* new Goto(this.target).run(vm);
+			return yield* new Goto(target).run(vm);
 		} else {
-			return yield* this.catchExpr.run(vm, label);
+			return yield* this.catchThunk.run(vm, label);
 		}
 	}
 }

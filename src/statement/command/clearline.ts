@@ -1,24 +1,27 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 export default class ClearLine extends Statement {
-	public count: Expr;
+	public arg: Lazy<Expr>;
 
-	public constructor(count: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.count = count;
+		this.arg = new Lazy(arg, U.arg1R1(E.expr));
 	}
 
 	public *run(vm: VM) {
-		const value = this.count.reduce(vm);
-		assertNumber(value, "Argument of CLEARLINE must be an integer!");
+		const count = this.arg.get().reduce(vm);
+		assertNumber(count, "Argument of CLEARLINE must be an integer!");
 
-		yield <const>{type: "clearline", count: value};
+		yield <const>{type: "clearline", count};
 
 		const lineCount = vm.getValue("LINECOUNT").get(vm, [0]) as number;
-		vm.getValue("LINECOUNT").set(vm, lineCount - value, []);
+		vm.getValue("LINECOUNT").set(vm, lineCount - count, []);
 
 		return null;
 	}

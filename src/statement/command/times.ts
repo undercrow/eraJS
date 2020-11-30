@@ -1,24 +1,27 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
 export default class Times extends Statement {
-	public dest: Variable;
-	public value: number;
+	public arg: Lazy<[Variable, number]>;
 
-	public constructor(dest: Variable, value: number) {
+	public constructor(raw: string) {
 		super();
-		this.dest = dest;
-		this.value = value;
+		this.arg = new Lazy(raw, U.arg2R2(E.variable, U.Float));
 	}
 
 	public *run(vm: VM) {
-		const original = this.dest.reduce(vm);
-		assertNumber(original, "1st argument of TIMES must be a number");
-		const index = this.dest.reduceIndex(vm);
+		const [dest, value] = this.arg.get();
 
-		vm.getValue(this.dest.name).set(vm, Math.floor(original * this.value), index);
+		const original = dest.reduce(vm);
+		assertNumber(original, "1st argument of TIMES must be a number");
+		const index = dest.reduceIndex(vm);
+
+		vm.getValue(dest.name).set(vm, Math.floor(original * value), index);
 
 		return null;
 	}

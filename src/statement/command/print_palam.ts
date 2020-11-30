@@ -1,15 +1,18 @@
 import {assertNumber} from "../../assert";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 import Print from "./print";
 
 export default class PrintPalam extends Statement {
-	public index: Expr;
+	public arg: Lazy<Expr>;
 
-	public constructor(index: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.index = index;
+		this.arg = new Lazy(arg, U.arg1R1(E.expr));
 	}
 
 	public *run(vm: VM) {
@@ -17,7 +20,7 @@ export default class PrintPalam extends Statement {
 			return null;
 		}
 
-		const index = this.index.reduce(vm);
+		const index = this.arg.get().reduce(vm);
 		assertNumber(index, "1st argument of PRINT_PALAM must be a number");
 
 		const palamName = vm.getValue("PALAMNAME");

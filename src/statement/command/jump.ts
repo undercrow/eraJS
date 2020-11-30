@@ -1,23 +1,27 @@
-import {assert, assertString} from "../../assert";
+import {assert} from "../../assert";
 import type VM from "../../vm";
 import Assign from "../assign";
 import Expr from "../expr";
 import Statement from "../index";
+import Call from "./call";
 
 export default class Jump extends Statement {
-	public target: Expr;
+	public static parse(raw: string): Jump {
+		const [target, arg] = Call.compileArg(raw);
+		return new Jump(target, arg);
+	}
+
+	public target: string;
 	public arg: Expr[];
 
-	public constructor(target: Expr, arg: Expr[]) {
+	public constructor(target: string, arg: Expr[]) {
 		super();
 		this.target = target;
 		this.arg = arg;
 	}
 
 	public *run(vm: VM) {
-		let target = this.target.reduce(vm);
-		assertString(target, "1st argument of JUMP must be a string");
-		target = target.toUpperCase();
+		const target = this.target.toUpperCase();
 		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
 
 		const arg = this.arg.map((a) => a.reduce(vm));

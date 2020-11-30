@@ -1,17 +1,17 @@
-import {assertString} from "../../assert";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
-import type Expr from "../expr";
 import Statement from "../index";
 import Print from "./print";
 
 export default class PrintC extends Statement {
 	public postfix: string;
-	public value: Expr;
+	public value: Lazy<string>;
 
-	public constructor(instruction: string, value: Expr) {
+	public constructor(postfix: string, raw: string) {
 		super();
-		this.postfix = instruction.replace(/^(PRINTC|PRINTFORMC)/, "");
-		this.value = value;
+		this.postfix = postfix;
+		this.value = new Lazy(raw, U.arg1R0(U.charSeq()).map((str) => str ?? ""));
 	}
 
 	public *run(vm: VM) {
@@ -19,8 +19,7 @@ export default class PrintC extends Statement {
 			return null;
 		}
 
-		const text = this.value.reduce(vm);
-		assertString(text, "1st argument of PRINTC must be a string");
+		const text = this.value.get();
 
 		// TODO: Apply alignment
 		yield* Print.print(vm, text);

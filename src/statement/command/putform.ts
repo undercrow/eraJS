@@ -1,13 +1,16 @@
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 export default class PutForm extends Statement {
-	public expr: Expr;
+	public arg: Lazy<Expr>;
 
-	public constructor(expr: Expr) {
+	public constructor(arg: string) {
 		super();
-		this.expr = expr;
+		this.arg = new Lazy(arg, U.arg1R1(E.form()));
 	}
 
 	public *run(_vm: VM) {

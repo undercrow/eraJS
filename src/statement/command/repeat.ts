@@ -1,16 +1,28 @@
 import {assertNumber} from "../../assert";
+import {parseThunk} from "../../erb/erb";
+import * as E from "../../erb/expr";
+import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+const REND = /^REND$/i;
 export default class Repeat extends Statement {
-	public condition: Expr;
+	public static parse(arg: string, lines: string[]): [Repeat, string[]] {
+		const [thunk, rest] = parseThunk(lines, (l) => REND.test(l));
+		rest.shift(); // Remove REND statement
+
+		return [new Repeat(arg, thunk), rest];
+	}
+
+	public condition: Lazy<Expr>;
 	public thunk: Thunk;
 
-	public constructor(condition: Expr, thunk: Thunk) {
+	public constructor(arg: string, thunk: Thunk) {
 		super();
-		this.condition = condition;
+		this.condition = new Lazy(arg, U.arg1R1(E.expr));
 		this.thunk = thunk;
 	}
 
@@ -21,7 +33,7 @@ export default class Repeat extends Statement {
 			}
 		}
 
-		const condition = this.condition.reduce(vm);
+		const condition = this.condition.get().reduce(vm);
 		assertNumber(condition, "Condition for REPEAT should be an integer");
 
 		loop: for (let i = 0; i < condition; ++i) {

@@ -136,21 +136,18 @@ import VarSet from "../statement/command/varset";
 import Wait from "../statement/command/wait";
 import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
-import Const from "../statement/expr/const";
 import Thunk from "../thunk";
 import * as E from "./expr";
 import prop from "./property";
 import * as U from "./util";
 
 type LanguageSpec = {
-	Label: string;
 	Assign: Assign;
 	StrAssign: Assign;
 	OpAssign: OpAssign;
 };
 
 export const language = P.createLanguage<LanguageSpec>({
-	Label: () => U.asLine(P.string("$").then(U.Identifier)),
 	Assign: () => P.seqMap(
 		E.variable,
 		P.string("=").trim(U.WS0).then(P.noneOf("\r\n;").many().tie()),
@@ -165,14 +162,14 @@ export const language = P.createLanguage<LanguageSpec>({
 		P.seqMap(
 			E.variable,
 			U.alt("*", "/", "%", "+", "-", "&", "|", "^").skip(P.string("=")).trim(U.WS0),
-			E.expr,
+			P.any.many().tie(),
 			(dest, op, e) => new OpAssign(dest, op, e),
 		),
 		E.variable.skip(U.WS0).skip(P.string("++")).map(
-			(dest) => new OpAssign(dest, "+", new Const(1)),
+			(dest) => new OpAssign(dest, "+", "1"),
 		),
 		E.variable.skip(U.WS0).skip(P.string("--")).map(
-			(dest) => new OpAssign(dest, "-", new Const(1)),
+			(dest) => new OpAssign(dest, "-", "1"),
 		),
 	),
 });

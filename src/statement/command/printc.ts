@@ -5,11 +5,13 @@ import Statement from "../index";
 import Print from "./print";
 
 export default class PrintC extends Statement {
+	public align: "LEFT" | "RIGHT";
 	public postfix: string;
 	public value: Lazy<string>;
 
-	public constructor(postfix: string, raw: string) {
+	public constructor(align: PrintC["align"], postfix: string, raw: string) {
 		super();
+		this.align = align;
 		this.postfix = postfix;
 		this.value = new Lazy(raw, U.arg1R0(U.charSeq()).map((str) => str ?? ""));
 	}
@@ -19,10 +21,11 @@ export default class PrintC extends Statement {
 			return null;
 		}
 
-		const text = this.value.get();
-
-		// TODO: Apply alignment
-		yield* Print.print(vm, text);
+		yield <const>{
+			type: "string",
+			text: this.value.get(),
+			cell: this.align,
+		};
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

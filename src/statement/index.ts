@@ -1,8 +1,8 @@
 import type VM from "../vm";
 
 export type Output =
-	| {type: "string"; text: string}
-	| {type: "button"; text: string; value: string}
+	| {type: "string"; text: string; cell?: "LEFT" | "RIGHT"}
+	| {type: "button"; text: string; value: string; cell?: "LEFT" | "RIGHT"}
 	| {type: "line"; value?: string}
 	| {type: "clearline"; count: number}
 	| {type: "resetdata"}

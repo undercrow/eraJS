@@ -23,7 +23,7 @@ export default class PrintShopItem extends Statement {
 
 			const price = vm.getValue("ITEMPRICE").get(vm, [i]) as number;
 			const text = `[${i}] ${name}(${price}$)`;
-			yield* new PrintC("PRINTC", text).run(vm);
+			yield* new PrintC("LEFT", "", text).run(vm);
 		}
 
 		return null;

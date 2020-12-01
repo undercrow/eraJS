@@ -7,11 +7,13 @@ import Statement from "../index";
 import Print from "./print";
 
 export default class PrintFormC extends Statement {
+	public align: "LEFT" | "RIGHT";
 	public postfix: string;
 	public value: Lazy<Form>;
 
-	public constructor(postfix: string, raw: string) {
+	public constructor(align: PrintFormC["align"], postfix: string, raw: string) {
 		super();
+		this.align = align;
 		this.postfix = postfix;
 		this.value = new Lazy(
 			raw,
@@ -24,10 +26,11 @@ export default class PrintFormC extends Statement {
 			return null;
 		}
 
-		const text = this.value.get().reduce(vm);
-
-		// TODO: Apply alignment
-		yield* Print.print(vm, text);
+		yield <const>{
+			type: "string",
+			text: this.value.get().reduce(vm),
+			cell: this.align,
+		};
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

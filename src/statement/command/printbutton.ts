@@ -6,13 +6,13 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-// TODO: Alignment
-// TODO: postfix
 export default class PrintButton extends Statement {
+	public align?: "LEFT" | "RIGHT";
 	public arg: Lazy<[Expr, Expr]>;
 
-	public constructor(arg: string) {
+	public constructor(arg: string, align?: PrintButton["align"]) {
 		super();
+		this.align = align;
 		this.arg = new Lazy(arg, U.arg2R2(E.expr, E.expr));
 	}
 
@@ -27,6 +27,7 @@ export default class PrintButton extends Statement {
 			type: "button",
 			text,
 			value: typeof value === "string" ? value : value.toString(),
+			cell: this.align,
 		};
 
 		return null;

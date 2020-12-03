@@ -6,6 +6,7 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 import Print from "./print";
+import PrintC from "./printc";
 
 export default class PrintPalam extends Statement {
 	public arg: Lazy<Expr>;
@@ -24,12 +25,16 @@ export default class PrintPalam extends Statement {
 		assertNumber(index, "1st argument of PRINT_PALAM must be a number");
 
 		const palamName = vm.getValue("PALAMNAME");
+		const validName: string[] = [];
 		for (let i = 0; i < palamName.length(0); ++i) {
 			const name = palamName.get(vm, [i]) as string;
-			if (name === "") {
-				continue;
+			if (name !== "") {
+				validName.push(name);
 			}
+		}
 
+		for (let i = 0; i < validName.length; ++i) {
+			const name = validName[i];
 			const value = vm.getValue("PALAM").get(vm, [index, i]) as number;
 			const palamLv = [
 				vm.getValue("PALAMLV").get(vm, [0]) as number,
@@ -58,8 +63,12 @@ export default class PrintPalam extends Statement {
 
 			text += value.toString();
 
-			yield* Print.print(vm, text);
+			yield* new PrintC("LEFT", "", " " + text).run(vm);
+			if ((i + 1) % vm.printCPerLine === 0) {
+				yield* Print.print(vm, "\n");
+			}
 		}
+		yield* Print.print(vm, "\n");
 
 		return null;
 	}

@@ -51,6 +51,7 @@ export default class VM {
 		back: Color;
 		focus: Color;
 	};
+	public printCPerLine: number;
 
 	public constructor(header: Property[], fnList: Fn[], data: Data) {
 		this.fnMap = new Map();
@@ -65,6 +66,7 @@ export default class VM {
 			name: "",
 			bold: false,
 		};
+		this.printCPerLine = 3; // TODO
 
 		// Assign default colors
 		this.color = {

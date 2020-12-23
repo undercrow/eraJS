@@ -30,6 +30,13 @@ type Context = {
 };
 
 export default class VM {
+	public code: {
+		header: Property[];
+		// TODO: Replace this with fnMap
+		fnList: Fn[];
+		data: Data;
+	};
+
 	public fnMap: Map<string, Fn[]>;
 	public characterMap: Map<number, Character>;
 
@@ -37,28 +44,61 @@ export default class VM {
 	public staticMap: Map<string, Map<string, Value>>;
 	private contextStack: Array<Context>;
 
-	public alignment: Align;
-	public draw: boolean;
-	public skipDisp: boolean;
-	public font: {
+	public alignment!: Align;
+	public draw!: boolean;
+	public skipDisp!: boolean;
+	public font!: {
 		name: string;
 		bold: boolean;
 	};
-	public color: {
+	public color!: {
 		defaultFront: Color;
 		defaultBack: Color;
 		front: Color;
 		back: Color;
 		focus: Color;
 	};
-	public printCPerLine: number;
+	public printCPerLine!: number;
 
-	public constructor(header: Property[], fnList: Fn[], data: Data) {
+	public constructor(code: VM["code"]) {
+		this.code = code;
 		this.fnMap = new Map();
 		this.characterMap = new Map();
 		this.globalMap = new Map();
 		this.staticMap = new Map();
 		this.contextStack = [];
+
+		for (const fn of code.fnList) {
+			if (!this.fnMap.has(fn.name)) {
+				this.fnMap.set(fn.name, []);
+			}
+			this.fnMap.get(fn.name)!.push(fn);
+		}
+
+		// Reorder functions
+		for (const fn of this.fnMap.keys()) {
+			this.fnMap.get(fn)!.sort((a, b) => {
+				if (a.isFirst()) { return -1; }
+				if (b.isFirst()) { return 1; }
+				if (a.isLast()) { return 1; }
+				if (b.isLast()) { return -1; }
+				return 0;
+			});
+		}
+
+		for (const [id, character] of code.data.character) {
+			this.characterMap.set(id, character);
+		}
+
+		this.globalMap.set("GLOBAL", new Int1DValue(1000));
+		this.globalMap.set("GLOBALS", new Str1DValue(100));
+		this.resetVariables();
+
+		// Push dummy context for outermost call
+		this.pushContext(new Fn("@DUMMY", [], [], new Thunk([])));
+	}
+
+	public resetVariables() {
 		this.alignment = "LEFT";
 		this.draw = true;
 		this.skipDisp = false;
@@ -77,28 +117,7 @@ export default class VM {
 			focus: color.hex(0xFFFF00),
 		};
 
-		for (const fn of fnList) {
-			if (!this.fnMap.has(fn.name)) {
-				this.fnMap.set(fn.name, []);
-			}
-			this.fnMap.get(fn.name)!.push(fn);
-		}
-
-		// Reorder functions
-		for (const fn of this.fnMap.keys()) {
-			this.fnMap.get(fn)!.sort((a, b) => {
-				if (a.isFirst()) { return -1; }
-				if (b.isFirst()) { return 1; }
-				if (a.isLast()) { return 1; }
-				if (b.isLast()) { return -1; }
-				return 0;
-			});
-		}
-
-		for (const [id, character] of data.character) {
-			this.characterMap.set(id, character);
-		}
-
+		const {header, data} = this.code;
 		this.globalMap.set("RAND", new RandValue());
 		this.globalMap.set("RESULT", new Int1DValue(1000));
 		this.globalMap.set("RESULTS", new Str1DValue(100));
@@ -184,8 +203,6 @@ export default class VM {
 		this.globalMap.set("PALAMNAME", Str1DValue.from(data.palam));
 		this.globalMap.set("ITEMNAME", Str1DValue.from(data.item));
 		this.globalMap.set("NOITEM", new Int1DValue(1000));
-		this.globalMap.set("GLOBAL", new Int1DValue(1000));
-		this.globalMap.set("GLOBALS", new Str1DValue(100));
 		this.globalMap.set("LINECOUNT", new Int0DValue());
 		this.globalMap.set("ISTIMEOUT", new Int0DValue());
 		this.globalMap.set("__INT_MAX__", Int0DValue.from(2 ** 32 - 1));
@@ -280,8 +297,11 @@ export default class VM {
 			}
 		}
 
+		this.staticMap = new Map();
+		this.staticMap.set("@DUMMY", new Map());
 		for (const fnValues of this.fnMap.values()) {
 			for (const fn of fnValues) {
+				// TODO: Initialize staticMap only once
 				this.staticMap.set(fn.name, new Map());
 				this.staticMap.get(fn.name)!.set("LOCAL", new Int1DValue(1000));
 				this.staticMap.get(fn.name)!.set("LOCALS", new Str1DValue(100));
@@ -294,10 +314,6 @@ export default class VM {
 				}
 			}
 		}
-
-		// Push dummy context for outermost call
-		this.pushContext(new Fn("@DUMMY", [], [], new Thunk([])));
-		this.staticMap.set("@DUMMY", new Map());
 	}
 
 	public configure(config: Config) {

@@ -5,7 +5,6 @@ export type Output =
 	| {type: "button"; text: string; value: string; cell?: "LEFT" | "RIGHT"}
 	| {type: "line"; value?: string}
 	| {type: "clearline"; count: number}
-	| {type: "resetdata"}
 	| {type: "loadgame"}
 	| {type: "loadglobal"}
 	| {type: "wait"}

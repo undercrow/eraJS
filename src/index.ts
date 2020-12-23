@@ -10,7 +10,7 @@ export function compile(erh: string[], erb: string[], csv: Map<string, string>):
 	const data = parseCSV(csv);
 	const header = ([] as Property[]).concat(...erh.map(parseERH));
 	const fnList = ([] as Fn[]).concat(...erb.map(parseERB));
-	return new VM(header, fnList, data);
+	return new VM({header, fnList, data});
 }
 
 export type {Config, VM};

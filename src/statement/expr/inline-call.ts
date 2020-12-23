@@ -1,6 +1,5 @@
 import {assert} from "../../assert";
 import type VM from "../../vm";
-import Assign from "../assign";
 import type Expr from "../expr";
 import abs from "../method/abs";
 import barStr from "../method/barstr";
@@ -65,33 +64,7 @@ export default class InlineCall implements Expr {
 			default: {
 				assert(vm.fnMap.has(this.name), `Method ${this.name} does not exist`);
 				for (const fn of vm.fnMap.get(this.name)!) {
-					const context = vm.pushContext(fn);
-					for (let i = 0; i < fn.arg.length; ++i) {
-						const argExpr = fn.arg[i];
-						const value = arg[i];
-						if (argExpr instanceof Assign) {
-							// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-							if (value != null) {
-								const index = argExpr.dest.reduceIndex(vm);
-								vm.getValue(argExpr.dest.name).set(vm, value, index);
-							} else {
-								runGenerator(argExpr.run(vm));
-							}
-						} else {
-							if (!context.refMap.has(argExpr.name)) {
-								const type = vm.getValue(argExpr.name).type;
-								const fallback = type === "number" ? 0 : "";
-								const index = argExpr.reduceIndex(vm);
-								// eslint-disable-next-line @typescript-eslint/indent
-							// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-								vm.getValue(argExpr.name).set(vm, value ?? fallback, index);
-							}
-						}
-					}
-
-					const result = runGenerator(fn.thunk.run(vm));
-					vm.popContext();
-
+					const result = runGenerator(fn.run(vm, arg));
 					assert(result?.type === "return", "Inline call should return a value");
 					return result.value[0];
 				}

@@ -3,8 +3,6 @@ import P from "parsimmon";
 import Fn from "../fn";
 import Statement from "../statement";
 import Assign from "../statement/assign";
-import OpAssign from "../statement/assign-op";
-import StrAssign from "../statement/assign-str";
 import ClearLine from "../statement/command/clearline";
 import AddChara from "../statement/command/addchara";
 import AddDefChara from "../statement/command/adddefchara";
@@ -141,39 +139,6 @@ import * as E from "./expr";
 import prop from "./property";
 import * as U from "./util";
 
-type LanguageSpec = {
-	Assign: Assign;
-	StrAssign: Assign;
-	OpAssign: OpAssign;
-};
-
-export const language = P.createLanguage<LanguageSpec>({
-	Assign: () => P.seqMap(
-		E.variable,
-		P.string("=").trim(U.WS0).then(P.noneOf("\r\n;").many().tie()),
-		(dest, e) => new Assign(dest, e),
-	),
-	StrAssign: () => P.seqMap(
-		E.variable,
-		P.string("'=").trim(U.WS0).then(U.charSeq()),
-		(dest, e) => new StrAssign(dest, e),
-	),
-	OpAssign: () => P.alt(
-		P.seqMap(
-			E.variable,
-			U.alt("*", "/", "%", "+", "-", "&", "|", "^").skip(P.string("=")).trim(U.WS0),
-			P.any.many().tie(),
-			(dest, op, e) => new OpAssign(dest, op, e),
-		),
-		E.variable.skip(U.WS0).skip(P.string("++")).map(
-			(dest) => new OpAssign(dest, "+", "1"),
-		),
-		E.variable.skip(U.WS0).skip(P.string("--")).map(
-			(dest) => new OpAssign(dest, "-", "1"),
-		),
-	),
-});
-
 export default function parseERB(content: string): Fn[] {
 	// Convert \r\n and \r to \n
 	const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
@@ -239,13 +204,13 @@ function parseFn(lines: string[]): [Fn, string[]] {
 		rawBody.push(rest.shift()!);
 	}
 
-	const argParser = U.sepBy0(",", P.alt(
-		P.seqMap(
-			E.variable,
-			P.string("=").trim(U.WS0).then(U.charSeq(",", ")")),
-			(dest, e) => new Assign(dest, e),
-		),
+	const argParser = U.sepBy0(",", P.seq(
 		E.variable,
+		P.alt(
+			P.string("=").trim(U.WS0).then(U.Int),
+			P.string("=").trim(U.WS0).then(U.Str),
+			P.succeed(null),
+		),
 	));
 	const defParser = P.string("@").then(P.seq(U.Identifier.skip(U.WS0), P.alt(
 		U.wrap("(", argParser, ")"),
@@ -489,8 +454,5 @@ function parseStatement(lines: string[]): [Statement, string[]] {
 		}
 	}
 
-	return [
-		P.alt<Statement>(language.Assign, language.StrAssign, language.OpAssign).tryParse(current),
-		rest,
-	];
+	return [new Assign(current), rest];
 }

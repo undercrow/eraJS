@@ -44,7 +44,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					if (row[2] != null && row[2] !== "") {
 						value = parseInt(row[2]);
 					} else {
-						value = 0;
+						value = 1;
 					}
 					assertNumber(value, `Base value in ${fileName} should be an integer`);
 					character.maxBase![index] = value;
@@ -59,7 +59,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					if (row[2] != null && row[2] !== "") {
 						value = parseInt(row[2]);
 					} else {
-						value = 0;
+						value = 1;
 					}
 					assertNumber(value, `Ability value in ${fileName} should be an integer`);
 					character.abilities![index] = value;
@@ -73,7 +73,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					if (row[2] != null && row[2] !== "") {
 						value = parseInt(row[2]);
 					} else {
-						value = 0;
+						value = 1;
 					}
 					assertNumber(value, `Talent value in ${fileName} should be an integer`);
 					character.talent![index] = value;
@@ -87,7 +87,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					if (row[2] != null && row[2] !== "") {
 						value = parseInt(row[2]);
 					} else {
-						value = 0;
+						value = 1;
 					}
 					assertNumber(value, `Exp value in ${fileName} should be an integer`);
 					character.exp![index] = value;

@@ -11,7 +11,7 @@ export default class StrLenForm extends Statement {
 
 	public constructor(arg: string) {
 		super();
-		this.value = new Lazy(arg, U.arg1R1(E.form()));
+		this.value = new Lazy(arg, U.arg1R1(E.form[""]));
 	}
 
 	public *run(vm: VM) {

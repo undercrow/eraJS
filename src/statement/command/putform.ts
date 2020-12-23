@@ -10,7 +10,7 @@ export default class PutForm extends Statement {
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg1R1(E.form()));
+		this.arg = new Lazy(arg, U.arg1R1(E.form[""]));
 	}
 
 	public *run(_vm: VM) {

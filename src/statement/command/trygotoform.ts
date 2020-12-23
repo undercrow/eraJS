@@ -7,7 +7,7 @@ import Goto from "./goto";
 
 export default class TryGotoForm extends Statement {
 	public static parse(raw: string): TryGotoForm {
-		const target = U.arg1R1(E.form()).tryParse(raw);
+		const target = U.arg1R1(E.form[""]).tryParse(raw);
 		return new TryGotoForm(target);
 	}
 

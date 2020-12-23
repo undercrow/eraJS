@@ -25,7 +25,7 @@ export default class PrintData extends Statement {
 			if (DATA.test(current)) {
 				data.push(new Const(U.arg1R1(U.charSeq()).tryParse(current.slice("DATA".length))));
 			} else if (DATAFORM.test(current)) {
-				data.push(U.arg1R1(E.form()).tryParse(current.slice("DATAFORM".length)));
+				data.push(U.arg1R1(E.form[""]).tryParse(current.slice("DATAFORM".length)));
 			} else if (DATALIST.test(current) || ENDLIST.test(current)) {
 				// Do nothing
 			} else if (ENDDATA.test(current)) {

@@ -7,7 +7,7 @@ import Jump from "./jump";
 
 export default class TryJumpForm extends Statement {
 	public static parse(raw: string): TryJumpForm {
-		const [target, arg] = CallForm.compileArg(raw, ["("]);
+		const [target, arg] = CallForm.compileArg(raw, "(");
 		return new TryJumpForm(target, arg);
 	}
 

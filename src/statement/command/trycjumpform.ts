@@ -13,7 +13,7 @@ export default class TryCJumpForm extends Statement {
 	public static parse(lines: string[]): [TryCJumpForm, string[]] {
 		let rest = lines.slice();
 
-		const [target, arg] = CallForm.compileArg(rest.shift()!.slice("TRYCJUMPFORM".length), []);
+		const [target, arg] = CallForm.compileArg(rest.shift()!.slice("TRYCJUMPFORM".length), "");
 		if (rest.length === 0 || !CATCH.test(rest[0])) {
 			throw new Error("Expected CATCH statement");
 		}

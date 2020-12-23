@@ -23,7 +23,7 @@ export default class PrintPlain extends Statement {
 			case "FORM": {
 				this.value = new Lazy(
 					raw,
-					U.arg1R0(E.form()).map((form) => form ?? new Const("")),
+					U.arg1R0(E.form[""]).map((form) => form ?? new Const("")),
 				);
 			}
 		}

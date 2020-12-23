@@ -11,7 +11,7 @@ export default class ReuseLastLine extends Statement {
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg1R0(E.form()));
+		this.arg = new Lazy(arg, U.arg1R0(E.form[""]));
 	}
 
 	public *run(vm: VM) {

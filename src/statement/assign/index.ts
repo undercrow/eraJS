@@ -37,7 +37,7 @@ export default class Assign extends Statement {
 			if (op === "=" && destType === "number") {
 				this.inner = new AssignInt(dest, U.sepBy0(",", E.expr).tryParse(rest));
 			} else if (op === "=" && destType === "string") {
-				this.inner = new AssignForm(dest, U.sepBy0(",", E.form(",")).tryParse(rest));
+				this.inner = new AssignForm(dest, U.sepBy0(",", E.form[","]).tryParse(rest));
 			} else if (op === "'=") {
 				this.inner = new AssignStr(dest, U.sepBy0(",", E.expr).tryParse(rest));
 			} else if (op === "+=" && destType === "string") {

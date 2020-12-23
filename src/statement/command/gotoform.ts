@@ -6,7 +6,7 @@ import Statement from "../index";
 
 export default class GotoForm extends Statement {
 	public static parse(raw: string): GotoForm {
-		const target = U.arg1R1(E.form()).tryParse(raw);
+		const target = U.arg1R1(E.form[""]).tryParse(raw);
 		return new GotoForm(target);
 	}
 

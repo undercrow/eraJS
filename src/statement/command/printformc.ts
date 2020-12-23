@@ -17,7 +17,7 @@ export default class PrintFormC extends Statement {
 		this.postfix = postfix;
 		this.value = new Lazy(
 			raw,
-			U.arg1R0(E.form()).map((form) => form ?? new Form([{value: ""}])),
+			U.arg1R0(E.form[""]).map((form) => form ?? new Form([{value: ""}])),
 		);
 	}
 

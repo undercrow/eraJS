@@ -15,7 +15,7 @@ export default class PrintForm extends Statement {
 		this.postfix = instruction.replace(/^PRINTFORM/, "");
 		this.value = new Lazy(
 			raw,
-			U.arg1R0(E.form()).map((form) => form ?? new Form([{value: ""}])),
+			U.arg1R0(E.form[""]).map((form) => form ?? new Form([{value: ""}])),
 		);
 	}
 

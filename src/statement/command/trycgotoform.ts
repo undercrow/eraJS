@@ -13,7 +13,7 @@ export default class TryCGotoForm extends Statement {
 	public static parse(lines: string[]): [TryCGotoForm, string[]] {
 		let rest = lines.slice();
 
-		const target = U.arg1R1(E.form()).tryParse(rest.shift()!.slice("TRYCGOTOFORM".length));
+		const target = U.arg1R1(E.form[""]).tryParse(rest.shift()!.slice("TRYCGOTOFORM".length));
 		if (rest.length === 0 || !CATCH.test(rest[0])) {
 			throw new Error("Expected CATCH statement");
 		}

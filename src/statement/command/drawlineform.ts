@@ -10,7 +10,7 @@ export default class DrawLineForm extends Statement {
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg1R1(E.form()));
+		this.arg = new Lazy(arg, U.arg1R1(E.form[""]));
 	}
 
 	public *run(vm: VM) {

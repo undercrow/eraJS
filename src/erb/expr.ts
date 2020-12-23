@@ -50,7 +50,7 @@ const language = P.createLanguage<LanguageSpec>({
 		U.wrap("(", r.Expr, ")"),
 		U.UInt.map((val) => new Const(val)),
 		U.Str.map((value) => new Const(value)),
-		U.wrap('@"', form("\""), '"'),
+		U.wrap('@"', form["\""], '"'),
 		r.InlineCall,
 		r.Variable,
 	),
@@ -122,7 +122,7 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 });
 
-export function form(...exclude: string[]): P.Parser<Form> {
+function createFormParser(...exclude: string[]): P.Parser<Form> {
 	const chunk: P.Parser<Form["expr"][number]> = P.alt(
 		U.wrap("{", P.noneOf("}\r\n").many().tie(), "}").thru(U.nest(P.seqMap(
 			language.Expr,
@@ -158,3 +158,9 @@ export function form(...exclude: string[]): P.Parser<Form> {
 
 export const variable = language.Variable;
 export const expr = language.Expr;
+export const form = {
+	"": createFormParser(),
+	",": createFormParser(","),
+	"\"": createFormParser("\""),
+	"(": createFormParser("("),
+};

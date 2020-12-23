@@ -7,7 +7,7 @@ import CallForm from "./callform";
 
 export default class TryCallForm extends Statement {
 	public static parse(raw: string): TryCallForm {
-		const [target, arg] = CallForm.compileArg(raw, ["("]);
+		const [target, arg] = CallForm.compileArg(raw, "(");
 		return new TryCallForm(target, arg);
 	}
 

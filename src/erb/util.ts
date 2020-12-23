@@ -15,7 +15,7 @@ function nullFn(): null {
 }
 
 export function alt<T extends string>(...values: T[]): P.Parser<T> {
-	return P.alt(...values.map(P.string)) as P.Parser<T>;
+	return P.alt(...values.map(P.string));
 }
 
 export function asLine<T>(parser: P.Parser<T>): P.Parser<T> {

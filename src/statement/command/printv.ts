@@ -5,6 +5,7 @@ import * as U from "../../erb/util";
 import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
+import Const from "../expr/const";
 import Statement from "../index";
 import Print from "./print";
 
@@ -16,7 +17,7 @@ export default class PrintV extends Statement {
 		super();
 		this.postfix = instruction.replace(/^PRINTV/, "");
 		this.value = new Lazy(raw, U.argNR0(P.alt(
-			P.string("'").then(U.charSeq(",")),
+			P.string("'").then(U.charSeq(",").map((str) => new Const(str))),
 			E.expr,
 		)));
 	}

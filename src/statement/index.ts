@@ -6,7 +6,6 @@ export type Output =
 	| {type: "line"; value?: string}
 	| {type: "clearline"; count: number}
 	| {type: "loadgame"}
-	| {type: "loadglobal"}
 	| {type: "wait"}
 	| {type: "input"}
 	// TODO: remove this output

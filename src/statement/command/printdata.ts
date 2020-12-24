@@ -9,6 +9,7 @@ import Print from "./print";
 
 const DATA = /^DATA\s+/i;
 const DATAFORM = /^DATAFORM\s+/i;
+const DATAFORM_EMPTY = /^DATAFORM$/i;
 const DATALIST = /^DATALIST$/i;
 const ENDLIST = /^ENDLIST$/i;
 const ENDDATA = /^ENDDATA$/i;
@@ -26,6 +27,8 @@ export default class PrintData extends Statement {
 				data.push(new Const(U.arg1R1(U.charSeq()).tryParse(current.slice("DATA".length))));
 			} else if (DATAFORM.test(current)) {
 				data.push(U.arg1R1(E.form[""]).tryParse(current.slice("DATAFORM".length)));
+			} else if (DATAFORM_EMPTY.test(current)) {
+				data.push(new Const(""));
 			} else if (DATALIST.test(current) || ENDLIST.test(current)) {
 				// Do nothing
 			} else if (ENDDATA.test(current)) {

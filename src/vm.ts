@@ -5,6 +5,7 @@ import {Character, Data} from "./data";
 import Fn from "./fn";
 import type Property from "./property";
 import Dim from "./property/dim";
+import DimConst from "./property/dim-const";
 import DimDynamic from "./property/dim-dynamic";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
@@ -309,6 +310,8 @@ export default class VM {
 		for (const property of header) {
 			if (property instanceof Dim) {
 				property.apply(this.globalMap);
+			} else if (property instanceof DimConst) {
+				property.apply(this.globalMap);
 			}
 		}
 
@@ -322,6 +325,8 @@ export default class VM {
 				this.staticMap.get(fn.name)!.set("LOCALS", new Str1DValue(100));
 				for (const property of fn.property) {
 					if (property instanceof Dim) {
+						property.apply(this.staticMap.get(fn.name)!);
+					} else if (property instanceof DimConst) {
 						property.apply(this.staticMap.get(fn.name)!);
 					} else if (property instanceof LocalSize || property instanceof LocalSSize) {
 						property.apply(this, fn.name);

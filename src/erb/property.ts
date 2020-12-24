@@ -2,6 +2,7 @@ import P from "parsimmon";
 
 import type Property from "../property";
 import Dim from "../property/dim";
+import DimConst from "../property/dim-const";
 import DimDynamic from "../property/dim-dynamic";
 import DimRef from "../property/dim-ref";
 import LocalSize from "../property/localsize";
@@ -26,6 +27,9 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 				U.WS1.then(P.regex(/DYNAMIC/i).skip(U.WS1).then(dimArgument).map(
 					([[name, ...size], value]) => new DimDynamic(name, "number", size, value),
 				)),
+				U.WS1.then(P.regex(/CONST/i).skip(U.WS1).then(dimArgument).map(
+					([[name, ...size], value]) => new DimConst(name, "number", size, value),
+				)),
 				U.WS1.then(P.regex(/REF/i).skip(U.WS1).then(dimArgument).map(
 					([[name]]) => new DimRef(name),
 				)),
@@ -45,6 +49,9 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 			return P.alt<Property>(
 				U.WS1.then(P.regex(/DYNAMIC/i).skip(U.WS1).then(dimArgument).map(
 					([[name, ...size], value]) => new DimDynamic(name, "string", size, value),
+				)),
+				U.WS1.then(P.regex(/CONST/i).skip(U.WS1).then(dimArgument).map(
+					([[name, ...size], value]) => new DimConst(name, "string", size, value),
 				)),
 				U.WS1.then(P.regex(/REF/i).skip(U.WS1).then(dimArgument).map(
 					([[name]]) => new DimRef(name),

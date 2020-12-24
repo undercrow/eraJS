@@ -85,6 +85,7 @@ import PrintShopItem from "../statement/command/print_shopitem";
 import PrintV from "../statement/command/printv";
 import PutForm from "../statement/command/putform";
 import Quit from "../statement/command/quit";
+import Randomize from "../statement/command/randomize";
 import Redraw from "../statement/command/redraw";
 import Repeat from "../statement/command/repeat";
 import ResetBgColor from "../statement/command/resetbgcolor";
@@ -395,6 +396,7 @@ function parseStatement(lines: string[]): [Statement, string[]] {
 			case "WAITANYKEY": return [new WaitAnyKey(arg), rest];
 			case "BREAK": return [new Break(arg), rest];
 			case "CONTINUE": return [new Continue(arg), rest];
+			case "RANDOMIZE": return [new Randomize(arg), rest];
 			case "DUMPRAND": return [new DumpRand(arg), rest];
 			case "INITRAND": return [new InitRand(arg), rest];
 			case "BEGIN": return [new Begin(arg), rest];

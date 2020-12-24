@@ -1,4 +1,5 @@
 import * as U from "../../erb/util";
+import type VM from "../../vm";
 import Statement from "../index";
 
 export default class InitRand extends Statement {
@@ -7,8 +8,8 @@ export default class InitRand extends Statement {
 		U.arg0R0().tryParse(arg);
 	}
 
-	public *run() {
-		throw new Error("INITRAND is not implemented yet!");
+	public *run(vm: VM) {
+		vm.random.state = vm.getValue("RANDDATA").get(vm, []) as number;
 
 		return null;
 	}

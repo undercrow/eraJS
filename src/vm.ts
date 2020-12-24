@@ -8,6 +8,7 @@ import Dim from "./property/dim";
 import DimDynamic from "./property/dim-dynamic";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
+import PRNG from "./random";
 import type {default as Statement, Result} from "./statement";
 import type {Align} from "./statement/command/alignment";
 import * as scene from "./scene";
@@ -30,6 +31,7 @@ type Context = {
 };
 
 export default class VM {
+	public random: PRNG;
 	public code: {
 		header: Property[];
 		// TODO: Replace this with fnMap
@@ -67,6 +69,7 @@ export default class VM {
 	public printCPerLine!: number;
 
 	public constructor(code: VM["code"], storage?: VM["storage"]) {
+		this.random = new PRNG();
 		this.code = code;
 		this.storage = storage ?? {
 			get: (key) => this.DEFAULT_STORAGE[key],
@@ -219,7 +222,7 @@ export default class VM {
 		this.globalMap.set("ISTIMEOUT", new Int0DValue());
 		this.globalMap.set("__INT_MAX__", Int0DValue.from(2 ** 32 - 1));
 		this.globalMap.set("__INT_MIN__", Int0DValue.from(-(2 ** 32 - 1)));
-		this.globalMap.set("RANDDATA", new Int1DValue(1000));
+		this.globalMap.set("RANDDATA", Int0DValue.from(this.random.state));
 		this.globalMap.set("TSTR", new Str1DValue(100));
 		// this.globalMap.set("DA", new Int2DValue(100, 100));
 		// this.globalMap.set("DB", new Int2DValue(100, 100));

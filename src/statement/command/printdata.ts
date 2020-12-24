@@ -50,7 +50,7 @@ export default class PrintData extends Statement {
 			return null;
 		}
 
-		const index = Math.floor(Math.random() * this.data.length);
+		const index = vm.random.next() % this.data.length;
 		const value = this.data[index].reduce(vm);
 		assertString(value, "Item of PRINTDATA must be a string");
 

@@ -5,10 +5,10 @@ import type {default as Value, Leaf} from "./index";
 export default class RandValue implements Value {
 	public type = <const>"number";
 
-	public get(_vm: VM, index: number[]): number {
+	public get(vm: VM, index: number[]): number {
 		assert(index.length === 1, "RAND must be indexed by 1 value");
 
-		return Math.floor(Math.random() * index[0]);
+		return Math.floor(vm.random.next() % index[0]);
 	}
 
 	public set(_vm: VM, _value: Leaf, _index: number[]) {

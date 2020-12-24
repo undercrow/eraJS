@@ -1,13 +1,16 @@
+import {assertNumber} from "../assert";
+import type Expr from "../statement/expr";
 import Value from "../value";
 import Int0DValue from "../value/int-0d";
 import Int1DValue from "../value/int-1d";
 import Str0DValue from "../value/str-0d";
 import Str1DValue from "../value/str-1d";
+import type VM from "../vm";
 
 export default class Dim {
 	public name: string;
 	public type: "number" | "string";
-	public size: number[];
+	public size: Expr[];
 	public value?: number | string | number[] | string[];
 
 	public constructor(
@@ -22,7 +25,7 @@ export default class Dim {
 		this.value = value;
 	}
 
-	public apply(variableMap: Map<string, Value>) {
+	public apply(vm: VM, variableMap: Map<string, Value>) {
 		if (this.value != null) {
 			variableMap.set(this.name, Value.from(this.value));
 		} else if (this.size.length === 0 && this.type === "number") {
@@ -30,9 +33,13 @@ export default class Dim {
 		} else if (this.size.length === 0 && this.type === "string") {
 			variableMap.set(this.name, new Str0DValue());
 		} else if (this.size.length === 1 && this.type === "number") {
-			variableMap.set(this.name, new Int1DValue(this.size[0]));
+			const size = this.size[0].reduce(vm);
+			assertNumber(size, "Size of an array must be an integer");
+			variableMap.set(this.name, new Int1DValue(size));
 		} else if (this.size.length === 1 && this.type === "string") {
-			variableMap.set(this.name, new Str1DValue(this.size[0]));
+			const size = this.size[0].reduce(vm);
+			assertNumber(size, "Size of an array must be an integer");
+			variableMap.set(this.name, new Str1DValue(size));
 		}
 	}
 }

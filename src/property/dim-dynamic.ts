@@ -1,3 +1,5 @@
+import {assertNumber} from "../assert";
+import type Expr from "../statement/expr";
 import Value from "../value";
 import Int0DValue from "../value/int-0d";
 import Int1DValue from "../value/int-1d";
@@ -8,7 +10,7 @@ import type VM from "../vm";
 export default class DimDynamic {
 	public name: string;
 	public type: "number" | "string";
-	public size: number[];
+	public size: Expr[];
 	public value?: number | string | number[] | string[];
 
 	public constructor(
@@ -32,9 +34,13 @@ export default class DimDynamic {
 		} else if (this.size.length === 0 && this.type === "string") {
 			context.dynamicMap.set(this.name, new Str0DValue());
 		} else if (this.size.length === 1 && this.type === "number") {
-			context.dynamicMap.set(this.name, new Int1DValue(this.size[0]));
+			const size = this.size[0].reduce(vm);
+			assertNumber(size, "Size of an array must be an integer");
+			context.dynamicMap.set(this.name, new Int1DValue(size));
 		} else if (this.size.length === 1 && this.type === "string") {
-			context.dynamicMap.set(this.name, new Str1DValue(this.size[0]));
+			const size = this.size[0].reduce(vm);
+			assertNumber(size, "Size of an array must be an integer");
+			context.dynamicMap.set(this.name, new Str1DValue(size));
 		}
 	}
 }

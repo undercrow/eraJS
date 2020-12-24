@@ -309,9 +309,9 @@ export default class VM {
 
 		for (const property of header) {
 			if (property instanceof Dim) {
-				property.apply(this.globalMap);
+				property.apply(this, this.globalMap);
 			} else if (property instanceof DimConst) {
-				property.apply(this.globalMap);
+				property.apply(this, this.globalMap);
 			}
 		}
 
@@ -325,9 +325,9 @@ export default class VM {
 				this.staticMap.get(fn.name)!.set("LOCALS", new Str1DValue(100));
 				for (const property of fn.property) {
 					if (property instanceof Dim) {
-						property.apply(this.staticMap.get(fn.name)!);
+						property.apply(this, this.staticMap.get(fn.name)!);
 					} else if (property instanceof DimConst) {
-						property.apply(this.staticMap.get(fn.name)!);
+						property.apply(this, this.staticMap.get(fn.name)!);
 					} else if (property instanceof LocalSize || property instanceof LocalSSize) {
 						property.apply(this, fn.name);
 					}

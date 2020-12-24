@@ -9,6 +9,7 @@ import LocalSize from "../property/localsize";
 import LocalSSize from "../property/localssize";
 import Method from "../property/method";
 import Order from "../property/order";
+import * as E from "./expr";
 import * as U from "./util";
 
 const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
@@ -17,7 +18,7 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 		case "LATER": return U.arg0R0().map(() => new Order("LATER"));
 		case "DIM": {
 			const dimArgument = P.seq(
-				U.sepBy1(",", U.Identifier, U.Int),
+				U.sepBy1(",", U.Identifier, E.expr),
 				P.alt(
 					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Int)),
 					P.succeed(undefined),
@@ -40,7 +41,7 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 		}
 		case "DIMS": {
 			const dimArgument = P.seq(
-				U.sepBy1(",", U.Identifier, U.Int),
+				U.sepBy1(",", U.Identifier, E.expr),
 				P.alt(
 					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Str)),
 					P.succeed(undefined),

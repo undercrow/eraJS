@@ -6,12 +6,13 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+const PARSER = U.arg1R1(E.expr);
 export default class StrLenS extends Statement {
 	public value: Lazy<Expr>;
 
 	public constructor(arg: string) {
 		super();
-		this.value = new Lazy(arg, U.arg1R1(E.expr));
+		this.value = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

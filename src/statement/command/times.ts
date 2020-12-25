@@ -6,12 +6,13 @@ import type VM from "../../vm";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
+const PARSER = U.arg2R2(E.variable, U.Float);
 export default class Times extends Statement {
 	public arg: Lazy<[Variable, number]>;
 
 	public constructor(raw: string) {
 		super();
-		this.arg = new Lazy(raw, U.arg2R2(E.variable, U.Float));
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

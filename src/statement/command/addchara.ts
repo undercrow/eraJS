@@ -10,12 +10,13 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+const PARSER = U.argNR0(E.expr);
 export default class AddChara extends Statement {
 	public characters: Lazy<Expr[]>;
 
 	public constructor(raw: string) {
 		super();
-		this.characters = new Lazy(raw, U.argNR0(E.expr));
+		this.characters = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

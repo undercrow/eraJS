@@ -1,10 +1,11 @@
 import * as U from "../../erb/util";
 import Statement from "../index";
 
+const PARSER = U.arg0R0();
 export default class ResetGlobal extends Statement {
 	public constructor(arg: string) {
 		super();
-		U.arg0R0().tryParse(arg);
+		PARSER.tryParse(arg);
 	}
 
 	public *run() {

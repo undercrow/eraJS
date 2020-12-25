@@ -9,6 +9,10 @@ import Const from "../expr/const";
 import Statement from "../index";
 import Print from "./print";
 
+const PARSER = U.argNR0(P.alt(
+	P.string("'").then(U.charSeq(",").map((str) => new Const(str))),
+	E.expr,
+));
 export default class PrintV extends Statement {
 	public postfix: string;
 	public value: Lazy<Expr[]>;
@@ -16,10 +20,7 @@ export default class PrintV extends Statement {
 	public constructor(instruction: string, raw: string) {
 		super();
 		this.postfix = instruction.replace(/^PRINTV/, "");
-		this.value = new Lazy(raw, U.argNR0(P.alt(
-			P.string("'").then(U.charSeq(",").map((str) => new Const(str))),
-			E.expr,
-		)));
+		this.value = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

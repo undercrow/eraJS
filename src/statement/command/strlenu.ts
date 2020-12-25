@@ -4,12 +4,13 @@ import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Statement from "../index";
 
+const PARSER = U.arg1R1(U.charSeq());
 export default class StrLen extends Statement {
 	public value: Lazy<string>;
 
 	public constructor(arg: string) {
 		super();
-		this.value = new Lazy(arg, U.arg1R1(U.charSeq()));
+		this.value = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

@@ -10,17 +10,18 @@ import type Expr from "../expr";
 import Const from "../expr/const";
 import Statement from "../index";
 
+const PARSER = P.alt(
+	U.arg3R3(U.UInt, U.UInt, U.UInt).map(
+		([r, g, b]) => new Const(color.toHex({r, g, b})),
+	),
+	U.arg1R1(E.expr),
+);
 export default class SetColor extends Statement {
 	public value: Lazy<Expr>;
 
 	public constructor(raw: string) {
 		super();
-		this.value = new Lazy(raw, P.alt(
-			U.arg3R3(U.UInt, U.UInt, U.UInt).map(
-				([r, g, b]) => new Const(color.toHex({r, g, b})),
-			),
-			U.arg1R1(E.expr),
-		));
+		this.value = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

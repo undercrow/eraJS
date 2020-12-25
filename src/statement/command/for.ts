@@ -9,6 +9,7 @@ import type Variable from "../expr/variable";
 import Statement from "../index";
 
 const NEXT = /^NEXT$/i;
+const PARSER = U.arg4R3(E.variable, E.expr, E.expr, E.expr);
 export default class For extends Statement {
 	public static parse(arg: string, lines: string[]): [For, string[]] {
 		const [thunk, rest] = parseThunk(lines, (l) => NEXT.test(l));
@@ -33,8 +34,7 @@ export default class For extends Statement {
 
 	public compile() {
 		if (this.counter == null) {
-			const parser = U.arg4R3(E.variable, E.expr, E.expr, E.expr);
-			[this.counter, this.start, this.end, this.step] = parser.tryParse(this.raw);
+			[this.counter, this.start, this.end, this.step] = PARSER.tryParse(this.raw);
 		}
 	}
 

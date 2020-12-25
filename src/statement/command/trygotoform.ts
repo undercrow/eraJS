@@ -5,9 +5,10 @@ import type Form from "../expr/form";
 import Statement from "../index";
 import Goto from "./goto";
 
+const PARSER = U.arg1R1(E.form[""]);
 export default class TryGotoForm extends Statement {
 	public static parse(raw: string): TryGotoForm {
-		const target = U.arg1R1(E.form[""]).tryParse(raw);
+		const target = PARSER.tryParse(raw);
 		return new TryGotoForm(target);
 	}
 

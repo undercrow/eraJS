@@ -12,6 +12,7 @@ const IF = /^IF\s+/i;
 const ELSEIF = /^ELSEIF\s+/i;
 const ELSE = /^ELSE$/i;
 const ENDIF = /^ENDIF$/i;
+const PARSER = U.arg1R1(E.expr);
 export default class If extends Statement {
 	public static parse(lines: string[]): [If, string[]] {
 		let rest = lines.slice();
@@ -53,7 +54,7 @@ export default class If extends Statement {
 	public constructor(ifThunk: Array<[string, Thunk]>, elseThunk: Thunk) {
 		super();
 		this.ifThunk = ifThunk.map(([cond, thunk]) => [
-			new Lazy(cond, U.arg1R1(E.expr)),
+			new Lazy(cond, PARSER),
 			thunk,
 		]);
 		this.elseThunk = elseThunk;

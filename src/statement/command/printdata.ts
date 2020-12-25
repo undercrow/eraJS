@@ -13,6 +13,8 @@ const DATAFORM_EMPTY = /^DATAFORM$/i;
 const DATALIST = /^DATALIST$/i;
 const ENDLIST = /^ENDLIST$/i;
 const ENDDATA = /^ENDDATA$/i;
+const PARSER_CONST = U.arg1R1(U.charSeq());
+const PARSER_FORM = U.arg1R1(E.form[""]);
 export default class PrintData extends Statement {
 	public static parse(postfix: string, lines: string[]): [PrintData, string[]] {
 		const rest = lines.slice();
@@ -24,9 +26,9 @@ export default class PrintData extends Statement {
 			}
 
 			if (DATA.test(current)) {
-				data.push(new Const(U.arg1R1(U.charSeq()).tryParse(current.slice("DATA".length))));
+				data.push(new Const(PARSER_CONST.tryParse(current.slice("DATA".length))));
 			} else if (DATAFORM.test(current)) {
-				data.push(U.arg1R1(E.form[""]).tryParse(current.slice("DATAFORM".length)));
+				data.push(PARSER_FORM.tryParse(current.slice("DATAFORM".length)));
 			} else if (DATAFORM_EMPTY.test(current)) {
 				data.push(new Const(""));
 			} else if (DATALIST.test(current) || ENDLIST.test(current)) {

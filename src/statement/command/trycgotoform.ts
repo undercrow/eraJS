@@ -9,11 +9,12 @@ import Goto from "./goto";
 
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
+const PARSER = U.arg1R1(E.form[""]);
 export default class TryCGotoForm extends Statement {
 	public static parse(lines: string[]): [TryCGotoForm, string[]] {
 		let rest = lines.slice();
 
-		const target = U.arg1R1(E.form[""]).tryParse(rest.shift()!.slice("TRYCGOTOFORM".length));
+		const target = PARSER.tryParse(rest.shift()!.slice("TRYCGOTOFORM".length));
 		if (rest.length === 0 || !CATCH.test(rest[0])) {
 			throw new Error("Expected CATCH statement");
 		}

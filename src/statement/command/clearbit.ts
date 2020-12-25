@@ -7,12 +7,13 @@ import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
+const PARSER = U.argNR1(E.variable, E.expr);
 export default class ClearBit extends Statement {
 	public arg: Lazy<[Variable, ...Expr[]]>;
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.argNR1(E.variable, E.expr));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

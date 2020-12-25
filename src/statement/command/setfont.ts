@@ -6,12 +6,13 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+const PARSER = U.arg1R0(E.expr);
 export default class SetFont extends Statement {
 	public font: Lazy<Expr | undefined>;
 
 	public constructor(arg: string) {
 		super();
-		this.font = new Lazy(arg, U.arg1R0(E.expr));
+		this.font = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

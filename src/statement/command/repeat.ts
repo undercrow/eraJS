@@ -9,6 +9,7 @@ import type Expr from "../expr";
 import Statement from "../index";
 
 const REND = /^REND$/i;
+const PARSER = U.arg1R1(E.expr);
 export default class Repeat extends Statement {
 	public static parse(arg: string, lines: string[]): [Repeat, string[]] {
 		const [thunk, rest] = parseThunk(lines, (l) => REND.test(l));
@@ -22,7 +23,7 @@ export default class Repeat extends Statement {
 
 	public constructor(arg: string, thunk: Thunk) {
 		super();
-		this.condition = new Lazy(arg, U.arg1R1(E.expr));
+		this.condition = new Lazy(arg, PARSER);
 		this.thunk = thunk;
 	}
 

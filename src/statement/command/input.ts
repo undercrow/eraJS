@@ -3,12 +3,13 @@ import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Statement from "../index";
 
+const PARSER = U.arg1R0(U.Int);
 export default class Input extends Statement {
 	public def: Lazy<number | undefined>;
 
 	public constructor(raw: string) {
 		super();
-		this.def = new Lazy(raw, U.arg1R0(U.Int));
+		this.def = new Lazy(raw, PARSER);
 	}
 
 	// TODO: Use default value

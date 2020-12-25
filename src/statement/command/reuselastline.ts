@@ -6,12 +6,13 @@ import type VM from "../../vm";
 import type Form from "../expr/form";
 import Statement from "../index";
 
+const PARSER = U.arg1R0(E.form[""]);
 export default class ReuseLastLine extends Statement {
 	public arg: Lazy<Form | undefined>;
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg1R0(E.form[""]));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

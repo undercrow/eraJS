@@ -4,6 +4,7 @@ import type VM from "../../vm";
 import Statement from "../index";
 import Print from "./print";
 
+const PARSER = U.arg1R0(U.charSeq()).map((str) => str ?? "");
 export default class PrintC extends Statement {
 	public align: "LEFT" | "RIGHT";
 	public postfix: string;
@@ -13,7 +14,7 @@ export default class PrintC extends Statement {
 		super();
 		this.align = align;
 		this.postfix = postfix;
-		this.value = new Lazy(raw, U.arg1R0(U.charSeq()).map((str) => str ?? ""));
+		this.value = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

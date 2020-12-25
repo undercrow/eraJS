@@ -6,12 +6,13 @@ import type VM from "../../vm";
 import type Form from "../expr/form";
 import Statement from "../index";
 
+const PARSER = U.arg1R1(E.form[""]);
 export default class StrLenForm extends Statement {
 	public value: Lazy<Form>;
 
 	public constructor(arg: string) {
 		super();
-		this.value = new Lazy(arg, U.arg1R1(E.form[""]));
+		this.value = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

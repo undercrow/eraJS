@@ -7,6 +7,10 @@ import type VM from "../../vm";
 import Expr from "../expr";
 import Statement from "../index";
 
+const PARSER = P.alt(
+	U.arg1R1(P.seq(U.Identifier, U.wrap("(", U.sepBy0(",", E.expr), ")"))),
+	U.argNR1(U.Identifier, E.expr).map(([f, ...r]) => [f, r]),
+);
 export default class Call extends Statement {
 	public static parse(raw: string): Call {
 		const [target, arg] = Call.compileArg(raw);
@@ -14,12 +18,7 @@ export default class Call extends Statement {
 	}
 
 	public static compileArg(arg: string): [string, Expr[]] {
-		const parser = P.alt(
-			U.arg1R1(P.seq(U.Identifier, U.wrap("(", U.sepBy0(",", E.expr), ")"))),
-			U.argNR1(U.Identifier, E.expr).map(([f, ...r]) => [f, r]),
-		);
-
-		return parser.tryParse(arg) as [string, Expr[]];
+		return PARSER.tryParse(arg) as [string, Expr[]];
 	}
 
 	public target: string;

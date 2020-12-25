@@ -6,6 +6,7 @@ import Form from "../expr/form";
 import Statement from "../index";
 import Print from "./print";
 
+const PARSER = U.arg1R0(E.form[""]).map((form) => form ?? new Form([{value: ""}]));
 export default class PrintForm extends Statement {
 	public postfix: string;
 	public value: Lazy<Form>;
@@ -13,10 +14,7 @@ export default class PrintForm extends Statement {
 	public constructor(instruction: string, raw: string) {
 		super();
 		this.postfix = instruction.replace(/^PRINTFORM/, "");
-		this.value = new Lazy(
-			raw,
-			U.arg1R0(E.form[""]).map((form) => form ?? new Form([{value: ""}])),
-		);
+		this.value = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

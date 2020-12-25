@@ -7,12 +7,13 @@ import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
+const PARSER = U.arg3R3(E.expr, E.expr, E.variable);
 export default class Split extends Statement {
 	public arg: Lazy<[Expr, Expr, Variable]>;
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg3R3(E.expr, E.expr, E.variable));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

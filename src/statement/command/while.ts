@@ -9,6 +9,7 @@ import type Expr from "../expr";
 import Statement, {Result} from "../index";
 
 const WEND = /^WEND$/i;
+const PARSER = U.arg1R1(E.expr);
 export default class While extends Statement {
 	public static parse(arg: string, lines: string[]): [While, string[]] {
 		const [thunk, rest] = parseThunk(lines, (l) => WEND.test(l));
@@ -23,7 +24,7 @@ export default class While extends Statement {
 
 	public constructor(arg: string, thunk: Thunk) {
 		super();
-		this.condition = new Lazy(arg, U.arg1R1(E.expr));
+		this.condition = new Lazy(arg, PARSER);
 		this.thunk = thunk;
 	}
 

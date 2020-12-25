@@ -28,12 +28,13 @@ function removeCharacter(vm: VM, varName: string, index: number) {
 	}
 }
 
+const PARSER = U.argNR0(E.expr);
 export default class DelChara extends Statement {
 	public charaters: Lazy<Expr[]>;
 
 	public constructor(raw: string) {
 		super();
-		this.charaters = new Lazy(raw, U.argNR0(E.expr));
+		this.charaters = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

@@ -7,13 +7,14 @@ import type Expr from "../expr";
 import Statement from "../index";
 import Print from "./print";
 
+const PARSER = U.arg3R3(E.expr, E.expr, E.expr);
 export default class Bar extends Statement {
 	public arg: Lazy<[Expr, Expr, Expr]>;
 	public newline: boolean;
 
 	public constructor(raw: string, newline: boolean = false) {
 		super();
-		this.arg = new Lazy(raw, U.arg3R3(E.expr, E.expr, E.expr));
+		this.arg = new Lazy(raw, PARSER);
 		this.newline = newline;
 	}
 

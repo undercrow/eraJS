@@ -11,6 +11,19 @@ import AssignOpInt from "./assign-op-int";
 import AssignOpStr from "./assign-op-str";
 import AssignStr from "./assign-str";
 
+const PARSER_VAR = P.seq(
+	E.variable,
+	P.alt(
+		U.alt("="),
+		U.alt("'="),
+		U.alt("*=", "/=", "%=", "+=", "-=", "&=", "|=", "^="),
+		U.alt("++", "--"),
+	).trim(U.WS0),
+	P.any.many().tie(),
+);
+const PARSER_INT = U.sepBy0(",", E.expr);
+const PARSER_FORM = U.sepBy0(",", E.form[","]);
+const PARSER_STR = U.sepBy0(",", E.expr);
 export default class Assign extends Statement {
 	public raw: string;
 	public inner?: AssignForm | AssignInt | AssignOpInt | AssignOpStr | AssignStr;
@@ -22,24 +35,14 @@ export default class Assign extends Statement {
 
 	public *run(vm: VM) {
 		if (this.inner == null) {
-			const firstParser = P.seq(
-				E.variable,
-				P.alt(
-					U.alt("="),
-					U.alt("'="),
-					U.alt("*=", "/=", "%=", "+=", "-=", "&=", "|=", "^="),
-					U.alt("++", "--"),
-				).trim(U.WS0),
-				P.any.many().tie(),
-			);
-			const [dest, op, rest] = firstParser.tryParse(this.raw);
+			const [dest, op, rest] = PARSER_VAR.tryParse(this.raw);
 			const destType = vm.getValue(dest.name).type;
 			if (op === "=" && destType === "number") {
-				this.inner = new AssignInt(dest, U.sepBy0(",", E.expr).tryParse(rest));
+				this.inner = new AssignInt(dest, PARSER_INT.tryParse(rest));
 			} else if (op === "=" && destType === "string") {
-				this.inner = new AssignForm(dest, U.sepBy0(",", E.form[","]).tryParse(rest));
+				this.inner = new AssignForm(dest, PARSER_FORM.tryParse(rest));
 			} else if (op === "'=") {
-				this.inner = new AssignStr(dest, U.sepBy0(",", E.expr).tryParse(rest));
+				this.inner = new AssignStr(dest, PARSER_STR.tryParse(rest));
 			} else if (op === "+=" && destType === "string") {
 				this.inner = new AssignOpStr(dest, "+=", E.expr.tryParse(rest));
 			} else if (op === "++" && destType === "number") {

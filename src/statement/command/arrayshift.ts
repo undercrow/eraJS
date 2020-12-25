@@ -7,12 +7,13 @@ import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
+const PARSER = U.arg3R3(E.variable, E.expr, E.expr);
 export default class ArrayShift extends Statement {
 	public arg: Lazy<[Variable, Expr, Expr]>;
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg3R3(E.variable, E.expr, E.expr));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

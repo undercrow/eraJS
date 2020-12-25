@@ -7,11 +7,12 @@ import Goto from "./goto";
 
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
+const PARSER = U.arg1R1(U.Identifier);
 export default class TryCGoto extends Statement {
 	public static parse(lines: string[]): [TryCGoto, string[]] {
 		let rest = lines.slice();
 
-		const target = U.arg1R1(U.Identifier).tryParse(rest.shift()!.slice("TRYCGOTO".length));
+		const target = PARSER.tryParse(rest.shift()!.slice("TRYCGOTO".length));
 		if (rest.length === 0 || !CATCH.test(rest[0])) {
 			throw new Error("Expected CATCH statement");
 		}

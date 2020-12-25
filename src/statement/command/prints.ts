@@ -7,6 +7,7 @@ import type Expr from "../expr";
 import Statement from "../index";
 import Print from "./print";
 
+const PARSER = U.arg1R1(E.expr);
 export default class PrintS extends Statement {
 	public postfix: string;
 	public value: Lazy<Expr>;
@@ -14,7 +15,7 @@ export default class PrintS extends Statement {
 	public constructor(instruction: string, raw: string) {
 		super();
 		this.postfix = instruction.replace(/^PRINTS/, "");
-		this.value = new Lazy(raw, U.arg1R1(E.expr));
+		this.value = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

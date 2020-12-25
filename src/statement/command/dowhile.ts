@@ -9,9 +9,11 @@ import type Expr from "../expr";
 import Statement from "../index";
 
 const LOOP = /^LOOP\s+/i;
+const PARSER_ARG = U.arg0R0();
+const PARSER_COND = U.arg1R1(E.expr);
 export default class DoWhile extends Statement {
 	public static parse(arg: string, lines: string[]): [DoWhile, string[]] {
-		U.arg0R0().tryParse(arg);
+		PARSER_ARG.tryParse(arg);
 		const [thunk, rest] = parseThunk(lines, (l) => LOOP.test(l));
 		const expr = rest.shift()!.slice("LOOP".length);
 
@@ -23,7 +25,7 @@ export default class DoWhile extends Statement {
 
 	public constructor(condition: string, thunk: Thunk) {
 		super();
-		this.condition = new Lazy(condition, U.arg1R1(E.expr));
+		this.condition = new Lazy(condition, PARSER_COND);
 		this.thunk = thunk;
 	}
 

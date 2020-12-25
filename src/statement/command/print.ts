@@ -6,6 +6,7 @@ import Statement from "../index";
 // type OutType = "K" | "D" | null;
 type Action = "newline" | "wait" | null;
 
+const PARSER = U.arg1R0(U.charSeq()).map((str) => str ?? "");
 export default class Print extends Statement {
 	public static *print(vm: VM, text: string): ReturnType<Statement["run"]> {
 		if (text.length === 0) {
@@ -68,7 +69,7 @@ export default class Print extends Statement {
 	public constructor(instruction: string, raw: string) {
 		super();
 		this.postfix = instruction.replace(/^PRINT/, "");
-		this.value = new Lazy(raw, U.arg1R0(U.charSeq()).map((str) => str ?? ""));
+		this.value = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

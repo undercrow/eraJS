@@ -6,6 +6,7 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+const PARSER = U.arg2R2(E.expr, E.expr);
 export default class PrintButton extends Statement {
 	public align?: "LEFT" | "RIGHT";
 	public arg: Lazy<[Expr, Expr]>;
@@ -13,7 +14,7 @@ export default class PrintButton extends Statement {
 	public constructor(arg: string, align?: PrintButton["align"]) {
 		super();
 		this.align = align;
-		this.arg = new Lazy(arg, U.arg2R2(E.expr, E.expr));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

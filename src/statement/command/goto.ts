@@ -2,9 +2,10 @@ import * as U from "../../erb/util";
 import type VM from "../../vm";
 import Statement from "../index";
 
+const PARSER = U.arg1R1(U.Identifier);
 export default class Goto extends Statement {
 	public static parse(raw: string): Goto {
-		const target = U.arg1R1(U.Identifier).tryParse(raw);
+		const target = PARSER.tryParse(raw);
 		return new Goto(target);
 	}
 

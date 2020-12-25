@@ -8,12 +8,13 @@ import Statement from "../index";
 import Print from "./print";
 import PrintC from "./printc";
 
+const PARSER = U.arg1R1(E.expr);
 export default class PrintPalam extends Statement {
 	public arg: Lazy<Expr>;
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg1R1(E.expr));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

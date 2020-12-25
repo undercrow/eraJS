@@ -4,12 +4,13 @@ import Statement from "../index";
 
 export type Align = "LEFT" | "CENTER" | "RIGHT";
 
+const PARSER = U.arg1R1(U.alt("LEFT", "CENTER", "RIGHT"));
 export default class Alignment extends Statement {
 	public align: Align;
 
 	public constructor(arg: string) {
 		super();
-		this.align = U.arg1R1(U.alt("LEFT", "CENTER", "RIGHT")).tryParse(arg);
+		this.align = PARSER.tryParse(arg);
 	}
 
 	public *run(vm: VM) {

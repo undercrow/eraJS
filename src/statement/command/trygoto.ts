@@ -3,9 +3,10 @@ import type VM from "../../vm";
 import Statement from "../index";
 import Goto from "./goto";
 
+const PARSER = U.arg1R1(U.Identifier);
 export default class TryGoto extends Statement {
 	public static parse(raw: string): TryGoto {
-		const target = U.arg1R1(U.Identifier).tryParse(raw);
+		const target = PARSER.tryParse(raw);
 		return new TryGoto(target);
 	}
 

@@ -7,12 +7,13 @@ import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
+const PARSER = U.arg4R1(E.variable, E.expr, E.expr, E.expr);
 export default class VarSet extends Statement {
 	public arg: Lazy<[Variable, Expr | undefined, Expr | undefined, Expr | undefined]>;
 
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg4R1(E.variable, E.expr, E.expr, E.expr));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

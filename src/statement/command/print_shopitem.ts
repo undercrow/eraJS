@@ -4,10 +4,11 @@ import Statement from "../index";
 import Print from "./print";
 import PrintC from "./printc";
 
+const PARSER = U.arg0R0();
 export default class PrintShopItem extends Statement {
 	public constructor(arg: string) {
 		super();
-		U.arg0R0().tryParse(arg);
+		PARSER.tryParse(arg);
 	}
 
 	public *run(vm: VM) {

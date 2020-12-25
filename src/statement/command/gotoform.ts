@@ -4,9 +4,10 @@ import type VM from "../../vm";
 import Form from "../expr/form";
 import Statement from "../index";
 
+const PARSER = U.arg1R1(E.form[""]);
 export default class GotoForm extends Statement {
 	public static parse(raw: string): GotoForm {
-		const target = U.arg1R1(E.form[""]).tryParse(raw);
+		const target = PARSER.tryParse(raw);
 		return new GotoForm(target);
 	}
 

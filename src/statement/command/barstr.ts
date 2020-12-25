@@ -6,11 +6,12 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+const PARSER = U.arg3R3(E.expr, E.expr, E.expr);
 export default class BarStr extends Statement {
 	public arg: Lazy<[Expr, Expr, Expr]>;
 	public constructor(arg: string) {
 		super();
-		this.arg = new Lazy(arg, U.arg3R3(E.expr, E.expr, E.expr));
+		this.arg = new Lazy(arg, PARSER);
 	}
 
 	public *run(vm: VM) {

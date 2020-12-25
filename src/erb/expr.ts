@@ -27,14 +27,23 @@ type LanguageSpec = {
 	ExprL0: Expr;
 	ExprL1: Expr;
 	ExprL2: Expr;
+	ExprL2_2: Expr;
 	ExprL3: Expr;
+	ExprL3_2: Expr;
 	ExprL4: Expr;
+	ExprL4_2: Expr;
 	ExprL5: Expr;
+	ExprL5_2: Expr;
 	ExprL6: Expr;
+	ExprL6_2: Expr;
 	ExprL7: Expr;
+	ExprL7_2: Expr;
 	ExprL8: Expr;
+	ExprL8_2: Expr;
 	ExprL9: Expr;
-	Expr: Expr;
+	ExprL9_2: Expr;
+	FullExpr: Expr;
+	LightExpr: Expr;
 	InlineCall: InlineCall;
 };
 
@@ -43,11 +52,11 @@ const language = P.createLanguage<LanguageSpec>({
 		U.UInt.map((value) => new Const(value)),
 		r.InlineCall,
 		U.Identifier.map((name) => new Variable(name, [])),
-		U.wrap("(", r.Expr, ")"),
+		U.wrap("(", r.FullExpr, ")"),
 	))
 		.map(([name, ...index]) => new Variable(name, index)),
 	ExprL0: (r) => P.alt(
-		U.wrap("(", r.Expr, ")"),
+		U.wrap("(", r.FullExpr, ")"),
 		U.UInt.map((val) => new Const(val)),
 		U.Str.map((value) => new Const(value)),
 		U.wrap('@"', form["\""], '"'),
@@ -67,9 +76,19 @@ const language = P.createLanguage<LanguageSpec>({
 		r.ExprL1,
 		(op, left, right) => new Binary(op, left, right),
 	),
+	ExprL2_2: (r) => leftAssociate(
+		["*", "/"],
+		r.ExprL1,
+		(op, left, right) => new Binary(op, left, right),
+	),
 	ExprL3: (r) => leftAssociate(
 		["+", "-"],
 		r.ExprL2,
+		(op, left, right) => new Binary(op, left, right),
+	),
+	ExprL3_2: (r) => leftAssociate(
+		["+", "-"],
+		r.ExprL2_2,
 		(op, left, right) => new Binary(op, left, right),
 	),
 	ExprL4: (r) => leftAssociate(
@@ -77,9 +96,19 @@ const language = P.createLanguage<LanguageSpec>({
 		r.ExprL3,
 		(op, left, right) => new Binary(op, left, right),
 	),
+	ExprL4_2: (r) => leftAssociate(
+		["<<", ">>"],
+		r.ExprL3_2,
+		(op, left, right) => new Binary(op, left, right),
+	),
 	ExprL5: (r) => leftAssociate(
 		["<=", "<", ">=", ">"],
 		r.ExprL4,
+		(op, left, right) => new Binary(op, left, right),
+	),
+	ExprL5_2: (r) => leftAssociate(
+		["<=", "<", ">=", ">"],
+		r.ExprL4_2,
 		(op, left, right) => new Binary(op, left, right),
 	),
 	ExprL6: (r) => leftAssociate(
@@ -87,14 +116,29 @@ const language = P.createLanguage<LanguageSpec>({
 		r.ExprL5,
 		(op, left, right) => new Binary(op, left, right),
 	),
+	ExprL6_2: (r) => leftAssociate(
+		["==", "!="],
+		r.ExprL5_2,
+		(op, left, right) => new Binary(op, left, right),
+	),
 	ExprL7: (r) => leftAssociate(
 		["&", "|", "^"],
 		r.ExprL6,
 		(op, left, right) => new Binary(op, left, right),
 	),
+	ExprL7_2: (r) => leftAssociate(
+		["&", "|", "^"],
+		r.ExprL6_2,
+		(op, left, right) => new Binary(op, left, right),
+	),
 	ExprL8: (r) => leftAssociate(
 		["&&", "!&", "||", "!|", "^^"],
 		r.ExprL7,
+		(op, left, right) => new Binary(op, left, right),
+	),
+	ExprL8_2: (r) => leftAssociate(
+		["&&", "!&", "||", "!|", "^^"],
+		r.ExprL7_2,
 		(op, left, right) => new Binary(op, left, right),
 	),
 	ExprL9: (r) => P.seqMap(
@@ -114,50 +158,74 @@ const language = P.createLanguage<LanguageSpec>({
 			}
 		},
 	),
-	Expr: (r) => r.ExprL9,
+	ExprL9_2: (r) => P.seqMap(
+		r.ExprL8_2,
+		P.alt(
+			P.seq(
+				P.string("?").trim(U.WS0).then(r.ExprL8_2),
+				P.string("#").trim(U.WS0).then(r.ExprL8_2),
+			),
+			P.succeed(undefined),
+		),
+		(expr, ternary) => {
+			if (ternary != null) {
+				return new Ternary(expr, ternary[0], ternary[1]);
+			} else {
+				return expr;
+			}
+		},
+	),
+	FullExpr: (r) => r.ExprL9,
+	LightExpr: (r) => r.ExprL9_2,
 	InlineCall: (r) => P.seqMap(
 		U.Identifier,
-		U.WS0.then(U.wrap("(", U.sepBy0(",", r.Expr), ")")),
+		U.WS0.then(U.wrap("(", U.sepBy0(",", r.FullExpr), ")")),
 		(name, arg) => new InlineCall(name, arg),
 	),
 });
 
 function createFormParser(...exclude: string[]): P.Parser<Form> {
 	const chunk: P.Parser<Form["expr"][number]> = P.alt(
-		U.wrap("{", P.noneOf("}\r\n").many().tie(), "}").thru(U.nest(P.seqMap(
-			language.Expr,
-			P.string(",").trim(U.WS0).then(language.Expr).fallback(undefined),
-			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-			(value, display, align) => ({value, display, align}),
-		))),
-		U.wrap("%", P.noneOf("%\r\n").many().tie(), "%").thru(U.nest(P.seqMap(
-			language.Expr,
-			P.string(",").trim(U.WS0).then(language.Expr).fallback(undefined),
-			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-			(value, display, align) => ({value, display, align}),
-		))),
+		U.wrap(
+			"{",
+			P.seqMap(
+				language.FullExpr.trim(U.WS0),
+				P.string(",").trim(U.WS0).then(language.FullExpr).fallback(undefined),
+				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+				(value, display, align) => ({value, display, align}),
+			),
+			"}",
+		),
+		U.wrap(
+			"%",
+			P.seqMap(
+				language.LightExpr.trim(U.WS0),
+				P.string(",").trim(U.WS0).then(language.LightExpr).fallback(undefined),
+				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+				(value, display, align) => ({value, display, align}),
+			),
+			"%",
+		),
 		U.wrap(
 			"\\@",
-			P.any.notFollowedBy(P.string("\\@")).many().tie(),
-			"\\@",
-		).thru(
-			U.nest(P.lazy(() => P.seqMap(
-				language.Expr,
-				P.string("?").trim(U.WS0).then(chunk),
-				P.string("#").trim(U.WS0).then(chunk),
+			P.lazy(() => P.seqMap(
+				language.ExprL8.trim(U.WS0),
+				P.string("?").then(P.noneOf("#").many().tie()).thru(U.nest(chunk)),
+				P.string("#").then(chunk),
 				(expr, left, right) => ({
 					value: new Ternary(expr, new Form([left]), new Form([right])),
 				}),
-			))),
+			)),
+			"\\@",
 		),
-		U.charSeq("{", "%", ...exclude).map((value) => ({value})),
+		U.charSeq("{", "%", "\\@", ...exclude),
 	);
 
 	return chunk.atLeast(1).map((expr) => new Form(expr));
 }
 
 export const variable = language.Variable;
-export const expr = language.Expr;
+export const expr = language.FullExpr;
 export const form = {
 	"": createFormParser(),
 	",": createFormParser(","),

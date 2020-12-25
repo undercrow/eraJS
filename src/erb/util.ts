@@ -23,11 +23,15 @@ export function asLine<T>(parser: P.Parser<T>): P.Parser<T> {
 }
 
 export function nest<T>(parser: P.Parser<T>) {
-	return (prev: P.Parser<string>) => prev.chain((value) => {
-		try {
-			return P.succeed(parser.tryParse(value.trim()));
-		} catch (e) {
-			return P.fail((e as Error).message);
+	return (prev: P.Parser<string>) => prev.map((value) => parser.tryParse(value));
+}
+
+export function not(...exclude: string[]) {
+	return P.alt(...exclude.map((e) => P.string(e)), P.any).chain((prev) => {
+		if (exclude.includes(prev)) {
+			return P.fail("not " + exclude.join(", "));
+		} else {
+			return P.succeed(prev);
 		}
 	});
 }
@@ -76,19 +80,22 @@ export const Float = P.alt(
 export const Str = char("\"").many().tie().trim(P.string("\""));
 
 export function char(...exclude: string[]): P.Parser<string> {
-	return P.alt(
-		P.noneOf(exclude.join("") + "\r\n\\"),
-		P.string("\\").then(P.noneOf(exclude.join("") + "\r\n")).map((c) => {
-			switch (c) {
-				case "s": return " ";
-				// eslint-disable-next-line no-irregular-whitespace
-				case "S": return "　";
-				case "t": return "\t";
-				case "n": return "\n";
-				default: return c;
-			}
-		}),
-	);
+	return not(...exclude).chain((prev) => {
+		if (prev === "\\") {
+			return not(...exclude).map((c) => {
+				switch (c) {
+					case "s": return " ";
+					// eslint-disable-next-line no-irregular-whitespace
+					case "S": return "　";
+					case "t": return "\t";
+					case "n": return "\n";
+					default: return c;
+				}
+			});
+		} else {
+			return P.succeed(prev);
+		}
+	});
 }
 
 export function charSeq(...exclude: string[]): P.Parser<string> {

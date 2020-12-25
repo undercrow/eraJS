@@ -137,41 +137,15 @@ import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
 import Thunk from "../thunk";
 import * as E from "./expr";
+import preprocess from "./preprocess";
 import prop from "./property";
 import * as U from "./util";
 
 export default function parseERB(content: string): Fn[] {
-	// Convert \r\n and \r to \n
-	const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-	const lineList = normalized.split("\n");
-
-	// Strip comments
-	const stripped = lineList.map((line) => line.replace(/;.*$/, ""));
-
-	// Trim leading/trailing whitespaces
-	const trimmed = stripped.map((line) => line.replace(/^\s+/, "").replace(/\s+$/, ""));
-
-	// Remove empty lines
-	const filtered = trimmed.filter((line) => line !== "");
-
-	// Remove [SKIPSTART]~[SKIPEND] lines
-	const processed: string[] = [];
-	for (let i = 0; i < filtered.length; ++i) {
-		const line = filtered[i];
-		if (line === "[SKIPSTART]") {
-			for (; i < filtered.length; ++i) {
-				if (filtered[i] === "[SKIPEND]") {
-					break;
-				}
-			}
-		} else {
-			processed.push(line);
-		}
-	}
+	const lineList = preprocess(content);
 
 	const result: Fn[] = [];
-	let rest = processed.slice();
+	let rest = lineList.slice();
 	while (rest.length > 0) {
 		const [fn, restF] = parseFn(rest);
 		result.push(fn);

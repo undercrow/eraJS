@@ -23,6 +23,7 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Int)),
 					P.succeed(undefined),
 				),
+				P.string(",").fallback(null),
 			);
 			return P.alt<Property>(
 				U.WS1.then(P.regex(/DYNAMIC/i).skip(U.WS1).then(dimArgument).map(
@@ -46,6 +47,7 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Str)),
 					P.succeed(undefined),
 				),
+				P.string(",").fallback(null),
 			);
 			return P.alt<Property>(
 				U.WS1.then(P.regex(/DYNAMIC/i).skip(U.WS1).then(dimArgument).map(

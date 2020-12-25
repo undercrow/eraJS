@@ -1,3 +1,4 @@
+import {assertNumber, assertString} from "./assert";
 import type Property from "./property";
 import Order from "./property/order";
 import type {Output, Result} from "./statement";
@@ -9,11 +10,10 @@ export default class Fn {
 	public static START_OF_FN = "@@START";
 
 	public name: string;
-	public arg: Array<[Variable, string | number | null]>;
+	public arg: Array<[Variable, Variable | string | number | null]>;
 	public property: Property[];
 	public thunk: Thunk;
 
-	// NOTE: `statement` argument is mixed array of statments and labels
 	public constructor(name: string, arg: Fn["arg"], property: Property[], thunk: Thunk) {
 		this.name = name;
 		this.arg = arg;
@@ -39,11 +39,37 @@ export default class Fn {
 			const dest = vm.getValue(argDest.name);
 			const index = argDest.reduceIndex(vm);
 			if (dest.type === "number") {
+				let value: string | number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-				dest.set(vm, arg[i] ?? argDef ?? 0, index);
+				if (arg[i] != null) {
+					value = arg[i];
+				} else if (argDef != null) {
+					if (argDef instanceof Variable) {
+						value = argDef.reduce(vm);
+					} else {
+						value = argDef;
+					}
+				} else {
+					value = 0;
+				}
+				assertNumber(value, "Value for number argument must be a number");
+				dest.set(vm, value, index);
 			} else {
+				let value: string | number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-				dest.set(vm, arg[i] ?? argDef ?? "", index);
+				if (arg[i] != null) {
+					value = arg[i];
+				} else if (argDef != null) {
+					if (argDef instanceof Variable) {
+						value = argDef.reduce(vm);
+					} else {
+						value = argDef;
+					}
+				} else {
+					value = "";
+				}
+				assertString(value, "Value for string argument must be a string");
+				dest.set(vm, value, index);
 			}
 		}
 

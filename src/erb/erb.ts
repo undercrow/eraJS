@@ -184,6 +184,7 @@ function parseFn(lines: string[]): [Fn, string[]] {
 		P.alt(
 			P.string("=").trim(U.WS0).then(U.Int),
 			P.string("=").trim(U.WS0).then(U.Str),
+			P.string("=").trim(U.WS0).then(E.variable),
 			P.succeed(null),
 		),
 	));

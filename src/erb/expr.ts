@@ -52,14 +52,14 @@ const language = P.createLanguage<LanguageSpec>({
 		U.UInt.map((value) => new Const(value)),
 		r.InlineCall,
 		U.Identifier.map((name) => new Variable(name, [])),
-		U.wrap("(", r.FullExpr, ")"),
+		U.wrap("(", ")", r.FullExpr),
 	))
 		.map(([name, ...index]) => new Variable(name, index)),
 	ExprL0: (r) => P.alt(
-		U.wrap("(", r.FullExpr, ")"),
+		U.wrap("(", ")", r.FullExpr),
 		U.UInt.map((val) => new Const(val)),
 		U.Str.map((value) => new Const(value)),
-		U.wrap('@"', form["\""], '"'),
+		U.wrap("@\"", "\"", form["\""]),
 		r.InlineCall,
 		r.Variable,
 	),
@@ -179,45 +179,33 @@ const language = P.createLanguage<LanguageSpec>({
 	LightExpr: (r) => r.ExprL9_2,
 	InlineCall: (r) => P.seqMap(
 		U.Identifier,
-		U.WS0.then(U.wrap("(", U.sepBy0(",", r.FullExpr), ")")),
+		U.WS0.then(U.wrap("(", ")", U.sepBy0(",", r.FullExpr))),
 		(name, arg) => new InlineCall(name, arg),
 	),
 });
 
 function createFormParser(...exclude: string[]): P.Parser<Form> {
 	const chunk: P.Parser<Form["expr"][number]> = P.alt(
-		U.wrap(
-			"{",
-			P.seqMap(
-				language.FullExpr.trim(U.WS0),
-				P.string(",").trim(U.WS0).then(language.FullExpr).fallback(undefined),
-				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-				(value, display, align) => ({value, display, align}),
-			),
-			"}",
-		),
-		U.wrap(
-			"%",
-			P.seqMap(
-				language.LightExpr.trim(U.WS0),
-				P.string(",").trim(U.WS0).then(language.LightExpr).fallback(undefined),
-				P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-				(value, display, align) => ({value, display, align}),
-			),
-			"%",
-		),
-		U.wrap(
-			"\\@",
-			P.lazy(() => P.seqMap(
-				language.ExprL8.trim(U.WS0),
-				P.string("?").then(P.noneOf("#").many().tie()).thru(U.nest(chunk)),
-				P.string("#").then(chunk),
-				(expr, left, right) => ({
-					value: new Ternary(expr, new Form([left]), new Form([right])),
-				}),
-			)),
-			"\\@",
-		),
+		U.wrap("{", "}", P.seqMap(
+			language.FullExpr.trim(U.WS0),
+			P.string(",").trim(U.WS0).then(language.FullExpr).fallback(undefined),
+			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+			(value, display, align) => ({value, display, align}),
+		)),
+		U.wrap("%", "%", P.seqMap(
+			language.LightExpr.trim(U.WS0),
+			P.string(",").trim(U.WS0).then(language.LightExpr).fallback(undefined),
+			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+			(value, display, align) => ({value, display, align}),
+		)),
+		U.wrap("\\@", "\\@", P.lazy(() => P.seqMap(
+			language.ExprL8.trim(U.WS0),
+			P.string("?").then(P.noneOf("#").many().tie()).thru(U.nest(chunk)),
+			P.string("#").then(chunk),
+			(expr, left, right) => ({
+				value: new Ternary(expr, new Form([left]), new Form([right])),
+			}),
+		))),
 		U.charSeq("{", "%", "\\@", ...exclude),
 	);
 

@@ -8,7 +8,7 @@ import Expr from "../expr";
 import Statement from "../index";
 
 const PARSER = P.alt(
-	U.arg1R1(P.seq(U.Identifier.skip(U.WS0), U.wrap("(", U.sepBy0(",", U.optional(E.expr)), ")"))),
+	U.arg1R1(P.seq(U.Identifier.skip(U.WS0), U.wrap("(", ")", U.sepBy0(",", U.optional(E.expr))))),
 	U.argNR1(U.Identifier, U.optional(E.expr)).map(([f, ...r]) => [f, r]),
 );
 export default class Call extends Statement {

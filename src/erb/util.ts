@@ -54,7 +54,7 @@ export function sepBy1<T, U>(
 	);
 }
 
-export function wrap<T>(left: string, parser: P.Parser<T>, right: string): P.Parser<T> {
+export function wrap<T>(left: string, right: string, parser: P.Parser<T>): P.Parser<T> {
 	return parser.wrap(P.string(left).skip(WS0), WS0.then(P.string(right)));
 }
 

@@ -17,7 +17,7 @@ export default class CallForm extends Statement {
 
 	public static compileArg(arg: string, exclude: keyof (typeof E.form)): [Form, Expr[]] {
 		const parser = P.alt(
-			U.arg1R1(P.seq(E.form[exclude], U.wrap("(", U.sepBy0(",", U.optional(E.expr)), ")"))),
+			U.arg1R1(P.seq(E.form[exclude], U.wrap("(", ")", U.sepBy0(",", U.optional(E.expr))))),
 			U.argNR1(E.form[exclude], U.optional(E.expr)).map(([f, ...r]) => [f, r]),
 		);
 

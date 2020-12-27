@@ -189,7 +189,7 @@ function parseFn(lines: string[]): [Fn, string[]] {
 		),
 	));
 	const defParser = P.string("@").then(P.seq(U.Identifier.skip(U.WS0), P.alt(
-		U.wrap("(", argParser, ")"),
+		U.wrap("(", ")", argParser),
 		P.string(",").trim(U.WS0).then(argParser),
 		P.succeed([]),
 	)));

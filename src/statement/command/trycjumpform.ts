@@ -27,10 +27,10 @@ export default class TryCJumpForm extends Statement {
 	}
 
 	public target: Form;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 	public catchThunk: Thunk;
 
-	public constructor(target: Form, arg: Expr[], catchThunk: Thunk) {
+	public constructor(target: Form, arg: TryCJumpForm["arg"], catchThunk: Thunk) {
 		super();
 		this.target = target;
 		this.arg = arg;

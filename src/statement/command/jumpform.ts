@@ -12,9 +12,9 @@ export default class JumpForm extends Statement {
 	}
 
 	public target: Form;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 
-	public constructor(target: Form, arg: Expr[]) {
+	public constructor(target: Form, arg: JumpForm["arg"]) {
 		super();
 		this.target = target;
 		this.arg = arg;

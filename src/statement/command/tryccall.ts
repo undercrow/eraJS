@@ -24,11 +24,11 @@ export default class TryCCall extends Statement {
 	}
 
 	public target: string;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 	public thenThunk: Thunk;
 	public catchThunk: Thunk;
 
-	public constructor(target: string, arg: Expr[], thenThunk: Thunk, catchThunk: Thunk) {
+	public constructor(target: string, arg: TryCCall["arg"], thenThunk: Thunk, catchThunk: Thunk) {
 		super();
 		this.target = target;
 		this.arg = arg;

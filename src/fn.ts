@@ -31,7 +31,10 @@ export default class Fn {
 		return this.property.some((p) => p instanceof Order && p.order === "LATER");
 	}
 
-	public *run(vm: VM, arg: Array<string | number>): Generator<Output, Result | null, string> {
+	public *run(
+		vm: VM,
+		arg: Array<string | number | undefined>,
+	): Generator<Output, Result | null, string> {
 		vm.pushContext(this);
 
 		for (let i = 0; i < this.arg.length; ++i) {
@@ -42,7 +45,7 @@ export default class Fn {
 				let value: string | number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (arg[i] != null) {
-					value = arg[i];
+					value = arg[i]!;
 				} else if (argDef != null) {
 					if (argDef instanceof Variable) {
 						value = argDef.reduce(vm);
@@ -58,7 +61,7 @@ export default class Fn {
 				let value: string | number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (arg[i] != null) {
-					value = arg[i];
+					value = arg[i]!;
 				} else if (argDef != null) {
 					if (argDef instanceof Variable) {
 						value = argDef.reduce(vm);

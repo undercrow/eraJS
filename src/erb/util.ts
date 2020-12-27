@@ -22,6 +22,10 @@ export function asLine<T>(parser: P.Parser<T>): P.Parser<T> {
 	return parser.skip(EOL);
 }
 
+export function optional<T>(parser: P.Parser<T>): P.Parser<T | undefined> {
+	return parser.fallback(undefined);
+}
+
 export function nest<T>(parser: P.Parser<T>) {
 	return (prev: P.Parser<string>) => prev.map((value) => parser.tryParse(value));
 }

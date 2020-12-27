@@ -26,11 +26,16 @@ export default class TryCCallForm extends Statement {
 	}
 
 	public target: Form;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 	public thenThunk: Thunk;
 	public catchThunk: Thunk;
 
-	public constructor(target: Form, arg: Expr[], thenThunk: Thunk, catchThunk: Thunk) {
+	public constructor(
+		target: Form,
+		arg: TryCCallForm["arg"],
+		thenThunk: Thunk,
+		catchThunk: Thunk,
+	) {
 		super();
 		this.target = target;
 		this.arg = arg;

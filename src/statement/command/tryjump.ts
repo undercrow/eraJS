@@ -11,9 +11,9 @@ export default class TryJump extends Statement {
 	}
 
 	public target: string;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 
-	public constructor(target: string, arg: Expr[]) {
+	public constructor(target: string, arg: TryJump["arg"]) {
 		super();
 		this.target = target;
 		this.arg = arg;

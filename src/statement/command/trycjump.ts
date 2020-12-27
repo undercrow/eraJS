@@ -26,10 +26,10 @@ export default class TryCJump extends Statement {
 	}
 
 	public target: string;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 	public catchExpr: Thunk;
 
-	public constructor(target: string, arg: Expr[], catchExpr: Thunk) {
+	public constructor(target: string, arg: TryCJump["arg"], catchExpr: Thunk) {
 		super();
 		this.target = target;
 		this.arg = arg;

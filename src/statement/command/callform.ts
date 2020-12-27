@@ -17,17 +17,17 @@ export default class CallForm extends Statement {
 
 	public static compileArg(arg: string, exclude: keyof (typeof E.form)): [Form, Expr[]] {
 		const parser = P.alt(
-			U.arg1R1(P.seq(E.form[exclude], U.wrap("(", U.sepBy0(",", E.expr), ")"))),
-			U.argNR1(E.form[exclude], E.expr).map(([f, ...r]) => [f, r]),
+			U.arg1R1(P.seq(E.form[exclude], U.wrap("(", U.sepBy0(",", U.optional(E.expr)), ")"))),
+			U.argNR1(E.form[exclude], U.optional(E.expr)).map(([f, ...r]) => [f, r]),
 		);
 
 		return parser.tryParse(arg) as [Form, Expr[]];
 	}
 
 	public target: Form;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 
-	public constructor(target: Form, arg: Expr[]) {
+	public constructor(target: Form, arg: CallForm["arg"]) {
 		super();
 		this.target = target;
 		this.arg = arg;

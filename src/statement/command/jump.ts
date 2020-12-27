@@ -11,9 +11,9 @@ export default class Jump extends Statement {
 	}
 
 	public target: string;
-	public arg: Expr[];
+	public arg: (Expr | undefined)[];
 
-	public constructor(target: string, arg: Expr[]) {
+	public constructor(target: string, arg: Jump["arg"]) {
 		super();
 		this.target = target;
 		this.arg = arg;
@@ -23,7 +23,7 @@ export default class Jump extends Statement {
 		const target = this.target.toUpperCase();
 		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
 
-		const arg = this.arg.map((a) => a.reduce(vm));
+		const arg = this.arg.map((a) => a?.reduce(vm));
 		for (const fn of vm.fnMap.get(target)!) {
 			const result = yield* fn.run(vm, arg);
 			if (result != null) {

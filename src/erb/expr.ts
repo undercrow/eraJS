@@ -60,6 +60,7 @@ const language = P.createLanguage<LanguageSpec>({
 		U.UInt.map((val) => new Const(val)),
 		U.Str.map((value) => new Const(value)),
 		U.wrap("@\"", "\"", form["\""]),
+		ternaryChunk(),
 		r.InlineCall,
 		r.Variable,
 	),
@@ -184,28 +185,36 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 });
 
-function createFormParser(...exclude: string[]): P.Parser<Form> {
+const intChunk = U.wrap("{", "}", P.seqMap(
+	language.FullExpr.trim(U.WS0),
+	P.string(",").trim(U.WS0).then(language.FullExpr).fallback(undefined),
+	P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+	(value, display, align) => ({value, display, align}),
+));
+
+const strChunk = U.wrap("%", "%", P.seqMap(
+	language.LightExpr.trim(U.WS0),
+	P.string(",").trim(U.WS0).then(language.LightExpr).fallback(undefined),
+	P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
+	(value, display, align) => ({value, display, align}),
+));
+
+function ternaryChunk(...exclude: string[]): P.Parser<Form["expr"][number]> {
+	return U.wrap("\\@", "\\@", P.lazy(() => P.seqMap(
+		language.ExprL8.trim(U.WS0),
+		P.string("?").then(U.optional(formParser(...exclude, "#"))),
+		P.string("#").then(U.optional(formParser(...exclude))),
+		(expr, left, right) => ({
+			value: new Ternary(expr, left ?? new Const(""), right ?? new Const("")),
+		}),
+	)));
+}
+
+function formParser(...exclude: string[]): P.Parser<Form> {
 	const chunk: P.Parser<Form["expr"][number]> = P.alt(
-		U.wrap("{", "}", P.seqMap(
-			language.FullExpr.trim(U.WS0),
-			P.string(",").trim(U.WS0).then(language.FullExpr).fallback(undefined),
-			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-			(value, display, align) => ({value, display, align}),
-		)),
-		U.wrap("%", "%", P.seqMap(
-			language.LightExpr.trim(U.WS0),
-			P.string(",").trim(U.WS0).then(language.LightExpr).fallback(undefined),
-			P.string(",").trim(U.WS0).then(U.alt("LEFT", "RIGHT")).fallback(undefined),
-			(value, display, align) => ({value, display, align}),
-		)),
-		U.wrap("\\@", "\\@", P.lazy(() => P.seqMap(
-			language.ExprL8.trim(U.WS0),
-			P.string("?").then(P.noneOf("#").many().tie()).thru(U.nest(chunk)),
-			P.string("#").then(chunk),
-			(expr, left, right) => ({
-				value: new Ternary(expr, new Form([left]), new Form([right])),
-			}),
-		))),
+		intChunk,
+		strChunk,
+		ternaryChunk(...exclude),
 		U.charSeq("{", "%", "\\@", ...exclude),
 	);
 
@@ -215,8 +224,8 @@ function createFormParser(...exclude: string[]): P.Parser<Form> {
 export const variable = language.Variable;
 export const expr = language.FullExpr;
 export const form = {
-	"": createFormParser(),
-	",": createFormParser(","),
-	"\"": createFormParser("\""),
-	"(": createFormParser("("),
+	"": formParser(),
+	",": formParser(","),
+	"\"": formParser("\""),
+	"(": formParser("("),
 };

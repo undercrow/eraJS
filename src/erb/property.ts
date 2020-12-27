@@ -20,7 +20,7 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 			const dimArgument = P.seq(
 				U.sepBy1(",", U.Identifier, E.expr),
 				P.alt(
-					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Int)),
+					P.string("=").trim(U.WS0).then(U.sepBy0(",", E.expr)),
 					P.succeed(undefined),
 				),
 				P.string(",").fallback(null),
@@ -44,7 +44,7 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 			const dimArgument = P.seq(
 				U.sepBy1(",", U.Identifier, E.expr),
 				P.alt(
-					P.string("=").trim(U.WS0).then(U.sepBy0(",", U.Str)),
+					P.string("=").trim(U.WS0).then(U.sepBy0(",", E.expr)),
 					P.succeed(undefined),
 				),
 				P.string(",").fallback(null),

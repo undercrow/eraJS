@@ -1,4 +1,4 @@
-import {assertNumber} from "../assert";
+import {assertNumber, assertString} from "../assert";
 import type Expr from "../statement/expr";
 import Value from "../value";
 import Int0DValue from "../value/int-0d";
@@ -11,7 +11,7 @@ export default class DimConst {
 	public name: string;
 	public type: "number" | "string";
 	public size: Expr[];
-	public value?: number | string | number[] | string[];
+	public value?: Expr[];
 
 	public constructor(
 		name: DimConst["name"],
@@ -26,8 +26,22 @@ export default class DimConst {
 	}
 
 	public apply(vm: VM, variableMap: Map<string, Value>) {
-		if (this.value != null) {
-			variableMap.set(this.name, Value.from(this.value));
+		if (this.value != null && this.value.length === 0 && this.type === "number") {
+			const value = this.value[0].reduce(vm);
+			assertNumber(value, "Default value for #DIM must be a number");
+			variableMap.set(this.name, Int0DValue.from(value));
+		} else if (this.value != null && this.value.length === 0 && this.type === "string") {
+			const value = this.value[0].reduce(vm);
+			assertString(value, "Default value for #DIMS must be a string");
+			variableMap.set(this.name, Str0DValue.from(value));
+		} else if (this.value != null && this.value.length === 1 && this.type === "number") {
+			const value = this.value.map((v) => v.reduce(vm));
+			value.forEach((v) => assertNumber(v, "Default value for #DIM must be a number"));
+			variableMap.set(this.name, Int1DValue.from(value as number[]));
+		} else if (this.value != null && this.value.length === 1 && this.type === "string") {
+			const value = this.value.map((v) => v.reduce(vm));
+			value.forEach((v) => assertString(v, "Default value for #DIMS must be a string"));
+			variableMap.set(this.name, Str1DValue.from(value as string[]));
 		} else if (this.size.length === 0 && this.type === "number") {
 			variableMap.set(this.name, new Int0DValue());
 		} else if (this.size.length === 0 && this.type === "string") {

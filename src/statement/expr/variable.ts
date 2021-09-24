@@ -13,7 +13,20 @@ export default class Variable implements Expr {
 	}
 
 	public reduce(vm: VM): string | number {
-		return vm.getValue(this.name).get(vm, this.reduceIndex(vm));
+		if (vm.macroMap.has(this.name)) {
+			if (this.index.length !== 0) {
+				throw new Error("Macro cannot be indexed");
+			}
+
+			const expr = vm.macroMap.get(this.name)?.expr;
+			if (expr == null) {
+				throw new Error("Empty macro cannot be referenced");
+			}
+
+			return expr.reduce(vm);
+		} else {
+			return vm.getValue(this.name).get(vm, this.reduceIndex(vm));
+		}
 	}
 
 	public reduceIndex(vm: VM): number[] {

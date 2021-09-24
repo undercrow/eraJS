@@ -1,6 +1,7 @@
 import P from "parsimmon";
 
 import type Property from "../property";
+import Define from "../property/define";
 import Dim from "../property/dim";
 import DimConst from "../property/dim-const";
 import DimDynamic from "../property/dim-dynamic";
@@ -14,6 +15,9 @@ import * as U from "./util";
 
 const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 	switch (property.toUpperCase()) {
+		case "DEFINE": return U.arg2R1(U.Identifier, U.optional(E.expr)).map(
+			([name, expr]) => new Define(name, expr),
+		);
 		case "PRI": return U.arg0R0().map(() => new Order("PRI"));
 		case "LATER": return U.arg0R0().map(() => new Order("LATER"));
 		case "DIM": {

@@ -4,6 +4,7 @@ import type Color from "./color";
 import {Character, Data} from "./data";
 import Fn from "./fn";
 import type Property from "./property";
+import Define from "./property/define";
 import Dim from "./property/dim";
 import DimConst from "./property/dim-const";
 import DimDynamic from "./property/dim-dynamic";
@@ -47,6 +48,7 @@ export default class VM {
 	};
 
 	public fnMap: Map<string, Fn[]>;
+	public macroMap: Map<string, Define>;
 	public characterMap: Map<number, Character>;
 
 	public globalMap: Map<string, Value>;
@@ -79,6 +81,7 @@ export default class VM {
 		};
 
 		this.fnMap = new Map();
+		this.macroMap = new Map();
 		this.characterMap = new Map();
 		this.globalMap = new Map();
 		this.staticMap = new Map();
@@ -100,6 +103,12 @@ export default class VM {
 				if (b.isLast()) { return -1; }
 				return 0;
 			});
+		}
+
+		for (const property of code.header) {
+			if (property instanceof Define) {
+				this.macroMap.set(property.name, property);
+			}
 		}
 
 		for (const [id, character] of code.data.character) {

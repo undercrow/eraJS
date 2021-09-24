@@ -141,8 +141,8 @@ import preprocess from "./preprocess";
 import prop from "./property";
 import * as U from "./util";
 
-export default function parseERB(content: string): Fn[] {
-	const lineList = preprocess(content);
+export default function parseERB(content: string, macros: Set<string>): Fn[] {
+	const lineList = preprocess(content, macros);
 
 	const result: Fn[] = [];
 	let rest = lineList.slice();

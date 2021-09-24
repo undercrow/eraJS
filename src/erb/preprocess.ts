@@ -1,4 +1,4 @@
-export default function preprocess(raw: string): string[] {
+export default function preprocess(raw: string, macros: Set<string>): string[] {
 	let temp: string[] = [];
 
 	// Step 1: Break by newline
@@ -27,21 +27,39 @@ export default function preprocess(raw: string): string[] {
 		}
 	}
 
-	// Step6: Concatenate lines inside braces
-	const result6: string[] = [];
+	// Step 6: Check [IF]/[ENDIF] blocks
+	// TODO: Handle [ELSEIF], [ELSE]
+	let result6: string[] = [];
 	temp = result5.slice();
 	while (temp.length > 0) {
 		const line = temp.shift()!;
-		if (line === "{") {
-			const [group, rest] = splitBy(temp, "}");
-			result6.push(group.join(""));
+		if (/^\[IF .*\]$/.test(line)) {
+			const name = line.slice("[IF ".length, -1 * "]".length);
+			const [body, rest] = splitBy(temp, "[ENDIF]");
+			if (macros.has(name)) {
+				result6 = result6.concat(body);
+			}
 			temp = rest;
 		} else {
 			result6.push(line);
 		}
 	}
 
-	return result6;
+	// Step 7: Concatenate lines inside braces
+	const result7: string[] = [];
+	temp = result6.slice();
+	while (temp.length > 0) {
+		const line = temp.shift()!;
+		if (line === "{") {
+			const [group, rest] = splitBy(temp, "}");
+			result7.push(group.join(""));
+			temp = rest;
+		} else {
+			result7.push(line);
+		}
+	}
+
+	return result7;
 }
 
 function splitBy(lineList: string[], separator: string): [string[], string[]] {

@@ -1,7 +1,7 @@
 import parseERB from "./erb/erb";
 
 function parseThunk(lines: string[]) {
-	return parseERB("@FN\n" + lines.join("\n"))[0].thunk;
+	return parseERB("@FN\n" + lines.join("\n"), new Set())[0].thunk;
 }
 
 export const TITLE = parseThunk(["CALL SYSTEM_TITLE"]);

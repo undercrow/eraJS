@@ -4,12 +4,29 @@ import parseERB from "./erb/erb";
 import parseERH from "./erb/erh";
 import type Fn from "./fn";
 import type Property from "./property";
+import Define from "./property/define";
 import VM from "./vm";
 
 export function compile(erh: string[], erb: string[], csv: Map<string, string>): VM {
 	const data = parseCSV(csv);
-	const header = ([] as Property[]).concat(...erh.map(parseERH));
-	const fnList = ([] as Fn[]).concat(...erb.map(parseERB));
+
+	const macros = new Set<string>();
+	let header: Property[] = [];
+	for (const content of erh) {
+		const parsed = parseERH(content, macros);
+		for (const property of parsed) {
+			if (property instanceof Define) {
+				macros.add(property.name);
+			}
+		}
+		header = header.concat(parsed);
+	}
+
+	let fnList: Fn[] = [];
+	for (const content of erb) {
+		fnList = fnList.concat(parseERB(content, macros));
+	}
+
 	return new VM({header, fnList, data});
 }
 

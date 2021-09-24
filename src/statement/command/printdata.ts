@@ -7,13 +7,13 @@ import Const from "../expr/const";
 import Statement from "../index";
 import Print from "./print";
 
-const DATA = /^DATA\s+/i;
+const DATA = /^DATA(\s+|$)/i;
 const DATAFORM = /^DATAFORM\s+/i;
 const DATAFORM_EMPTY = /^DATAFORM$/i;
 const DATALIST = /^DATALIST$/i;
 const ENDLIST = /^ENDLIST$/i;
 const ENDDATA = /^ENDDATA$/i;
-const PARSER_CONST = U.arg1R1(U.charSeq());
+const PARSER_CONST = U.arg1R0(U.charSeq());
 const PARSER_FORM = U.arg1R1(E.form[""]);
 export default class PrintData extends Statement {
 	public static parse(postfix: string, lines: string[]): [PrintData, string[]] {
@@ -26,7 +26,7 @@ export default class PrintData extends Statement {
 			}
 
 			if (DATA.test(current)) {
-				data.push(new Const(PARSER_CONST.tryParse(current.slice("DATA".length))));
+				data.push(new Const(PARSER_CONST.tryParse(current.slice("DATA".length)) ?? ""));
 			} else if (DATAFORM.test(current)) {
 				data.push(PARSER_FORM.tryParse(current.slice("DATAFORM".length)));
 			} else if (DATAFORM_EMPTY.test(current)) {

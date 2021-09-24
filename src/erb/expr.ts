@@ -228,4 +228,5 @@ export const form = {
 	",": formParser(","),
 	"\"": formParser("\""),
 	"(": formParser("("),
+	"(,": formParser("(", ","),
 };

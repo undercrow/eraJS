@@ -65,9 +65,9 @@ export const WS0 = WS.many().map(nullFn);
 export const WS1 = WS.atLeast(1).map(nullFn);
 export const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
 export const UInt = P.alt(
-	P.string("1p").then(P.regex(/[0-9]+/)).map((val) => 2 ** parseInt(val, 10)),
-	P.string("0b").then(P.regex(/[0-1]+/)).map((val) => parseInt(val, 2)),
-	P.string("0x").then(P.regex(/[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
+	P.regex(/1p/i).then(P.regex(/[0-9]+/)).map((val) => 2 ** parseInt(val, 10)),
+	P.regex(/0b/i).then(P.regex(/[0-1]+/)).map((val) => parseInt(val, 2)),
+	P.regex(/0x/i).then(P.regex(/[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
 );
 export const Int = P.alt(

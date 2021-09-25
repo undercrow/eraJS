@@ -23,6 +23,14 @@ export default class Binary implements Expr {
 
 	public reduce(vm: VM) {
 		const left = this.left.reduce(vm);
+		switch (this.op) {
+			case "&&": if (typeof left === "number" && left === 0) { return 0; } break;
+			case "!&": if (typeof left === "number" && left === 0) { return 1; } break;
+			case "||": if (typeof left === "number" && left === 1) { return 1; } break;
+			case "!|": if (typeof left === "number" && left === 1) { return 0; } break;
+			default: { /* Do nothing */ }
+		}
+
 		const right = this.right.reduce(vm);
 		if (typeof left === "number" && typeof right === "number") {
 			switch (this.op) {

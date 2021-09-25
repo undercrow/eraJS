@@ -7,6 +7,7 @@ import parseExp from "./csv/exp";
 import parseItem from "./csv/item";
 import parseMark from "./csv/mark";
 import parsePalam from "./csv/palam";
+import parseStr from "./csv/str";
 import parseTalent from "./csv/talent";
 import parseTrain from "./csv/train";
 
@@ -44,6 +45,7 @@ export type Data = {
 	mark: string[];
 	palam: string[];
 	train: string[];
+	str: string[];
 };
 
 export default function parseCSV(content: Map<string, string>): Data {
@@ -69,5 +71,6 @@ export default function parseCSV(content: Map<string, string>): Data {
 		mark: parseMark(values),
 		palam: parsePalam(values),
 		train: parseTrain(values),
+		str: parseStr(values),
 	};
 }

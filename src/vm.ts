@@ -199,6 +199,7 @@ export default class VM {
 		this.globalMap.set("BOUGHT", new Int0DValue());
 		this.globalMap.set("PBAND", Int0DValue.from(4));
 		this.globalMap.set("CHARANUM", new Int0DValue());
+		this.globalMap.set("STR", Str1DValue.from(data.str));
 		this.globalMap.set("SAVESTR", new Str1DValue(100));
 		this.globalMap.set("NO", new IntChar0DValue());
 		this.globalMap.set("ISASSI", new IntChar0DValue());

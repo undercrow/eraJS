@@ -6,6 +6,7 @@ import Dim from "../property/dim";
 import DimConst from "../property/dim-const";
 import DimDynamic from "../property/dim-dynamic";
 import DimRef from "../property/dim-ref";
+import DimSavedata from "../property/dim-savedata";
 import LocalSize from "../property/localsize";
 import LocalSSize from "../property/localssize";
 import Method from "../property/method";
@@ -45,6 +46,9 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 				U.WS1.then(P.regex(/REF/i).skip(U.WS1).then(dimArgument).map(
 					([[name]]) => new DimRef(name),
 				)),
+				U.WS1.then(P.regex(/SAVEDATA/i).skip(U.WS1).then(dimArgument).map(
+					([[name, ...size], value]) => new DimSavedata(name, "number", size, value),
+				)),
 				U.WS1.then(dimArgument).map(
 					([[name, ...size], value]) => new Dim(name, "number", size, value),
 				),
@@ -68,6 +72,9 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 				)),
 				U.WS1.then(P.regex(/REF/i).skip(U.WS1).then(dimArgument).map(
 					([[name]]) => new DimRef(name),
+				)),
+				U.WS1.then(P.regex(/SAVEDATA/i).skip(U.WS1).then(dimArgument).map(
+					([[name, ...size], value]) => new DimSavedata(name, "string", size, value),
 				)),
 				U.WS1.then(dimArgument).map(
 					([[name, ...size], value]) => new Dim(name, "string", size, value),

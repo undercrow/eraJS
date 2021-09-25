@@ -68,6 +68,10 @@ export default class DelChara extends Statement {
 			removeCharacter(vm, "GOTJUEL", id);
 			removeCharacter(vm, "NICKNAME", id);
 			removeCharacter(vm, "MASTERNAME", id);
+			removeCharacter(vm, "DOWNBASE", id);
+			removeCharacter(vm, "CUP", id);
+			removeCharacter(vm, "CDOWN", id);
+			removeCharacter(vm, "TCVAR", id);
 			removeCharacter(vm, "CSTR", id);
 			charaNum.set(vm, charaNum.get(vm, []) as number - 1, []);
 		}

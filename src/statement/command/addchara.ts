@@ -75,6 +75,22 @@ export default class AddChara extends Statement {
 			);
 			vm.getValue<StrChar0DValue>("NICKNAME").value.set(charaNum, character.nickname);
 			vm.getValue<StrChar0DValue>("MASTERNAME").value.set(charaNum, character.mastername);
+			vm.getValue<IntChar1DValue>("DOWNBASE").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("DOWNBASE").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("CUP").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("CUP").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("CDOWN").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("CDOWN").size).fill(0),
+			);
+			vm.getValue<IntChar1DValue>("TCVAR").value.set(
+				charaNum,
+				Array<number>(vm.getValue<IntChar1DValue>("TCVAR").size).fill(0),
+			);
 			vm.getValue<StrChar1DValue>("CSTR").value.set(charaNum, character.cstr.slice());
 
 			vm.getValue("CHARANUM").set(vm, charaNum + 1, []);

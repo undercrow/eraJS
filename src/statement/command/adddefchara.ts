@@ -1,5 +1,7 @@
 import * as U from "../../erb/util";
+import type VM from "../../vm";
 import Statement from "../index";
+import AddChara from "./addchara";
 
 const PARSER = U.arg0R0();
 export default class AddDefChara extends Statement {
@@ -8,9 +10,7 @@ export default class AddDefChara extends Statement {
 		PARSER.tryParse(arg);
 	}
 
-	public *run() {
-		throw new Error("ADDDEFCHARA is not implemented yet!");
-
-		return null;
+	public *run(vm: VM) {
+		return yield* new AddChara(" 0").run(vm);
 	}
 }

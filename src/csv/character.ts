@@ -33,7 +33,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					break;
 				}
 				case "呼び名": {
-					character.nickname = row[1];
+					character.callname = row[1];
 					break;
 				}
 				case "基礎": {
@@ -103,6 +103,14 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					character.flags![index] = value;
 					break;
 				}
+				case "あだ名": {
+					character.nickname = row[1];
+					break;
+				}
+				case "主人の呼び方": {
+					character.mastername = row[1];
+					break;
+				}
 				case "CSTR": {
 					const index = parseInt(row[1]);
 					assertNumber(index, `Flag index in ${fileName} should be an integer`);
@@ -114,8 +122,10 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 		}
 
 		assert(character.id != null, `ID should be defined in ${fileName}`);
-		assert(character.name != null, `Name should be defined in ${fileName}`);
-		assert(character.nickname != null, `Nickname should be defined in ${fileName}`);
+		if (character.name == null) { character.name = ""; }
+		if (character.callname == null) { character.callname = ""; }
+		if (character.nickname == null) { character.nickname = ""; }
+		if (character.mastername == null) { character.mastername = ""; }
 
 		result.set(character.id, character as Character);
 	}

@@ -31,7 +31,7 @@ export default class AddChara extends Statement {
 			vm.getValue<IntChar0DValue>("NO").value.set(charaNum, character.id);
 			vm.getValue<IntChar0DValue>("ISASSI").value.set(charaNum, 0);
 			vm.getValue<StrChar0DValue>("NAME").value.set(charaNum, character.name);
-			vm.getValue<StrChar0DValue>("CALLNAME").value.set(charaNum, character.nickname);
+			vm.getValue<StrChar0DValue>("CALLNAME").value.set(charaNum, character.callname);
 			vm.getValue<IntChar1DValue>("BASE").value.set(charaNum, character.base.slice());
 			vm.getValue<IntChar1DValue>("MAXBASE").value.set(charaNum, character.maxBase.slice());
 			vm.getValue<IntChar1DValue>("ABL").value.set(charaNum, character.abilities.slice());
@@ -73,6 +73,8 @@ export default class AddChara extends Statement {
 				charaNum,
 				Array<number>(vm.getValue<IntChar1DValue>("GOTJUEL").size).fill(0),
 			);
+			vm.getValue<StrChar0DValue>("NICKNAME").value.set(charaNum, character.nickname);
+			vm.getValue<StrChar0DValue>("MASTERNAME").value.set(charaNum, character.mastername);
 			vm.getValue<StrChar1DValue>("CSTR").value.set(charaNum, character.cstr.slice());
 
 			vm.getValue("CHARANUM").set(vm, charaNum + 1, []);

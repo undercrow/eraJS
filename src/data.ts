@@ -13,7 +13,9 @@ import parseTrain from "./csv/train";
 export type Character = {
 	id: number;
 	name: string;
+	callname: string;
 	nickname: string;
+	mastername: string;
 	talent: number[];
 	maxBase: number[];
 	base: number[];

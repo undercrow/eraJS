@@ -6,10 +6,12 @@ import type Expr from "./index";
 export default class Variable implements Expr {
 	public name: string;
 	public index: Expr[];
+	public scope?: string;
 
-	public constructor(name: string, index: Expr[]) {
+	public constructor(name: string, index: Expr[], scope?: string) {
 		this.name = name.toUpperCase();
 		this.index = index;
+		this.scope = scope;
 	}
 
 	public reduce(vm: VM): string | number {
@@ -24,6 +26,13 @@ export default class Variable implements Expr {
 			}
 
 			return expr.reduce(vm);
+		} else if (this.scope != null) {
+			const variable = vm.staticMap.get(this.scope)?.get(this.name);
+			if (variable == null) {
+				throw new Error(`Variable ${this.scope}@${this.name} does not exist`);
+			}
+
+			return variable.get(vm, this.reduceIndex(vm));
 		} else {
 			return vm.getValue(this.name).get(vm, this.reduceIndex(vm));
 		}

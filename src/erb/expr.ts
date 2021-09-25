@@ -23,6 +23,7 @@ function leftAssociate<E, OP extends string>(
 }
 
 type LanguageSpec = {
+	SimpleVariable: Variable;
 	Variable: Variable;
 	ExprL0: Expr;
 	ExprL1: Expr;
@@ -48,13 +49,22 @@ type LanguageSpec = {
 };
 
 const language = P.createLanguage<LanguageSpec>({
-	Variable: (r) => U.sepBy1(":", U.Identifier, P.alt(
+	SimpleVariable: () => P.alt(
+		P.seqMap(
+			U.Identifier,
+			P.string("@"),
+			U.Identifier,
+			(name, _at, scope) => new Variable(name, [], scope),
+		),
+		U.Identifier.map((name) => new Variable(name, [])),
+	),
+	Variable: (r) => U.sepBy1(":", r.SimpleVariable, P.alt(
 		U.UInt.map((value) => new Const(value)),
 		r.InlineCall,
-		U.Identifier.map((name) => new Variable(name, [])),
+		r.SimpleVariable,
 		U.wrap("(", ")", r.FullExpr),
 	))
-		.map(([name, ...index]) => new Variable(name, index)),
+		.map(([variable, ...index]) => new Variable(variable.name, index, variable.scope)),
 	ExprL0: (r) => P.alt(
 		U.wrap("(", ")", r.FullExpr),
 		U.UInt.map((val) => new Const(val)),

@@ -1,4 +1,5 @@
 import * as U from "../../erb/util";
+import type VM from "../../vm";
 import Statement from "../index";
 
 const PARSER = U.arg0R0();
@@ -8,8 +9,8 @@ export default class FontItalic extends Statement {
 		PARSER.tryParse(arg);
 	}
 
-	public *run() {
-		throw new Error("FONTITALIC is not implemented yet!");
+	public *run(vm: VM) {
+		vm.font.italic = !vm.font.italic;
 
 		return null;
 	}

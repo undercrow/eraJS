@@ -41,6 +41,7 @@ import ExistCSV from "../statement/command/existcsv";
 import FontBold from "../statement/command/fontbold";
 import FontItalic from "../statement/command/fontitalic";
 import FontRegular from "../statement/command/fontregular";
+import FontStyle from "../statement/command/fontstyle";
 import For from "../statement/command/for";
 import ForceWait from "../statement/command/forcewait";
 import GetBgColor from "../statement/command/getbgcolor";
@@ -312,6 +313,7 @@ function parseStatement(lines: string[]): [Statement, string[]] {
 			case "FONTBOLD": return [new FontBold(arg), rest];
 			case "FONTITALIC": return [new FontItalic(arg), rest];
 			case "FONTREGULAR": return [new FontRegular(arg), rest];
+			case "FONTSTYLE": return [new FontStyle(arg), rest];
 			case "GETSTYLE": return [new GetStyle(arg), rest];
 			case "SETFONT": return [new SetFont(arg), rest];
 			case "GETFONT": return [new GetFont(arg), rest];

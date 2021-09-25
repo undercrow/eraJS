@@ -61,6 +61,9 @@ export default class VM {
 	public font!: {
 		name: string;
 		bold: boolean;
+		italic: boolean;
+		strike: boolean;
+		underline: boolean;
 	};
 	public color!: {
 		defaultFront: Color;
@@ -130,6 +133,9 @@ export default class VM {
 		this.font = {
 			name: "",
 			bold: false,
+			italic: false,
+			strike: false,
+			underline: false,
 		};
 		this.printCPerLine = 3; // TODO
 

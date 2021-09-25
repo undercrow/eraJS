@@ -12,8 +12,15 @@ export default class InputS extends Statement {
 		this.def = new Lazy(raw, PARSER);
 	}
 
-	public *run(_vm: VM) {
-		throw new Error("INPUTS is not implemented yet!");
+	public *run(vm: VM) {
+		const input: string = yield <const>{type: "input"};
+		let value: string;
+		if (input !== "") {
+			value = input;
+		} else {
+			value = this.def.get() ?? "";
+		}
+		vm.getValue("RESULTS").set(vm, value, [0]);
 
 		return null;
 	}

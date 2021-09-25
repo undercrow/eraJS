@@ -15,7 +15,7 @@ export default class Input extends Statement {
 	// TODO: Use default value
 	public *run(vm: VM) {
 		while (true) {
-			const input = yield <const>{type: "input"};
+			const input: string = yield <const>{type: "input"};
 			const value = parseInt(input);
 			if (!isNaN(value)) {
 				vm.getValue("RESULT").set(vm, value, [0]);

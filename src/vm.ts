@@ -175,7 +175,7 @@ export default class VM {
 		this.globalMap.set("COUNT", new Int0DValue());
 		this.globalMap.set("DAY", new Int1DValue(1000));
 		this.globalMap.set("TIME", new Int0DValue());
-		this.globalMap.set("MONEY", new Int0DValue());
+		this.globalMap.set("MONEY", new Int1DValue(100));
 		this.globalMap.set("MASTER", new Int0DValue());
 		this.globalMap.set("TARGET", Int0DValue.from(-1));
 		this.globalMap.set("ASSI", Int0DValue.from(-1));

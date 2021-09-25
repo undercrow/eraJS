@@ -221,11 +221,11 @@ function ternaryChunk(...exclude: string[]): P.Parser<Form["expr"][number]> {
 }
 
 function formParser(...exclude: string[]): P.Parser<Form> {
-	const chunk: P.Parser<Form["expr"][number]> = P.alt(
+	const chunk = P.alt<Form["expr"][number]>(
 		intChunk,
 		strChunk,
 		ternaryChunk(...exclude),
-		U.charSeq("{", "%", "\\@", ...exclude),
+		U.charSeq("{", "%", "\\@", ...exclude).map((value) => ({value})),
 	);
 
 	return chunk.atLeast(1).map((expr) => new Form(expr));

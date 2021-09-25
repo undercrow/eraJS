@@ -6,6 +6,7 @@ import type LocalSize from "./localsize";
 import type LocalSSize from "./localssize";
 import type Method from "./method";
 import type Order from "./order";
+import type Single from "./single";
 
 type Property =
 	| Define
@@ -15,6 +16,7 @@ type Property =
 	| LocalSize
 	| LocalSSize
 	| Method
-	| Order;
+	| Order
+	| Single;
 
 export default Property;

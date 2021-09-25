@@ -7,21 +7,25 @@ export default class StrChar1DValue implements Value {
 	public value: Map<number, string[]>;
 	public size: number;
 
+	public static normalizeIndex(vm: VM, index: number[]): number[] {
+		if (index.length === 0) {
+			return [vm.getValue("TARGET").get(vm, []) as number, 0];
+		} else if (index.length === 1) {
+			return [vm.getValue("TARGET").get(vm, []) as number, index[0]];
+		} else if (index.length === 2) {
+			return index;
+		} else {
+			throw new Error("1D character variable must be indexed by at most 2 values");
+		}
+	}
+
 	public constructor(size: number) {
 		this.value = new Map();
 		this.size = size;
 	}
 
 	public get(vm: VM, index: number[]): string {
-		let realIndex: number[];
-		if (index.length === 2) {
-			realIndex = index;
-		} else if (index.length === 1) {
-			realIndex = [vm.getValue("TARGET").get(vm, []) as number, index[0]];
-		} else {
-			throw new Error("1D character variable must be indexed by 1 or 2 value");
-		}
-
+		const realIndex = StrChar1DValue.normalizeIndex(vm, index);
 		if (!this.value.has(realIndex[0])) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}
@@ -30,16 +34,8 @@ export default class StrChar1DValue implements Value {
 	}
 
 	public set(vm: VM, value: Leaf, index: number[]) {
+		const realIndex = StrChar1DValue.normalizeIndex(vm, index);
 		assertString(value, "Cannot assign a number to a string variable");
-		let realIndex: number[];
-		if (index.length === 2) {
-			realIndex = index;
-		} else if (index.length === 1) {
-			realIndex = [vm.getValue("TARGET").get(vm, []) as number, index[0]];
-		} else {
-			throw new Error("1D character variable must be indexed by 1 or 2 value");
-		}
-
 		if (!this.value.has(realIndex[0])) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}

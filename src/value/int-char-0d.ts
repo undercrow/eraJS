@@ -6,20 +6,22 @@ export default class IntChar0DValue implements Value {
 	public type = <const>"number";
 	public value: Map<number, number>;
 
+	public static normalizeIndex(vm: VM, index: number[]): number[] {
+		if (index.length === 0) {
+			return [vm.getValue("TARGET").get(vm, []) as number];
+		} else if (index.length === 1) {
+			return index;
+		} else {
+			throw new Error("0D character variable must be indexed by at most 1 value");
+		}
+	}
+
 	public constructor() {
 		this.value = new Map();
 	}
 
 	public get(vm: VM, index: number[]): number {
-		let realIndex: number[];
-		if (index.length === 1) {
-			realIndex = index;
-		} else if (index.length === 0) {
-			realIndex = [vm.getValue("TARGET").get(vm, []) as number];
-		} else {
-			throw new Error("0D character variable must be indexed by 0 or 1 value");
-		}
-
+		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
 		if (!this.value.has(realIndex[0])) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}
@@ -28,16 +30,8 @@ export default class IntChar0DValue implements Value {
 	}
 
 	public set(vm: VM, value: Leaf, index: number[]) {
+		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
 		assertNumber(value, "Cannot assign a string to a numeric variable");
-		let realIndex: number[];
-		if (index.length === 1) {
-			realIndex = index;
-		} else if (index.length === 0) {
-			realIndex = [vm.getValue("TARGET").get(vm, []) as number];
-		} else {
-			throw new Error("0D character variable must be indexed by 0 or 1 value");
-		}
-
 		if (!this.value.has(realIndex[0])) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}

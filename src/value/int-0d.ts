@@ -1,4 +1,4 @@
-import {assert, assertNumber} from "../assert";
+import {assertNumber} from "../assert";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -13,18 +13,27 @@ export default class Int0DValue implements Value {
 		return result;
 	}
 
+	public static normalizeIndex(index: number[]): number[] {
+		if (index.length === 0) {
+			return [];
+		} else if (index.length === 1 && index[0] === 0) {
+			return [];
+		} else {
+			throw new Error("0D variable must be indexed by at most 0 value");
+		}
+	}
+
 	public constructor() {
 		this.value = 0;
 	}
 
 	public get(_vm: VM, index: number[]): number {
-		assert(index.length === 0 || index[0] === 0, "0D variable must be indexed by 0 value");
-
+		Int0DValue.normalizeIndex(index);
 		return this.value;
 	}
 
 	public set(_vm: VM, value: Leaf, index: number[]) {
-		assert(index.length === 0 || index[0] === 0, "0D variable must be indexed by 0 value");
+		Int0DValue.normalizeIndex(index);
 		assertNumber(value, "Cannot assign a string to a numeric variable");
 
 		this.value = value;

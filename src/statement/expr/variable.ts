@@ -45,7 +45,7 @@ export default class Variable implements Expr {
 
 			return index as number[];
 		} else {
-			return [0];
+			return [];
 		}
 	}
 }

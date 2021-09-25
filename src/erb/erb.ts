@@ -14,7 +14,9 @@ import BarStr from "../statement/command/barstr";
 import Begin from "../statement/command/begin";
 import Break from "../statement/command/break";
 import Call from "../statement/command/call";
+import CallF from "../statement/command/callf";
 import CallForm from "../statement/command/callform";
+import CallFormF from "../statement/command/callformf";
 import CallTrain from "../statement/command/calltrain";
 import Case from "../statement/command/case";
 import CbgClear from "../statement/command/cbgclear";
@@ -380,6 +382,8 @@ function parseStatement(lines: string[]): [Statement, string[]] {
 			case "QUIT": return [new Quit(arg), rest];
 			case "CALL": return [Call.parse(arg), rest];
 			case "CALLFORM": return [CallForm.parse(arg), rest];
+			case "CALLF": return [CallF.parse(arg), rest];
+			case "CALLFORMF": return [CallFormF.parse(arg), rest];
 			case "TRYCALL": return [TryCall.parse(arg), rest];
 			case "TRYCALLFORM": return [TryCallForm.parse(arg), rest];
 			case "TRYCCALL": return TryCCall.parse(lines);

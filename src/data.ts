@@ -47,9 +47,10 @@ export type Data = {
 export default function parseCSV(content: Map<string, string>): Data {
 	const values = new Map<string, string[][]>();
 	for (const [fileName, raw] of content) {
-		const normalized = raw.replace(/\r/g, "");
-		const stripped = normalized.split("\n").map((line) => /^[^;]*/.exec(line)![0]).join("\n");
-		const parsed = Papa.parse<string[]>(stripped, {
+		const normalized = raw.replace(/\r/g, "").split("\n");
+		const stripped = normalized.map((line) => /^[^;]*/.exec(line)![0]);
+		const filtered = stripped.map((line) => line.trim()).filter((line) => line.length > 0);
+		const parsed = Papa.parse<string[]>(filtered.join("\n"), {
 			delimiter: ",",
 			skipEmptyLines: true,
 		});

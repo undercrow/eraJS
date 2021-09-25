@@ -16,8 +16,12 @@ import * as U from "./util";
 
 const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 	switch (property.toUpperCase()) {
-		case "DEFINE": return U.arg2R1(U.Identifier, U.optional(E.expr)).map(
-			([name, expr]) => new Define(name, expr),
+		case "DEFINE": return P.seqMap(
+			U.WS1,
+			U.Identifier,
+			U.WS1,
+			E.expr,
+			(_1, name, _2, expr) => new Define(name, expr),
 		);
 		case "PRI": return U.arg0R0().map(() => new Order("PRI"));
 		case "LATER": return U.arg0R0().map(() => new Order("LATER"));

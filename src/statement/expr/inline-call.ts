@@ -24,6 +24,7 @@ import getColor from "../method/getcolor";
 import getDefBgColor from "../method/getdefbgcolor";
 import getDefColor from "../method/getdefcolor";
 import getFocusColor from "../method/getfocuscolor";
+import groupMatch from "../method/groupmatch";
 import inRange from "../method/inrange";
 import limit from "../method/limit";
 import max from "../method/max";
@@ -79,6 +80,7 @@ export default class InlineCall implements Expr {
 			case "GETDEFBGCOLOR": return getDefBgColor(vm, arg);
 			case "GETDEFCOLOR": return getDefColor(vm, arg);
 			case "GETFOCUSCOLOR": return getFocusColor(vm, arg);
+			case "GROUPMATCH": return groupMatch(vm, arg);
 			case "INRANGE": return inRange(vm, arg);
 			case "LIMIT": return limit(vm, arg);
 			case "MAX": return max(vm, arg);

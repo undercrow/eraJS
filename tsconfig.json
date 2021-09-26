@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"allowJs": true,
 		"esModuleInterop": true,
-		"lib": ["ES2015", "ES2017", "ES2019"],
+		"lib": ["ES2015", "ES2017", "ES2019", "WebWorker"],
 		"declaration": true,
 		"outDir": "./build",
 		"moduleResolution": "Node",

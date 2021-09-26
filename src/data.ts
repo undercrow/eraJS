@@ -40,7 +40,7 @@ export type Data = {
 	character: Map<number, Character>;
 	ability: string[];
 	exp: string[];
-	item: string[];
+	item: {name: string; price: number}[];
 	talent: string[];
 	mark: string[];
 	palam: string[];

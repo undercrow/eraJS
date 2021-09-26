@@ -233,7 +233,7 @@ export default class VM {
 		this.globalMap.set("EXPNAME", Str1DValue.from(data.exp));
 		this.globalMap.set("MARKNAME", Str1DValue.from(data.mark));
 		this.globalMap.set("PALAMNAME", Str1DValue.from(data.palam));
-		this.globalMap.set("ITEMNAME", Str1DValue.from(data.item));
+		this.globalMap.set("ITEMNAME", Str1DValue.from(data.item.map((it) => it.name)));
 		this.globalMap.set("NOITEM", new Int1DValue(1000));
 		this.globalMap.set("LINECOUNT", new Int0DValue());
 		this.globalMap.set("ISTIMEOUT", new Int0DValue());
@@ -257,7 +257,7 @@ export default class VM {
 		this.globalMap.set("TCVAR", new IntChar1DValue(1000));
 		this.globalMap.set("CSTR", new StrChar1DValue(100));
 		// this.globalMap.set("CDFLAG", new IntChar2DValue(100, 100));
-		this.globalMap.set("ITEMPRICE", new Int1DValue(1000));
+		this.globalMap.set("ITEMPRICE", Int1DValue.from(data.item.map((it) => it.price)));
 		this.globalMap.set("TRAINNAME", Str1DValue.from(data.train));
 		this.globalMap.set("BASENAME", new Str1DValue(100));
 		this.globalMap.set("EQUIPNAME", new Str1DValue(100));
@@ -303,8 +303,8 @@ export default class VM {
 			}
 		}
 		for (let i = 0; i < data.item.length; ++i) {
-			if (data.item[i] !== "") {
-				this.globalMap.set(data.item[i], Int0DValue.from(i));
+			if (data.item[i].name !== "") {
+				this.globalMap.set(data.item[i].name, Int0DValue.from(i));
 			}
 		}
 		for (let i = 0; i < data.talent.length; ++i) {

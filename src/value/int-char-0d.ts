@@ -11,6 +11,8 @@ export default class IntChar0DValue implements Value {
 			return [vm.getValue("TARGET").get(vm, []) as number];
 		} else if (index.length === 1) {
 			return index;
+		} else if (index.length === 2 && index[1] === 0) {
+			return index.slice(0, -1);
 		} else {
 			throw new Error("0D character variable must be indexed by at most 1 value");
 		}

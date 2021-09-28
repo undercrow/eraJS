@@ -21,7 +21,7 @@ export default class Str1DValue implements Value {
 		} else if (index.length === 1) {
 			return index;
 		} else if (index.length === 2 && index[1] === 0) {
-			return [];
+			return index.slice(0, -1);
 		} else {
 			throw new Error("1D variable must be indexed by at most 1 value");
 		}

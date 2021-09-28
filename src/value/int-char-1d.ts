@@ -14,6 +14,8 @@ export default class IntChar1DValue implements Value {
 			return [vm.getValue("TARGET").get(vm, []) as number, index[0]];
 		} else if (index.length === 2) {
 			return index;
+		} else if (index.length === 3 && index[2] === 0) {
+			return index.slice(0, -1);
 		} else {
 			throw new Error("1D character variable must be indexed by at most 2 values");
 		}

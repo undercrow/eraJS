@@ -9,7 +9,7 @@ export default function csvJuel(vm: VM, arg: Array<string | number>): number {
 
 	const character = vm.code.data.character.get(num);
 	assert(character != null, `Character #${num} does not exist`);
-	assert(character.juel.length > index, `Character JUEL #${index} does not exist`);
+	assert(character.juel.has(index), `Character JUEL #${index} does not exist`);
 
-	return character.juel[index];
+	return character.juel.get(index)!;
 }

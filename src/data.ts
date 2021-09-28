@@ -10,6 +10,7 @@ import parsePalam from "./csv/palam";
 import parseStr from "./csv/str";
 import parseTalent from "./csv/talent";
 import parseTrain from "./csv/train";
+import parseVarSize from "./csv/varsize";
 
 export type Character = {
 	id: number;
@@ -17,16 +18,16 @@ export type Character = {
 	callname: string;
 	nickname: string;
 	mastername: string;
-	talent: number[];
-	maxBase: number[];
-	base: number[];
-	abilities: number[];
-	exp: number[];
-	flags: number[];
-	cstr: string[];
-	mark: number[];
-	palam: number[];
-	juel: number[];
+	talent: Map<number, number>,
+	maxBase: Map<number, number>;
+	base: Map<number, number>;
+	abilities: Map<number, number>;
+	exp: Map<number, number>;
+	flags: Map<number, number>;
+	cstr: Map<number, string>;
+	mark: Map<number, number>;
+	palam: Map<number, number>;
+	juel: Map<number, number>;
 };
 
 export type Data = {
@@ -38,14 +39,15 @@ export type Data = {
 		version?: number;
 	};
 	character: Map<number, Character>;
-	ability: string[];
-	exp: string[];
-	item: {name: string; price: number}[];
-	talent: string[];
-	mark: string[];
-	palam: string[];
-	train: string[];
-	str: string[];
+	ability: Map<number, string>;
+	exp: Map<number, string>;
+	item: Map<number, {name: string; price: number}>;
+	talent: Map<number, string>;
+	mark: Map<number, string>;
+	palam: Map<number, string>;
+	train: Map<number, string>;
+	str: Map<number, string>;
+	varSize: Map<string, number>;
 };
 
 export default function parseCSV(content: Map<string, string>): Data {
@@ -72,5 +74,6 @@ export default function parseCSV(content: Map<string, string>): Data {
 		palam: parsePalam(values),
 		train: parseTrain(values),
 		str: parseStr(values),
+		varSize: parseVarSize(values),
 	};
 }

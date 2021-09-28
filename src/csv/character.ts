@@ -9,16 +9,16 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 		}
 
 		const character: Partial<Character> = {
-			talent: Array<number>(1000).fill(0),
-			maxBase: Array<number>(100).fill(0),
-			base: Array<number>(100).fill(0),
-			abilities: Array<number>(100).fill(0),
-			exp: Array<number>(100).fill(0),
-			flags: Array<number>(1000).fill(0),
-			cstr: Array<string>(100).fill(""),
-			mark: Array<number>(100).fill(0),
-			palam: Array<number>(200).fill(0),
-			juel: Array<number>(200).fill(0),
+			talent: new Map(),
+			maxBase: new Map(),
+			base: new Map(),
+			abilities: new Map(),
+			exp: new Map(),
+			flags: new Map(),
+			cstr: new Map(),
+			mark: new Map(),
+			palam: new Map(),
+			juel: new Map(),
 		};
 		for (const row of rowList) {
 			switch (row[0]) {
@@ -47,8 +47,8 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Base value in ${fileName} should be an integer`);
-					character.maxBase![index] = value;
-					character.base![index] = value;
+					character.maxBase!.set(index, value);
+					character.base!.set(index, value);
 					break;
 				}
 				case "能力": {
@@ -62,7 +62,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Ability value in ${fileName} should be an integer`);
-					character.abilities![index] = value;
+					character.abilities!.set(index, value);
 					break;
 				}
 				case "素質": {
@@ -76,7 +76,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Talent value in ${fileName} should be an integer`);
-					character.talent![index] = value;
+					character.talent!.set(index, value);
 					break;
 				}
 				case "経験": {
@@ -90,7 +90,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Exp value in ${fileName} should be an integer`);
-					character.exp![index] = value;
+					character.exp!.set(index, value);
 					break;
 				}
 				// case "相性":
@@ -100,7 +100,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					assertNumber(index, `Flag index in ${fileName} should be an integer`);
 					const value = parseInt(row[2]);
 					assertNumber(value, `Flag value in ${fileName} should be an integer`);
-					character.flags![index] = value;
+					character.flags!.set(index, value);
 					break;
 				}
 				case "あだ名": {
@@ -115,7 +115,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					const index = parseInt(row[1]);
 					assertNumber(index, `Flag index in ${fileName} should be an integer`);
 					const value = row[2];
-					character.cstr![index] = value;
+					character.cstr!.set(index, value);
 					break;
 				}
 			}

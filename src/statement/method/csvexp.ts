@@ -9,7 +9,7 @@ export default function csvExp(vm: VM, arg: Array<string | number>): number {
 
 	const character = vm.code.data.character.get(num);
 	assert(character != null, `Character #${num} does not exist`);
-	assert(character.exp.length > index, `Character EXP #${index} does not exist`);
+	assert(character.exp.has(index), `Character EXP #${index} does not exist`);
 
-	return character.exp[index];
+	return character.exp.get(index)!;
 }

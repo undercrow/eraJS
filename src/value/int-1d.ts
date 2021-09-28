@@ -43,6 +43,21 @@ export default class Int1DValue implements Value {
 		this.value[realIndex[0]] = value;
 	}
 
+	public reset(_vm: VM, value: number[] | Map<number, number>) {
+		for (let i = 0; i < this.value.length; ++i) {
+			this.value[i] = 0;
+		}
+		if (value instanceof Map) {
+			for (const [i, val] of value) {
+				this.value[i] = val;
+			}
+		} else {
+			for (let i = 0; i < value.length; ++i) {
+				this.value[i] = value[i];
+			}
+		}
+	}
+
 	public length(depth: number): number {
 		switch (depth) {
 			case 0: return this.value.length;

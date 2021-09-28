@@ -10,7 +10,7 @@ export default class ResetData extends Statement {
 	}
 
 	public *run(vm: VM) {
-		vm.resetVariables();
+		vm.reset();
 
 		return null;
 	}

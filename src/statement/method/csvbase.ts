@@ -9,7 +9,7 @@ export default function csvBase(vm: VM, arg: Array<string | number>): number {
 
 	const character = vm.code.data.character.get(num);
 	assert(character != null, `Character #${num} does not exist`);
-	assert(character.base.length > index, `Character BASE #${index} does not exist`);
+	assert(character.base.has(index), `Character BASE #${index} does not exist`);
 
-	return character.base[index];
+	return character.base.get(index)!;
 }

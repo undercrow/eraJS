@@ -9,7 +9,7 @@ export default function csvAbl(vm: VM, arg: Array<string | number>): number {
 
 	const character = vm.code.data.character.get(num);
 	assert(character != null, `Character #${num} does not exist`);
-	assert(character.abilities.length > index, `Character ABL #${index} does not exist`);
+	assert(character.abilities.has(index), `Character ABL #${index} does not exist`);
 
-	return character.abilities[index];
+	return character.abilities.get(index)!;
 }

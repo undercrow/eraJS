@@ -9,7 +9,7 @@ export default function csvMark(vm: VM, arg: Array<string | number>): number {
 
 	const character = vm.code.data.character.get(num);
 	assert(character != null, `Character #${num} does not exist`);
-	assert(character.mark.length > index, `Character MARK #${index} does not exist`);
+	assert(character.mark.has(index), `Character MARK #${index} does not exist`);
 
-	return character.mark[index];
+	return character.mark.get(index)!;
 }

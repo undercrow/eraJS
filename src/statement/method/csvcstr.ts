@@ -9,7 +9,6 @@ export default function csvCstr(vm: VM, arg: Array<string | number>): string {
 
 	const character = vm.code.data.character.get(num);
 	assert(character != null, `Character #${num} does not exist`);
-	assert(character.cstr.has(index), `Character CSTR #${index} does not exist`);
 
-	return character.cstr.get(index)!;
+	return character.cstr.get(index) ?? "";
 }

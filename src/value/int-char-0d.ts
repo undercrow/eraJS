@@ -4,7 +4,7 @@ import type {default as Value, Leaf} from "./index";
 
 export default class IntChar0DValue implements Value {
 	public type = <const>"number";
-	public value: Map<number, number>;
+	public name: string;
 
 	public static normalizeIndex(vm: VM, index: number[]): number[] {
 		if (index.length === 0) {
@@ -18,36 +18,33 @@ export default class IntChar0DValue implements Value {
 		}
 	}
 
-	public constructor() {
-		this.value = new Map();
+	public constructor(name: string) {
+		this.name = name;
 	}
 
 	public get(vm: VM, index: number[]): number {
 		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
-		if (!this.value.has(realIndex[0])) {
+		if (vm.characterList.length <= realIndex[0]) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}
 
-		return this.value.get(realIndex[0])!;
+		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
+		return cell.get(vm, realIndex.slice(1)) as number;
 	}
 
 	public set(vm: VM, value: Leaf, index: number[]) {
 		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
 		assertNumber(value, "Cannot assign a string to a numeric variable");
-		if (!this.value.has(realIndex[0])) {
+		if (vm.characterList.length <= realIndex[0]) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}
 
-		this.value.set(realIndex[0], value);
+		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
+		cell.set(vm, value, realIndex.slice(1));
 	}
 
 	public rangeSet(vm: VM, value: Leaf, index: number[], _range: [number, number]) {
-		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
-		assertNumber(value, "Cannot assign a string to a numeric variable");
-		if (!this.value.has(realIndex[0])) {
-			throw new Error(`Character #${realIndex[0]} does not exist`);
-		}
-		this.value.set(realIndex[0], value);
+		this.set(vm, value, index);
 	}
 
 	public length(depth: number): number {

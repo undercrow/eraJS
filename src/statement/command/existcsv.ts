@@ -19,7 +19,7 @@ export default class ExistCSV extends Statement {
 		const id = this.arg.get().reduce(vm);
 		assertNumber(id, "Argument of EXISTCSV must be an integer!");
 
-		const result = vm.characterMap.has(id) ? 1 : 0;
+		const result = vm.templateMap.has(id) ? 1 : 0;
 		vm.getValue("RESULT").set(vm, result, [0]);
 
 		return null;

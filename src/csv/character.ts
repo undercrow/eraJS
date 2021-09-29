@@ -1,14 +1,14 @@
 import {assert, assertNumber} from "../assert";
-import type {Character, Data} from "../data";
+import type {Template, Data} from "../data";
 
 export default function parse(values: Map<string, string[][]>): Data["character"] {
-	const result = new Map<number, Character>();
+	const result = new Map<number, Template>();
 	for (const [fileName, rowList] of values) {
 		if (!/^CHARA\d+\.CSV$/.test(fileName)) {
 			continue;
 		}
 
-		const character: Partial<Character> = {
+		const template: Partial<Template> = {
 			talent: new Map(),
 			maxBase: new Map(),
 			base: new Map(),
@@ -25,15 +25,15 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 				case "番号": {
 					const id = parseInt(row[1]);
 					assertNumber(id, `ID in ${fileName} should be an integer`);
-					character.id = id;
+					template.id = id;
 					break;
 				}
 				case "名前": {
-					character.name = row[1];
+					template.name = row[1];
 					break;
 				}
 				case "呼び名": {
-					character.callname = row[1];
+					template.callname = row[1];
 					break;
 				}
 				case "基礎": {
@@ -47,8 +47,8 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Base value in ${fileName} should be an integer`);
-					character.maxBase!.set(index, value);
-					character.base!.set(index, value);
+					template.maxBase!.set(index, value);
+					template.base!.set(index, value);
 					break;
 				}
 				case "能力": {
@@ -62,7 +62,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Ability value in ${fileName} should be an integer`);
-					character.abilities!.set(index, value);
+					template.abilities!.set(index, value);
 					break;
 				}
 				case "素質": {
@@ -76,7 +76,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Talent value in ${fileName} should be an integer`);
-					character.talent!.set(index, value);
+					template.talent!.set(index, value);
 					break;
 				}
 				case "経験": {
@@ -90,7 +90,7 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 						value = 1;
 					}
 					assertNumber(value, `Exp value in ${fileName} should be an integer`);
-					character.exp!.set(index, value);
+					template.exp!.set(index, value);
 					break;
 				}
 				// case "相性":
@@ -100,34 +100,34 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 					assertNumber(index, `Flag index in ${fileName} should be an integer`);
 					const value = parseInt(row[2]);
 					assertNumber(value, `Flag value in ${fileName} should be an integer`);
-					character.flags!.set(index, value);
+					template.flags!.set(index, value);
 					break;
 				}
 				case "あだ名": {
-					character.nickname = row[1];
+					template.nickname = row[1];
 					break;
 				}
 				case "主人の呼び方": {
-					character.mastername = row[1];
+					template.mastername = row[1];
 					break;
 				}
 				case "CSTR": {
 					const index = parseInt(row[1]);
 					assertNumber(index, `Flag index in ${fileName} should be an integer`);
 					const value = row[2];
-					character.cstr!.set(index, value);
+					template.cstr!.set(index, value);
 					break;
 				}
 			}
 		}
 
-		assert(character.id != null, `ID should be defined in ${fileName}`);
-		if (character.name == null) { character.name = ""; }
-		if (character.callname == null) { character.callname = ""; }
-		if (character.nickname == null) { character.nickname = ""; }
-		if (character.mastername == null) { character.mastername = ""; }
+		assert(template.id != null, `ID should be defined in ${fileName}`);
+		if (template.name == null) { template.name = ""; }
+		if (template.callname == null) { template.callname = ""; }
+		if (template.nickname == null) { template.nickname = ""; }
+		if (template.mastername == null) { template.mastername = ""; }
 
-		result.set(character.id, character as Character);
+		result.set(template.id, template as Template);
 	}
 
 	return result;

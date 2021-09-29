@@ -4,6 +4,11 @@ import type {default as Value, Leaf} from "./index";
 
 export default class RandValue implements Value {
 	public type = <const>"number";
+	public name: string;
+
+	public constructor(name: string) {
+		this.name = name;
+	}
 
 	public get(vm: VM, index: number[]): number {
 		assert(index.length === 1, "RAND must be indexed by 1 value");

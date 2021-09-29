@@ -4,14 +4,8 @@ import type {default as Value, Leaf} from "./index";
 
 export default class Str0DValue implements Value {
 	public type = <const>"string";
+	public name: string;
 	public value: string;
-
-	public static from(value: string) {
-		const result = new Str0DValue();
-		result.value = value;
-
-		return result;
-	}
 
 	public static normalizeIndex(index: number[]): number[] {
 		if (index.length === 0) {
@@ -23,8 +17,14 @@ export default class Str0DValue implements Value {
 		}
 	}
 
-	public constructor() {
+	public constructor(name: string) {
+		this.name = name;
 		this.value = "";
+	}
+
+	public reset(value: string): Str0DValue {
+		this.value = value;
+		return this;
 	}
 
 	public get(_vm: VM, index: number[]): string {

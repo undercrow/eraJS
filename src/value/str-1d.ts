@@ -4,16 +4,8 @@ import type {default as Value, Leaf} from "./index";
 
 export default class Str1DValue implements Value {
 	public type = <const>"string";
+	public name: string;
 	public value: string[];
-
-	public static from(value: string[]) {
-		const result = new Str1DValue(value.length);
-		for (let i = 0; i < value.length; ++i) {
-			result.value[i] = value[i];
-		}
-
-		return result;
-	}
 
 	public static normalizeIndex(index: number[]): number[] {
 		if (index.length === 0) {
@@ -27,8 +19,26 @@ export default class Str1DValue implements Value {
 		}
 	}
 
-	public constructor(size0: number) {
+	public constructor(name: string, size0: number) {
+		this.name = name;
 		this.value = new Array<string>(size0).fill("");
+	}
+
+	public reset(value: string[] | Map<number, string>): Str1DValue {
+		for (let i = 0; i < this.value.length; ++i) {
+			this.value[i] = "";
+		}
+		if (value instanceof Map) {
+			for (const [i, val] of value) {
+				this.value[i] = val;
+			}
+		} else {
+			for (let i = 0; i < value.length; ++i) {
+				this.value[i] = value[i];
+			}
+		}
+
+		return this;
 	}
 
 	public get(_vm: VM, index: number[]): string {
@@ -48,21 +58,6 @@ export default class Str1DValue implements Value {
 		assertString(value, "Cannot assign a number to a string variable");
 		for (let i = range[0]; i < range[1]; ++i) {
 			this.value[i] = value;
-		}
-	}
-
-	public reset(_vm: VM, value: string[] | Map<number, string>) {
-		for (let i = 0; i < this.value.length; ++i) {
-			this.value[i] = "";
-		}
-		if (value instanceof Map) {
-			for (const [i, val] of value) {
-				this.value[i] = val;
-			}
-		} else {
-			for (let i = 0; i < value.length; ++i) {
-				this.value[i] = value[i];
-			}
 		}
 	}
 

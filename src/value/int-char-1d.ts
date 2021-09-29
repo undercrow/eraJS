@@ -4,7 +4,7 @@ import type {default as Value, Leaf} from "./index";
 
 export default class IntChar1DValue implements Value {
 	public type = <const>"number";
-	public value: Map<number, number[]>;
+	public name: string;
 	public size: number;
 
 	public static normalizeIndex(vm: VM, index: number[]): number[] {
@@ -21,53 +21,41 @@ export default class IntChar1DValue implements Value {
 		}
 	}
 
-	public constructor(size: number) {
-		this.value = new Map();
+	public constructor(name: string, size: number) {
+		this.name = name;
 		this.size = size;
 	}
 
 	public get(vm: VM, index: number[]): number {
 		const realIndex = IntChar1DValue.normalizeIndex(vm, index);
-		if (!this.value.has(realIndex[0])) {
+		if (vm.characterList.length <= realIndex[0]) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}
 
-		return this.value.get(realIndex[0])![realIndex[1]];
+		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
+		return cell.get(vm, realIndex.slice(1)) as number;
 	}
 
 	public set(vm: VM, value: Leaf, index: number[]) {
 		const realIndex = IntChar1DValue.normalizeIndex(vm, index);
 		assertNumber(value, "Cannot assign a string to a numeric variable");
-		if (!this.value.has(realIndex[0])) {
+		if (vm.characterList.length <= realIndex[0]) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}
 
-		this.value.get(realIndex[0])![realIndex[1]] = value;
+		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
+		cell.set(vm, value, realIndex.slice(1));
 	}
 
 	public rangeSet(vm: VM, value: Leaf, index: number[], range: [number, number]) {
 		const realIndex = IntChar1DValue.normalizeIndex(vm, [...index, 0]);
 		assertNumber(value, "Cannot assign a string to a numeric variable");
-		if (!this.value.has(realIndex[0])) {
+		if (vm.characterList.length <= realIndex[0]) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}
-		for (let i = range[0]; i < range[1]; ++i) {
-			this.value.get(realIndex[0])![i] = value;
-		}
-	}
 
-	public reset(_vm: VM, index: number, value: number[] | Map<number, number>) {
-		const result = Array<number>(this.size).fill(0);
-		if (value instanceof Map) {
-			for (const [i, val] of value) {
-				result[i] = val;
-			}
-		} else {
-			for (let i = 0; i < value.length; ++i) {
-				result[i] = value[i];
-			}
-		}
-		this.value.set(index, result);
+		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
+		cell.rangeSet(vm, value, realIndex.slice(1), range);
 	}
 
 	public length(depth: number): number {

@@ -4,16 +4,8 @@ import type {default as Value, Leaf} from "./index";
 
 export default class Int1DValue implements Value {
 	public type = <const>"number";
+	public name: string;
 	public value: number[];
-
-	public static from(value: number[]) {
-		const result = new Int1DValue(value.length);
-		for (let i = 0; i < value.length; ++i) {
-			result.value[i] = value[i];
-		}
-
-		return result;
-	}
 
 	public static normalizeIndex(index: number[]): number[] {
 		if (index.length === 0) {
@@ -27,23 +19,12 @@ export default class Int1DValue implements Value {
 		}
 	}
 
-	public constructor(size0: number) {
+	public constructor(name: string, size0: number) {
+		this.name = name;
 		this.value = new Array<number>(size0).fill(0);
 	}
 
-	public get(_vm: VM, index: number[]): number {
-		const realIndex = Int1DValue.normalizeIndex(index);
-		return this.value[realIndex[0]];
-	}
-
-	public set(_vm: VM, value: Leaf, index: number[]) {
-		const realIndex = Int1DValue.normalizeIndex(index);
-		assertNumber(value, "Cannot assign a string to a numeric variable");
-
-		this.value[realIndex[0]] = value;
-	}
-
-	public reset(_vm: VM, value: number[] | Map<number, number>) {
+	public reset(value: number[] | Map<number, number>): Int1DValue {
 		for (let i = 0; i < this.value.length; ++i) {
 			this.value[i] = 0;
 		}
@@ -56,6 +37,20 @@ export default class Int1DValue implements Value {
 				this.value[i] = value[i];
 			}
 		}
+
+		return this;
+	}
+
+	public get(_vm: VM, index: number[]): number {
+		const realIndex = Int1DValue.normalizeIndex(index);
+		return this.value[realIndex[0]];
+	}
+
+	public set(_vm: VM, value: Leaf, index: number[]) {
+		const realIndex = Int1DValue.normalizeIndex(index);
+		assertNumber(value, "Cannot assign a string to a numeric variable");
+
+		this.value[realIndex[0]] = value;
 	}
 
 	// NOTE: index is ignored (Emuera emulation)

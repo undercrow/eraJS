@@ -12,7 +12,7 @@ import parseTalent from "./csv/talent";
 import parseTrain from "./csv/train";
 import parseVarSize from "./csv/varsize";
 
-export type Character = {
+export type Template = {
 	id: number;
 	name: string;
 	callname: string;
@@ -38,7 +38,7 @@ export type Data = {
 		title?: string;
 		version?: number;
 	};
-	character: Map<number, Character>;
+	character: Map<number, Template>;
 	ability: Map<number, string>;
 	exp: Map<number, string>;
 	item: Map<number, {name: string; price: number}>;

@@ -1,7 +1,8 @@
+import Character from "./character";
 import type Config from "./config";
 import * as color from "./color";
 import type Color from "./color";
-import {Character, Data} from "./data";
+import {Template, Data} from "./data";
 import Fn from "./fn";
 import type Property from "./property";
 import Define from "./property/define";
@@ -15,16 +16,7 @@ import type {default as Statement, Result} from "./statement";
 import type {Align} from "./statement/command/alignment";
 import * as scene from "./scene";
 import Thunk from "./thunk";
-import type Value from "./value";
-import Int0DValue from "./value/int-0d";
-import Int1DValue from "./value/int-1d";
-import IntChar0DValue from "./value/int-char-0d";
-import IntChar1DValue from "./value/int-char-1d";
-import RandValue from "./value/rand";
-import Str0DValue from "./value/str-0d";
-import Str1DValue from "./value/str-1d";
-import StrChar0DValue from "./value/str-char-0d";
-import StrChar1DValue from "./value/str-char-1d";
+import Value from "./value";
 
 type Context = {
 	fn: Fn;
@@ -49,10 +41,11 @@ export default class VM {
 
 	public fnMap: Map<string, Fn[]>;
 	public macroMap: Map<string, Define>;
-	public characterMap: Map<number, Character>;
+	public templateMap: Map<number, Template>;
 
 	public globalMap: Map<string, Value>;
 	public staticMap: Map<string, Map<string, Value>>;
+	public characterList: Array<Character>;
 	private contextStack: Array<Context>;
 
 	public alignment!: Align;
@@ -85,9 +78,10 @@ export default class VM {
 
 		this.fnMap = new Map();
 		this.macroMap = new Map();
-		this.characterMap = new Map();
+		this.templateMap = new Map();
 		this.globalMap = new Map();
 		this.staticMap = new Map();
+		this.characterList = [];
 		this.contextStack = [];
 
 		for (const fn of code.fnList) {
@@ -115,96 +109,15 @@ export default class VM {
 		}
 
 		for (const [id, character] of code.data.character) {
-			this.characterMap.set(id, character);
+			this.templateMap.set(id, character);
 		}
 
-		this.resetVariable("GLOBAL", Int1DValue);
-		this.resetVariable("GLOBALS", Str1DValue);
+		this.globalMap.set("GLOBAL", Value.Int1D(code.data, "GLOBAL"));
+		this.globalMap.set("GLOBALS", Value.Int1D(code.data, "GLOBALS"));
 		this.reset();
 
 		// Push dummy context for outermost call
 		this.pushContext(new Fn("@DUMMY", [], [], new Thunk([])));
-	}
-
-	private resetVariable(name: string, cls: typeof RandValue): void;
-	private resetVariable(name: string, cls: typeof Int0DValue, value?: Int0DValue): void;
-	private resetVariable(name: string, cls: typeof Str0DValue, value?: Str0DValue): void;
-	private resetVariable(name: string, cls: typeof Int1DValue): void;
-	private resetVariable(name: string, cls: typeof Int1DValue, size: number): void;
-	private resetVariable(name: string, cls: typeof Int1DValue, value?: Int1DValue): void;
-	private resetVariable(name: string, cls: typeof Str1DValue): void;
-	private resetVariable(name: string, cls: typeof Str1DValue, size: number): void;
-	private resetVariable(name: string, cls: typeof Str1DValue, value?: Str1DValue): void;
-	private resetVariable(name: string, cls: typeof IntChar0DValue): void;
-	private resetVariable(name: string, cls: typeof StrChar0DValue): void;
-	private resetVariable(name: string, cls: typeof IntChar1DValue, size?: number): void;
-	private resetVariable(name: string, cls: typeof StrChar1DValue, size?: number): void;
-	private resetVariable(
-		name: string,
-		Cls: new (...arg: any) => Value,
-		...arg: any[]
-	) {
-		switch (Cls) {
-			case RandValue: {
-				this.globalMap.set(name, new RandValue());
-				break;
-			}
-			case Int0DValue: {
-				if (arg[0] != null) {
-					this.globalMap.set(name, arg[0]);
-				} else {
-					this.globalMap.set(name, new Int0DValue());
-				}
-				break;
-			}
-			case Str0DValue: {
-				if (arg[0] != null) {
-					this.globalMap.set(name, arg[0]);
-				} else {
-					this.globalMap.set(name, new Str0DValue());
-				}
-				break;
-			}
-			case Int1DValue: {
-				if (arg[0] instanceof Int1DValue) {
-					this.globalMap.set(name, arg[0]);
-				} else {
-					const size = this.code.data.varSize.get(name) ?? arg[0] ?? 1000;
-					this.globalMap.set(name, new Int1DValue(size));
-				}
-				break;
-			}
-			case Str1DValue: {
-				if (arg[0] instanceof Str1DValue) {
-					this.globalMap.set(name, arg[0]);
-				} else {
-					const size = this.code.data.varSize.get(name) ?? arg[0] ?? 100;
-					this.globalMap.set(name, new Str1DValue(size));
-				}
-				break;
-			}
-			case IntChar0DValue: {
-				this.globalMap.set(name, new IntChar0DValue());
-				break;
-			}
-			case StrChar0DValue: {
-				this.globalMap.set(name, new StrChar0DValue());
-				break;
-			}
-			case IntChar1DValue: {
-				const size = this.code.data.varSize.get(name) ?? arg[0] ?? 100;
-				this.globalMap.set(name, new IntChar1DValue(size));
-				break;
-			}
-			case StrChar1DValue: {
-				const size = this.code.data.varSize.get(name) ?? arg[0] ?? 100;
-				this.globalMap.set(name, new StrChar1DValue(size));
-				break;
-			}
-			default: {
-				throw new Error("Unexpected value class detected!");
-			}
-		}
 	}
 
 	public reset() {
@@ -230,175 +143,170 @@ export default class VM {
 		};
 
 		const {header, data} = this.code;
-		this.resetVariable("RAND", RandValue);
-		this.resetVariable("RESULT", Int1DValue);
-		this.resetVariable("RESULTS", Str1DValue);
-		this.resetVariable("A", Int1DValue);
-		this.resetVariable("B", Int1DValue);
-		this.resetVariable("C", Int1DValue);
-		this.resetVariable("D", Int1DValue);
-		this.resetVariable("E", Int1DValue);
-		this.resetVariable("F", Int1DValue);
-		this.resetVariable("G", Int1DValue);
-		this.resetVariable("H", Int1DValue);
-		this.resetVariable("I", Int1DValue);
-		this.resetVariable("J", Int1DValue);
-		this.resetVariable("K", Int1DValue);
-		this.resetVariable("L", Int1DValue);
-		this.resetVariable("M", Int1DValue);
-		this.resetVariable("N", Int1DValue);
-		this.resetVariable("O", Int1DValue);
-		this.resetVariable("P", Int1DValue);
-		this.resetVariable("Q", Int1DValue);
-		this.resetVariable("R", Int1DValue);
-		this.resetVariable("S", Int1DValue);
-		this.resetVariable("T", Int1DValue);
-		this.resetVariable("U", Int1DValue);
-		this.resetVariable("V", Int1DValue);
-		this.resetVariable("W", Int1DValue);
-		this.resetVariable("X", Int1DValue);
-		this.resetVariable("Y", Int1DValue);
-		this.resetVariable("Z", Int1DValue);
-		this.resetVariable("COUNT", Int0DValue);
-		this.resetVariable("DAY", Int1DValue);
-		this.resetVariable("TIME", Int0DValue);
-		this.resetVariable("MONEY", Int1DValue);
-		this.resetVariable("MASTER", Int0DValue);
-		this.resetVariable("TARGET", Int0DValue, Int0DValue.from(-1));
-		this.resetVariable("ASSI", Int0DValue, Int0DValue.from(-1));
-		this.resetVariable("PLAYER", Int0DValue);
-		this.resetVariable("ASSIPLAY", Int0DValue);
-		this.resetVariable("SELECTCOM", Int1DValue);
-		this.resetVariable("PREVCOM", Int0DValue);
-		this.resetVariable("NEXTCOM", Int0DValue);
-		this.resetVariable("LOSEBASE", Int1DValue);
-		this.resetVariable("UP", Int1DValue);
-		this.resetVariable("DOWN", Int1DValue);
-		this.resetVariable("PALAMLV", Int1DValue, Int1DValue.from(
+		this.globalMap.set("RAND", Value.Rand(data, "RAND"));
+		this.globalMap.set("RESULT", Value.Int1D(data, "RESULT"));
+		this.globalMap.set("RESULTS", Value.Str1D(data, "RESULTS"));
+		this.globalMap.set("A", Value.Int1D(data, "A"));
+		this.globalMap.set("B", Value.Int1D(data, "B"));
+		this.globalMap.set("C", Value.Int1D(data, "C"));
+		this.globalMap.set("D", Value.Int1D(data, "D"));
+		this.globalMap.set("E", Value.Int1D(data, "E"));
+		this.globalMap.set("F", Value.Int1D(data, "F"));
+		this.globalMap.set("G", Value.Int1D(data, "G"));
+		this.globalMap.set("H", Value.Int1D(data, "H"));
+		this.globalMap.set("I", Value.Int1D(data, "I"));
+		this.globalMap.set("J", Value.Int1D(data, "J"));
+		this.globalMap.set("K", Value.Int1D(data, "K"));
+		this.globalMap.set("L", Value.Int1D(data, "L"));
+		this.globalMap.set("M", Value.Int1D(data, "M"));
+		this.globalMap.set("N", Value.Int1D(data, "N"));
+		this.globalMap.set("O", Value.Int1D(data, "O"));
+		this.globalMap.set("P", Value.Int1D(data, "P"));
+		this.globalMap.set("Q", Value.Int1D(data, "Q"));
+		this.globalMap.set("R", Value.Int1D(data, "R"));
+		this.globalMap.set("S", Value.Int1D(data, "S"));
+		this.globalMap.set("T", Value.Int1D(data, "T"));
+		this.globalMap.set("U", Value.Int1D(data, "U"));
+		this.globalMap.set("V", Value.Int1D(data, "V"));
+		this.globalMap.set("W", Value.Int1D(data, "W"));
+		this.globalMap.set("X", Value.Int1D(data, "X"));
+		this.globalMap.set("Y", Value.Int1D(data, "Y"));
+		this.globalMap.set("Z", Value.Int1D(data, "Z"));
+		this.globalMap.set("COUNT", Value.Int0D(data, "COUNT"));
+		this.globalMap.set("DAY", Value.Int1D(data, "DAY"));
+		this.globalMap.set("TIME", Value.Int0D(data, "TIME"));
+		this.globalMap.set("MONEY", Value.Int1D(data, "MONEY"));
+		this.globalMap.set("MASTER", Value.Int0D(data, "MASTER"));
+		this.globalMap.set("TARGET", Value.Int0D(data, "TARGET").reset(-1));
+		this.globalMap.set("ASSI", Value.Int0D(data, "ASSI").reset(-1));
+		this.globalMap.set("PLAYER", Value.Int0D(data, "PLAYER"));
+		this.globalMap.set("ASSIPLAY", Value.Int0D(data, "ASSIPLAY"));
+		this.globalMap.set("SELECTCOM", Value.Int1D(data, "SELECTCOM"));
+		this.globalMap.set("PREVCOM", Value.Int0D(data, "PREVCOM"));
+		this.globalMap.set("NEXTCOM", Value.Int0D(data, "NEXTCOM"));
+		this.globalMap.set("LOSEBASE", Value.Int1D(data, "LOSEBASE"));
+		this.globalMap.set("UP", Value.Int1D(data, "UP"));
+		this.globalMap.set("DOWN", Value.Int1D(data, "DOWN"));
+		this.globalMap.set("PALAMLV", Value.Int1D(data, "PALAMLV").reset(
 			[0, 100, 500, 3000, 10000, 30000, 60000, 100000, 150000, 250000],
 		));
-		this.resetVariable("EXPLV", Int1DValue, Int1DValue.from([0, 1, 4, 20, 50, 200]));
-		this.resetVariable("EJAC", Int0DValue, Int0DValue.from(10000));
-		this.resetVariable("FLAG", Int1DValue, 10000);
-		this.resetVariable("TFLAG", Int1DValue);
-		this.resetVariable("ITEM", Int1DValue);
-		this.resetVariable("ITEMSALES", Int1DValue);
-		this.resetVariable("BOUGHT", Int0DValue);
-		this.resetVariable("PBAND", Int0DValue, Int0DValue.from(4));
-		this.resetVariable("CHARANUM", Int0DValue);
-		this.resetVariable("STR", Str1DValue);
-		(this.globalMap.get("STR") as Str1DValue).reset(this, data.str);
-		this.resetVariable("NO", IntChar0DValue);
-		this.resetVariable("ISASSI", IntChar0DValue);
-		this.resetVariable("NAME", StrChar0DValue);
-		this.resetVariable("CALLNAME", StrChar0DValue);
-		this.resetVariable("BASE", IntChar1DValue);
-		this.resetVariable("MAXBASE", IntChar1DValue);
-		this.resetVariable("ABL", IntChar1DValue);
-		this.resetVariable("TALENT", IntChar1DValue, 1000);
-		this.resetVariable("EXP", IntChar1DValue);
-		this.resetVariable("MARK", IntChar1DValue);
-		this.resetVariable("RELATION", IntChar1DValue, 1000);
-		this.resetVariable("JUEL", IntChar1DValue, 1000);
-		this.resetVariable("CFLAG", IntChar1DValue, 1000);
-		this.resetVariable("EQUIP", IntChar1DValue, 1000);
-		this.resetVariable("TEQUIP", IntChar1DValue, 1000);
-		this.resetVariable("PALAM", IntChar1DValue, 1000);
-		this.resetVariable("STAIN", IntChar1DValue, 1000);
-		this.resetVariable("EX", IntChar1DValue, 1000);
-		this.resetVariable("SOURCE", IntChar1DValue, 1000);
-		this.resetVariable("NOWEX", IntChar1DValue, 1000);
-		this.resetVariable("GOTJUEL", IntChar1DValue, 1000);
-		this.resetVariable("ABLNAME", Str1DValue);
-		(this.globalMap.get("ABLNAME") as Str1DValue).reset(this, data.ability);
-		this.resetVariable("TALENTNAME", Str1DValue);
-		(this.globalMap.get("TALENTNAME") as Str1DValue).reset(this, data.talent);
-		this.resetVariable("EXPNAME", Str1DValue);
-		(this.globalMap.get("EXPNAME") as Str1DValue).reset(this, data.exp);
-		this.resetVariable("MARKNAME", Str1DValue);
-		(this.globalMap.get("MARKNAME") as Str1DValue).reset(this, data.mark);
-		this.resetVariable("PALAMNAME", Str1DValue);
-		(this.globalMap.get("PALAMNAME") as Str1DValue).reset(this, data.palam);
-		this.resetVariable("ITEMNAME", Str1DValue);
-		(this.globalMap.get("ITEMNAME") as Str1DValue).reset(this, new Map(
-			[...data.item.entries()].map(([key, val]) => [key, val.name]),
+		this.globalMap.set("EXPLV", Value.Int1D(data, "EXPLV").reset([0, 1, 4, 20, 50, 200]));
+		this.globalMap.set("EJAC", Value.Int0D(data, "EJAC").reset(10000));
+		this.globalMap.set("FLAG", Value.Int1D(data, "FLAG", 10000));
+		this.globalMap.set("TFLAG", Value.Int1D(data, "TFLAG"));
+		this.globalMap.set("ITEM", Value.Int1D(data, "ITEM"));
+		this.globalMap.set("ITEMSALES", Value.Int1D(data, "ITEMSALES"));
+		this.globalMap.set("BOUGHT", Value.Int0D(data, "BOUGHT"));
+		this.globalMap.set("PBAND", Value.Int0D(data, "PBAND").reset(4));
+		this.globalMap.set("CHARANUM", Value.Int0D(data, "CHARANUM"));
+		this.globalMap.set("STR", Value.Str1D(data, "STR").reset(data.str));
+		this.globalMap.set("NO", Value.IntChar0D(data, "NO"));
+		this.globalMap.set("ISASSI", Value.IntChar0D(data, "ISASSI"));
+		this.globalMap.set("NAME", Value.StrChar0D(data, "NAME"));
+		this.globalMap.set("CALLNAME", Value.StrChar0D(data, "CALLNAME"));
+		this.globalMap.set("BASE", Value.IntChar1D(data, "BASE"));
+		this.globalMap.set("MAXBASE", Value.IntChar1D(data, "MAXBASE"));
+		this.globalMap.set("ABL", Value.IntChar1D(data, "ABL"));
+		this.globalMap.set("TALENT", Value.IntChar1D(data, "TALENT", 1000));
+		this.globalMap.set("EXP", Value.IntChar1D(data, "EXP"));
+		this.globalMap.set("MARK", Value.IntChar1D(data, "MARK"));
+		this.globalMap.set("RELATION", Value.IntChar1D(data, "RELATION", 1000));
+		this.globalMap.set("JUEL", Value.IntChar1D(data, "JUEL", 1000));
+		this.globalMap.set("CFLAG", Value.IntChar1D(data, "CFLAG", 1000));
+		this.globalMap.set("EQUIP", Value.IntChar1D(data, "EQUIP", 1000));
+		this.globalMap.set("TEQUIP", Value.IntChar1D(data, "TEQUIP", 1000));
+		this.globalMap.set("PALAM", Value.IntChar1D(data, "PALAM", 1000));
+		this.globalMap.set("STAIN", Value.IntChar1D(data, "STAIN", 1000));
+		this.globalMap.set("EX", Value.IntChar1D(data, "EX", 1000));
+		this.globalMap.set("SOURCE", Value.IntChar1D(data, "SOURCE", 1000));
+		this.globalMap.set("NOWEX", Value.IntChar1D(data, "NOWEX", 1000));
+		this.globalMap.set("GOTJUEL", Value.IntChar1D(data, "GOTJUEL", 1000));
+		this.globalMap.set("ABLNAME", Value.Str1D(data, "ABLNAME").reset(data.ability));
+		this.globalMap.set("TALENTNAME", Value.Str1D(data, "TALENTNAME").reset(data.talent));
+		this.globalMap.set("EXPNAME", Value.Str1D(data, "EXPNAME").reset(data.exp));
+		this.globalMap.set("MARKNAME", Value.Str1D(data, "MARKNAME").reset(data.mark));
+		this.globalMap.set("PALAMNAME", Value.Str1D(data, "PALAMNAME").reset(data.palam));
+		this.globalMap.set("ITEMNAME", Value.Str1D(data, "ITEMNAME").reset(
+			new Map([...data.item.entries()].map(([key, val]) => [key, val.name])),
 		));
-		this.resetVariable("NOITEM", Int1DValue);
-		this.resetVariable("LINECOUNT", Int0DValue);
-		this.resetVariable("ISTIMEOUT", Int0DValue);
-		this.resetVariable("__INT_MAX__", Int0DValue, Int0DValue.from(2 ** 32 - 1));
-		this.resetVariable("__INT_MIN__", Int0DValue, Int0DValue.from(-(2 ** 32 - 1)));
-		this.resetVariable("RANDDATA", Int0DValue, Int0DValue.from(this.random.state));
-		this.resetVariable("TSTR", Str1DValue);
-		this.resetVariable("NICKNAME", StrChar0DValue);
-		this.resetVariable("MASTERNAME", StrChar0DValue);
-		this.resetVariable("DOWNBASE", IntChar1DValue, 1000);
-		this.resetVariable("CUP", IntChar1DValue, 1000);
-		this.resetVariable("CDOWN", IntChar1DValue, 1000);
-		this.resetVariable("TCVAR", IntChar1DValue, 1000);
-		this.resetVariable("CSTR", StrChar1DValue);
-		this.resetVariable("ITEMPRICE", Int1DValue);
-		(this.globalMap.get("ITEMPRICE") as Int1DValue).reset(this, new Map(
-			[...data.item.entries()].map(([key, val]) => [key, val.price]),
+		this.globalMap.set("NOITEM", Value.Int1D(data, "NOITEM"));
+		this.globalMap.set("LINECOUNT", Value.Int0D(data, "LINECOUNT"));
+		this.globalMap.set("ISTIMEOUT", Value.Int0D(data, "ISTIMEOUT"));
+		this.globalMap.set("__INT_MAX__", Value.Int0D(data, "__INT_MAX__").reset(2 ** 32 - 1));
+		this.globalMap.set("__INT_MIN__", Value.Int0D(data, "__INT_MIN__").reset(-(2 ** 32 - 1)));
+		this.globalMap.set("RANDDATA", Value.Int0D(data, "RANDDATA").reset(this.random.state));
+		this.globalMap.set("TSTR", Value.Str1D(data, "TSTR"));
+		this.globalMap.set("NICKNAME", Value.StrChar0D(data, "NICKNAME"));
+		this.globalMap.set("MASTERNAME", Value.StrChar0D(data, "MASTERNAME"));
+		this.globalMap.set("DOWNBASE", Value.IntChar1D(data, "DOWNBASE", 1000));
+		this.globalMap.set("CUP", Value.IntChar1D(data, "CUP", 1000));
+		this.globalMap.set("CDOWN", Value.IntChar1D(data, "CDOWN", 1000));
+		this.globalMap.set("TCVAR", Value.IntChar1D(data, "TCVAR", 1000));
+		this.globalMap.set("CSTR", Value.StrChar1D(data, "CSTR"));
+		this.globalMap.set("ITEMPRICE", Value.Int1D(data, "ITEMPRICE").reset(
+			new Map([...data.item.entries()].map(([key, val]) => [key, val.price])),
 		));
-		this.resetVariable("TRAINNAME", Str1DValue);
-		(this.globalMap.get("TRAINNAME") as Str1DValue).reset(this, data.train);
-		this.resetVariable("BASENAME", Str1DValue);
-		this.resetVariable("EQUIPNAME", Str1DValue);
-		this.resetVariable("TEQUIPNAME", Str1DValue);
-		this.resetVariable("STAINNAME", Str1DValue);
-		this.resetVariable("EXNAME", Str1DValue);
-		this.resetVariable("SOURCENAME", Str1DValue);
-		this.resetVariable("FLAGNAME", Str1DValue);
-		this.resetVariable("TFLAGNAME", Str1DValue);
-		this.resetVariable("CFLAGNAME", Str1DValue);
-		this.resetVariable("TCVARNAME", Str1DValue);
-		this.resetVariable("STRNAME", Str1DValue);
-		this.resetVariable("TSTRNAME", Str1DValue);
-		this.resetVariable("CSTRNAME", Str1DValue);
-		this.resetVariable("SAVESTRNAME", Str1DValue);
-		this.resetVariable("CDFLAGNAME1", Str1DValue);
-		this.resetVariable("CDFLAGNAME2", Str1DValue);
-		this.resetVariable("GLOBALNAME", Str1DValue);
-		this.resetVariable("GLOBALSNAME", Str1DValue);
-		this.resetVariable("GAMEBASE_AUTHOR", Str0DValue, Str0DValue.from(
+		this.globalMap.set("TRAINNAME", Value.Str1D(data, "TRAINNAME").reset(data.train));
+		this.globalMap.set("BASENAME", Value.Str1D(data, "BASENAME"));
+		this.globalMap.set("EQUIPNAME", Value.Str1D(data, "EQUIPNAME"));
+		this.globalMap.set("TEQUIPNAME", Value.Str1D(data, "TEQUIPNAME"));
+		this.globalMap.set("STAINNAME", Value.Str1D(data, "STAINNAME"));
+		this.globalMap.set("EXNAME", Value.Str1D(data, "EXNAME"));
+		this.globalMap.set("SOURCENAME", Value.Str1D(data, "SOURCENAME"));
+		this.globalMap.set("FLAGNAME", Value.Str1D(data, "FLAGNAME"));
+		this.globalMap.set("TFLAGNAME", Value.Str1D(data, "TFLAGNAME"));
+		this.globalMap.set("CFLAGNAME", Value.Str1D(data, "CFLAGNAME"));
+		this.globalMap.set("TCVARNAME", Value.Str1D(data, "TCVARNAME"));
+		this.globalMap.set("STRNAME", Value.Str1D(data, "STRNAME"));
+		this.globalMap.set("TSTRNAME", Value.Str1D(data, "TSTRNAME"));
+		this.globalMap.set("CSTRNAME", Value.Str1D(data, "CSTRNAME"));
+		this.globalMap.set("SAVESTRNAME", Value.Str1D(data, "SAVESTRNAME"));
+		this.globalMap.set("CDFLAGNAME1", Value.Str1D(data, "CDFLAGNAME1"));
+		this.globalMap.set("CDFLAGNAME2", Value.Str1D(data, "CDFLAGNAME2"));
+		this.globalMap.set("GLOBALNAME", Value.Str1D(data, "GLOBALNAME"));
+		this.globalMap.set("GLOBALSNAME", Value.Str1D(data, "GLOBALSNAME"));
+		this.globalMap.set("GAMEBASE_AUTHOR", Value.Str0D(data, "GAMEBASE_AUTHOR").reset(
 			data.gamebase.author ?? "",
 		));
-		this.resetVariable("GAMEBASE_INFO", Str0DValue, Str0DValue.from(data.gamebase.info ?? ""));
-		this.resetVariable("GAMEBASE_YEAR", Str0DValue, Str0DValue.from(data.gamebase.year ?? ""));
-		this.resetVariable("GAMEBASE_TITLE", Str0DValue, Str0DValue.from(
+		this.globalMap.set("GAMEBASE_INFO", Value.Str0D(data, "GAMEBASE_INFO").reset(
+			data.gamebase.info ?? "",
+		));
+		this.globalMap.set("GAMEBASE_YEAR", Value.Str0D(data, "GAMEBASE_YEAR").reset(
+			data.gamebase.year ?? "",
+		));
+		this.globalMap.set("GAMEBASE_TITLE", Value.Str0D(data, "GAMEBASE_TITLE").reset(
 			data.gamebase.title ?? "",
 		));
-		this.resetVariable("GAMEBASE_VERSION", Int0DValue, Int0DValue.from(
+		this.globalMap.set("GAMEBASE_VERSION", Value.Int0D(data, "GAMEBASE_VERSION").reset(
 			data.gamebase.version ?? 0,
 		));
-		this.resetVariable("GAMEBASE_ALLOWVERSION", Int0DValue);
-		this.resetVariable("GAMEBASE_DEFAULTCHARA", Int0DValue);
-		this.resetVariable("GAMEBASE_NOITEM", Int0DValue);
-		this.resetVariable("WINDOW_TITLE", Str0DValue);
-		this.resetVariable("MONEYLABEL", Str0DValue);
-		this.resetVariable("LASTLOAD_VERSION", Int0DValue, Int0DValue.from(-1));
-		this.resetVariable("LASTLOAD_NO", Int0DValue, Int0DValue.from(-1));
-		this.resetVariable("LASTLOAD_TEXT", Str0DValue);
-		this.resetVariable("SAVEDATA_TEXT", Str0DValue);
-		this.resetVariable("CTRAIN_COUNT", Int0DValue);
-		for (const i of data.ability.keys()) {
-			this.resetVariable(data.ability.get(i)!, Int0DValue, Int0DValue.from(i));
+		this.globalMap.set("GAMEBASE_ALLOWVERSION", Value.Int0D(data, "GAMEBASE_ALLOWVERSION"));
+		this.globalMap.set("GAMEBASE_DEFAULTCHARA", Value.Int0D(data, "GAMEBASE_DEFAULTCHARA"));
+		this.globalMap.set("GAMEBASE_NOITEM", Value.Int0D(data, "GAMEBASE_NOITEM"));
+		this.globalMap.set("WINDOW_TITLE", Value.Str0D(data, "WINDOW_TITLE"));
+		this.globalMap.set("MONEYLABEL", Value.Str0D(data, "MONEYLABEL"));
+		this.globalMap.set("LASTLOAD_VERSION", Value.Int0D(data, "LASTLOAD_VERSION").reset(-1));
+		this.globalMap.set("LASTLOAD_NO", Value.Int0D(data, "LASTLOAD_NO").reset(-1));
+		this.globalMap.set("LASTLOAD_TEXT", Value.Str0D(data, "LASTLOAD_TEXT"));
+		this.globalMap.set("SAVEDATA_TEXT", Value.Str0D(data, "SAVEDATA_TEXT"));
+		this.globalMap.set("CTRAIN_COUNT", Value.Int0D(data, "CTRAIN_COUNT"));
+		for (const [i, name] of data.ability.entries()) {
+			this.globalMap.set(name, Value.Int0D(data, name).reset(i));
 		}
-		for (const i of data.exp.keys()) {
-			this.resetVariable(data.exp.get(i)!, Int0DValue, Int0DValue.from(i));
+		for (const [i, name] of data.exp.entries()) {
+			this.globalMap.set(name, Value.Int0D(data, name).reset(i));
 		}
-		for (const i of data.item.keys()) {
-			this.resetVariable(data.item.get(i)!.name, Int0DValue, Int0DValue.from(i));
+		for (const [i, {name}] of data.item.entries()) {
+			this.globalMap.set(name, Value.Int0D(data, name).reset(i));
 		}
-		for (const i of data.talent.keys()) {
-			this.resetVariable(data.talent.get(i)!, Int0DValue, Int0DValue.from(i));
+		for (const [i, name] of data.talent.entries()) {
+			this.globalMap.set(name, Value.Int0D(data, name).reset(i));
 		}
-		for (const i of data.mark.keys()) {
-			this.resetVariable(data.mark.get(i)!, Int0DValue, Int0DValue.from(i));
+		for (const [i, name] of data.mark.entries()) {
+			this.globalMap.set(name, Value.Int0D(data, name).reset(i));
 		}
-		for (const i of data.palam.keys()) {
-			this.resetVariable(data.palam.get(i)!, Int0DValue, Int0DValue.from(i));
+		for (const [i, name] of data.palam.entries()) {
+			this.globalMap.set(name, Value.Int0D(data, name).reset(i));
 		}
 
 		for (const property of header) {
@@ -415,8 +323,8 @@ export default class VM {
 			for (const fn of fnValues) {
 				// TODO: Initialize staticMap only once
 				this.staticMap.set(fn.name, new Map());
-				this.staticMap.get(fn.name)!.set("LOCAL", new Int1DValue(1000));
-				this.staticMap.get(fn.name)!.set("LOCALS", new Str1DValue(100));
+				this.staticMap.get(fn.name)!.set("LOCAL", Value.Int1D(data, "LOCAL"));
+				this.staticMap.get(fn.name)!.set("LOCALS", Value.Str1D(data, "LOCALS"));
 				for (const property of fn.property) {
 					if (property instanceof Dim) {
 						property.apply(this, this.staticMap.get(fn.name)!);
@@ -428,6 +336,8 @@ export default class VM {
 				}
 			}
 		}
+
+		this.characterList = [];
 	}
 
 	public configure(config: Config) {
@@ -450,8 +360,8 @@ export default class VM {
 			dynamicMap: new Map(),
 			refMap: new Map(),
 		};
-		context.dynamicMap.set("ARG", new Int1DValue(1000));
-		context.dynamicMap.set("ARGS", new Str1DValue(100));
+		context.dynamicMap.set("ARG", Value.Int1D(this.code.data, "ARG"));
+		context.dynamicMap.set("ARGS", Value.Str1D(this.code.data, "ARGS"));
 		for (const property of fn.property) {
 			if (property instanceof DimDynamic) {
 				property.apply(this);

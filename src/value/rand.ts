@@ -15,6 +15,10 @@ export default class RandValue implements Value {
 		throw new Error("Cannot assign a value to RAND");
 	}
 
+	public rangeSet(_vm: VM, _value: Leaf, _index: number[], _range: [number, number]) {
+		throw new Error("Cannot assign a value to RAND");
+	}
+
 	public length(_depth: number): number {
 		throw new Error("Cannot get the length of RAND");
 	}

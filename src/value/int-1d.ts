@@ -58,6 +58,14 @@ export default class Int1DValue implements Value {
 		}
 	}
 
+	// NOTE: index is ignored (Emuera emulation)
+	public rangeSet(_vm: VM, value: Leaf, _index: number[], range: [number, number]) {
+		assertNumber(value, "Cannot assign a string to a numeric variable");
+		for (let i = range[0]; i < range[1]; ++i) {
+			this.value[i] = value;
+		}
+	}
+
 	public length(depth: number): number {
 		switch (depth) {
 			case 0: return this.value.length;

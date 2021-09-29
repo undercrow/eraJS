@@ -41,6 +41,15 @@ export default class IntChar0DValue implements Value {
 		this.value.set(realIndex[0], value);
 	}
 
+	public rangeSet(vm: VM, value: Leaf, index: number[], _range: [number, number]) {
+		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
+		assertNumber(value, "Cannot assign a string to a numeric variable");
+		if (!this.value.has(realIndex[0])) {
+			throw new Error(`Character #${realIndex[0]} does not exist`);
+		}
+		this.value.set(realIndex[0], value);
+	}
+
 	public length(depth: number): number {
 		switch (depth) {
 			case 0: return 1;

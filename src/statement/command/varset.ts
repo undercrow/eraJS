@@ -28,19 +28,12 @@ export default class VarSet extends Statement {
 
 		if (valueExpr != null) {
 			const value = valueExpr.reduce(vm);
-
-			for (let i = start; i < end; ++i) {
-				dest.set(vm, value, [...index, i]);
-			}
+			dest.rangeSet(vm, value, index, [start, end]);
 		} else {
 			if (dest.type === "number") {
-				for (let i = start; i < end; ++i) {
-					dest.set(vm, 0, [...index, i]);
-				}
+				dest.rangeSet(vm, 0, index, [start, end]);
 			} else {
-				for (let i = start; i < end; ++i) {
-					dest.set(vm, "", [...index, i]);
-				}
+				dest.rangeSet(vm, "", index, [start, end]);
 			}
 		}
 

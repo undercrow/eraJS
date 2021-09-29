@@ -43,6 +43,14 @@ export default class Str1DValue implements Value {
 		this.value[realIndex[0]] = value;
 	}
 
+	// NOTE: index is ignored (Emuera emulation)
+	public rangeSet(_vm: VM, value: Leaf, _index: number[], range: [number, number]) {
+		assertString(value, "Cannot assign a number to a string variable");
+		for (let i = range[0]; i < range[1]; ++i) {
+			this.value[i] = value;
+		}
+	}
+
 	public reset(_vm: VM, value: string[] | Map<number, string>) {
 		for (let i = 0; i < this.value.length; ++i) {
 			this.value[i] = "";

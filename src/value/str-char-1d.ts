@@ -45,6 +45,17 @@ export default class StrChar1DValue implements Value {
 		this.value.get(realIndex[0])![realIndex[1]] = value;
 	}
 
+	public rangeSet(vm: VM, value: Leaf, index: number[], range: [number, number]) {
+		const realIndex = StrChar1DValue.normalizeIndex(vm, [...index, 0]);
+		assertString(value, "Cannot assign a number to a string variable");
+		if (!this.value.has(realIndex[0])) {
+			throw new Error(`Character #${realIndex[0]} does not exist`);
+		}
+		for (let i = range[0]; i < range[1]; ++i) {
+			this.value.get(realIndex[0])![i] = value;
+		}
+	}
+
 	public reset(_vm: VM, index: number, value: string[] | Map<number, string>) {
 		const result = Array<string>(this.size).fill("");
 		if (value instanceof Map) {

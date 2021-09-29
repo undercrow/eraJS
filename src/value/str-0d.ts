@@ -39,6 +39,13 @@ export default class Str0DValue implements Value {
 		this.value = value;
 	}
 
+	// NOTE: index is ignored (Emuera emulation)
+	public rangeSet(_vm: VM, value: Leaf, _index: number[], _range: [number, number]) {
+		assertString(value, "Cannot assign a number to a string variable");
+
+		this.value = value;
+	}
+
 	public length(depth: number): number {
 		switch (depth) {
 			case 0: return 1;

@@ -36,7 +36,7 @@ export default class ArrayShift extends Statement {
 			}
 		} else if (count < 0) {
 			for (let i = 0; i < length + count; ++i) {
-				const value = target.get(vm, [...index, i + count]);
+				const value = target.get(vm, [...index, i - count]);
 				target.set(vm, value, [...index, i]);
 			}
 			for (let i = length + count; i < length; ++i) {

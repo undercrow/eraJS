@@ -32,6 +32,7 @@ import min from "../method/min";
 import rand from "../method/rand";
 import sign from "../method/sign";
 import strLenS from "../method/strlens";
+import toInt from "../method/toint";
 import toStr from "../method/tostr";
 import varSize from "../method/varsize";
 import unicode from "../method/unicode";
@@ -88,6 +89,7 @@ export default class InlineCall implements Expr {
 			case "RAND": return rand(vm, arg);
 			case "SIGN": return sign(vm, arg);
 			case "STRLENS": return strLenS(vm, arg);
+			case "TOINT": return toInt(vm, arg);
 			case "TOSTR": return toStr(vm, arg);
 			case "VARSIZE": return varSize(vm, arg);
 			case "UNICODE": return unicode(vm, arg);

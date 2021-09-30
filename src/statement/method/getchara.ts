@@ -5,8 +5,7 @@ export default function getChara(vm: VM, arg: Array<string | number>): number {
 	const id = arg[0];
 	assertNumber(id, "1st argument of GETCHARA should be an integer");
 
-	const charaNum = vm.getValue("CHARANUM");
-	for (let i = 0; i < charaNum.get(vm, []); ++i) {
+	for (let i = 0; i < vm.characterList.length; ++i) {
 		if (vm.getValue("NO").get(vm, [i]) === id) {
 			return i;
 		}

@@ -21,13 +21,10 @@ export default class Swap extends Statement {
 		const right = vm.getValue(rightExpr.name);
 		const rightIndex = rightExpr.reduceIndex(vm);
 
-		const length = left.length(leftIndex.length);
-		for (let i = 0; i < length; ++i) {
-			const leftValue = left.get(vm, [...leftIndex, i]);
-			const rightValue = right.get(vm, [...rightIndex, i]);
-			left.set(vm, rightValue, [...leftIndex, i]);
-			right.set(vm, leftValue, [...rightIndex, i]);
-		}
+		const leftValue = left.get(vm, leftIndex);
+		const rightValue = right.get(vm, rightIndex);
+		left.set(vm, rightValue, leftIndex);
+		right.set(vm, leftValue, rightIndex);
 
 		return null;
 	}

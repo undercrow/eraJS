@@ -236,6 +236,12 @@ export default class VM {
 		this.globalMap.set("__INT_MIN__", Value.Int0D(data, "__INT_MIN__").reset(-(2 ** 32 - 1)));
 		this.globalMap.set("RANDDATA", Value.Int0D(data, "RANDDATA").reset(this.random.state));
 		this.globalMap.set("TSTR", Value.Str1D(data, "TSTR"));
+		this.globalMap.set("DA", Value.Int2D(data, "DA"));
+		this.globalMap.set("DB", Value.Int2D(data, "DB"));
+		this.globalMap.set("DC", Value.Int2D(data, "DC"));
+		this.globalMap.set("DD", Value.Int2D(data, "DD"));
+		this.globalMap.set("DE", Value.Int2D(data, "DE"));
+		this.globalMap.set("DITEMTYPE", Value.Int2D(data, "DITEMTYPE"));
 		this.globalMap.set("NICKNAME", Value.StrChar0D(data, "NICKNAME"));
 		this.globalMap.set("MASTERNAME", Value.StrChar0D(data, "MASTERNAME"));
 		this.globalMap.set("DOWNBASE", Value.IntChar1D(data, "DOWNBASE", 1000));

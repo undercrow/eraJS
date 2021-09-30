@@ -2,6 +2,7 @@ import {Data} from "../data";
 import type VM from "../vm";
 import Int0DValue from "./int-0d";
 import Int1DValue from "./int-1d";
+import Int2DValue from "./int-2d";
 import IntChar0DValue from "./int-char-0d";
 import IntChar1DValue from "./int-char-1d";
 import RandValue from "./rand";
@@ -38,6 +39,11 @@ export default abstract class Value {
 
 	public static Str1D(data: Data, name: string, size: number = 100) {
 		return new Str1DValue(name, data.varSize.get(name) ?? size);
+	}
+
+	public static Int2D(_data: Data, name: string, size0: number = 1000, size1: number = 1000) {
+		// TODO: Get varsize from data
+		return new Int2DValue(name, size0, size1);
 	}
 
 	public static IntChar0D(_data: Data, name: string) {

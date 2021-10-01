@@ -25,7 +25,7 @@ export default class GetPalamLv extends Statement {
 
 		let result = max;
 		for (let i = 0; i <= max; ++i) {
-			if (vm.getValue("PALAMLV").get(vm, [i]) < value) {
+			if (value < vm.getValue("PALAMLV").get(vm, [i])) {
 				result = i - 1;
 				break;
 			}

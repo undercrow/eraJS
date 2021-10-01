@@ -25,7 +25,7 @@ export default class GetExpLv extends Statement {
 
 		let result = max;
 		for (let i = 0; i <= max; ++i) {
-			if (vm.getValue("EXPLV").get(vm, [i]) < value) {
+			if (value < vm.getValue("EXPLV").get(vm, [i])) {
 				result = i - 1;
 				break;
 			}

@@ -23,7 +23,7 @@ export default class DelChara extends Statement {
 
 		const charaNum = vm.getValue("CHARANUM");
 		for (const index of indexList as number[]) {
-			vm.characterList = vm.characterList.splice(index, 1);
+			vm.characterList.splice(index, 1);
 			charaNum.set(vm, charaNum.get(vm, []) as number - 1, []);
 		}
 

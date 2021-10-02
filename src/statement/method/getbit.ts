@@ -1,10 +1,11 @@
 import {assert, assertNumber} from "../../assert";
 import type VM from "../../vm";
+import type Expr from "../expr";
 
-export default function getBit(_vm: VM, arg: Array<string | number>): number {
-	const value = arg[0];
+export default function getBit(vm: VM, arg: Expr[]): number {
+	const value = arg[0].reduce(vm);
 	assertNumber(value, "1st argument of GETBIT should be a number");
-	const index = arg[1];
+	const index = arg[1].reduce(vm);
 	assertNumber(index, "2nd argument of GETBIT should be a number");
 	assert(index < 32, "2nd argument of GETBIT should be less than 32");
 

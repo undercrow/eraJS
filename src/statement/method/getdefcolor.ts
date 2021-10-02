@@ -1,6 +1,7 @@
 import * as color from "../../color";
 import type VM from "../../vm";
+import type Expr from "../expr";
 
-export default function getDefColor(vm: VM, _arg: Array<string | number>): number {
+export default function getDefColor(vm: VM, _arg: Expr[]): number {
 	return color.toHex(vm.color.defaultFront);
 }

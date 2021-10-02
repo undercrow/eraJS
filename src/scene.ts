@@ -141,3 +141,27 @@ export function* AFTERTRAIN(vm: VM) {
 		yield* eventStatement(vm, "EVENTEND");
 	});
 }
+
+export function* ABLUP(vm: VM) {
+	return yield* runScene(vm, function* () {
+		while (true) {
+			vm.skipDisp = false;
+			yield new Call("SHOW_JUEL", []);
+			yield new Call("SHOW_ABLUP_SELECT", []);
+			yield new Input("");
+			const input = vm.getValue("RESULT").get(vm, []) as number;
+			if (input >= 0 && input < 100) {
+				yield new Call(`ABLUP${input}`, []);
+			} else {
+				yield new Call("USERABLUP", []);
+			}
+		}
+	});
+}
+
+export function* TURNEND(vm: VM) {
+	return yield* runScene(vm, function* () {
+		vm.skipDisp = false;
+		yield* eventStatement(vm, "EVENTTURNEND");
+	});
+}

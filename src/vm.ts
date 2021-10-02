@@ -427,6 +427,8 @@ export default class VM {
 				case "SHOP": result = yield* scene.SHOP(this); break;
 				case "TRAIN": result = yield* scene.TRAIN(this); break;
 				case "AFTERTRAIN": result = yield* scene.AFTERTRAIN(this); break;
+				case "ABLUP": result = yield* scene.ABLUP(this); break;
+				case "TURNEND": result = yield* scene.TURNEND(this); break;
 				default: {
 					throw new Error(`${begin} is not a valid keyword`);
 				}

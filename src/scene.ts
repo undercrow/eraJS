@@ -133,3 +133,11 @@ export function* TRAIN(vm: VM) {
 		}
 	});
 }
+
+export function* AFTERTRAIN(vm: VM) {
+	return yield* runScene(vm, function* () {
+		// TODO: Ctrain
+		vm.skipDisp = false;
+		yield* eventStatement(vm, "EVENTEND");
+	});
+}

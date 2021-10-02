@@ -24,21 +24,16 @@ export default class CallF extends Statement {
 		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
 
 		const arg = this.arg.map((a) => a?.reduce(vm));
-		for (const fn of vm.fnMap.get(target)!) {
-			const result = yield* fn.run(vm, arg);
-			switch (result?.type) {
-				case "begin": return result;
-				case "goto": return result;
-				case "break": return result;
-				case "continue": return result;
-				case "throw": return result;
-				case "return": {
-					return null;
-				}
-				case "quit": return result;
-				case undefined: continue;
-			}
+		const result = yield* vm.fnMap.get(target)!.run(vm, arg);
+		switch (result?.type) {
+			case "begin": return result;
+			case "goto": return result;
+			case "break": return result;
+			case "continue": return result;
+			case "throw": return result;
+			case "return": return null;
+			case "quit": return result;
+			case undefined: return null;
 		}
-		return null;
 	}
 }

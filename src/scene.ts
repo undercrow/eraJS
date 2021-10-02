@@ -1,85 +1,135 @@
-import parseERB from "./erb/erb";
+import type {default as Statement} from "./statement";
+import Call from "./statement/command/call";
+import Input from "./statement/command/input";
+import Int1DValue from "./value/int-1d";
+import VM from "./vm";
 
-function parseThunk(lines: string[]) {
-	return parseERB("@FN\n" + lines.join("\n"), new Set())[0].thunk;
+function* runScene(vm: VM, scene: () => Generator<Statement>): ReturnType<Statement["run"]> {
+	const generator = scene();
+	while (true) {
+		const next = generator.next();
+		if (next.done === true) {
+			return null;
+		}
+
+		const statement = next.value;
+		const result = yield* statement.run(vm);
+		if (result != null && result.type !== "return") {
+			return result;
+		}
+	}
 }
 
-export const TITLE = parseThunk(["CALL SYSTEM_TITLE"]);
+function* eventStatement(vm: VM, target: string) {
+	for (const fn of vm.eventMap.get(target) ?? []) {
+		yield {
+			run: function* () {
+				return yield* fn.run(vm, []);
+			},
+		};
+	}
+}
 
-export const FIRST = parseThunk(["CALL EVENTFIRST"]);
+export function* TITLE(vm: VM) {
+	return yield* runScene(vm, function* () {
+		yield new Call("SYSTEM_TITLE", []);
+	});
+}
 
-export const SHOP = parseThunk([
-	"TRYCALL EVENTSHOP",
-	"WHILE 1",
-	"	CALL SHOW_SHOP",
-	"	INPUT",
-	"	CALL USERSHOP",
-	"WEND",
-]);
+export function* FIRST(vm: VM) {
+	return yield* runScene(vm, function* () {
+		yield* eventStatement(vm, "EVENTFIRST");
+	});
+}
 
-export const TRAIN = parseThunk([
-	"ASSIPLAY = 0",
-	"PREVCOM = -1",
-	"NEXTCOM = -1",
-	"VARSET TFLAG, 0",
-	"REPEAT CHARANUM",
-	"	VARSET GOTJUEL:COUNT, 0",
-	"	VARSET TEQUIP:COUNT, 0",
-	"	VARSET EX:COUNT, 0",
-	"	VARSET PALAM:COUNT, 0",
-	"	VARSET SOURCE:COUNT, 0",
-	"	VARSET STAIN:COUNT, 0",
-	"	STAIN:COUNT:2 = 2",
-	"	STAIN:COUNT:3 = 1",
-	"	STAIN:COUNT:4 = 8",
-	"REND",
-	"TRYCALL EVENTTRAIN",
-	"CTRAIN_COUNT = 0",
-	"WHILE 1",
-	"	CTRAIN_COUNT -= 1",
-	"	ARRAYSHIFT SELECTCOM, -1, 0",
-	"	IF NEXTCOM < 0",
-	"		SIF CTRAIN_COUNT > 0",
-	"			SKIPDISP 1",
-	"		CALL SHOW_STATUS",
-	"		IF CTRAIN_COUNT <= 0",
-	"			REPEAT 1000",
-	'				SIF TRAINNAME:COUNT == ""',
-	"					BREAK",
-	"				RESULT = 1",
-	"				TRYCALLFORM COM_ABLE{COUNT}",
-	"				SIF RESULT",
-	"					PRINTFORMC %TRAINNAME:COUNT%[{COUNT}]",
-	"			REND",
-	"		ENDIF",
-	"		CALL SHOW_USERCOM",
-	"		VARSET UP, 0",
-	"		VARSET DOWN, 0",
-	"		VARSET LOSEBASE, 0",
-	"		IF CTRAIN_COUNT <= 0",
-	"			INPUT",
-	"			SELECTCOM = RESULT",
-	"		ENDIF",
-	"		RESULT = 1",
-	"		TRYCALLFORM COM_ABLE{SELECTCOM}",
-	"		IF RESULT == 0",
-	"			CALL USERCOM",
-	"			CONTINUE",
-	"		ENDIF",
-	"	ENDIF",
-	"	REPEAT CHARANUM",
-	"		VARSET NOWEX:COUNT, 0",
-	"	REND",
-	"	TRYCALL EVENTCOM",
-	"	CALLFORM COM{SELECTCOM:0}",
-	"	IF RESULT != 0",
-	"		CALL SOURCE_CHECK",
-	"		SOURCE = 0",
-	"		TRYCALL EVENTCOMEND",
-	"	ENDIF",
-	"	IF CTRAIN_COUNT == 0",
-	"		SKIPDISP 0",
-	"		TRYCALL CALLTRAINEND",
-	"	ENDIF",
-	"WEND",
-]);
+export function* SHOP(vm: VM) {
+	return yield* runScene(vm, function* () {
+		yield* eventStatement(vm, "EVENTSHOP");
+		// TODO: autosave
+		while (true) {
+			yield new Call("SHOW_SHOP", []);
+			yield new Input("");
+			yield new Call("USERSHOP", []);
+		}
+	});
+}
+
+export function* TRAIN(vm: VM) {
+	return yield* runScene(vm, function* () {
+		vm.getValue("ASSIPLAY").set(vm, 0, []);
+		vm.getValue("PREVCOM").set(vm, -1, []);
+		vm.getValue("NEXTCOM").set(vm, -1, []);
+		vm.getValue<Int1DValue>("TFLAG").reset([]);
+		for (const character of vm.characterList) {
+			character.getValue<Int1DValue>("GOTJUEL").reset([]);
+			character.getValue<Int1DValue>("TEQUIP").reset([]);
+			character.getValue<Int1DValue>("EX").reset([]);
+			character.getValue<Int1DValue>("PALAM").reset([]);
+			character.getValue<Int1DValue>("SOURCE").reset([]);
+			character.getValue<Int1DValue>("STAIN").reset([0, 0, 2, 1, 8]);
+		}
+
+		yield* eventStatement(vm, "EVENTTRAIN");
+
+		while (true) {
+			let selected: number | null = null;
+			const nextCom = vm.getValue("NEXTCOM").get(vm, []) as number;
+			if (nextCom >= 0) {
+				vm.getValue("NEXTCOM").set(vm, 0, []);
+				selected = nextCom;
+			} else {
+				const comAble: number[] = [];
+
+				// TODO: Skip display on CTRAIN
+				yield new Call("SHOW_STATUS", []);
+				for (const index of vm.code.data.train.keys()) {
+					vm.getValue("RESULT").set(vm, 1, []);
+					yield new Call(`COM_ABLE${index}`, []);
+					if (vm.getValue("RESULT").get(vm, []) !== 0) {
+						comAble.push(index);
+						// TODO: isCTrain
+					}
+				}
+				yield new Call("SHOW_USERCOM", []);
+
+				vm.skipDisp = false;
+				vm.getValue<Int1DValue>("UP").reset([]);
+				vm.getValue<Int1DValue>("DOWN").reset([]);
+				vm.getValue<Int1DValue>("LOSEBASE").reset([]);
+				for (const character of vm.characterList) {
+					character.getValue<Int1DValue>("DOWNBASE").reset([]);
+					character.getValue<Int1DValue>("CUP").reset([]);
+					character.getValue<Int1DValue>("CDOWN").reset([]);
+				}
+
+				yield new Input("");
+				const input = vm.getValue("RESULT").get(vm, [0]) as number;
+				if (comAble.includes(input)) {
+					selected = input;
+				}
+			}
+
+			if (selected == null) {
+				yield new Call("USERCOM", []);
+			} else {
+				vm.getValue("SELECTCOM").set(vm, selected, []);
+				for (const character of vm.characterList) {
+					character.getValue<Int1DValue>("NOWEX").reset([]);
+				}
+
+				yield* eventStatement(vm, "EVENTCOM");
+				yield new Call(`COM${selected}`, []);
+				if (vm.getValue("RESULT").get(vm, [0]) !== 0) {
+					yield new Call("SOURCE_CHECK", []);
+					for (const character of vm.characterList) {
+						character.getValue<Int1DValue>("SOURCE").reset([]);
+					}
+					yield* eventStatement(vm, "EVENTCOMEND");
+				}
+			}
+			// TODO: console.LastLineIsTemporary
+			// TODO: Ctrain
+			// TODO: NeedWaitToEventComEnd
+		}
+	});
+}

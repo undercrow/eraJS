@@ -29,6 +29,7 @@ module.exports = {
 		"function-paren-newline": ["error", "consistent"],
 		"generator-star-spacing": ["error", {
 			after: true,
+			before: false,
 			method: {
 				before: true,
 				after: false,

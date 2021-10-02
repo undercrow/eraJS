@@ -24,13 +24,6 @@ export default class Jump extends Statement {
 		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
 
 		const arg = this.arg.map((a) => a?.reduce(vm));
-		for (const fn of vm.fnMap.get(target)!) {
-			const result = yield* fn.run(vm, arg);
-			if (result != null) {
-				return result;
-			}
-		}
-
-		return null;
+		return yield* vm.fnMap.get(target)!.run(vm, arg);
 	}
 }

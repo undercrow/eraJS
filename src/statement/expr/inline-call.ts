@@ -95,13 +95,10 @@ export default class InlineCall implements Expr {
 			case "UNICODE": return unicode(vm, arg);
 			default: {
 				assert(vm.fnMap.has(this.name), `Method ${this.name} does not exist`);
-				for (const fn of vm.fnMap.get(this.name)!) {
-					const result = runGenerator(fn.run(vm, arg));
-					assert(result?.type === "return", "Inline call should return a value");
-					return result.value[0];
-				}
+				const result = runGenerator(vm.fnMap.get(this.name)!.run(vm, arg));
+				assert(result?.type === "return", "Inline call should return a value");
+				return result.value[0];
 			}
 		}
-		throw new Error(`Inline call to ${this.name} is not implemented yet`);
 	}
 }

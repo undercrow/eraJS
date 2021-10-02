@@ -75,7 +75,7 @@ export default class Character {
 		this.values.set(name, result);
 	}
 
-	public getValue(name: string) {
-		return this.values.get(name);
+	public getValue<T extends Value>(name: string): T {
+		return this.values.get(name) as T;
 	}
 }

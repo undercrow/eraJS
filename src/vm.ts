@@ -24,6 +24,17 @@ type Context = {
 	refMap: Map<string, string>;
 };
 
+const EVENT = [
+	"EVENTFIRST",
+	"EVENTTRAIN",
+	"EVENTSHOP",
+	"EVENTBUY",
+	"EVENTCOM",
+	"EVENTTURNEND",
+	"EVENTCOMEND",
+	"EVENTEND",
+	"EVENTLOAD",
+];
 export default class VM {
 	public random: PRNG;
 	public code: {
@@ -39,7 +50,8 @@ export default class VM {
 		del: (key: string) => void;
 	};
 
-	public fnMap: Map<string, Fn[]>;
+	public eventMap: Map<string, Fn[]>;
+	public fnMap: Map<string, Fn>;
 	public macroMap: Map<string, Define>;
 	public templateMap: Map<number, Template>;
 
@@ -76,6 +88,7 @@ export default class VM {
 			del: (key) => { delete this.DEFAULT_STORAGE[key]; },
 		};
 
+		this.eventMap = new Map();
 		this.fnMap = new Map();
 		this.macroMap = new Map();
 		this.templateMap = new Map();
@@ -85,15 +98,19 @@ export default class VM {
 		this.contextStack = [];
 
 		for (const fn of code.fnList) {
-			if (!this.fnMap.has(fn.name)) {
-				this.fnMap.set(fn.name, []);
+			if (EVENT.includes(fn.name)) {
+				if (!this.eventMap.has(fn.name)) {
+					this.eventMap.set(fn.name, []);
+				}
+				this.eventMap.get(fn.name)!.push(fn);
+			} else {
+				this.fnMap.set(fn.name, fn);
 			}
-			this.fnMap.get(fn.name)!.push(fn);
 		}
 
 		// Reorder functions
-		for (const fn of this.fnMap.keys()) {
-			this.fnMap.get(fn)!.sort((a, b) => {
+		for (const events of this.eventMap.values()) {
+			events.sort((a, b) => {
 				if (a.isFirst()) { return -1; }
 				if (b.isFirst()) { return 1; }
 				if (a.isLast()) { return 1; }
@@ -295,7 +312,6 @@ export default class VM {
 		this.globalMap.set("LASTLOAD_NO", Value.Int0D(data, "LASTLOAD_NO").reset(-1));
 		this.globalMap.set("LASTLOAD_TEXT", Value.Str0D(data, "LASTLOAD_TEXT"));
 		this.globalMap.set("SAVEDATA_TEXT", Value.Str0D(data, "SAVEDATA_TEXT"));
-		this.globalMap.set("CTRAIN_COUNT", Value.Int0D(data, "CTRAIN_COUNT"));
 		for (const [i, name] of data.ability.entries()) {
 			this.globalMap.set(name, Value.Int0D(data, name).reset(i));
 		}
@@ -325,20 +341,23 @@ export default class VM {
 
 		this.staticMap = new Map();
 		this.staticMap.set("@DUMMY", new Map());
-		for (const fnValues of this.fnMap.values()) {
-			for (const fn of fnValues) {
-				// TODO: Initialize staticMap only once
-				this.staticMap.set(fn.name, new Map());
-				this.staticMap.get(fn.name)!.set("LOCAL", Value.Int1D(data, "LOCAL"));
-				this.staticMap.get(fn.name)!.set("LOCALS", Value.Str1D(data, "LOCALS"));
-				for (const property of fn.property) {
-					if (property instanceof Dim) {
-						property.apply(this, this.staticMap.get(fn.name)!);
-					} else if (property instanceof DimConst) {
-						property.apply(this, this.staticMap.get(fn.name)!);
-					} else if (property instanceof LocalSize || property instanceof LocalSSize) {
-						property.apply(this, fn.name);
-					}
+
+		let fnList = [...this.fnMap.values()];
+		for (const events of this.eventMap.values()) {
+			fnList = fnList.concat(events);
+		}
+		for (const fn of fnList) {
+			// TODO: Initialize staticMap only once
+			this.staticMap.set(fn.name, new Map());
+			this.staticMap.get(fn.name)!.set("LOCAL", Value.Int1D(data, "LOCAL"));
+			this.staticMap.get(fn.name)!.set("LOCALS", Value.Str1D(data, "LOCALS"));
+			for (const property of fn.property) {
+				if (property instanceof Dim) {
+					property.apply(this, this.staticMap.get(fn.name)!);
+				} else if (property instanceof DimConst) {
+					property.apply(this, this.staticMap.get(fn.name)!);
+				} else if (property instanceof LocalSize || property instanceof LocalSSize) {
+					property.apply(this, fn.name);
 				}
 			}
 		}
@@ -403,10 +422,10 @@ export default class VM {
 		while (true) {
 			let result: Result | null = null;
 			switch (begin.toUpperCase()) {
-				case "TITLE": result = yield* scene.TITLE.run(this); break;
-				case "FIRST": result = yield* scene.FIRST.run(this); break;
-				case "SHOP": result = yield* scene.SHOP.run(this); break;
-				case "TRAIN": result = yield* scene.TRAIN.run(this); break;
+				case "TITLE": result = yield* scene.TITLE(this); break;
+				case "FIRST": result = yield* scene.FIRST(this); break;
+				case "SHOP": result = yield* scene.SHOP(this); break;
+				case "TRAIN": result = yield* scene.TRAIN(this); break;
 				default: {
 					throw new Error(`${begin} is not a valid keyword`);
 				}

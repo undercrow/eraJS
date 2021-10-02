@@ -36,7 +36,7 @@ export default class Assign extends Statement {
 	public *run(vm: VM) {
 		if (this.inner == null) {
 			const [dest, op, rest] = PARSER_VAR.tryParse(this.raw);
-			const destType = vm.getValue(dest.name).type;
+			const destType = dest.getCell(vm).type;
 			if (op === "=" && destType === "number") {
 				this.inner = new AssignInt(dest, PARSER_INT.tryParse(rest));
 			} else if (op === "=" && destType === "string") {

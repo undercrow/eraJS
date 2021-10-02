@@ -56,7 +56,7 @@ export default class For extends Statement {
 		const index = this.counter!.reduceIndex(vm);
 
 		loop: for (let i = start; i < end; i += step) {
-			vm.getValue(this.counter!.name).set(vm, i, index);
+			this.counter!.getCell(vm).set(vm, i, index);
 			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {
 				case "begin": return result;

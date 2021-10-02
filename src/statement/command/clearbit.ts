@@ -29,7 +29,7 @@ export default class ClearBit extends Statement {
 			// eslint-disable-next-line no-bitwise
 			result &= ~(1 << bit);
 		}
-		vm.getValue(destExpr.name).set(vm, result, destExpr.reduceIndex(vm));
+		destExpr.getCell(vm).set(vm, result, destExpr.reduceIndex(vm));
 
 		return null;
 	}

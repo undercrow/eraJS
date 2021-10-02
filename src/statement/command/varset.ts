@@ -19,7 +19,7 @@ export default class VarSet extends Statement {
 	public *run(vm: VM) {
 		const [destExpr, valueExpr, startExpr, endExpr] = this.arg.get();
 
-		const dest = vm.getValue(destExpr.name);
+		const dest = destExpr.getCell(vm);
 		const index = destExpr.reduceIndex(vm);
 		const start = startExpr?.reduce(vm) ?? 0;
 		assertNumber(start, "3rd argument of VARSET must be a number");

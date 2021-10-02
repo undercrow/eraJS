@@ -7,7 +7,7 @@ export default function minArray(vm: VM, arg: Expr[]): number {
 	const target = arg[0];
 	assert(target instanceof Variable, "1st argument of MINARRAY should be a variable");
 	assert(
-		vm.getValue(target.name).type === "number",
+		target.getCell(vm).type === "number",
 		"1st argument of MINARRAY should be a number variable",
 	);
 	const start = arg.length >= 2 ? arg[1].reduce(vm) : 0;
@@ -16,8 +16,8 @@ export default function minArray(vm: VM, arg: Expr[]): number {
 	assertNumber(end, "3rd argument of MINARRAY should be a number");
 
 	let result = 0;
-	for (let i = start; i < Math.min(end, vm.getValue(target.name).length(0)); ++i) {
-		result = Math.min(result, vm.getValue(target.name).get(vm, [i]) as number);
+	for (let i = start; i < Math.min(end, target.getCell(vm).length(0)); ++i) {
+		result = Math.min(result, target.getCell(vm).get(vm, [i]) as number);
 	}
 
 	return result;

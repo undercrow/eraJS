@@ -39,7 +39,7 @@ export default class Fn {
 
 		for (let i = 0; i < this.arg.length; ++i) {
 			const [argDest, argDef] = this.arg[i];
-			const dest = vm.getValue(argDest.name);
+			const dest = argDest.getCell(vm);
 			const index = argDest.reduceIndex(vm);
 			if (dest.type === "number") {
 				let value: string | number;

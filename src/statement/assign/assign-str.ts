@@ -14,7 +14,7 @@ export default class StrAssign extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const dest = vm.getValue(this.dest.name);
+		const dest = this.dest.getCell(vm);
 		const index = this.dest.reduceIndex(vm);
 		const partialIndex = index.slice(0, -1);
 		const lastIndex = index[index.length - 1] ?? 0;

@@ -16,9 +16,9 @@ export default class Swap extends Statement {
 
 	public *run(vm: VM) {
 		const [leftExpr, rightExpr] = this.arg.get();
-		const left = vm.getValue(leftExpr.name);
+		const left = leftExpr.getCell(vm);
 		const leftIndex = leftExpr.reduceIndex(vm);
-		const right = vm.getValue(rightExpr.name);
+		const right = rightExpr.getCell(vm);
 		const rightIndex = rightExpr.reduceIndex(vm);
 
 		const leftValue = left.get(vm, leftIndex);

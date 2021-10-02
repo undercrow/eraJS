@@ -22,7 +22,7 @@ export default class Times extends Statement {
 		assertNumber(original, "1st argument of TIMES must be a number");
 		const index = dest.reduceIndex(vm);
 
-		vm.getValue(dest.name).set(vm, Math.floor(original * value), index);
+		dest.getCell(vm).set(vm, Math.floor(original * value), index);
 
 		return null;
 	}

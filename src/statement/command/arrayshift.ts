@@ -19,7 +19,7 @@ export default class ArrayShift extends Statement {
 	public *run(vm: VM) {
 		const [targetExpr, countExpr, fillExpr] = this.arg.get();
 
-		const target = vm.getValue(targetExpr.name);
+		const target = targetExpr.getCell(vm);
 		const index = targetExpr.reduceIndex(vm);
 		const length = target.length(index.length);
 		const count = countExpr.reduce(vm);

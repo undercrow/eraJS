@@ -13,8 +13,8 @@ export default function match(vm: VM, arg: Expr[]): number {
 	assertNumber(end, "4th argument of MATCH should be a number");
 
 	let result = 0;
-	for (let i = start; i < Math.min(end, vm.getValue(target.name).length(0)); ++i) {
-		if (vm.getValue(target.name).get(vm, [i]) === value) {
+	for (let i = start; i < Math.min(end, target.getCell(vm).length(0)); ++i) {
+		if (target.getCell(vm).get(vm, [i]) === value) {
 			result += 1;
 		}
 	}

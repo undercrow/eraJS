@@ -23,7 +23,7 @@ export default class Split extends Statement {
 		assertString(value, "1st argument of SPLIT must be a string!");
 		const sep = sepExpr.reduce(vm);
 		assertString(sep, "2nd argument of SPLIT must be a number!");
-		const dest = vm.getValue(destExpr.name);
+		const dest = destExpr.getCell(vm);
 		const index = destExpr.reduceIndex(vm);
 
 		const chunkList = value.split(sep);

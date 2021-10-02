@@ -1,4 +1,5 @@
 import {assertNumber} from "../../assert";
+import Value from "../../value";
 import type VM from "../../vm";
 import type Expr from "./index";
 
@@ -14,6 +15,10 @@ export default class Variable implements Expr {
 		this.scope = scope;
 	}
 
+	public getCell(vm: VM): Value {
+		return vm.getValue(this.name, this.scope);
+	}
+
 	public reduce(vm: VM): string | number {
 		if (vm.macroMap.has(this.name)) {
 			if (this.index.length !== 0) {
@@ -26,15 +31,8 @@ export default class Variable implements Expr {
 			}
 
 			return expr.reduce(vm);
-		} else if (this.scope != null) {
-			const variable = vm.staticMap.get(this.scope)?.get(this.name);
-			if (variable == null) {
-				throw new Error(`Variable ${this.scope}@${this.name} does not exist`);
-			}
-
-			return variable.get(vm, this.reduceIndex(vm));
 		} else {
-			return vm.getValue(this.name).get(vm, this.reduceIndex(vm));
+			return this.getCell(vm).get(vm, this.reduceIndex(vm));
 		}
 	}
 

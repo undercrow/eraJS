@@ -402,18 +402,29 @@ export default class VM {
 		this.contextStack.pop();
 	}
 
-	public getValue<T extends Value>(name: string): T {
-		const context = this.context();
-		if (context.refMap.has(name)) {
-			return this.getValue(context.refMap.get(name)!);
-		} else if (context.dynamicMap.has(name)) {
-			return context.dynamicMap.get(name)! as T;
-		} else if (this.staticMap.get(context.fn.name)!.has(name)) {
-			return this.staticMap.get(context.fn.name)!.get(name)! as T;
-		} else if (this.globalMap.has(name)) {
-			return this.globalMap.get(name)! as T;
+	public getValue<T extends Value>(name: string, scope?: string): T {
+		if (scope != null) {
+			if (!this.staticMap.has(scope)) {
+				throw new Error(`Scope ${scope} does not exist`);
+			}
+			if (this.staticMap.get(scope)!.has(name)) {
+				return this.staticMap.get(scope)!.get(name)! as T;
+			} else {
+				throw new Error(`Variable ${name}:${scope} does not exist`);
+			}
 		} else {
-			throw new Error(`Variable ${name} does not exist`);
+			const context = this.context();
+			if (context.refMap.has(name)) {
+				return this.getValue(context.refMap.get(name)!);
+			} else if (context.dynamicMap.has(name)) {
+				return context.dynamicMap.get(name)! as T;
+			} else if (this.staticMap.get(context.fn.name)!.has(name)) {
+				return this.staticMap.get(context.fn.name)!.get(name)! as T;
+			} else if (this.globalMap.has(name)) {
+				return this.globalMap.get(name)! as T;
+			} else {
+				throw new Error(`Variable ${name} does not exist`);
+			}
 		}
 	}
 

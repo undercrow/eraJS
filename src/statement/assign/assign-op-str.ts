@@ -18,7 +18,7 @@ export default class OpAssign extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const dest = vm.getValue(this.dest.name);
+		const dest = this.dest.getCell(vm);
 		const index = this.dest.reduceIndex(vm);
 
 		const original = dest.get(vm, index) as string;

@@ -19,7 +19,7 @@ export default class SetBit extends Statement {
 	public *run(vm: VM) {
 		const [destExpr, ...bitExpr] = this.arg.get();
 
-		const dest = vm.getValue(destExpr.name);
+		const dest = destExpr.getCell(vm);
 		const value = destExpr.reduce(vm);
 		assertNumber(value, "1st argument of SETBIT must be a number");
 		const bitList = bitExpr.map((bit) => bit.reduce(vm));

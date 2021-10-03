@@ -1,0 +1,23 @@
+name: deploy
+on:
+  push:
+    tags:
+      - src/v*
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install
+      - run: npm run build
+
+      - run: git config user.name "Undercrow"
+      - run: git config user.email "undercrow@protonmail.com"
+      - run: git add -f build
+      - run: git commit -am "Build files"
+      - run: git tag ${GITHUB_REF#refs/tags/src/}
+      - run: git push origin ${GITHUB_REF#refs/tags/src/}

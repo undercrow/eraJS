@@ -22,7 +22,7 @@ export default class TryJump extends Statement {
 	public *run(vm: VM) {
 		const target = this.target.toUpperCase();
 		if (vm.fnMap.has(target)) {
-			return yield* new Jump(target, this.arg).run(vm);
+			return yield* Jump.exec(vm, target, this.arg);
 		}
 
 		return null;

@@ -40,7 +40,7 @@ export default class TryCJump extends Statement {
 	public *run(vm: VM, label?: string) {
 		const target = this.target.toUpperCase();
 		if (vm.fnMap.has(target)) {
-			return yield* new Jump(this.target, this.arg).run(vm);
+			return yield* Jump.exec(vm, this.target, this.arg);
 		} else {
 			return yield* this.catchExpr.run(vm, label);
 		}

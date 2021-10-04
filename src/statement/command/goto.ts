@@ -1,23 +1,19 @@
 import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Statement from "../index";
 
 const PARSER = U.arg1R1(U.Identifier);
 export default class Goto extends Statement {
-	public static parse(raw: string): Goto {
-		const target = PARSER.tryParse(raw);
-		return new Goto(target);
-	}
+	public arg: Lazy<string>;
 
-	public target: string;
-
-	public constructor(target: string) {
+	public constructor(raw: string) {
 		super();
-		this.target = target;
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
-		const target = this.target.toUpperCase();
+		const target = this.arg.get();
 
 		const context = vm.context();
 		if (!context.fn.thunk.labelMap.has(target)) {

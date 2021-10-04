@@ -1,25 +1,21 @@
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Form from "../expr/form";
 import Statement from "../index";
 
 const PARSER = U.arg1R1(E.form[""]);
 export default class GotoForm extends Statement {
-	public static parse(raw: string): GotoForm {
-		const target = PARSER.tryParse(raw);
-		return new GotoForm(target);
-	}
+	public arg: Lazy<Form>;
 
-	public target: Form;
-
-	public constructor(target: Form) {
+	public constructor(raw: string) {
 		super();
-		this.target = target;
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
-		const target = this.target.reduce(vm).toUpperCase();
+		const target = this.arg.get().reduce(vm).toUpperCase();
 
 		const context = vm.context();
 		if (!context.fn.thunk.labelMap.has(target)) {

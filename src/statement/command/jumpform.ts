@@ -1,3 +1,4 @@
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Form from "../expr/form";
@@ -6,22 +7,16 @@ import CallForm from "./callform";
 import Jump from "./jump";
 
 export default class JumpForm extends Statement {
-	public static parse(raw: string): JumpForm {
-		const [target, arg] = CallForm.PARSER("(").tryParse(raw);
-		return new JumpForm(target, arg);
-	}
+	public arg: Lazy<[Form, Array<Expr | undefined>]>;
 
-	public target: Form;
-	public arg: (Expr | undefined)[];
-
-	public constructor(target: Form, arg: JumpForm["arg"]) {
+	public constructor(raw: string) {
 		super();
-		this.target = target;
-		this.arg = arg;
+		this.arg = new Lazy(raw, CallForm.PARSER("("));
 	}
 
 	public *run(vm: VM) {
-		const target = this.target.reduce(vm);
-		return yield* new Jump(target, this.arg).run(vm);
+		const [targetExpr, argExpr] = this.arg.get();
+		const target = targetExpr.reduce(vm);
+		return yield* Jump.exec(vm, target, argExpr);
 	}
 }

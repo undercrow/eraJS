@@ -1,5 +1,5 @@
 import {assertString} from "../../assert";
-// import Lazy from "../../lazy";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Form from "../expr/form";
@@ -8,24 +8,18 @@ import CallF from "./callf";
 import CallForm from "./callform";
 
 export default class CallFormF extends Statement {
-	public static parse(raw: string): CallFormF {
-		const [target, arg] = CallForm.PARSER("(,").tryParse(raw);
-		return new CallFormF(target, arg);
-	}
+	public arg: Lazy<[Form, Array<Expr | undefined>]>;
 
-	public target: Form;
-	public arg: (Expr | undefined)[];
-
-	public constructor(target: Form, arg: CallFormF["arg"]) {
+	public constructor(raw: string) {
 		super();
-		this.target = target;
-		this.arg = arg;
+		this.arg = new Lazy(raw, CallForm.PARSER("(,"));
 	}
 
 	public *run(vm: VM) {
-		const target = this.target.reduce(vm);
+		const [targetExpr, argExpr] = this.arg.get();
+		const target = targetExpr.reduce(vm);
 		assertString(target, "1st argument of CALLFORMF must be a string");
 
-		return yield* CallF.exec(vm, target, this.arg);
+		return yield* CallF.exec(vm, target, argExpr);
 	}
 }

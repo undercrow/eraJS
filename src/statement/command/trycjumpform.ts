@@ -43,7 +43,7 @@ export default class TryCJumpForm extends Statement {
 	public *run(vm: VM, label?: string) {
 		const target = this.target.reduce(vm).toUpperCase();
 		if (vm.fnMap.has(target)) {
-			return yield* new Jump(target, this.arg).run(vm);
+			return yield* Jump.exec(vm, target, this.arg);
 		} else {
 			return yield* this.catchThunk.run(vm, label);
 		}

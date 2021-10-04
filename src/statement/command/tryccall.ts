@@ -8,19 +8,19 @@ import Call from "./call";
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
 export default class TryCCall extends Statement {
-	public static parse(lines: string[]): [TryCCall, string[]] {
-		let rest = lines.slice();
+	public static parse(lines: string[], from: number): [TryCCall, number] {
+		let index = from;
 
-		const [target, arg] = Call.compileArg(rest.shift()!.slice("TRYCCALL".length));
-		const [thenThunk, restT] = parseThunk(rest, (l) => CATCH.test(l));
-		rest = restT;
-		rest.shift(); // Remove CATCH statement
+		const [target, arg] = Call.compileArg(lines[index].slice("TRYCCALL".length));
+		index += 1;
 
-		const [catchThunk, restC] = parseThunk(rest, (l) => ENDCATCH.test(l));
-		rest = restC;
-		rest.shift(); // Remove ENDCATCH statement
+		const [thenThunk, consumedT] = parseThunk(lines, index, (l) => CATCH.test(l));
+		index += consumedT + 1;
 
-		return [new TryCCall(target, arg, thenThunk, catchThunk), rest];
+		const [catchThunk, consumedC] = parseThunk(lines, index, (l) => ENDCATCH.test(l));
+		index += consumedC + 1;
+
+		return [new TryCCall(target, arg, thenThunk, catchThunk), index - from];
 	}
 
 	public target: string;

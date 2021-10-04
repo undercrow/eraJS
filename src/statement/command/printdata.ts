@@ -16,14 +16,15 @@ const ENDDATA = /^ENDDATA$/i;
 const PARSER_CONST = U.arg1R0(U.charSeq());
 const PARSER_FORM = U.arg1R1(E.form[""]);
 export default class PrintData extends Statement {
-	public static parse(postfix: string, lines: string[]): [PrintData, string[]] {
-		const rest = lines.slice();
+	public static parse(postfix: string, lines: string[], from: number): [PrintData, number] {
+		let index = from + 1;
 		const data: Expr[] = [];
 		while (true) {
-			const current = rest.shift();
-			if (current == null) {
+			if (lines.length <= index) {
 				throw new Error("Unexpected end of thunk!");
 			}
+			const current = lines[index];
+			index += 1;
 
 			if (DATA.test(current)) {
 				data.push(new Const(PARSER_CONST.tryParse(current.slice("DATA".length)) ?? ""));
@@ -34,7 +35,7 @@ export default class PrintData extends Statement {
 			} else if (DATALIST.test(current) || ENDLIST.test(current)) {
 				// Do nothing
 			} else if (ENDDATA.test(current)) {
-				return [new PrintData(postfix, data), rest];
+				return [new PrintData(postfix, data), index - from];
 			} else {
 				throw new Error("Unexpected statement found while parsing PRINTDATA statement");
 			}

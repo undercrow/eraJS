@@ -11,11 +11,13 @@ import Statement, {Result} from "../index";
 const WEND = /^WEND$/i;
 const PARSER = U.arg1R1(E.expr);
 export default class While extends Statement {
-	public static parse(arg: string, lines: string[]): [While, string[]] {
-		const [thunk, rest] = parseThunk(lines, (l) => WEND.test(l));
-		rest.shift(); // Remove REND statement
+	public static parse(arg: string, lines: string[], from: number): [While, number] {
+		let index = from + 1;
 
-		return [new While(arg, thunk), rest];
+		const [thunk, consumed] = parseThunk(lines, index, (l) => WEND.test(l));
+		index += consumed + 1;
+
+		return [new While(arg, thunk), index - from];
 	}
 
 

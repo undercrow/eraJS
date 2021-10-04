@@ -35,28 +35,34 @@ const PARSER_BRANCH = U.argNR0(P.alt(
 	U.Str.map((value) => ({type: "equal", value})),
 ));
 export default class Case extends Statement {
-	public static parse(lines: string[]): [Case, string[]] {
-		let rest = lines.slice();
-		const expr = rest.shift()!.slice("SELECTCASE".length);
+	public static parse(lines: string[], from: number): [Case, number] {
+		let index = from;
+		const expr = lines[index].slice("SELECTCASE".length);
+		index += 1;
+
 		const branch: Array<[string, Thunk]> = [];
 		let def = new Thunk([]);
 		while (true) {
-			const current = rest.shift();
-			if (current == null) {
+			if (lines.length <= index) {
 				throw new Error("Unexpected end of thunk!");
 			}
+			const current = lines[index];
+			index += 1;
 
 			if (CASE.test(current)) {
-				const [thunk, restT] = parseThunk(
-					rest,
+				const [thunk, consumed] = parseThunk(
+					lines,
+					index,
 					(l) => CASE.test(l) || CASEELSE.test(l) || ENDSELECT.test(l),
 				);
 				branch.push([current.slice("CASE".length), thunk]);
-				rest = restT;
+				index += consumed;
 			} else if (CASEELSE.test(current)) {
-				[def, rest] = parseThunk(rest, (l) => ENDSELECT.test(l));
+				const [thunk, consumed] = parseThunk(lines, index, (l) => ENDSELECT.test(l));
+				def = thunk;
+				index += consumed;
 			} else if (ENDSELECT.test(current)) {
-				return [new Case(expr, branch, def), rest];
+				return [new Case(expr, branch, def), index - from];
 			} else {
 				throw new Error("Unexpected statement found while parsing CASE statement");
 			}

@@ -11,15 +11,16 @@ export default function preprocess(raw: string, macros: Set<string>): string[] {
 		// Remove [SKIPSTART]~[SKIPEND] and [IF_DEBUG]~[ENDIF] lines
 		(prev) => {
 			const result: string[] = [];
-			let temp = prev.slice();
-			while (temp.length > 0) {
-				const line = temp.shift()!;
+			let index = 0;
+			while (index < prev.length) {
+				const line = prev[index];
 				if (line === "[SKIPSTART]") {
-					[, temp] = splitBy(temp, "[SKIPEND]");
+					index = index + prev.slice(index).indexOf("[SKIPEND]") + 1;
 				} else if (line === "[IF_DEBUG]") {
-					[, temp] = splitBy(temp, "[ENDIF]");
+					index = index + prev.slice(index).indexOf("[ENDIF]") + 1;
 				} else {
 					result.push(line);
+					index += 1;
 				}
 			}
 
@@ -29,18 +30,21 @@ export default function preprocess(raw: string, macros: Set<string>): string[] {
 		// TODO: Handle [ELSEIF], [ELSE]
 		(prev) => {
 			let result: string[] = [];
-			let temp = prev.slice();
-			while (temp.length > 0) {
-				const line = temp.shift()!;
+			let index = 0;
+			while (index < prev.length) {
+				const line = prev[index];
 				if (/^\[IF .*\]$/.test(line)) {
 					const name = line.slice("[IF ".length, -1 * "]".length);
-					const [body, rest] = splitBy(temp, "[ENDIF]");
+					index += 1;
+
+					const endIndex = index + prev.slice(index).indexOf("[ENDIF]");
 					if (macros.has(name)) {
-						result = result.concat(body);
+						result = result.concat(line.slice(index, endIndex));
 					}
-					temp = rest;
+					index = endIndex + 1;
 				} else {
 					result.push(line);
+					index += 1;
 				}
 			}
 
@@ -49,15 +53,16 @@ export default function preprocess(raw: string, macros: Set<string>): string[] {
 		// Concatenate lines inside braces
 		(prev) => {
 			const result: string[] = [];
-			let temp = prev.slice();
-			while (temp.length > 0) {
-				const line = temp.shift()!;
+			let index = 0;
+			while (index < prev.length) {
+				const line = prev[index];
 				if (line === "{") {
-					const [group, rest] = splitBy(temp, "}");
-					result.push(group.join(""));
-					temp = rest;
+					const endIndex = index + prev.slice(index).indexOf("}");
+					result.push(prev.slice(index, endIndex).join(""));
+					index = endIndex + 1;
 				} else {
 					result.push(line);
+					index += 1;
 				}
 			}
 
@@ -66,10 +71,4 @@ export default function preprocess(raw: string, macros: Set<string>): string[] {
 	];
 
 	return fn.reduce((acc, val) => val(acc), lines);
-}
-
-function splitBy(lineList: string[], separator: string): [string[], string[]] {
-	const index = lineList.findIndex((line) => line === separator);
-
-	return [lineList.slice(0, index), lineList.slice(index + 1)];
 }

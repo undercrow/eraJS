@@ -9,20 +9,19 @@ const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
 const PARSER = U.arg1R1(U.Identifier);
 export default class TryCGoto extends Statement {
-	public static parse(lines: string[]): [TryCGoto, string[]] {
-		let rest = lines.slice();
+	public static parse(lines: string[], from: number): [TryCGoto, number] {
+		let index = from + 1;
 
-		const target = PARSER.tryParse(rest.shift()!.slice("TRYCGOTO".length));
-		if (rest.length === 0 || !CATCH.test(rest[0])) {
+		const target = PARSER.tryParse(lines[index].slice("TRYCGOTO".length));
+		if (lines.length <= index || !CATCH.test(lines[index])) {
 			throw new Error("Expected CATCH statement");
 		}
-		rest.shift(); // Remove CATCH statement
+		index += 1;
 
-		const [catchThunk, restC] = parseThunk(rest, (l) => ENDCATCH.test(l));
-		rest = restC;
-		rest.shift(); // Remove ENDCATCH statement
+		const [catchThunk, consumed] = parseThunk(lines, index, (l) => ENDCATCH.test(l));
+		index += consumed + 1;
 
-		return [new TryCGoto(target, catchThunk), rest];
+		return [new TryCGoto(target, catchThunk), index - from];
 	}
 
 	public target: string;

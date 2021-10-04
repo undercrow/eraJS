@@ -9,20 +9,21 @@ import Jump from "./jump";
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
 export default class TryCJump extends Statement {
-	public static parse(lines: string[]): [TryCJump, string[]] {
-		let rest = lines.slice();
+	public static parse(lines: string[], from: number): [TryCJump, number] {
+		let index = from;
 
-		const [target, arg] = Call.compileArg(rest.shift()!.slice("TRYCJUMP".length));
-		if (rest.length === 0 || !CATCH.test(rest[0])) {
+		const [target, arg] = Call.compileArg(lines[index].slice("TRYCJUMP".length));
+		index += 1;
+
+		if (lines.length <= index || !CATCH.test(lines[index])) {
 			throw new Error("Expected CATCH statement");
 		}
-		rest.shift(); // Remove CATCH statement
+		index += 1;
 
-		const [catchThunk, restC] = parseThunk(rest, (l) => ENDCATCH.test(l));
-		rest = restC;
-		rest.shift(); // Remove ENDCATCH statement
+		const [catchThunk, consumed] = parseThunk(lines, index, (l) => ENDCATCH.test(l));
+		index += consumed + 1;
 
-		return [new TryCJump(target, arg, catchThunk), rest];
+		return [new TryCJump(target, arg, catchThunk), index - from];
 	}
 
 	public target: string;

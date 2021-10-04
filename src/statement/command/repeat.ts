@@ -11,11 +11,13 @@ import Statement from "../index";
 const REND = /^REND$/i;
 const PARSER = U.arg1R1(E.expr);
 export default class Repeat extends Statement {
-	public static parse(arg: string, lines: string[]): [Repeat, string[]] {
-		const [thunk, rest] = parseThunk(lines, (l) => REND.test(l));
-		rest.shift(); // Remove REND statement
+	public static parse(arg: string, lines: string[], from: number): [Repeat, number] {
+		let index = from + 1;
 
-		return [new Repeat(arg, thunk), rest];
+		const [thunk, consumed] = parseThunk(lines, index, (l) => REND.test(l));
+		index += consumed + 1;
+
+		return [new Repeat(arg, thunk), index - from];
 	}
 
 	public condition: Lazy<Expr>;

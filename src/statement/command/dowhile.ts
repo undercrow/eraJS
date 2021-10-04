@@ -12,12 +12,17 @@ const LOOP = /^LOOP\s+/i;
 const PARSER_ARG = U.arg0R0();
 const PARSER_COND = U.arg1R1(E.expr);
 export default class DoWhile extends Statement {
-	public static parse(arg: string, lines: string[]): [DoWhile, string[]] {
-		PARSER_ARG.tryParse(arg);
-		const [thunk, rest] = parseThunk(lines, (l) => LOOP.test(l));
-		const expr = rest.shift()!.slice("LOOP".length);
+	public static parse(arg: string, lines: string[], from: number): [DoWhile, number] {
+		let index: number = from + 1;
 
-		return [new DoWhile(expr, thunk), rest];
+		PARSER_ARG.tryParse(arg);
+		const [thunk, consumed] = parseThunk(lines, index, (l) => LOOP.test(l));
+		index += consumed;
+
+		const expr = lines[index].slice("LOOP".length);
+		index += 1;
+
+		return [new DoWhile(expr, thunk), index - from];
 	}
 
 	public condition: Lazy<Expr>;

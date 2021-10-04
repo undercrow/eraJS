@@ -11,11 +11,13 @@ import Statement from "../index";
 const NEXT = /^NEXT$/i;
 const PARSER = U.arg4R3(E.variable, E.expr, E.expr, E.expr);
 export default class For extends Statement {
-	public static parse(arg: string, lines: string[]): [For, string[]] {
-		const [thunk, rest] = parseThunk(lines, (l) => NEXT.test(l));
-		rest.shift(); // Remove NEXT statement
+	public static parse(arg: string, lines: string[], from: number): [For, number] {
+		let index = from + 1;
 
-		return [new For(arg, thunk), rest];
+		const [thunk, consumed] = parseThunk(lines, index, (l) => NEXT.test(l));
+		index += consumed + 1;
+
+		return [new For(arg, thunk), index - from];
 	}
 
 	public raw: string;

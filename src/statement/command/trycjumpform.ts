@@ -10,20 +10,21 @@ import Jump from "./jump";
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
 export default class TryCJumpForm extends Statement {
-	public static parse(lines: string[]): [TryCJumpForm, string[]] {
-		let rest = lines.slice();
+	public static parse(lines: string[], from: number): [TryCJumpForm, number] {
+		let index = from;
 
-		const [target, arg] = CallForm.compileArg(rest.shift()!.slice("TRYCJUMPFORM".length), "");
-		if (rest.length === 0 || !CATCH.test(rest[0])) {
+		const [target, arg] = CallForm.compileArg(lines[index].slice("TRYCJUMPFORM".length), "");
+		index += 1;
+
+		if (lines.length <= index || !CATCH.test(lines[index])) {
 			throw new Error("Expected CATCH statement");
 		}
-		rest.shift(); // Remove CATCH statement
+		index += 1;
 
-		const [catchThunk, restC] = parseThunk(rest, (l) => ENDCATCH.test(l));
-		rest = restC;
-		rest.shift(); // Remove ENDCATCH statement
+		const [catchThunk, consumed] = parseThunk(lines, index, (l) => ENDCATCH.test(l));
+		index += consumed + 1;
 
-		return [new TryCJumpForm(target, arg, catchThunk), rest];
+		return [new TryCJumpForm(target, arg, catchThunk), index - from];
 	}
 
 	public target: Form;

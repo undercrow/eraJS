@@ -10,19 +10,19 @@ import CallForm from "./callform";
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
 export default class TryCCallForm extends Statement {
-	public static parse(lines: string[]): [TryCCallForm, string[]] {
-		let rest = lines.slice();
+	public static parse(lines: string[], from: number): [TryCCallForm, number] {
+		let index = from;
 
-		const [target, arg] = CallForm.compileArg(rest.shift()!.slice("TRYCCALLFORM".length), "");
-		const [thenThunk, restT] = parseThunk(rest, (l) => CATCH.test(l));
-		rest = restT;
-		rest.shift(); // Remove CATCH statement
+		const [target, arg] = CallForm.compileArg(lines[index].slice("TRYCCALLFORM".length), "");
+		index += 1;
 
-		const [catchThunk, restC] = parseThunk(rest, (l) => ENDCATCH.test(l));
-		rest = restC;
-		rest.shift(); // Remove ENDCATCH statement
+		const [thenThunk, consumedT] = parseThunk(lines, index, (l) => CATCH.test(l));
+		index += consumedT + 1;
 
-		return [new TryCCallForm(target, arg, thenThunk, catchThunk), rest];
+		const [catchThunk, consumedC] = parseThunk(lines, index, (l) => ENDCATCH.test(l));
+		index += consumedC + 1;
+
+		return [new TryCCallForm(target, arg, thenThunk, catchThunk), index - from];
 	}
 
 	public target: Form;

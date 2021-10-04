@@ -1,6 +1,8 @@
 import type {default as Statement} from "./statement";
 import Call from "./statement/command/call";
 import Input from "./statement/command/input";
+import Print from "./statement/command/print";
+import PrintC from "./statement/command/printc";
 import Int1DValue from "./value/int-1d";
 import VM from "./vm";
 
@@ -82,11 +84,20 @@ export function* TRAIN(vm: VM) {
 
 				// TODO: Skip display on CTRAIN
 				yield new Call(" SHOW_STATUS");
+
+				let count = 0;
 				for (const index of vm.code.data.train.keys()) {
+					count += 1;
 					vm.getValue("RESULT").set(vm, 1, []);
 					yield new Call(` COM_ABLE${index}`);
 					if (vm.getValue("RESULT").get(vm, []) !== 0) {
 						comAble.push(index);
+						const name = vm.code.data.train.get(index)!;
+						const indexString = index.toString().padStart(3, " ");
+						yield new PrintC("RIGHT", "", ` ${name}[${indexString}]`);
+						if (count % vm.printCPerLine === 0) {
+							yield new Print("PRINTL", "");
+						}
 						// TODO: isCTrain
 					}
 				}

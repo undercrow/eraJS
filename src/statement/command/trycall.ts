@@ -5,7 +5,7 @@ import Call from "./call";
 
 export default class TryCall extends Statement {
 	public static parse(raw: string): TryCall {
-		const [target, arg] = Call.compileArg(raw);
+		const [target, arg] = Call.PARSER.tryParse(raw);
 		return new TryCall(target, arg);
 	}
 
@@ -21,7 +21,7 @@ export default class TryCall extends Statement {
 	public *run(vm: VM) {
 		const target = this.target.toUpperCase();
 		if (vm.fnMap.has(target)) {
-			return yield* new Call(target, this.arg).run(vm);
+			return yield* Call.exec(vm, target, this.arg);
 		}
 
 		return null;

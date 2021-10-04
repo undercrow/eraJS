@@ -7,7 +7,7 @@ import CallForm from "./callform";
 
 export default class TryCallForm extends Statement {
 	public static parse(raw: string): TryCallForm {
-		const [target, arg] = CallForm.compileArg(raw, "(,");
+		const [target, arg] = CallForm.PARSER("(,").tryParse(raw);
 		return new TryCallForm(target, arg);
 	}
 
@@ -23,7 +23,7 @@ export default class TryCallForm extends Statement {
 	public *run(vm: VM) {
 		const target = this.target.reduce(vm).toUpperCase();
 		if (vm.fnMap.has(target)) {
-			return yield* new Call(target, this.arg).run(vm);
+			return yield* Call.exec(vm, target, this.arg);
 		}
 
 		return null;

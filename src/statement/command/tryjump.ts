@@ -6,7 +6,7 @@ import Jump from "./jump";
 
 export default class TryJump extends Statement {
 	public static parse(raw: string): TryJump {
-		const [target, arg] = Call.compileArg(raw);
+		const [target, arg] = Call.PARSER.tryParse(raw);
 		return new TryJump(target, arg);
 	}
 

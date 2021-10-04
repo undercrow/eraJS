@@ -32,7 +32,7 @@ function* eventStatement(vm: VM, target: string) {
 
 export function* TITLE(vm: VM) {
 	return yield* runScene(vm, function* () {
-		yield new Call("SYSTEM_TITLE", []);
+		yield new Call(" SYSTEM_TITLE");
 	});
 }
 
@@ -47,9 +47,9 @@ export function* SHOP(vm: VM) {
 		yield* eventStatement(vm, "EVENTSHOP");
 		// TODO: autosave
 		while (true) {
-			yield new Call("SHOW_SHOP", []);
+			yield new Call(" SHOW_SHOP");
 			yield new Input("");
-			yield new Call("USERSHOP", []);
+			yield new Call(" USERSHOP");
 		}
 	});
 }
@@ -81,16 +81,16 @@ export function* TRAIN(vm: VM) {
 				const comAble: number[] = [];
 
 				// TODO: Skip display on CTRAIN
-				yield new Call("SHOW_STATUS", []);
+				yield new Call(" SHOW_STATUS");
 				for (const index of vm.code.data.train.keys()) {
 					vm.getValue("RESULT").set(vm, 1, []);
-					yield new Call(`COM_ABLE${index}`, []);
+					yield new Call(` COM_ABLE${index}`);
 					if (vm.getValue("RESULT").get(vm, []) !== 0) {
 						comAble.push(index);
 						// TODO: isCTrain
 					}
 				}
-				yield new Call("SHOW_USERCOM", []);
+				yield new Call(" SHOW_USERCOM");
 
 				vm.skipDisp = false;
 				vm.getValue<Int1DValue>("UP").reset([]);
@@ -110,7 +110,7 @@ export function* TRAIN(vm: VM) {
 			}
 
 			if (selected == null) {
-				yield new Call("USERCOM", []);
+				yield new Call(" USERCOM");
 			} else {
 				vm.getValue("SELECTCOM").set(vm, selected, []);
 				for (const character of vm.characterList) {
@@ -118,9 +118,9 @@ export function* TRAIN(vm: VM) {
 				}
 
 				yield* eventStatement(vm, "EVENTCOM");
-				yield new Call(`COM${selected}`, []);
+				yield new Call(` COM${selected}`);
 				if (vm.getValue("RESULT").get(vm, [0]) !== 0) {
-					yield new Call("SOURCE_CHECK", []);
+					yield new Call(" SOURCE_CHECK");
 					for (const character of vm.characterList) {
 						character.getValue<Int1DValue>("SOURCE").reset([]);
 					}
@@ -146,14 +146,14 @@ export function* ABLUP(vm: VM) {
 	return yield* runScene(vm, function* () {
 		while (true) {
 			vm.skipDisp = false;
-			yield new Call("SHOW_JUEL", []);
-			yield new Call("SHOW_ABLUP_SELECT", []);
+			yield new Call(" SHOW_JUEL");
+			yield new Call(" SHOW_ABLUP_SELECT");
 			yield new Input("");
 			const input = vm.getValue("RESULT").get(vm, []) as number;
 			if (input >= 0 && input < 100) {
-				yield new Call(`ABLUP${input}`, []);
+				yield new Call(` ABLUP${input}`);
 			} else {
-				yield new Call("USERABLUP", []);
+				yield new Call(" USERABLUP");
 			}
 		}
 	});

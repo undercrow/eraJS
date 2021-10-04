@@ -420,9 +420,9 @@ function parseStatement(lines: string[], index: number): [Statement, number] {
 			case "CALLTRAIN": return [new CallTrain(arg), 1];
 			case "THROW": return [new Throw(arg), 1];
 			case "QUIT": return [new Quit(arg), 1];
-			case "CALL": return [Call.parse(arg), 1];
-			case "CALLFORM": return [CallForm.parse(arg), 1];
-			case "CALLF": return [CallF.parse(arg), 1];
+			case "CALL": return [new Call(arg), 1];
+			case "CALLFORM": return [new CallForm(arg), 1];
+			case "CALLF": return [new CallF(arg), 1];
 			case "CALLFORMF": return [CallFormF.parse(arg), 1];
 			case "TRYCALL": return [TryCall.parse(arg), 1];
 			case "TRYCALLFORM": return [TryCallForm.parse(arg), 1];

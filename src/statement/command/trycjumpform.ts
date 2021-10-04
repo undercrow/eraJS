@@ -13,7 +13,9 @@ export default class TryCJumpForm extends Statement {
 	public static parse(lines: string[], from: number): [TryCJumpForm, number] {
 		let index = from;
 
-		const [target, arg] = CallForm.compileArg(lines[index].slice("TRYCJUMPFORM".length), "");
+		const [target, arg] = CallForm.PARSER("").tryParse(
+			lines[index].slice("TRYCJUMPFORM".length),
+		);
 		index += 1;
 
 		if (lines.length <= index || !CATCH.test(lines[index])) {

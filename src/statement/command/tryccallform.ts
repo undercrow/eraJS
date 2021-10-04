@@ -13,7 +13,9 @@ export default class TryCCallForm extends Statement {
 	public static parse(lines: string[], from: number): [TryCCallForm, number] {
 		let index = from;
 
-		const [target, arg] = CallForm.compileArg(lines[index].slice("TRYCCALLFORM".length), "");
+		const [target, arg] = CallForm.PARSER("").tryParse(
+			lines[index].slice("TRYCCALLFORM".length),
+		);
 		index += 1;
 
 		const [thenThunk, consumedT] = parseThunk(lines, index, (l) => CATCH.test(l));
@@ -53,7 +55,7 @@ export default class TryCCallForm extends Statement {
 
 		const target = this.target.reduce(vm).toUpperCase();
 		if (vm.fnMap.has(target)) {
-			yield* new Call(target, this.arg).run(vm);
+			yield* Call.exec(vm, target, this.arg);
 			return yield* this.thenThunk.run(vm, label);
 		} else {
 			return yield* this.catchThunk.run(vm, label);

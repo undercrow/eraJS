@@ -3,6 +3,7 @@ import P from "parsimmon";
 import {assertString} from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Form from "../expr/form";
@@ -10,33 +11,25 @@ import Statement from "../index";
 import Call from "./call";
 
 export default class CallForm extends Statement {
-	public static parse(raw: string): CallForm {
-		const [target, arg] = CallForm.compileArg(raw, "(,");
-		return new CallForm(target, arg);
-	}
-
-	public static compileArg(arg: string, exclude: keyof (typeof E.form)): [Form, Expr[]] {
-		const parser = P.alt(
+	public static PARSER(exclude: keyof (typeof E.form)) {
+		return P.alt<[Form, Array<Expr | undefined>]>(
 			U.arg1R1(P.seq(E.form[exclude], U.wrap("(", ")", U.sepBy0(",", U.optional(E.expr))))),
 			U.argNR1(E.form[exclude], U.optional(E.expr)).map(([f, ...r]) => [f, r]),
 		);
-
-		return parser.tryParse(arg) as [Form, Expr[]];
 	}
 
-	public target: Form;
-	public arg: (Expr | undefined)[];
+	public arg: Lazy<[Form, Array<Expr | undefined>]>;
 
-	public constructor(target: Form, arg: CallForm["arg"]) {
+	public constructor(raw: string) {
 		super();
-		this.target = target;
-		this.arg = arg;
+		this.arg = new Lazy(raw, CallForm.PARSER("(,"));
 	}
 
 	public *run(vm: VM) {
-		const target = this.target.reduce(vm);
+		const [targetExpr, argExpr] = this.arg.get();
+		const target = targetExpr.reduce(vm);
 		assertString(target, "1st argument of CALLFORM must be a string");
 
-		return yield* new Call(target, this.arg).run(vm);
+		return yield* Call.exec(vm, target, argExpr);
 	}
 }

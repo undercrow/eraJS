@@ -6,7 +6,7 @@ import Call from "./call";
 
 export default class Jump extends Statement {
 	public static parse(raw: string): Jump {
-		const [target, arg] = Call.compileArg(raw);
+		const [target, arg] = Call.PARSER.tryParse(raw);
 		return new Jump(target, arg);
 	}
 

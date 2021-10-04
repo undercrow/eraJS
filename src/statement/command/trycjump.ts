@@ -12,7 +12,7 @@ export default class TryCJump extends Statement {
 	public static parse(lines: string[], from: number): [TryCJump, number] {
 		let index = from;
 
-		const [target, arg] = Call.compileArg(lines[index].slice("TRYCJUMP".length));
+		const [target, arg] = Call.PARSER.tryParse(lines[index].slice("TRYCJUMP".length));
 		index += 1;
 
 		if (lines.length <= index || !CATCH.test(lines[index])) {

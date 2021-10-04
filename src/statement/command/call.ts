@@ -3,39 +3,26 @@ import P from "parsimmon";
 import {assert} from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Statement from "../index";
 
-const PARSER = P.alt(
-	U.arg1R1(P.seq(U.Identifier.skip(U.WS0), U.wrap("(", ")", U.sepBy0(",", U.optional(E.expr))))),
-	U.argNR1(U.Identifier, U.optional(E.expr)).map(([f, ...r]) => [f, r]),
-);
 export default class Call extends Statement {
-	public static parse(raw: string): Call {
-		const [target, arg] = Call.compileArg(raw);
-		return new Call(target, arg);
-	}
+	public static PARSER = P.alt<[string, Array<Expr | undefined>]>(
+		U.arg1R1(P.seq(
+			U.Identifier.skip(U.WS0),
+			U.wrap("(", ")", U.sepBy0(",", U.optional(E.expr))),
+		)),
+		U.argNR1(U.Identifier, U.optional(E.expr)).map(([f, ...r]) => [f, r]),
+	);
 
-	public static compileArg(arg: string): [string, (Expr | undefined)[]] {
-		return PARSER.tryParse(arg) as [string, (Expr | undefined)[]];
-	}
+	public static *exec(vm: VM, target: string, argExpr: Array<Expr | undefined>) {
+		const realTarget = target.toUpperCase();
+		assert(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
 
-	public target: string;
-	public arg: (Expr | undefined)[];
-
-	public constructor(target: string, arg: Call["arg"]) {
-		super();
-		this.target = target;
-		this.arg = arg;
-	}
-
-	public *run(vm: VM) {
-		const target = this.target.toUpperCase();
-		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
-
-		const arg = this.arg.map((a) => a?.reduce(vm));
-		const result = yield* vm.fnMap.get(target)!.run(vm, arg);
+		const arg = argExpr.map((a) => a?.reduce(vm));
+		const result = yield* vm.fnMap.get(realTarget)!.run(vm, arg);
 		switch (result?.type) {
 			case "begin": return result;
 			case "goto": return result;
@@ -54,5 +41,18 @@ export default class Call extends Statement {
 				return null;
 			}
 		}
+	}
+
+	public arg: Lazy<[string, Array<Expr | undefined>]>;
+
+	public constructor(raw: string) {
+		super();
+		this.arg = new Lazy(raw, Call.PARSER);
+	}
+
+	public *run(vm: VM) {
+		const [target, argExpr] = this.arg.get();
+
+		return yield* Call.exec(vm, target, argExpr);
 	}
 }

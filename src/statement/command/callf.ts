@@ -1,30 +1,17 @@
 import {assert} from "../../assert";
+import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Statement from "../index";
 import Call from "./call";
 
 export default class CallF extends Statement {
-	public static parse(raw: string): CallF {
-		const [target, arg] = Call.compileArg(raw);
-		return new CallF(target, arg);
-	}
+	public static *exec(vm: VM, target: string, argExpr: Array<Expr | undefined>) {
+		const realTarget = target.toUpperCase();
+		assert(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
 
-	public target: string;
-	public arg: (Expr | undefined)[];
-
-	public constructor(target: string, arg: CallF["arg"]) {
-		super();
-		this.target = target;
-		this.arg = arg;
-	}
-
-	public *run(vm: VM) {
-		const target = this.target.toUpperCase();
-		assert(vm.fnMap.has(target), `Function ${target} does not exist`);
-
-		const arg = this.arg.map((a) => a?.reduce(vm));
-		const result = yield* vm.fnMap.get(target)!.run(vm, arg);
+		const arg = argExpr.map((a) => a?.reduce(vm));
+		const result = yield* vm.fnMap.get(realTarget)!.run(vm, arg);
 		switch (result?.type) {
 			case "begin": return result;
 			case "goto": return result;
@@ -35,5 +22,18 @@ export default class CallF extends Statement {
 			case "quit": return result;
 			case undefined: return null;
 		}
+	}
+
+	public arg: Lazy<[string, Array<Expr | undefined>]>;
+
+	public constructor(raw: string) {
+		super();
+		this.arg = new Lazy(raw, Call.PARSER);
+	}
+
+	public *run(vm: VM) {
+		const [target, argExpr] = this.arg.get();
+
+		return yield* CallF.exec(vm, target, argExpr);
 	}
 }

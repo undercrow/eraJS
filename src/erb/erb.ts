@@ -4,7 +4,7 @@ import Fn from "../fn";
 import Property from "../property";
 import Statement from "../statement";
 import Assign from "../statement/assign";
-import ClearLine from "../statement/command/clearline";
+import Abs from "../statement/command/abs";
 import AddChara from "../statement/command/addchara";
 import AddCopyChara from "../statement/command/addcopychara";
 import AddDefChara from "../statement/command/adddefchara";
@@ -26,6 +26,7 @@ import CbgClearButton from "../statement/command/cbgclearbutton";
 import CbgRemoveBmap from "../statement/command/cbgremovebmap";
 import ChkData from "../statement/command/chkdata";
 import ClearBit from "../statement/command/clearbit";
+import ClearLine from "../statement/command/clearline";
 import ClearTextBox from "../statement/command/cleartextbox";
 import Continue from "../statement/command/continue";
 import CopyChara from "../statement/command/copychara";
@@ -72,20 +73,25 @@ import If from "../statement/command/if";
 import Input from "../statement/command/input";
 import InputS from "../statement/command/inputs";
 import InitRand from "../statement/command/initrand";
+import InRange from "../statement/command/inrange";
 import InvertBit from "../statement/command/invertbit";
 import IsActive from "../statement/command/isactive";
 import IsSkip from "../statement/command/isskip";
 import Jump from "../statement/command/jump";
 import JumpForm from "../statement/command/jumpform";
+import Limit from "../statement/command/limit";
 import LineIsEmpty from "../statement/command/lineisempty";
 import LoadData from "../statement/command/loaddata";
 import LoadGame from "../statement/command/loadgame";
 import LoadGlobal from "../statement/command/loadglobal";
+import Max from "../statement/command/max";
+import Min from "../statement/command/min";
 import MouseSkip from "../statement/command/mouseskip";
 import MouseX from "../statement/command/mousex";
 import MouseY from "../statement/command/mousey";
 import OutputLog from "../statement/command/outputlog";
 import PickupChara from "../statement/command/pickupchara";
+import Power from "../statement/command/power";
 import Print from "../statement/command/print";
 import PrintButton from "../statement/command/printbutton";
 import PrintC from "../statement/command/printc";
@@ -117,9 +123,11 @@ import SaveGlobal from "../statement/command/saveglobal";
 import SetBit from "../statement/command/setbit";
 import SetColor from "../statement/command/setcolor";
 import SetFont from "../statement/command/setfont";
+import Sign from "../statement/command/sign";
 import SkipDisp from "../statement/command/skipdisp";
 import SortChara from "../statement/command/sortchara";
 import Split from "../statement/command/split";
+import Sqrt from "../statement/command/sqrt";
 import StopCallTrain from "../statement/command/stopcalltrain";
 import StrData from "../statement/command/strdata";
 import StrFind from "../statement/command/strfind";
@@ -376,6 +384,14 @@ const commandParser: Record<string, CommandParser> = {
 	ESCAPE: (arg) => [new Escape(arg), 1],
 	UNICODE: (arg) => [new Unicode(arg), 1],
 	ENCODETOUNI: (arg) => [new EncodeToUni(arg), 1],
+	POWER: (arg) => [new Power(arg), 1],
+	ABS: (arg) => [new Abs(arg), 1],
+	SIGN: (arg) => [new Sign(arg), 1],
+	SQRT: (arg) => [new Sqrt(arg), 1],
+	MAX: (arg) => [new Max(arg), 1],
+	MIN: (arg) => [new Min(arg), 1],
+	LIMIT: (arg) => [new Limit(arg), 1],
+	INRANGE: (arg) => [new InRange(arg), 1],
 	GETBIT: (arg) => [new GetBit(arg), 1],
 	SETBIT: (arg) => [new SetBit(arg), 1],
 	CLEARBIT: (arg) => [new ClearBit(arg), 1],

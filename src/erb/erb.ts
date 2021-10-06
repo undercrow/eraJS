@@ -30,6 +30,20 @@ import ClearLine from "../statement/command/clearline";
 import ClearTextBox from "../statement/command/cleartextbox";
 import Continue from "../statement/command/continue";
 import CopyChara from "../statement/command/copychara";
+import CsvAbl from "../statement/command/csvabl";
+import CsvBase from "../statement/command/csvbase";
+import CsvCallname from "../statement/command/csvcallname";
+import CsvCflag from "../statement/command/csvcflag";
+import CsvCstr from "../statement/command/csvcstr";
+import CsvEquip from "../statement/command/csvequip";
+import CsvExp from "../statement/command/csvexp";
+import CsvJuel from "../statement/command/csvjuel";
+import CsvMark from "../statement/command/csvmark";
+import CsvMastername from "../statement/command/csvmastername";
+import CsvName from "../statement/command/csvname";
+import CsvNickname from "../statement/command/csvnickname";
+import CsvRelation from "../statement/command/csvrelation";
+import CsvTalent from "../statement/command/csvtalent";
 import CUpCheck from "../statement/command/cupcheck";
 import CurrentAlign from "../statement/command/currentalign";
 import CurrentRedraw from "../statement/command/currentredraw";
@@ -413,6 +427,20 @@ const commandParser: Record<string, CommandParser> = {
 	SWAP: (arg) => [new Swap(arg), 1],
 	RESETDATA: (arg) => [new ResetData(arg), 1],
 	RESETGLOBAL: (arg) => [new ResetGlobal(arg), 1],
+	CSVABL: (arg) => [new CsvAbl(arg), 1],
+	CSVBASE: (arg) => [new CsvBase(arg), 1],
+	CSVCALLNAME: (arg) => [new CsvCallname(arg), 1],
+	CSVCFLAG: (arg) => [new CsvCflag(arg), 1],
+	CSVCSTR: (arg) => [new CsvCstr(arg), 1],
+	CSVEQUIP: (arg) => [new CsvEquip(arg), 1],
+	CSVEXP: (arg) => [new CsvExp(arg), 1],
+	CSVJUEL: (arg) => [new CsvJuel(arg), 1],
+	CSVMARK: (arg) => [new CsvMark(arg), 1],
+	CSVMASTERNAME: (arg) => [new CsvMastername(arg), 1],
+	CSVNAME: (arg) => [new CsvName(arg), 1],
+	CSVNICKNAME: (arg) => [new CsvNickname(arg), 1],
+	CSVRELATION: (arg) => [new CsvRelation(arg), 1],
+	CSVTALENT: (arg) => [new CsvTalent(arg), 1],
 	GETPALAMLV: (arg) => [new GetPalamLv(arg), 1],
 	GETEXPLV: (arg) => [new GetExpLv(arg), 1],
 	VARSET: (arg) => [new VarSet(arg), 1],

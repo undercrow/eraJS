@@ -127,6 +127,7 @@ import ResetBgColor from "../statement/command/resetbgcolor";
 import ResetColor from "../statement/command/resetcolor";
 import ResetData from "../statement/command/resetdata";
 import ResetGlobal from "../statement/command/resetglobal";
+import ResetStain from "../statement/command/reset_stain";
 import Restart from "../statement/command/restart";
 import Return from "../statement/command/return";
 import ReturnF from "../statement/command/returnf";
@@ -427,6 +428,7 @@ const commandParser: Record<string, CommandParser> = {
 	SWAP: (arg) => [new Swap(arg), 1],
 	RESETDATA: (arg) => [new ResetData(arg), 1],
 	RESETGLOBAL: (arg) => [new ResetGlobal(arg), 1],
+	RESET_STAIN: (arg) => [new ResetStain(arg), 1],
 	CSVABL: (arg) => [new CsvAbl(arg), 1],
 	CSVBASE: (arg) => [new CsvBase(arg), 1],
 	CSVCALLNAME: (arg) => [new CsvCallname(arg), 1],

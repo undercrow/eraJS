@@ -8,14 +8,14 @@ import Statement from "../index";
 import Print from "./print";
 
 const PARSER = U.arg1R1(E.expr);
-export default class PrintS extends Statement {
+export default class PrintSingleS extends Statement {
 	public postfix: string;
-	public value: Lazy<Expr>;
+	public arg: Lazy<Expr>;
 
-	public constructor(instruction: string, raw: string) {
+	public constructor(postfix: string, raw: string) {
 		super();
-		this.postfix = instruction.replace(/^PRINTS/, "");
-		this.value = new Lazy(raw, PARSER);
+		this.postfix = postfix;
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
@@ -23,10 +23,10 @@ export default class PrintS extends Statement {
 			return null;
 		}
 
-		const text = this.value.get().reduce(vm);
-		assertString(text, "1st argument of PRINTS must be a string");
+		const arg = this.arg.get().reduce(vm);
+		assertString(arg, "1st argument of PRINTSINGLES must be a string");
 
-		yield* vm.print(text);
+		yield* vm.printSingle(arg);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

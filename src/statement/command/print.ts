@@ -8,24 +8,6 @@ type Action = "newline" | "wait" | null;
 
 const PARSER = U.arg1R0(U.charSeq()).map((str) => str ?? "");
 export default class Print extends Statement {
-	public static *print(vm: VM, text: string): ReturnType<Statement["run"]> {
-		if (text.length === 0) {
-			return null;
-		}
-
-		const lines = text.split("\n");
-		for (let i = 0; i < lines.length - 1; ++i) {
-			yield <const>{type: "string", text: lines[i]};
-			yield <const>{type: "string", text: "\n"};
-		}
-		yield <const>{type: "string", text: lines[lines.length - 1]};
-
-		const lineCount = vm.getValue("LINECOUNT").get(vm, []) as number;
-		vm.getValue("LINECOUNT").set(vm, lineCount + (text.match(/\n/g) ?? []).length, []);
-
-		return null;
-	}
-
 	public static *runPostfix(vm: VM, value: string): ReturnType<Statement["run"]> {
 		// let out: OutType = null;
 		let action: Action = null;
@@ -46,11 +28,11 @@ export default class Print extends Statement {
 		// TODO: Apply outType
 		switch (action) {
 			case "newline": {
-				yield* Print.print(vm, "\n");
+				yield* vm.newline();
 				break;
 			}
 			case "wait": {
-				yield* Print.print(vm, "\n");
+				yield* vm.newline();
 				yield <const>{type: "wait", force: false};
 				break;
 			}
@@ -77,7 +59,7 @@ export default class Print extends Statement {
 			return null;
 		}
 
-		yield* Print.print(vm, this.value.get());
+		yield* vm.print(this.value.get());
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

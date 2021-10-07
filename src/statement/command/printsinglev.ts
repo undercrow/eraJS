@@ -13,14 +13,14 @@ const PARSER = U.argNR0(P.alt(
 	P.string("'").then(U.charSeq(",").map((str) => new Const(str))),
 	E.expr,
 ));
-export default class PrintV extends Statement {
+export default class PrintSingleV extends Statement {
 	public postfix: string;
-	public value: Lazy<Expr[]>;
+	public arg: Lazy<Expr[]>;
 
-	public constructor(instruction: string, raw: string) {
+	public constructor(postfix: string, raw: string) {
 		super();
-		this.postfix = instruction.replace(/^PRINTV/, "");
-		this.value = new Lazy(raw, PARSER);
+		this.postfix = postfix;
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
@@ -29,11 +29,11 @@ export default class PrintV extends Statement {
 		}
 
 		let text = "";
-		for (const value of this.value.get()) {
-			text += value.reduce(vm).toString();
+		for (const arg of this.arg.get()) {
+			text += arg.reduce(vm).toString();
 		}
 
-		yield* vm.print(text);
+		yield* vm.printSingle(text);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

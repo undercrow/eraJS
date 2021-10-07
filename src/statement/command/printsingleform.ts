@@ -7,16 +7,14 @@ import Statement from "../index";
 import Print from "./print";
 
 const PARSER = U.arg1R0(E.form[""]).map((form) => form ?? new Form([{value: ""}]));
-export default class PrintFormC extends Statement {
-	public align: "LEFT" | "RIGHT";
+export default class PrintSingleForm extends Statement {
 	public postfix: string;
-	public value: Lazy<Form>;
+	public arg: Lazy<Form>;
 
-	public constructor(align: PrintFormC["align"], postfix: string, raw: string) {
+	public constructor(postfix: string, raw: string) {
 		super();
-		this.align = align;
 		this.postfix = postfix;
-		this.value = new Lazy(raw, PARSER);
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
@@ -24,7 +22,7 @@ export default class PrintFormC extends Statement {
 			return null;
 		}
 
-		yield* vm.print(this.value.get().reduce(vm), this.align);
+		yield* vm.print(this.arg.get().reduce(vm));
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

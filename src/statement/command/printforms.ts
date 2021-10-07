@@ -28,7 +28,7 @@ export default class PrintFormS extends Statement {
 		const text = E.form[""].tryParse(form).reduce(vm);
 		assertString(text, "1st argument of PRINTFORMS must be reduced to a string");
 
-		yield* Print.print(vm, text);
+		yield* vm.print(text);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

@@ -5,16 +5,14 @@ import Statement from "../index";
 import Print from "./print";
 
 const PARSER = U.arg1R0(U.charSeq()).map((str) => str ?? "");
-export default class PrintC extends Statement {
-	public align: "LEFT" | "RIGHT";
+export default class PrintSingle extends Statement {
 	public postfix: string;
-	public value: Lazy<string>;
+	public arg: Lazy<string>;
 
-	public constructor(align: PrintC["align"], postfix: string, raw: string) {
+	public constructor(postfix: string, raw: string) {
 		super();
-		this.align = align;
 		this.postfix = postfix;
-		this.value = new Lazy(raw, PARSER);
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
@@ -22,7 +20,7 @@ export default class PrintC extends Statement {
 			return null;
 		}
 
-		yield* vm.print(this.value.get(), this.align);
+		yield* vm.printSingle(this.arg.get());
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

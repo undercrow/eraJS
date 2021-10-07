@@ -121,6 +121,11 @@ import PrintFormS from "../statement/command/printforms";
 import PrintPalam from "../statement/command/print_palam";
 import PrintPlain from "../statement/command/printplain";
 import PrintS from "../statement/command/prints";
+import PrintSingle from "../statement/command/printsingle";
+import PrintSingleForm from "../statement/command/printsingleform";
+import PrintSingleFormS from "../statement/command/printsingleforms";
+import PrintSingleS from "../statement/command/printsingles";
+import PrintSingleV from "../statement/command/printsinglev";
 import PrintShopItem from "../statement/command/print_shopitem";
 import PrintV from "../statement/command/printv";
 import PutForm from "../statement/command/putform";
@@ -354,6 +359,21 @@ const commandParser: Record<string, CommandParser> = {
 	PRINTFORMSD: (arg) => [new PrintFormS("PRINTFORMSD", arg), 1],
 	PRINTFORMSDL: (arg) => [new PrintFormS("PRINTFORMSDL", arg), 1],
 	PRINTFORMSDW: (arg) => [new PrintFormS("PRINTFORMSDW", arg), 1],
+	PRINTSINGLE: (arg) => [new PrintSingle("", arg), 1],
+	PRINTSINGLEK: (arg) => [new PrintSingle("K", arg), 1],
+	PRINTSINGLED: (arg) => [new PrintSingle("D", arg), 1],
+	PRINTSINGLEV: (arg) => [new PrintSingleV("", arg), 1],
+	PRINTSINGLEVK: (arg) => [new PrintSingleV("K", arg), 1],
+	PRINTSINGLEVD: (arg) => [new PrintSingleV("D", arg), 1],
+	PRINTSINGLES: (arg) => [new PrintSingleS("", arg), 1],
+	PRINTSINGLESK: (arg) => [new PrintSingleS("K", arg), 1],
+	PRINTSINGLESD: (arg) => [new PrintSingleS("D", arg), 1],
+	PRINTSINGLEFORM: (arg) => [new PrintSingleForm("", arg), 1],
+	PRINTSINGLEFORMK: (arg) => [new PrintSingleForm("K", arg), 1],
+	PRINTSINGLEFORMD: (arg) => [new PrintSingleForm("D", arg), 1],
+	PRINTSINGLEFORMS: (arg) => [new PrintSingleFormS("", arg), 1],
+	PRINTSINGLEFORMSK: (arg) => [new PrintSingleFormS("K", arg), 1],
+	PRINTSINGLEFORMSD: (arg) => [new PrintSingleFormS("D", arg), 1],
 	PRINTC: (arg) => [new PrintC("RIGHT", "", arg), 1],
 	PRINTCK: (arg) => [new PrintC("RIGHT", "K", arg), 1],
 	PRINTCD: (arg) => [new PrintC("RIGHT", "D", arg), 1],

@@ -5,7 +5,6 @@ import Lazy from "../../lazy";
 import type Expr from "../expr";
 import type VM from "../../vm";
 import Statement from "../index";
-import Print from "./print";
 
 const PARSER = U.arg4R2(E.expr, E.expr, E.expr, U.charSeq());
 export default class TOneInputS extends Statement {
@@ -35,8 +34,7 @@ export default class TOneInputS extends Statement {
 		let value: string;
 		if (input == null) {
 			if (message != null) {
-				// TODO: print as a single line
-				yield* Print.print(vm, message);
+				yield* vm.printSingle(message);
 			}
 			value = def;
 		} else {

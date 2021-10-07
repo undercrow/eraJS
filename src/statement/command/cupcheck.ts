@@ -1,7 +1,6 @@
 import * as U from "../../erb/util";
 import type VM from "../../vm";
 import Statement from "../index";
-import Print from "./print";
 
 const PARSER = U.arg0R0();
 export default class CUpCheck extends Statement {
@@ -42,8 +41,8 @@ export default class CUpCheck extends Statement {
 				}
 				text += `=${result}`;
 
-				yield* Print.print(vm, text);
-				yield* Print.print(vm, "\n");
+				yield* vm.print(text);
+				yield* vm.newline();
 			}
 		}
 

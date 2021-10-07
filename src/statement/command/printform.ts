@@ -22,7 +22,7 @@ export default class PrintForm extends Statement {
 			return null;
 		}
 
-		yield* Print.print(vm, this.value.get().reduce(vm));
+		yield* vm.print(this.value.get().reduce(vm));
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

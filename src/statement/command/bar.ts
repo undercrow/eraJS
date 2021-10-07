@@ -5,7 +5,6 @@ import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
-import Print from "./print";
 
 const PARSER = U.arg3R3(E.expr, E.expr, E.expr);
 export default class Bar extends Statement {
@@ -33,10 +32,10 @@ export default class Bar extends Statement {
 		assertNumber(length, "3rd argument of BAR must be a number");
 
 		const filled = Math.floor(length * (value / max));
-		yield* Print.print(vm, "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]");
+		yield* vm.print("[" + "*".repeat(filled) + ".".repeat(length - filled) + "]");
 
 		if (this.newline) {
-			yield* Print.print(vm, "\n");
+			yield* vm.newline();
 		}
 
 		return null;

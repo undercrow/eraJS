@@ -1,6 +1,7 @@
 import type VM from "../vm";
 
 export type Output =
+	| {type: "newline"}
 	| {type: "string"; text: string; cell?: "LEFT" | "RIGHT"}
 	| {type: "button"; text: string; value: string; cell?: "LEFT" | "RIGHT"}
 	| {type: "line"; value?: string}

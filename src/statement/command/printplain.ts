@@ -6,7 +6,6 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Const from "../expr/const";
 import Statement from "../index";
-import Print from "./print";
 
 const PARSER_CONST = U.arg1R0(U.charSeq()).map((str) => new Const(str ?? ""));
 const PARSER_FORM = U.arg1R0(E.form[""]).map((form) => form ?? new Const(""));
@@ -33,7 +32,7 @@ export default class PrintPlain extends Statement {
 		const text = this.value.get().reduce(vm);
 		assertString(text, "1st argument of PRINTPLAIN must be a string");
 
-		yield* Print.print(vm, text);
+		yield* vm.print(text);
 
 		return null;
 	}

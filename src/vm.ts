@@ -62,6 +62,7 @@ export default class VM {
 
 	public alignment!: Align;
 	public draw!: boolean;
+	public isLineEmpty!: boolean;
 	public skipDisp!: boolean;
 	public font!: {
 		name: string;
@@ -140,6 +141,7 @@ export default class VM {
 	public reset() {
 		this.alignment = "LEFT";
 		this.draw = true;
+		this.isLineEmpty = true;
 		this.skipDisp = false;
 		this.font = {
 			name: "",
@@ -456,5 +458,33 @@ export default class VM {
 				case undefined: continue;
 			}
 		}
+	}
+
+	public *print(text: string, cell?: "LEFT" | "RIGHT"): ReturnType<Statement["run"]> {
+		if (text.length > 0) {
+			yield <const>{type: "string", text, cell};
+			this.isLineEmpty = false;
+		}
+
+		return null;
+	}
+
+	public *newline(): ReturnType<Statement["run"]> {
+		yield <const>{type: "newline"};
+		const lineCount = this.getValue("LINECOUNT").get(this, []) as number;
+		this.getValue("LINECOUNT").set(this, lineCount + 1, []);
+		this.isLineEmpty = true;
+
+		return null;
+	}
+
+	public *printSingle(text: string): ReturnType<Statement["run"]> {
+		if (!this.isLineEmpty) {
+			yield* this.newline();
+		}
+		yield* this.print(text);
+		yield* this.newline();
+
+		return null;
 	}
 }

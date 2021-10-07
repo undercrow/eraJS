@@ -5,7 +5,6 @@ import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
-import Print from "./print";
 import PrintC from "./printc";
 
 const PARSER = U.arg1R1(E.expr);
@@ -66,10 +65,10 @@ export default class PrintPalam extends Statement {
 
 			yield* new PrintC("LEFT", "", " " + text).run(vm);
 			if ((i + 1) % vm.printCPerLine === 0) {
-				yield* Print.print(vm, "\n");
+				yield* vm.newline();
 			}
 		}
-		yield* Print.print(vm, "\n");
+		yield* vm.newline();
 
 		return null;
 	}

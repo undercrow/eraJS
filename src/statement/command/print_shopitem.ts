@@ -1,7 +1,6 @@
 import * as U from "../../erb/util";
 import type VM from "../../vm";
 import Statement from "../index";
-import Print from "./print";
 import PrintC from "./printc";
 
 const PARSER = U.arg0R0();
@@ -33,10 +32,10 @@ export default class PrintShopItem extends Statement {
 
 			yield* new PrintC("LEFT", "", " " + text).run(vm);
 			if ((i + 1) % vm.printCPerLine === 0) {
-				yield* Print.print(vm, "\n");
+				yield* vm.newline();
 			}
 		}
-		yield* Print.print(vm, "\n");
+		yield* vm.newline();
 
 		return null;
 	}

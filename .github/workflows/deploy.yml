@@ -21,4 +21,4 @@ jobs:
       - run: git rm -r src
       - run: git commit -am "Build files"
       - run: git tag ${GITHUB_REF#refs/tags/src/}
-      - run: git push origin ${GITHUB_REF#refs/tags/src/}
+      - run: git push -f origin ${GITHUB_REF#refs/tags/src/}

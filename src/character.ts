@@ -76,6 +76,10 @@ export default class Character {
 	}
 
 	public getValue<T extends Value>(name: string): T {
-		return this.values.get(name) as T;
+		if (this.values.has(name)) {
+			return this.values.get(name) as T;
+		} else {
+			throw new Error(`Character variable ${name} does not exist`);
+		}
 	}
 }

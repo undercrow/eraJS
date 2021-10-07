@@ -48,6 +48,7 @@ import CUpCheck from "../statement/command/cupcheck";
 import CurrentAlign from "../statement/command/currentalign";
 import CurrentRedraw from "../statement/command/currentredraw";
 import CustomDrawLine from "../statement/command/customdrawline";
+import CVarSet from "../statement/command/cvarset";
 import DebugClear from "../statement/command/debugclear";
 import DelAllChara from "../statement/command/delallchara";
 import DelChara from "../statement/command/delchara";
@@ -452,6 +453,7 @@ const commandParser: Record<string, CommandParser> = {
 	GETPALAMLV: (arg) => [new GetPalamLv(arg), 1],
 	GETEXPLV: (arg) => [new GetExpLv(arg), 1],
 	VARSET: (arg) => [new VarSet(arg), 1],
+	CVARSET: (arg) => [new CVarSet(arg), 1],
 	ARRAYSHIFT: (arg) => [new ArrayShift(arg), 1],
 	UPCHECK: (arg) => [new UpCheck(arg), 1],
 	CUPCHECK: (arg) => [new CUpCheck(arg), 1],

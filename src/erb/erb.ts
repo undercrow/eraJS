@@ -25,6 +25,7 @@ import CbgClear from "../statement/command/cbgclear";
 import CbgClearButton from "../statement/command/cbgclearbutton";
 import CbgRemoveBmap from "../statement/command/cbgremovebmap";
 import ChkData from "../statement/command/chkdata";
+import ChkFont from "../statement/command/chkfont";
 import ClearBit from "../statement/command/clearbit";
 import ClearLine from "../statement/command/clearline";
 import ClearTextBox from "../statement/command/cleartextbox";
@@ -378,6 +379,7 @@ const commandParser: Record<string, CommandParser> = {
 	FONTREGULAR: (arg) => [new FontRegular(arg), 1],
 	FONTSTYLE: (arg) => [new FontStyle(arg), 1],
 	GETSTYLE: (arg) => [new GetStyle(arg), 1],
+	CHKFONT: (arg) => [new ChkFont(arg), 1],
 	SETFONT: (arg) => [new SetFont(arg), 1],
 	GETFONT: (arg) => [new GetFont(arg), 1],
 	ALIGNMENT: (arg) => [new Alignment(arg), 1],

@@ -44,10 +44,10 @@ export default class VM {
 		data: Data;
 	};
 	public DEFAULT_STORAGE: Record<string, string> = {};
-	public storage: {
-		get: (key: string) => string | undefined;
-		set: (key: string, value: string) => void;
-		del: (key: string) => void;
+	public external: {
+		getFont: (name: string) => boolean;
+		getGlobal: (key: string) => string | undefined;
+		setGlobal: (key: string, value: string) => void;
 	};
 
 	public eventMap: Map<string, Fn[]>;
@@ -79,13 +79,13 @@ export default class VM {
 	};
 	public printCPerLine!: number;
 
-	public constructor(code: VM["code"], storage?: VM["storage"]) {
+	public constructor(code: VM["code"], external?: VM["external"]) {
 		this.random = new PRNG();
 		this.code = code;
-		this.storage = storage ?? {
-			get: (key) => this.DEFAULT_STORAGE[key],
-			set: (key, value) => { this.DEFAULT_STORAGE[key] = value; },
-			del: (key) => { delete this.DEFAULT_STORAGE[key]; },
+		this.external = external ?? {
+			getFont: () => false,
+			getGlobal: (key) => this.DEFAULT_STORAGE[key],
+			setGlobal: (key, value) => { this.DEFAULT_STORAGE[key] = value; },
 		};
 
 		this.eventMap = new Map();

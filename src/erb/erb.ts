@@ -135,8 +135,11 @@ import ReuseLastLine from "../statement/command/reuselastline";
 import SaveData from "../statement/command/savedata";
 import SaveGame from "../statement/command/savegame";
 import SaveGlobal from "../statement/command/saveglobal";
+import SetBgColor from "../statement/command/setbgcolor";
+import SetBgColorByName from "../statement/command/setbgcolorbyname";
 import SetBit from "../statement/command/setbit";
 import SetColor from "../statement/command/setcolor";
+import SetColorByName from "../statement/command/setcolorbyname";
 import SetFont from "../statement/command/setfont";
 import Sign from "../statement/command/sign";
 import SkipDisp from "../statement/command/skipdisp";
@@ -361,6 +364,9 @@ const commandParser: Record<string, CommandParser> = {
 	RESETCOLOR: (arg) => [new ResetColor(arg), 1],
 	RESETBGCOLOR: (arg) => [new ResetBgColor(arg), 1],
 	SETCOLOR: (arg) => [new SetColor(arg), 1],
+	SETBGCOLOR: (arg) => [new SetBgColor(arg), 1],
+	SETCOLORBYNAME: (arg) => [new SetColorByName(arg), 1],
+	SETBGCOLORBYNAME: (arg) => [new SetBgColorByName(arg), 1],
 	GETCOLOR: (arg) => [new GetColor(arg), 1],
 	GETDEFCOLOR: (arg) => [new GetDefColor(arg), 1],
 	GETBGCOLOR: (arg) => [new GetBgColor(arg), 1],

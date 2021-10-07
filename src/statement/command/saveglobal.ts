@@ -1,4 +1,6 @@
 import * as U from "../../erb/util";
+import Int1DValue from "../../value/int-1d";
+import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
 import Statement from "../index";
 
@@ -9,8 +11,16 @@ export default class SaveGlobal extends Statement {
 		PARSER.tryParse(arg);
 	}
 
-	public *run(_vm: VM) {
-		throw new Error("SAVEGLOBAL is not implemented yet!");
+	// TODO: Save #DIM GLOBAL variables
+	public *run(vm: VM) {
+		vm.external.setGlobal(
+			"GLOBAL",
+			JSON.stringify(vm.getValue<Int1DValue>("GLOBAL").value),
+		);
+		vm.external.setGlobal(
+			"GLOBALS",
+			JSON.stringify(vm.getValue<Str1DValue>("GLOBALS").value),
+		);
 
 		return null;
 	}

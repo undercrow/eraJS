@@ -1,4 +1,6 @@
 import * as U from "../../erb/util";
+import Int1DValue from "../../value/int-1d";
+import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
 import Statement from "../index";
 
@@ -9,8 +11,17 @@ export default class LoadGlobal extends Statement {
 		PARSER.tryParse(arg);
 	}
 
-	public *run(_vm: VM) {
-		throw new Error("LOADGLOBAL is not implemented yet!");
+	// TODO: Load #DIM GLOBAL variables
+	public *run(vm: VM) {
+		const rawGlobal = vm.external.getGlobal("GLOBAL");
+		if (rawGlobal != null) {
+			vm.getValue<Int1DValue>("GLOBAL").reset(JSON.parse(rawGlobal));
+		}
+
+		const rawGlobalS = vm.external.getGlobal("GLOBALS");
+		if (rawGlobalS != null) {
+			vm.getValue<Str1DValue>("GLOBALS").reset(JSON.parse(rawGlobalS));
+		}
 
 		return null;
 	}

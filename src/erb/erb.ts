@@ -117,6 +117,7 @@ import PrintCPerLine from "../statement/command/printcperline";
 import PrintData from "../statement/command/printdata";
 import PrintForm from "../statement/command/printform";
 import PrintFormC from "../statement/command/printformc";
+import PrintFormS from "../statement/command/printforms";
 import PrintPalam from "../statement/command/print_palam";
 import PrintPlain from "../statement/command/printplain";
 import PrintS from "../statement/command/prints";
@@ -344,6 +345,15 @@ const commandParser: Record<string, CommandParser> = {
 	PRINTFORMD: (arg) => [new PrintForm("PRINTFORMD", arg), 1],
 	PRINTFORMDL: (arg) => [new PrintForm("PRINTFORMDL", arg), 1],
 	PRINTFORMDW: (arg) => [new PrintForm("PRINTFORMDW", arg), 1],
+	PRINTFORMS: (arg) => [new PrintFormS("PRINTFORMS", arg), 1],
+	PRINTFORMSL: (arg) => [new PrintFormS("PRINTFORMSL", arg), 1],
+	PRINTFORMSW: (arg) => [new PrintFormS("PRINTFORMSW", arg), 1],
+	PRINTFORMSK: (arg) => [new PrintFormS("PRINTFORMSK", arg), 1],
+	PRINTFORMSKL: (arg) => [new PrintFormS("PRINTFORMSKL", arg), 1],
+	PRINTFORMSKW: (arg) => [new PrintFormS("PRINTFORMSKW", arg), 1],
+	PRINTFORMSD: (arg) => [new PrintFormS("PRINTFORMSD", arg), 1],
+	PRINTFORMSDL: (arg) => [new PrintFormS("PRINTFORMSDL", arg), 1],
+	PRINTFORMSDW: (arg) => [new PrintFormS("PRINTFORMSDW", arg), 1],
 	PRINTC: (arg) => [new PrintC("RIGHT", "", arg), 1],
 	PRINTCK: (arg) => [new PrintC("RIGHT", "K", arg), 1],
 	PRINTCD: (arg) => [new PrintC("RIGHT", "D", arg), 1],

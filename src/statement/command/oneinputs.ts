@@ -5,7 +5,7 @@ import type VM from "../../vm";
 import Statement from "../index";
 
 const PARSER = U.arg1R0(U.charSeq());
-export default class InputS extends Statement {
+export default class OneInputS extends Statement {
 	public arg: Lazy<string | undefined>;
 
 	public constructor(raw: string) {
@@ -17,11 +17,11 @@ export default class InputS extends Statement {
 		const arg = this.arg.get();
 
 		let input = yield <const>{type: "input", numeric: false};
-		assertString(input, "Input value for INPUTS should be a valid string");
+		assertString(input, "Input value for ONEINPUTS should be a valid string");
 		if (arg != null && input === "") {
 			input = arg;
 		}
-		vm.getValue("RESULTS").set(vm, input, [0]);
+		vm.getValue("RESULTS").set(vm, input[0], [0]);
 
 		return null;
 	}

@@ -14,7 +14,7 @@ export default class Wait extends Statement {
 			return null;
 		}
 
-		yield <const>{type: "wait"};
+		yield <const>{type: "wait", force: false};
 
 		return null;
 	}

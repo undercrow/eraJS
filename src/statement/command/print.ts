@@ -51,7 +51,7 @@ export default class Print extends Statement {
 			}
 			case "wait": {
 				yield* Print.print(vm, "\n");
-				yield <const>{type: "wait"};
+				yield <const>{type: "wait", force: false};
 				break;
 			}
 			case null: {

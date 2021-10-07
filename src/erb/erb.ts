@@ -105,6 +105,8 @@ import Min from "../statement/command/min";
 import MouseSkip from "../statement/command/mouseskip";
 import MouseX from "../statement/command/mousex";
 import MouseY from "../statement/command/mousey";
+import OneInput from "../statement/command/oneinput";
+import OneInputS from "../statement/command/oneinputs";
 import OutputLog from "../statement/command/outputlog";
 import PickupChara from "../statement/command/pickupchara";
 import Power from "../statement/command/power";
@@ -164,6 +166,10 @@ import Swap from "../statement/command/swap";
 import SwapChara from "../statement/command/swapchara";
 import Throw from "../statement/command/throw";
 import Times from "../statement/command/times";
+import TInput from "../statement/command/tinput";
+import TInputS from "../statement/command/tinputs";
+import TOneInput from "../statement/command/toneinput";
+import TOneInputS from "../statement/command/toneinputs";
 import TryCall from "../statement/command/trycall";
 import TryCallForm from "../statement/command/trycallform";
 import TryCCall from "../statement/command/tryccall";
@@ -475,6 +481,12 @@ const commandParser: Record<string, CommandParser> = {
 	FORCEWAIT: (arg) => [new ForceWait(arg), 1],
 	INPUT: (arg) => [new Input(arg), 1],
 	INPUTS: (arg) => [new InputS(arg), 1],
+	TINPUT: (arg) => [new TInput(arg), 1],
+	TINPUTS: (arg) => [new TInputS(arg), 1],
+	ONEINPUT: (arg) => [new OneInput(arg), 1],
+	ONEINPUTS: (arg) => [new OneInputS(arg), 1],
+	TONEINPUT: (arg) => [new TOneInput(arg), 1],
+	TONEINPUTS: (arg) => [new TOneInputS(arg), 1],
 	WAIT: (arg) => [new Wait(arg), 1],
 	WAITANYKEY: (arg) => [new WaitAnyKey(arg), 1],
 	BREAK: (arg) => [new Break(arg), 1],

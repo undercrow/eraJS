@@ -6,8 +6,9 @@ export type Output =
 	| {type: "line"; value?: string}
 	| {type: "clearline"; count: number}
 	| {type: "loadgame"}
-	| {type: "wait"}
-	| {type: "input"}
+	| {type: "wait"; force: boolean}
+	| {type: "input"; numeric: boolean}
+	| {type: "input"; numeric: boolean; timeout: number; showClock: boolean}
 	// TODO: remove this output
 	| {type: "redraw", value: number};
 
@@ -22,7 +23,7 @@ export type Result =
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default class Statement {
-	public *run(_vm: VM, _label?: string): Generator<Output, Result | null, string> {
+	public *run(_vm: VM, _label?: string): Generator<Output, Result | null, string | null> {
 		return null;
 	}
 }

@@ -30,6 +30,7 @@ import getFocusColor from "../method/getfocuscolor";
 import groupMatch from "../method/groupmatch";
 import inRange from "../method/inrange";
 import limit from "../method/limit";
+import lineIsEmpty from "../method/lineisempty";
 import match from "../method/match";
 import max from "../method/max";
 import maxArray from "../method/maxarray";
@@ -93,6 +94,7 @@ export default class InlineCall implements Expr {
 			case "GROUPMATCH": return groupMatch(vm, this.arg);
 			case "INRANGE": return inRange(vm, this.arg);
 			case "LIMIT": return limit(vm, this.arg);
+			case "LINEISEMPTY": return lineIsEmpty(vm, this.arg);
 			case "MATCH": return match(vm, this.arg);
 			case "MAX": return max(vm, this.arg);
 			case "MAXARRAY": return maxArray(vm, this.arg);

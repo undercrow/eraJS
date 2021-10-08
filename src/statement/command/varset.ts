@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -22,9 +22,9 @@ export default class VarSet extends Statement {
 		const dest = destExpr.getCell(vm);
 		const index = destExpr.reduceIndex(vm);
 		const start = startExpr?.reduce(vm) ?? 0;
-		assertNumber(start, "3rd argument of VARSET must be a number");
+		assert.number(start, "3rd argument of VARSET must be a number");
 		const end = endExpr?.reduce(vm) ?? dest.length(index.length);
-		assertNumber(end, "4th argument of VARSET must be a number");
+		assert.number(end, "4th argument of VARSET must be a number");
 
 		if (valueExpr != null) {
 			const value = valueExpr.reduce(vm);

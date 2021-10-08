@@ -1,4 +1,4 @@
-import {assert, assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -18,10 +18,10 @@ export default class CsvMastername extends Statement {
 	public *run(vm: VM) {
 		const numExpr = this.arg.get();
 		const num = numExpr.reduce(vm);
-		assertNumber(num, "1st Argument of CSVMASTERNAME should be an integer");
+		assert.number(num, "1st Argument of CSVMASTERNAME should be an integer");
 
 		const character = vm.code.data.character.get(num);
-		assert(character != null, `Character #${num} does not exist`);
+		assert.cond(character != null, `Character #${num} does not exist`);
 
 		const result = character.mastername;
 		vm.getValue("RESULTS").set(vm, result, [0]);

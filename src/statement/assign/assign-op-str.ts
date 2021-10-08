@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Variable from "../expr/variable";
@@ -23,7 +23,7 @@ export default class OpAssign extends Statement {
 
 		const original = dest.get(vm, index) as string;
 		const value = this.expr.reduce(vm);
-		assertString(value, `Right operand of ${this.operator} should be a string`);
+		assert.string(value, `Right operand of ${this.operator} should be a string`);
 
 		switch (this.operator) {
 			case "+=": dest.set(vm, original + value, index); break;

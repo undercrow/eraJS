@@ -1,4 +1,4 @@
-import {assertString} from "../assert";
+import * as assert from "../assert";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -34,7 +34,7 @@ export default class StrChar0DValue implements Value {
 
 	public set(vm: VM, value: Leaf, index: number[]) {
 		const realIndex = StrChar0DValue.normalizeIndex(vm, index);
-		assertString(value, "Cannot assign a number to a string variable");
+		assert.string(value, "Cannot assign a number to a string variable");
 		if (vm.characterList.length <= realIndex[0]) {
 			throw new Error(`Character #${realIndex[0]} does not exist`);
 		}

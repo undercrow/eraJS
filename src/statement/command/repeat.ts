@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import {parseThunk} from "../../erb/erb";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -37,7 +37,7 @@ export default class Repeat extends Statement {
 		}
 
 		const condition = this.condition.get().reduce(vm);
-		assertNumber(condition, "Condition for REPEAT should be an integer");
+		assert.number(condition, "Condition for REPEAT should be an integer");
 
 		loop: for (let i = 0; i < condition; ++i) {
 			vm.getValue("COUNT").set(vm, i, []);

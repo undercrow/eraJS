@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class FontStyle extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.value.get().reduce(vm);
-		assertNumber(value, "Argument of FONTSTYLE must be an integer!");
+		assert.number(value, "Argument of FONTSTYLE must be an integer!");
 
 		/* eslint-disable no-bitwise */
 		vm.font.bold = (value & (1 << 0)) !== 0;

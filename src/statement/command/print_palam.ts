@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -22,7 +22,7 @@ export default class PrintPalam extends Statement {
 		}
 
 		const index = this.arg.get().reduce(vm);
-		assertNumber(index, "1st argument of PRINT_PALAM must be a number");
+		assert.number(index, "1st argument of PRINT_PALAM must be a number");
 
 		const palamName = vm.getValue("PALAMNAME");
 		const validName: string[] = [];

@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import {parseThunk} from "../../erb/erb";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -38,7 +38,7 @@ export default class While extends Statement {
 				result = yield* this.thunk.run(vm, label);
 			} else {
 				const condition = this.condition.get().reduce(vm);
-				assertNumber(condition, "Condition of WHILE should be an integer");
+				assert.number(condition, "Condition of WHILE should be an integer");
 				if (condition === 0) {
 					break;
 				}

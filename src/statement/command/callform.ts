@@ -1,6 +1,6 @@
 import P from "parsimmon";
 
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -28,7 +28,7 @@ export default class CallForm extends Statement {
 	public *run(vm: VM) {
 		const [targetExpr, argExpr] = this.arg.get();
 		const target = targetExpr.reduce(vm);
-		assertString(target, "1st argument of CALLFORM must be a string");
+		assert.string(target, "1st argument of CALLFORM must be a string");
 
 		return yield* Call.exec(vm, target, argExpr);
 	}

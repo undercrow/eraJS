@@ -1,4 +1,4 @@
-import {assert, assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import Character from "../../character";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -19,10 +19,10 @@ export default class AddChara extends Statement {
 	public *run(vm: VM) {
 		for (const expr of this.characters.get()) {
 			const id = expr.reduce(vm);
-			assertNumber(id, "Character id should be an integer");
+			assert.number(id, "Character id should be an integer");
 
 			const template = vm.templateMap.get(id);
-			assert(template != null, `Character template with id ${id} does not exist`);
+			assert.cond(template != null, `Character template with id ${id} does not exist`);
 
 			vm.characterList.push(new Character(vm, template));
 			const charaNum = vm.getValue("CHARANUM").get(vm, []) as number;

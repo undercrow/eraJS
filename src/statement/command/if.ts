@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import {parseThunk} from "../../erb/erb";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -84,7 +84,7 @@ export default class If extends Statement {
 		for (let i = 0; i < this.ifThunk.length; ++i) {
 			const [cond, thunk] = this.ifThunk[i];
 			const condValue = cond.get().reduce(vm);
-			assertNumber(condValue, "Condition should be an integer");
+			assert.number(condValue, "Condition should be an integer");
 			if (condValue !== 0) {
 				return yield* thunk.run(vm);
 			}

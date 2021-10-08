@@ -1,4 +1,4 @@
-import {assert} from "../../assert";
+import * as assert from "../../assert";
 import type VM from "../../vm";
 import type Expr from "./index";
 
@@ -20,7 +20,7 @@ export default class Compare implements Expr {
 		const right = this.right.reduce(vm);
 
 		if (typeof left !== typeof right) {
-			assert(false, `Type of left and right operand of ${this.op} should be equal`);
+			assert.cond(false, `Type of left and right operand of ${this.op} should be equal`);
 		}
 
 		switch (this.op) {

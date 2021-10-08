@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
 import type VM from "../../vm";
@@ -15,7 +15,7 @@ export default class StrLen extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.value.get();
-		assertString(value, "Argument of STRLEN must be a string!");
+		assert.string(value, "Argument of STRLEN must be a string!");
 		vm.getValue("RESULT").set(vm, value.length, [0]);
 
 		return null;

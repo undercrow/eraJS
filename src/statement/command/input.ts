@@ -1,4 +1,4 @@
-import {assert, assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
 import type VM from "../../vm";
@@ -17,13 +17,13 @@ export default class Input extends Statement {
 		const arg = this.arg.get();
 
 		const input = yield <const>{type: "input", numeric: true};
-		assert(input != null, "Input value for INPUT should be a valid number");
+		assert.cond(input != null, "Input value for INPUT should be a valid number");
 
 		let value = Number(input);
 		if (arg != null && input === "") {
 			value = arg;
 		}
-		assertNumber(value, "Input value for INPUT should be a valid number");
+		assert.number(value, "Input value for INPUT should be a valid number");
 
 		vm.getValue("RESULT").set(vm, value, [0]);
 

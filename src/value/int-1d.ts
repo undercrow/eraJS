@@ -1,4 +1,4 @@
-import {assertNumber} from "../assert";
+import * as assert from "../assert";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -48,14 +48,14 @@ export default class Int1DValue implements Value {
 
 	public set(_vm: VM, value: Leaf, index: number[]) {
 		const realIndex = Int1DValue.normalizeIndex(index);
-		assertNumber(value, "Cannot assign a string to a numeric variable");
+		assert.number(value, "Cannot assign a string to a numeric variable");
 
 		this.value[realIndex[0]] = value;
 	}
 
 	// NOTE: index is ignored (Emuera emulation)
 	public rangeSet(_vm: VM, value: Leaf, _index: number[], range: [number, number]) {
-		assertNumber(value, "Cannot assign a string to a numeric variable");
+		assert.number(value, "Cannot assign a string to a numeric variable");
 		for (let i = range[0]; i < range[1]; ++i) {
 			this.value[i] = value;
 		}

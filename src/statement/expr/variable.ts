@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import Value from "../../value";
 import type VM from "../../vm";
 import type Expr from "./index";
@@ -39,7 +39,7 @@ export default class Variable implements Expr {
 	public reduceIndex(vm: VM): number[] {
 		if (this.index.length !== 0) {
 			const index = this.index.map((i) => i.reduce(vm));
-			index.forEach((i) => assertNumber(i, "Index of variable should be an integer"));
+			index.forEach((i) => assert.number(i, "Index of variable should be an integer"));
 
 			return index as number[];
 		} else {

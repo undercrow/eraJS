@@ -1,4 +1,4 @@
-import {assertString} from "../assert";
+import * as assert from "../assert";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -34,14 +34,14 @@ export default class Str0DValue implements Value {
 
 	public set(_vm: VM, value: Leaf, index: number[]) {
 		Str0DValue.normalizeIndex(index);
-		assertString(value, "Cannot assign a number to a string variable");
+		assert.string(value, "Cannot assign a number to a string variable");
 
 		this.value = value;
 	}
 
 	// NOTE: index is ignored (Emuera emulation)
 	public rangeSet(_vm: VM, value: Leaf, _index: number[], _range: [number, number]) {
-		assertString(value, "Cannot assign a number to a string variable");
+		assert.string(value, "Cannot assign a number to a string variable");
 
 		this.value = value;
 	}

@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class ExistCSV extends Statement {
 
 	public *run(vm: VM) {
 		const id = this.arg.get().reduce(vm);
-		assertNumber(id, "Argument of EXISTCSV must be an integer!");
+		assert.number(id, "Argument of EXISTCSV must be an integer!");
 
 		const result = vm.templateMap.has(id) ? 1 : 0;
 		vm.getValue("RESULT").set(vm, result, [0]);

@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import type VM from "../../vm";
@@ -58,7 +58,7 @@ export default class PrintData extends Statement {
 
 		const index = vm.random.next() % this.data.length;
 		const value = this.data[index].reduce(vm);
-		assertString(value, "Item of PRINTDATA must be a string");
+		assert.string(value, "Item of PRINTDATA must be a string");
 
 		yield* vm.print(value);
 		yield* Print.runPostfix(vm, this.postfix);

@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -18,11 +18,11 @@ export default class InRange extends Statement {
 	public *run(vm: VM) {
 		const [valueExpr, minExpr, maxExpr] = this.arg.get();
 		const value = valueExpr.reduce(vm);
-		assertNumber(value, "1st Argument of INRANGE should be an integer");
+		assert.number(value, "1st Argument of INRANGE should be an integer");
 		const min = minExpr.reduce(vm);
-		assertNumber(min, "2nd Argument of INRANGE should be an integer");
+		assert.number(min, "2nd Argument of INRANGE should be an integer");
 		const max = maxExpr.reduce(vm);
-		assertNumber(max, "3rd Argument of INRANGE should be an integer");
+		assert.number(max, "3rd Argument of INRANGE should be an integer");
 
 		const result = min <= value && value <= max ? 1 : 0;
 		vm.getValue("RESULT").set(vm, result, [0]);

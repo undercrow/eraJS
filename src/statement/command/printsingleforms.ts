@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -24,9 +24,9 @@ export default class PrintSingleFormS extends Statement {
 		}
 
 		const arg = this.arg.get().reduce(vm);
-		assertString(arg, "1st argument of PRINTSINGLEFORMS must be a string");
+		assert.string(arg, "1st argument of PRINTSINGLEFORMS must be a string");
 		const text = E.form[""].tryParse(arg).reduce(vm);
-		assertString(text, "1st argument of PRINTSINGLEFORMS must be reduced to a string");
+		assert.string(text, "1st argument of PRINTSINGLEFORMS must be reduced to a string");
 
 		yield* vm.printSingle(text);
 		yield* Print.runPostfix(vm, this.postfix);

@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import type VM from "../../vm";
 import type Expr from "./index";
 
@@ -15,7 +15,7 @@ export default class Unary implements Expr {
 
 	public reduce(vm: VM): number {
 		const value = this.expr.reduce(vm);
-		assertNumber(value, `Operand of ${this.op} should be an integer`);
+		assert.number(value, `Operand of ${this.op} should be an integer`);
 
 		switch (this.op) {
 			case "+": return value;

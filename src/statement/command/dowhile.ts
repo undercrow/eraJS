@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import {parseThunk} from "../../erb/erb";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -40,7 +40,7 @@ export default class DoWhile extends Statement {
 			const result = yield* this.thunk.run(vm, firstLoop ? label : undefined);
 
 			const condition = this.condition.get().reduce(vm);
-			assertNumber(condition, "Condition of DO should be an integer");
+			assert.number(condition, "Condition of DO should be an integer");
 			if (condition === 0) {
 				break;
 			}

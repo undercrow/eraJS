@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class GetChara extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.value.get().reduce(vm);
-		assertNumber(value, "1st argument of GETCHARA must be a number");
+		assert.number(value, "1st argument of GETCHARA must be a number");
 
 		for (let i = 0; i < vm.characterList.length; ++i) {
 			if (vm.getValue("NO").get(vm, [i]) === value) {

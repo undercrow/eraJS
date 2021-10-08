@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -20,9 +20,9 @@ export default class FindLastChara extends Statement {
 		const [target, valExpr, startExpr, endExpr] = this.arg.get();
 		const value = valExpr.reduce(vm);
 		const start = startExpr != null ? startExpr.reduce(vm) : 0;
-		assertNumber(start, "3rd argument of FINDLASTCHARA must be a number");
+		assert.number(start, "3rd argument of FINDLASTCHARA must be a number");
 		const end = endExpr != null ? endExpr.reduce(vm) : vm.characterList.length;
-		assertNumber(end, "4th argument of FINDLASTCHARA must be a number");
+		assert.number(end, "4th argument of FINDLASTCHARA must be a number");
 
 		let result = -1;
 		const index = target.reduceIndex(vm);

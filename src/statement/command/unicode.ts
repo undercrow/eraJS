@@ -1,4 +1,4 @@
-import {assert, assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,8 +17,8 @@ export default class Unicode extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.value.get().reduce(vm);
-		assertNumber(value, "1st argument of UNICODE must be an integer");
-		assert(
+		assert.number(value, "1st argument of UNICODE must be an integer");
+		assert.cond(
 			value >= 0 && value <= 0xFFFF,
 			"1st argument of UNICODE must be between 0 and 0xFFFF",
 		);

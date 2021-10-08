@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -18,7 +18,7 @@ export default class Max extends Statement {
 	public *run(vm: VM) {
 		const arg = this.arg.get().map((a) => a.reduce(vm));
 		for (let i = 0; i < arg.length; ++i) {
-			assertNumber(arg[i], `${i + 1}th argument of MAX must be an integer`);
+			assert.number(arg[i], `${i + 1}th argument of MAX must be an integer`);
 		}
 
 		const result = Math.max(...arg as number[]);

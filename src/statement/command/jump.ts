@@ -1,4 +1,4 @@
-import {assert} from "../../assert";
+import * as assert from "../../assert";
 import Lazy from "../../lazy";
 import type VM from "../../vm";
 import Expr from "../expr";
@@ -8,7 +8,7 @@ import Call from "./call";
 export default class Jump extends Statement {
 	public static *exec(vm: VM, target: string, argExpr: Array<Expr | undefined>) {
 		const realTarget = target.toUpperCase();
-		assert(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
+		assert.cond(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
 
 		const arg = argExpr.map((a) => a?.reduce(vm));
 		return yield* vm.fnMap.get(realTarget)!.run(vm, arg);

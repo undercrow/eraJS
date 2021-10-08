@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -23,7 +23,7 @@ export default class ArrayShift extends Statement {
 		const index = targetExpr.reduceIndex(vm);
 		const length = target.length(index.length);
 		const count = countExpr.reduce(vm);
-		assertNumber(count, "2nd argument of ARRAYSHIFT must be a number");
+		assert.number(count, "2nd argument of ARRAYSHIFT must be a number");
 		const fill = fillExpr.reduce(vm);
 
 		if (count > 0) {

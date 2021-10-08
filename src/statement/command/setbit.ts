@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -21,9 +21,9 @@ export default class SetBit extends Statement {
 
 		const dest = destExpr.getCell(vm);
 		const value = destExpr.reduce(vm);
-		assertNumber(value, "1st argument of SETBIT must be a number");
+		assert.number(value, "1st argument of SETBIT must be a number");
 		const bitList = bitExpr.map((bit) => bit.reduce(vm));
-		bitList.forEach((bit) => assertNumber(bit, "Argument of SETBIT must be a number"));
+		bitList.forEach((bit) => assert.number(bit, "Argument of SETBIT must be a number"));
 
 		let result = value;
 		for (const bit of bitList as number[]) {

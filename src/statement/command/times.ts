@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -19,7 +19,7 @@ export default class Times extends Statement {
 		const [dest, value] = this.arg.get();
 
 		const original = dest.reduce(vm);
-		assertNumber(original, "1st argument of TIMES must be a number");
+		assert.number(original, "1st argument of TIMES must be a number");
 		const index = dest.reduceIndex(vm);
 
 		dest.getCell(vm).set(vm, Math.floor(original * value), index);

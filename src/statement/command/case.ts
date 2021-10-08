@@ -1,6 +1,6 @@
 import P from "parsimmon";
 
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import {parseThunk} from "../../erb/erb";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -102,7 +102,7 @@ export default class Case extends Statement {
 					case "equal": return c.value === value;
 					case "range": return c.from <= value && value <= c.to;
 					case "compare": {
-						assertNumber(value, "CASE IS ... should be used for an integer value");
+						assert.number(value, "CASE IS ... should be used for an integer value");
 						switch (c.op) {
 							case "<": return value < c.value;
 							case "<=": return value <= c.value;

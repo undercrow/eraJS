@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -18,7 +18,7 @@ export default class CallFormF extends Statement {
 	public *run(vm: VM) {
 		const [targetExpr, argExpr] = this.arg.get();
 		const target = targetExpr.reduce(vm);
-		assertString(target, "1st argument of CALLFORMF must be a string");
+		assert.string(target, "1st argument of CALLFORMF must be a string");
 
 		return yield* CallF.exec(vm, target, argExpr);
 	}

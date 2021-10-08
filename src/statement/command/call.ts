@@ -1,6 +1,6 @@
 import P from "parsimmon";
 
-import {assert} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -19,7 +19,7 @@ export default class Call extends Statement {
 
 	public static *exec(vm: VM, target: string, argExpr: Array<Expr | undefined>) {
 		const realTarget = target.toUpperCase();
-		assert(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
+		assert.cond(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
 
 		const arg = argExpr.map((a) => a?.reduce(vm));
 		const result = yield* vm.fnMap.get(realTarget)!.run(vm, arg);

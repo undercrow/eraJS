@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -18,9 +18,9 @@ export default class TWait extends Statement {
 	public *run(vm: VM): ReturnType<Statement["run"]> {
 		const [timeoutExpr, forceExpr] = this.arg.get();
 		const timeout = timeoutExpr.reduce(vm);
-		assertNumber(timeout, "1st argument of TWAIT should be a number");
+		assert.number(timeout, "1st argument of TWAIT should be a number");
 		const force = forceExpr.reduce(vm);
-		assertNumber(force, "2nd argument of TWAIT should be a number");
+		assert.number(force, "2nd argument of TWAIT should be a number");
 
 		yield <const>{
 			type: "wait",

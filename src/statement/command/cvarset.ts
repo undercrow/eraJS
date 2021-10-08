@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -26,12 +26,12 @@ export default class VarSet extends Statement {
 		const [destExpr, indexExpr, valueExpr, startExpr, endExpr] = this.arg.get();
 
 		const index = indexExpr?.reduce(vm) ?? 0;
-		assertNumber(index, "2nd argument of CVARSET must be a number");
+		assert.number(index, "2nd argument of CVARSET must be a number");
 		const value = valueExpr?.reduce(vm);
 		const start = startExpr?.reduce(vm) ?? 0;
-		assertNumber(start, "4th argument of CVARSET must be a number");
+		assert.number(start, "4th argument of CVARSET must be a number");
 		const end = endExpr?.reduce(vm) ?? vm.characterList.length;
-		assertNumber(end, "5th argument of CVARSET must be a number");
+		assert.number(end, "5th argument of CVARSET must be a number");
 
 		for (let i = start; i < end; ++i) {
 			const character = vm.characterList[i];

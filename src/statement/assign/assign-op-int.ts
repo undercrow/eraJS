@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Variable from "../expr/variable";
@@ -22,7 +22,7 @@ export default class OpAssign extends Statement {
 		const index = this.dest.reduceIndex(vm);
 		const original = dest.get(vm, index) as number;
 		const value = this.expr.reduce(vm);
-		assertNumber(value, `Right operand of ${this.operator} should be an integer`);
+		assert.number(value, `Right operand of ${this.operator} should be an integer`);
 
 		switch (this.operator) {
 			case "*=": dest.set(vm, original * value, index); break;

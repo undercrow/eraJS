@@ -1,6 +1,6 @@
 import P from "parsimmon";
 
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as color from "../../color";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -28,13 +28,13 @@ export default class SetColor extends Statement {
 			const r = parsed[0].reduce(vm);
 			const g = parsed[1].reduce(vm);
 			const b = parsed[2].reduce(vm);
-			assertNumber(r, "1st argument of SETCOLOR must be an integer");
-			assertNumber(g, "2nd argument of SETCOLOR must be an integer");
-			assertNumber(b, "3rd argument of SETCOLOR must be an integer");
+			assert.number(r, "1st argument of SETCOLOR must be an integer");
+			assert.number(g, "2nd argument of SETCOLOR must be an integer");
+			assert.number(b, "3rd argument of SETCOLOR must be an integer");
 			value = color.toHex({r, g, b});
 		} else {
 			const rgb = parsed.reduce(vm);
-			assertNumber(rgb, "Argument of SETCOLOR must be an integer");
+			assert.number(rgb, "Argument of SETCOLOR must be an integer");
 			value = rgb;
 		}
 

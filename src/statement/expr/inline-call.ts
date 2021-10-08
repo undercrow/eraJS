@@ -1,4 +1,4 @@
-import {assert} from "../../assert";
+import * as assert from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import abs from "../method/abs";
@@ -113,10 +113,10 @@ export default class InlineCall implements Expr {
 			case "VARSIZE": return varSize(vm, this.arg);
 			case "UNICODE": return unicode(vm, this.arg);
 			default: {
-				assert(vm.fnMap.has(this.name), `Method ${this.name} does not exist`);
+				assert.cond(vm.fnMap.has(this.name), `Method ${this.name} does not exist`);
 				const values = this.arg.map((arg) => arg.reduce(vm));
 				const result = runGenerator(vm.fnMap.get(this.name)!.run(vm, values));
-				assert(result?.type === "return", "Inline call should return a value");
+				assert.cond(result?.type === "return", "Inline call should return a value");
 				return result.value[0];
 			}
 		}

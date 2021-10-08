@@ -1,4 +1,4 @@
-import {assertNumber} from "../assert";
+import * as assert from "../assert";
 import type {Data} from "../data";
 
 export default function parse(values: Map<string, string[][]>): Data["varSize"] {
@@ -8,7 +8,7 @@ export default function parse(values: Map<string, string[][]>): Data["varSize"] 
 	for (const row of rowList ?? []) {
 		const name = row[0];
 		const size = Number(row[1]);
-		assertNumber(size, "Size of variable in VARIABLESIZE.CSV should be an integer");
+		assert.number(size, "Size of variable in VARIABLESIZE.CSV should be an integer");
 
 		// Note: -1 is ignored
 		if (size >= 0) {

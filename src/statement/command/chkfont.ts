@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class ChkFont extends Statement {
 
 	public *run(vm: VM) {
 		const arg = this.arg.get().reduce(vm);
-		assertString(arg, "1st argument of CHKFONT should be a string");
+		assert.string(arg, "1st argument of CHKFONT should be a string");
 
 		const result = vm.external.getFont(arg) ? 1 : 0;
 		vm.getValue("RESULT").set(vm, result, [0]);

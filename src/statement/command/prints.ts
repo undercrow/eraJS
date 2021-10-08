@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -24,7 +24,7 @@ export default class PrintS extends Statement {
 		}
 
 		const text = this.value.get().reduce(vm);
-		assertString(text, "1st argument of PRINTS must be a string");
+		assert.string(text, "1st argument of PRINTS must be a string");
 
 		yield* vm.print(text);
 		yield* Print.runPostfix(vm, this.postfix);

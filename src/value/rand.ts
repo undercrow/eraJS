@@ -1,4 +1,4 @@
-import {assert} from "../assert";
+import * as assert from "../assert";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -11,7 +11,7 @@ export default class RandValue implements Value {
 	}
 
 	public get(vm: VM, index: number[]): number {
-		assert(index.length === 1, "RAND must be indexed by 1 value");
+		assert.cond(index.length === 1, "RAND must be indexed by 1 value");
 
 		return Math.floor(vm.random.next() % index[0]);
 	}

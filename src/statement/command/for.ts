@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import {parseThunk} from "../../erb/erb";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
@@ -50,11 +50,11 @@ export default class For extends Statement {
 		}
 
 		const start = this.start!.reduce(vm);
-		assertNumber(start, "Starting value for FOR should be an integer");
+		assert.number(start, "Starting value for FOR should be an integer");
 		const end = this.end!.reduce(vm);
-		assertNumber(end, "Ending value for FOR should be an integer");
+		assert.number(end, "Ending value for FOR should be an integer");
 		const step = this.step?.reduce(vm) ?? 1;
-		assertNumber(step, "Step of FOR should be an integer");
+		assert.number(step, "Step of FOR should be an integer");
 		const index = this.counter!.reduceIndex(vm);
 
 		loop: for (let i = start; i < end; i += step) {

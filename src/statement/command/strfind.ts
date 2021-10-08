@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -19,9 +19,9 @@ export default class StrFind extends Statement {
 		const [valueExpr, searchExpr] = this.arg.get();
 
 		const value = valueExpr.reduce(vm);
-		assertString(value, "1st argument of STRFIND must be a string!");
+		assert.string(value, "1st argument of STRFIND must be a string!");
 		const search = searchExpr.reduce(vm);
-		assertString(search, "2nd argument of STRFIND must be a string!");
+		assert.string(search, "2nd argument of STRFIND must be a string!");
 		vm.getValue("RESULT").set(vm, value.indexOf(search), [0]);
 
 		return null;

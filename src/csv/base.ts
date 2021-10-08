@@ -1,4 +1,4 @@
-import {assertNumber} from "../assert";
+import * as assert from "../assert";
 import type {Data} from "../data";
 
 export default function parse(values: Map<string, string[][]>): Data["gamebase"] {
@@ -13,7 +13,7 @@ export default function parse(values: Map<string, string[][]>): Data["gamebase"]
 			case "タイトル": result.title = row[1]; break;
 			case "バージョン": {
 				const version = parseInt(row[1]);
-				assertNumber(version, "Version in GAMEBASE.CSV should be an integer");
+				assert.number(version, "Version in GAMEBASE.CSV should be an integer");
 				result.version = version;
 				break;
 			}

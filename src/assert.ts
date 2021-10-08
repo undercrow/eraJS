@@ -1,16 +1,16 @@
-export function assert(condition: boolean, message: string): asserts condition {
-	if (!condition) {
+export function cond(value: boolean, message: string): asserts value {
+	if (!value) {
 		throw new Error(message);
 	}
 }
 
-export function assertNumber(value: any, message: string): asserts value is number {
-	assert(
+export function number(value: any, message: string): asserts value is number {
+	cond(
 		typeof value === "number" && !isNaN(value),
 		message,
 	);
 }
 
-export function assertString(value: any, message: string): asserts value is string {
-	assert(typeof value === "string", message);
+export function string(value: any, message: string): asserts value is string {
+	cond(typeof value === "string", message);
 }

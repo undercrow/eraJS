@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -18,7 +18,7 @@ export default class SetFont extends Statement {
 	public *run(vm: VM) {
 		// TODO: use default font
 		const font = this.font.get()?.reduce(vm) ?? "";
-		assertString(font, "Argument of SETFONT must be a string");
+		assert.string(font, "Argument of SETFONT must be a string");
 
 		vm.font.name = font;
 

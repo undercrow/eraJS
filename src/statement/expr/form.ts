@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import type VM from "../../vm";
 import type Expr from "./index";
 
@@ -41,7 +41,7 @@ export default class Form implements Expr {
 
 			if (expr.display != null) {
 				const display = expr.display.reduce(vm);
-				assertNumber(display, "Display size of form string should be an integer");
+				assert.number(display, "Display size of form string should be an integer");
 
 				if (expr.align == null || expr.align === "LEFT") {
 					value = value.padStart(display, " ");

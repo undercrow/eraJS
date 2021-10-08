@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -21,7 +21,7 @@ export default class PrintButton extends Statement {
 		const [textExpr, valueExpr] = this.arg.get();
 
 		const text = textExpr.reduce(vm);
-		assertString(text, "1st argument of PRINTBUTTON must be a string");
+		assert.string(text, "1st argument of PRINTBUTTON must be a string");
 		const value = valueExpr.reduce(vm);
 
 		yield <const>{

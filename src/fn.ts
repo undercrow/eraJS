@@ -1,4 +1,4 @@
-import {assertNumber, assertString} from "./assert";
+import * as assert from "./assert";
 import type Property from "./property";
 import Order from "./property/order";
 import type {Output, Result} from "./statement";
@@ -55,7 +55,7 @@ export default class Fn {
 				} else {
 					value = 0;
 				}
-				assertNumber(value, "Value for number argument must be a number");
+				assert.number(value, "Value for number argument must be a number");
 				dest.set(vm, value, index);
 			} else {
 				let value: string | number;
@@ -71,7 +71,7 @@ export default class Fn {
 				} else {
 					value = "";
 				}
-				assertString(value, "Value for string argument must be a string");
+				assert.string(value, "Value for string argument must be a string");
 				dest.set(vm, value, index);
 			}
 		}

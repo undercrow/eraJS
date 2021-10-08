@@ -1,4 +1,4 @@
-import {assertString} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class ReuseLastLine extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.arg.get()?.reduce(vm) ?? "";
-		assertString(value, "Argument of REUSELASTLINE must be a string");
+		assert.string(value, "Argument of REUSELASTLINE must be a string");
 
 		throw new Error("REUSELASTLINE is not implemented yet!");
 

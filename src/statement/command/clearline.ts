@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class ClearLine extends Statement {
 
 	public *run(vm: VM) {
 		const count = this.arg.get().reduce(vm);
-		assertNumber(count, "Argument of CLEARLINE must be an integer!");
+		assert.number(count, "Argument of CLEARLINE must be an integer!");
 
 		yield <const>{type: "clearline", count};
 

@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class DelChara extends Statement {
 
 	public *run(vm: VM) {
 		const indexList = this.charaters.get().map((c) => c.reduce(vm));
-		indexList.forEach((index) => assertNumber(index, "Character index should be an integer"));
+		indexList.forEach((index) => assert.number(index, "Character index should be an integer"));
 		indexList.sort();
 		indexList.reverse();
 

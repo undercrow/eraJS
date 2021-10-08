@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -18,11 +18,11 @@ export default class TInput extends Statement {
 	public *run(vm: VM): ReturnType<Statement["run"]> {
 		const [timeoutExpr, defExpr, showExpr, message] = this.arg.get();
 		const timeout = timeoutExpr.reduce(vm);
-		assertNumber(timeout, "1st argument of TINPUT should be a number");
+		assert.number(timeout, "1st argument of TINPUT should be a number");
 		const def = defExpr.reduce(vm);
-		assertNumber(def, "2nd argument of TINPUT should be a number");
+		assert.number(def, "2nd argument of TINPUT should be a number");
 		const show = showExpr?.reduce(vm) ?? 0;
-		assertNumber(show, "3rd argument of TINPUT should be a number");
+		assert.number(show, "3rd argument of TINPUT should be a number");
 
 		const input = yield <const>{
 			type: "input",
@@ -40,7 +40,7 @@ export default class TInput extends Statement {
 		} else {
 			value = Number(input);
 		}
-		assertNumber(value, "Input value for TINPUT should be a valid number");
+		assert.number(value, "Input value for TINPUT should be a valid number");
 
 		vm.getValue("RESULT").set(vm, value, [0]);
 

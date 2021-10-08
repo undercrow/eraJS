@@ -1,4 +1,4 @@
-import {assertNumber} from "../../assert";
+import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
@@ -17,7 +17,7 @@ export default class Abs extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.arg.get().reduce(vm);
-		assertNumber(value, "1st Argument of ABS should be an integer");
+		assert.number(value, "1st Argument of ABS should be an integer");
 
 		const result = Math.abs(value);
 		vm.getValue("RESULT").set(vm, result, [0]);

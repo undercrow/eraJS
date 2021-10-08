@@ -17,6 +17,7 @@ import csvName from "../method/csvname";
 import csvNickname from "../method/csvnickname";
 import csvRelation from "../method/csvrelation";
 import csvTalent from "../method/csvtalent";
+import existCsv from "../method/existcsv";
 import findChara from "../method/findchara";
 import findLastChara from "../method/findlastchara";
 import getBgColor from "../method/getbgcolor";
@@ -79,6 +80,7 @@ export default class InlineCall implements Expr {
 			case "CSVNICKNAME": return csvNickname(vm, this.arg);
 			case "CSVRELATION": return csvRelation(vm, this.arg);
 			case "CSVTALENT": return csvTalent(vm, this.arg);
+			case "EXISTCSV": return existCsv(vm, this.arg);
 			case "FINDCHARA": return findChara(vm, this.arg);
 			case "FINDLASTCHARA": return findLastChara(vm, this.arg);
 			case "GETBGCOLOR": return getBgColor(vm, this.arg);

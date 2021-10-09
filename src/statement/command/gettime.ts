@@ -12,10 +12,10 @@ export default class GetTime extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const now = dayjs();
+		const time = dayjs(vm.external.getTime());
 
-		vm.getValue("RESULT").set(vm, parseInt(now.format("YYYYMMDDHHmmssSSS")), [0]);
-		vm.getValue("RESULTS").set(vm, now.format("YYYY年MM月DD日 HH:mm:ss"), [0]);
+		vm.getValue("RESULT").set(vm, parseInt(time.format("YYYYMMDDHHmmssSSS")), [0]);
+		vm.getValue("RESULTS").set(vm, time.format("YYYY年MM月DD日 HH:mm:ss"), [0]);
 
 		return null;
 	}

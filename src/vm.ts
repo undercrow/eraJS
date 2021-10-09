@@ -45,11 +45,11 @@ export default class VM {
 		fnList: Fn[];
 		data: Data;
 	};
-	public DEFAULT_STORAGE: Record<string, string> = {};
-	public external: {
-		getFont: (name: string) => boolean;
+	public external!: {
 		getSavedata: (key: string) => string | undefined;
 		setSavedata: (key: string, value: string) => void;
+		getFont: (name: string) => boolean;
+		getTime: () => number;
 	};
 
 	public eventMap: Map<string, Fn[]>;
@@ -82,14 +82,9 @@ export default class VM {
 	};
 	public printCPerLine!: number;
 
-	public constructor(code: VM["code"], external?: VM["external"]) {
+	public constructor(code: VM["code"]) {
 		this.random = new PRNG();
 		this.code = code;
-		this.external = external ?? {
-			getFont: () => false,
-			getSavedata: (key) => this.DEFAULT_STORAGE[key],
-			setSavedata: (key, value) => { this.DEFAULT_STORAGE[key] = value; },
-		};
 
 		this.eventMap = new Map();
 		this.fnMap = new Map();
@@ -435,7 +430,9 @@ export default class VM {
 		}
 	}
 
-	public *start(): ReturnType<Statement["run"]> {
+	public *start(external: VM["external"]): ReturnType<Statement["run"]> {
+		this.external = external;
+
 		let begin = "TITLE";
 		while (true) {
 			let result: Result | null = null;

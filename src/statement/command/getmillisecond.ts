@@ -14,9 +14,9 @@ export default class GetMillisecond extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const now = dayjs();
+		const time = dayjs(vm.external.getTime());
 
-		vm.getValue("RESULT").set(vm, now.valueOf() + UNIX_EPOCH * 1000, [0]);
+		vm.getValue("RESULT").set(vm, time.valueOf() - UNIX_EPOCH * 1000, [0]);
 
 		return null;
 	}

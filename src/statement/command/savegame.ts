@@ -8,9 +8,10 @@ export default class SaveGame extends Statement {
 		PARSER.tryParse(arg);
 	}
 
-	public *run() {
-		throw new Error("SAVEGAME is not implemented yet!");
-
-		return null;
+	public *run(): ReturnType<Statement["run"]> {
+		return {
+			type: "begin",
+			keyword: "SAVEGAME",
+		};
 	}
 }

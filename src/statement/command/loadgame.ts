@@ -8,9 +8,10 @@ export default class LoadGame extends Statement {
 		PARSER.tryParse(arg);
 	}
 
-	public *run() {
-		yield <const>{type: "loadgame"};
-
-		return null;
+	public *run(): ReturnType<Statement["run"]> {
+		return {
+			type: "begin",
+			keyword: "LOADGAME",
+		};
 	}
 }

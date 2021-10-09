@@ -36,6 +36,7 @@ export type Data = {
 		info?: string;
 		year?: string;
 		title?: string;
+		code?: number;
 		version?: number;
 	};
 	character: Map<number, Template>;

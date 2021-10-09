@@ -6,7 +6,6 @@ export type Output =
 	| {type: "button"; text: string; value: string; cell?: "LEFT" | "RIGHT"}
 	| {type: "line"; value?: string}
 	| {type: "clearline"; count: number}
-	| {type: "loadgame"}
 	| {type: "wait"; force: boolean}
 	| {type: "input"; numeric: boolean}
 	| {type: "input"; numeric: boolean; timeout: number; showClock: boolean}

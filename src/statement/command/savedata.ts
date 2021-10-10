@@ -25,7 +25,6 @@ export const savedVariables = [
 	// "CDFLAG",
 ];
 
-// TODO: Save CHARADATA variables
 const PARSER = U.arg2R2(E.expr, E.expr);
 export default class SaveData extends Statement {
 	public arg: Lazy<[Expr, Expr]>;
@@ -68,14 +67,26 @@ export default class SaveData extends Statement {
 					characterData[name] = cell.value;
 				}
 			}
+			for (const property of vm.code.header) {
+				if (property instanceof Dim && property.isChar() && property.isSave()) {
+					const cell = character.getValue(property.name);
+					if (cell instanceof Int0DValue) {
+						characterData[property.name] = cell.value;
+					} else if (cell instanceof Int1DValue) {
+						characterData[property.name] = cell.value;
+					} else if (cell instanceof Int2DValue) {
+						characterData[property.name] = cell.value;
+					} else if (cell instanceof Str0DValue) {
+						characterData[property.name] = cell.value;
+					} else if (cell instanceof Str1DValue) {
+						characterData[property.name] = cell.value;
+					}
+				}
+			}
 			saveData.data.characters.push(characterData);
 		}
 		for (const property of vm.code.header) {
-			if (
-				property instanceof Dim &&
-				property.prefix.has("SAVEDATA") &&
-				!property.prefix.has("GLOBAL")
-			) {
+			if (property instanceof Dim && property.isSave() && !property.isGlobal()) {
 				const cell = vm.getValue(property.name);
 				if (cell instanceof Int0DValue) {
 					saveData.data.variables[property.name] = cell.value;

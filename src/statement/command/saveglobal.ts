@@ -25,7 +25,6 @@ export const savedVariables = [
 	"TB",
 ];
 
-// TODO: Save CHARADATA variables
 const PARSER = U.arg0R0();
 export default class SaveGlobal extends Statement {
 	public constructor(arg: string) {
@@ -56,11 +55,7 @@ export default class SaveGlobal extends Statement {
 			}
 		}
 		for (const property of vm.code.header) {
-			if (
-				property instanceof Dim &&
-				property.prefix.has("SAVEDATA") &&
-				property.prefix.has("GLOBAL")
-			) {
+			if (property instanceof Dim && property.isSave() && property.isGlobal()) {
 				const cell = vm.getValue(property.name);
 				if (cell instanceof Int0DValue) {
 					saveData.data[property.name] = cell.value;

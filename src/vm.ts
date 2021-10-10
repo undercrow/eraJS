@@ -352,12 +352,13 @@ export default class VM {
 		for (const events of this.eventMap.values()) {
 			fnList = fnList.concat(events);
 		}
+		// TODO: #DIM REF
 		for (const fn of fnList) {
 			this.staticMap.set(fn.name, new Map());
 			this.staticMap.get(fn.name)!.set("LOCAL", Value.Int1D(data, "LOCAL"));
 			this.staticMap.get(fn.name)!.set("LOCALS", Value.Str1D(data, "LOCALS"));
 			for (const property of fn.property) {
-				if (property instanceof Dim && !property.prefix.has("DYNAMIC")) {
+				if (property instanceof Dim && !property.isDynamic()) {
 					this.staticMap.get(fn.name)!.set(property.name, property.build(this));
 				} else if (property instanceof LocalSize || property instanceof LocalSSize) {
 					property.apply(this, fn.name);
@@ -391,7 +392,7 @@ export default class VM {
 		context.dynamicMap.set("ARG", Value.Int1D(this.code.data, "ARG"));
 		context.dynamicMap.set("ARGS", Value.Str1D(this.code.data, "ARGS"));
 		for (const property of fn.property) {
-			if (property instanceof Dim && property.prefix.has("DYNAMIC")) {
+			if (property instanceof Dim && property.isDynamic()) {
 				context.dynamicMap.set(property.name, property.build(this));
 			}
 		}

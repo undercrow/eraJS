@@ -13,7 +13,6 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-// TODO: Load CHARADATA variables
 const PARSER = U.arg1R1(E.expr);
 export default class LoadData extends Statement {
 	public arg: Lazy<Expr>;

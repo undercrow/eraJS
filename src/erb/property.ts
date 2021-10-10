@@ -27,8 +27,10 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 			U.WS1.then(P.alt(
 				P.regex(/CONST/i),
 				P.regex(/DYNAMIC/i),
+				P.regex(/GLOBAL/i),
 				P.regex(/REF/i),
 				P.regex(/SAVEDATA/i),
+				P.regex(/CHARADATA/i),
 			)).many(),
 			U.WS1.then(U.sepBy1(",", U.Identifier, E.expr)),
 			P.alt(
@@ -42,8 +44,10 @@ const parser = P.string("#").then(U.Identifier).chain<Property>((property) => {
 			U.WS1.then(P.alt(
 				P.regex(/CONST/i),
 				P.regex(/DYNAMIC/i),
+				P.regex(/GLOBAL/i),
 				P.regex(/REF/i),
 				P.regex(/SAVEDATA/i),
+				P.regex(/CHARADATA/i),
 			)).many(),
 			U.WS1.then(U.sepBy1(",", U.Identifier, E.expr)),
 			P.alt(

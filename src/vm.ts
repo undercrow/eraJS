@@ -1,4 +1,3 @@
-import * as assert from "./assert";
 import Character from "./character";
 import type Config from "./config";
 import * as color from "./color";
@@ -11,7 +10,6 @@ import Dim from "./property/dim";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import PRNG from "./random";
-import {BaseSave} from "./savedata";
 import type {default as Statement, Result} from "./statement";
 import type {Align} from "./statement/command/alignment";
 import * as scene from "./scene";
@@ -490,23 +488,5 @@ export default class VM {
 		yield* this.newline();
 
 		return null;
-	}
-
-	public loadData(name: string): BaseSave | null {
-		const raw = this.external.getSavedata(name);
-		if (raw == null) {
-			return null;
-		}
-
-		const parsed: BaseSave = JSON.parse(raw);
-		assert.number(parsed.code, `Save file ${name} is not in a valid format`);
-		assert.number(parsed.version, `Save file ${name} is not in a valid format`);
-		assert.cond(parsed.data != null, `Save file ${name} is not in a valid format`);
-
-		return parsed;
-	}
-
-	public saveData(name: string, value: BaseSave) {
-		this.external.setSavedata(name, JSON.stringify(value));
 	}
 }

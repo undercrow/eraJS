@@ -1,4 +1,5 @@
 import * as U from "../../erb/util";
+import Dim from "../../property/dim";
 import {savefile, GlobalSave} from "../../savedata";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";
@@ -24,7 +25,6 @@ export const savedVariables = [
 	"TB",
 ];
 
-// TODO: Save GLOBAL SAVEDATA variables
 // TODO: Save CHARADATA variables
 const PARSER = U.arg0R0();
 export default class SaveGlobal extends Statement {
@@ -53,6 +53,28 @@ export default class SaveGlobal extends Statement {
 				saveData.data[name] = cell.value;
 			} else if (cell instanceof Str1DValue) {
 				saveData.data[name] = cell.value;
+			}
+		}
+		for (const property of vm.code.header) {
+			if (
+				property instanceof Dim &&
+				property.prefix.has("SAVEDATA") &&
+				property.prefix.has("GLOBAL")
+			) {
+				const cell = vm.getValue(property.name);
+				if (cell instanceof Int0DValue) {
+					saveData.data[property.name] = cell.value;
+				} else if (cell instanceof Int1DValue) {
+					saveData.data[property.name] = cell.value;
+				} else if (cell instanceof Int2DValue) {
+					saveData.data[property.name] = cell.value;
+				} else if (cell instanceof Int3DValue) {
+					saveData.data[property.name] = cell.value;
+				} else if (cell instanceof Str0DValue) {
+					saveData.data[property.name] = cell.value;
+				} else if (cell instanceof Str1DValue) {
+					saveData.data[property.name] = cell.value;
+				}
 			}
 		}
 

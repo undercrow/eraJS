@@ -2,11 +2,12 @@ import * as assert from "../../assert";
 import * as E from "../../erb/expr";
 import * as U from "../../erb/util";
 import Lazy from "../../lazy";
-import DimSavedata from "../../property/dim-savedata";
+import Dim from "../../property/dim";
 import {savefile, GameSave} from "../../savedata";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";
 import Int2DValue from "../../value/int-2d";
+import Int3DValue from "../../value/int-3d";
 import Str0DValue from "../../value/str-0d";
 import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
@@ -70,13 +71,19 @@ export default class SaveData extends Statement {
 			saveData.data.characters.push(characterData);
 		}
 		for (const property of vm.code.header) {
-			if (property instanceof DimSavedata) {
+			if (
+				property instanceof Dim &&
+				property.prefix.has("SAVEDATA") &&
+				!property.prefix.has("GLOBAL")
+			) {
 				const cell = vm.getValue(property.name);
 				if (cell instanceof Int0DValue) {
 					saveData.data.variables[property.name] = cell.value;
 				} else if (cell instanceof Int1DValue) {
 					saveData.data.variables[property.name] = cell.value;
 				} else if (cell instanceof Int2DValue) {
+					saveData.data.variables[property.name] = cell.value;
+				} else if (cell instanceof Int3DValue) {
 					saveData.data.variables[property.name] = cell.value;
 				} else if (cell instanceof Str0DValue) {
 					saveData.data.variables[property.name] = cell.value;

@@ -8,9 +8,6 @@ import Fn from "./fn";
 import type Property from "./property";
 import Define from "./property/define";
 import Dim from "./property/dim";
-import DimConst from "./property/dim-const";
-import DimDynamic from "./property/dim-dynamic";
-import DimSavedata from "./property/dim-savedata";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import PRNG from "./random";
@@ -344,11 +341,7 @@ export default class VM {
 
 		for (const property of header) {
 			if (property instanceof Dim) {
-				property.apply(this, this.globalMap);
-			} else if (property instanceof DimConst) {
-				property.apply(this, this.globalMap);
-			} else if (property instanceof DimSavedata) {
-				property.apply(this, this.globalMap);
+				this.globalMap.set(property.name, property.build(this));
 			}
 		}
 
@@ -360,15 +353,12 @@ export default class VM {
 			fnList = fnList.concat(events);
 		}
 		for (const fn of fnList) {
-			// TODO: Initialize staticMap only once
 			this.staticMap.set(fn.name, new Map());
 			this.staticMap.get(fn.name)!.set("LOCAL", Value.Int1D(data, "LOCAL"));
 			this.staticMap.get(fn.name)!.set("LOCALS", Value.Str1D(data, "LOCALS"));
 			for (const property of fn.property) {
-				if (property instanceof Dim) {
-					property.apply(this, this.staticMap.get(fn.name)!);
-				} else if (property instanceof DimConst) {
-					property.apply(this, this.staticMap.get(fn.name)!);
+				if (property instanceof Dim && !property.prefix.has("DYNAMIC")) {
+					this.staticMap.get(fn.name)!.set(property.name, property.build(this));
 				} else if (property instanceof LocalSize || property instanceof LocalSSize) {
 					property.apply(this, fn.name);
 				}
@@ -401,8 +391,8 @@ export default class VM {
 		context.dynamicMap.set("ARG", Value.Int1D(this.code.data, "ARG"));
 		context.dynamicMap.set("ARGS", Value.Str1D(this.code.data, "ARGS"));
 		for (const property of fn.property) {
-			if (property instanceof DimDynamic) {
-				property.apply(this);
+			if (property instanceof Dim && property.prefix.has("DYNAMIC")) {
+				context.dynamicMap.set(property.name, property.build(this));
 			}
 		}
 

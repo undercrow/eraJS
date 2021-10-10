@@ -5,16 +5,14 @@ export type BaseSave = {
 };
 
 export type GlobalSave = BaseSave & {
-	data: {
-		GLOBAL: number[];
-		GLOBALS: string[];
-	};
+	data: Record<string, any>;
 };
 
 export type GameSave = BaseSave & {
 	data: {
 		comment: string;
 		characters: Record<string, any>[];
+		variables: Record<string, any>;
 	};
 };
 

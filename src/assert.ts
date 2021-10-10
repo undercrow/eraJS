@@ -33,3 +33,10 @@ export function strArray(value: any, message: string): asserts value is string[]
 		string(value[i], message);
 	}
 }
+
+export function numArray2D(value: any, message: string): asserts value is number[][] {
+	array(value, message);
+	for (let i = 0; i < value.length; ++i) {
+		numArray(value[i], message);
+	}
+}

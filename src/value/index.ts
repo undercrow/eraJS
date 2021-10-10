@@ -41,7 +41,7 @@ export default abstract class Value {
 		return new Str1DValue(name, data.varSize.get(name) ?? size);
 	}
 
-	public static Int2D(_data: Data, name: string, size0: number = 1000, size1: number = 1000) {
+	public static Int2D(_data: Data, name: string, size0: number = 100, size1: number = 100) {
 		// TODO: Get varsize from data
 		return new Int2DValue(name, size0, size1);
 	}

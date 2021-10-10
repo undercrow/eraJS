@@ -6,12 +6,14 @@ import {savefile, GameSave} from "../../savedata";
 import Lazy from "../../lazy";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";
+import Int2DValue from "../../value/int-2d";
 import Str0DValue from "../../value/str-0d";
 import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
+// TODO: Load CHARADATA variables
 const PARSER = U.arg1R1(E.expr);
 export default class LoadData extends Statement {
 	public arg: Lazy<Expr>;
@@ -21,7 +23,6 @@ export default class LoadData extends Statement {
 		this.arg = new Lazy(arg, PARSER);
 	}
 
-	// TODO: load #DIM SAVEDATA variables
 	public *run(vm: VM) {
 		const index = this.arg.get().reduce(vm);
 		assert.number(index, "Argument of LOADDATA must be a number");
@@ -68,9 +69,30 @@ export default class LoadData extends Statement {
 					}
 				}
 			}
-
 			vm.characterList = newCharacters;
 			vm.getValue("CHARANUM").set(vm, newCharacters.length, []);
+
+			for (const [name, value] of Object.entries(parsed.data.variables)) {
+				const cell = vm.getValue(name);
+				if (cell instanceof Int0DValue) {
+					assert.number(value, "");
+					cell.reset(value);
+				} else if (cell instanceof Int1DValue) {
+					assert.numArray(value, "");
+					cell.reset(value);
+				} else if (cell instanceof Int2DValue) {
+					assert.numArray2D(value, "");
+					cell.reset(value);
+				} else if (cell instanceof Str0DValue) {
+					assert.string(value, "");
+					cell.reset(value);
+				} else if (cell instanceof Str1DValue) {
+					assert.strArray(value, "");
+					cell.reset(value);
+				} else {
+					throw new Error("");
+				}
+			}
 		} catch {
 			throw new Error(`Save file ${file} is not in a valid format`);
 		}

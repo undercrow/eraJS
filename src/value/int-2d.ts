@@ -26,6 +26,22 @@ export default class Int2DValue implements Value {
 		this.value = new Array(size0).fill(0).map(() => new Array<number>(size1).fill(0));
 	}
 
+	public reset(value: number[][]): Int2DValue {
+		for (let i = 0; i < this.value.length; ++i) {
+			for (let j = 0; j < this.value[i].length; ++j) {
+				this.value[i][j] = 0;
+			}
+		}
+
+		for (let i = 0; i < value.length; ++i) {
+			for (let j = 0; j < value[i].length; ++j) {
+				this.value[i][j] = value[i][j];
+			}
+		}
+
+		return this;
+	}
+
 	public get(_vm: VM, index: number[]): number {
 		const realIndex = Int2DValue.normalizeIndex(index);
 		return this.value[realIndex[0]][realIndex[1]];

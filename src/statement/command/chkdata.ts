@@ -26,7 +26,7 @@ export default class ChkData extends Statement {
 		const file = savefile.game(index);
 		const raw = vm.external.getSavedata(file);
 		if (raw == null) {
-			result = 0;
+			result = 1;
 			message = "----";
 		} else {
 			try {

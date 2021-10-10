@@ -10,6 +10,7 @@ import Define from "./property/define";
 import Dim from "./property/dim";
 import DimConst from "./property/dim-const";
 import DimDynamic from "./property/dim-dynamic";
+import DimSavedata from "./property/dim-savedata";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import PRNG from "./random";
@@ -259,8 +260,8 @@ export default class VM {
 		this.globalMap.set("DC", Value.Int2D(data, "DC"));
 		this.globalMap.set("DD", Value.Int2D(data, "DD"));
 		this.globalMap.set("DE", Value.Int2D(data, "DE"));
-		// TODO: TA
-		// TODO: TB
+		this.globalMap.set("TA", Value.Int3D(data, "TA"));
+		this.globalMap.set("TB", Value.Int3D(data, "TB"));
 		this.globalMap.set("RAND", Value.Rand(data, "RAND"));
 		this.globalMap.set("CHARANUM", Value.Int0D(data, "CHARANUM"));
 		this.globalMap.set("ABLNAME", Value.Str1D(data, "ABLNAME").reset(data.ability));
@@ -345,6 +346,8 @@ export default class VM {
 			if (property instanceof Dim) {
 				property.apply(this, this.globalMap);
 			} else if (property instanceof DimConst) {
+				property.apply(this, this.globalMap);
+			} else if (property instanceof DimSavedata) {
 				property.apply(this, this.globalMap);
 			}
 		}

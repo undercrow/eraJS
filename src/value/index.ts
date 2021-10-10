@@ -3,6 +3,7 @@ import type VM from "../vm";
 import Int0DValue from "./int-0d";
 import Int1DValue from "./int-1d";
 import Int2DValue from "./int-2d";
+import Int3DValue from "./int-3d";
 import IntChar0DValue from "./int-char-0d";
 import IntChar1DValue from "./int-char-1d";
 import RandValue from "./rand";
@@ -12,7 +13,13 @@ import StrChar0DValue from "./str-char-0d";
 import StrChar1DValue from "./str-char-1d";
 
 export type Leaf = number | string;
-export type SimpleValue = Int0DValue | Int1DValue | Int2DValue | Str0DValue | Str1DValue;
+export type SimpleValue =
+	| Int0DValue
+	| Int1DValue
+	| Int2DValue
+	| Int3DValue
+	| Str0DValue
+	| Str1DValue;
 export default abstract class Value {
 	public abstract type: "string" | "number";
 	public abstract name: string;
@@ -44,6 +51,17 @@ export default abstract class Value {
 	public static Int2D(_data: Data, name: string, size0: number = 100, size1: number = 100) {
 		// TODO: Get varsize from data
 		return new Int2DValue(name, size0, size1);
+	}
+
+	public static Int3D(
+		_data: Data,
+		name: string,
+		size0: number = 100,
+		size1: number = 100,
+		size2: number = 100,
+	) {
+		// TODO: Get varsize from data
+		return new Int3DValue(name, size0, size1, size2);
 	}
 
 	public static IntChar0D(_data: Data, name: string) {

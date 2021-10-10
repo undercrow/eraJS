@@ -3,6 +3,7 @@ import {savefile, GlobalSave} from "../../savedata";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";
 import Int2DValue from "../../value/int-2d";
+import Int3DValue from "../../value/int-3d";
 import Str0DValue from "../../value/str-0d";
 import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
@@ -19,8 +20,8 @@ export const savedVariables = [
 	"DC",
 	"DD",
 	"DE",
-	// "TA",
-	// "TB",
+	"TA",
+	"TB",
 ];
 
 // TODO: Save GLOBAL SAVEDATA variables
@@ -45,6 +46,8 @@ export default class SaveGlobal extends Statement {
 			} else if (cell instanceof Int1DValue) {
 				saveData.data[name] = cell.value;
 			} else if (cell instanceof Int2DValue) {
+				saveData.data[name] = cell.value;
+			} else if (cell instanceof Int3DValue) {
 				saveData.data[name] = cell.value;
 			} else if (cell instanceof Str0DValue) {
 				saveData.data[name] = cell.value;

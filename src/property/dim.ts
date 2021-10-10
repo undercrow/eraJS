@@ -2,6 +2,8 @@ import * as assert from "../assert";
 import type Expr from "../statement/expr";
 import Value from "../value";
 import Int1DValue from "../value/int-1d";
+import Int2DValue from "../value/int-2d";
+import Int3DValue from "../value/int-3d";
 import Str1DValue from "../value/str-1d";
 import type VM from "../vm";
 
@@ -58,6 +60,20 @@ export default class Dim {
 			const size = this.size[0].reduce(vm);
 			assert.number(size, "Size of an array must be an integer");
 			variableMap.set(this.name, new Str1DValue(this.name, size));
+		} else if (this.size.length === 2 && this.type === "number") {
+			const size0 = this.size[0].reduce(vm);
+			assert.number(size0, "Size of an array must be an integer");
+			const size1 = this.size[1].reduce(vm);
+			assert.number(size1, "Size of an array must be an integer");
+			variableMap.set(this.name, new Int2DValue(this.name, size0, size1));
+		} else if (this.size.length === 3 && this.type === "number") {
+			const size0 = this.size[0].reduce(vm);
+			assert.number(size0, "Size of an array must be an integer");
+			const size1 = this.size[1].reduce(vm);
+			assert.number(size1, "Size of an array must be an integer");
+			const size2 = this.size[2].reduce(vm);
+			assert.number(size2, "Size of an array must be an integer");
+			variableMap.set(this.name, new Int3DValue(this.name, size0, size1, size2));
 		}
 	}
 }

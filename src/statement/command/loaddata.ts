@@ -50,22 +50,22 @@ export default class LoadData extends Statement {
 					flags: new Map(),
 					cstr: new Map(),
 					mark: new Map(),
-					palam: new Map(),
 					juel: new Map(),
 				});
-				for (const [key, value] of newCharacter.values) {
-					if (value instanceof Int0DValue) {
-						assert.number(character[key], "");
-						newCharacter.getValue<Int0DValue>(key).reset(character[key]);
-					} else if (value instanceof Int1DValue) {
-						assert.numArray(character[key], "");
-						newCharacter.getValue<Int0DValue>(key).reset(character[key]);
-					} else if (value instanceof Str0DValue) {
-						assert.string(character[key], "");
-						newCharacter.getValue<Str0DValue>(key).reset(character[key]);
-					} else if (value instanceof Str1DValue) {
-						assert.strArray(character[key], "");
-						newCharacter.getValue<Str1DValue>(key).reset(character[key]);
+				for (const [name, value] of Object.entries(character)) {
+					const cell = newCharacter.getValue(name);
+					if (cell instanceof Int0DValue) {
+						assert.number(value, "");
+						cell.reset(value);
+					} else if (cell instanceof Int1DValue) {
+						assert.numArray(value, "");
+						cell.reset(value);
+					} else if (cell instanceof Str0DValue) {
+						assert.string(value, "");
+						cell.reset(value);
+					} else if (cell instanceof Str1DValue) {
+						assert.strArray(value, "");
+						cell.reset(value);
 					}
 				}
 			}

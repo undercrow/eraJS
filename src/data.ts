@@ -26,7 +26,6 @@ export type Template = {
 	flags: Map<number, number>;
 	cstr: Map<number, string>;
 	mark: Map<number, number>;
-	palam: Map<number, number>;
 	juel: Map<number, number>;
 };
 

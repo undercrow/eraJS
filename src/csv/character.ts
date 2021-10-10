@@ -17,7 +17,6 @@ export default function parse(values: Map<string, string[][]>): Data["character"
 			flags: new Map(),
 			cstr: new Map(),
 			mark: new Map(),
-			palam: new Map(),
 			juel: new Map(),
 		};
 		for (const row of rowList) {

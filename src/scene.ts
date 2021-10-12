@@ -3,6 +3,7 @@ import Call from "./statement/command/call";
 import Input from "./statement/command/input";
 import Print from "./statement/command/print";
 import PrintC from "./statement/command/printc";
+import TryCall from "./statement/command/trycall";
 import Int1DValue from "./value/int-1d";
 import VM from "./vm";
 
@@ -174,5 +175,17 @@ export function* TURNEND(vm: VM) {
 	return yield* runScene(vm, function* () {
 		vm.skipDisp = false;
 		yield* eventStatement(vm, "EVENTTURNEND");
+	});
+}
+
+export function* DATALOADED(vm: VM) {
+	return yield* runScene(vm, function* () {
+		yield new TryCall("SYSTEM_LOADEND", []);
+		yield* eventStatement(vm, "EVENTLOAD");
+		while (true) {
+			yield new Call(" SHOW_SHOP");
+			yield new Input("");
+			yield new Call(" USERSHOP");
+		}
 	});
 }

@@ -444,6 +444,7 @@ export default class VM {
 				case "AFTERTRAIN": result = yield* scene.AFTERTRAIN(this); break;
 				case "ABLUP": result = yield* scene.ABLUP(this); break;
 				case "TURNEND": result = yield* scene.TURNEND(this); break;
+				case "DATALOADED": result = yield* scene.DATALOADED(this); break;
 				default: {
 					throw new Error(`${begin} is not a valid keyword`);
 				}

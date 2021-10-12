@@ -23,7 +23,7 @@ export default class LoadData extends Statement {
 		this.arg = new Lazy(arg, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public *run(vm: VM): ReturnType<Statement["run"]> {
 		const index = this.arg.get().reduce(vm);
 		assert.number(index, "Argument of LOADDATA must be a number");
 
@@ -100,6 +100,9 @@ export default class LoadData extends Statement {
 			throw new Error(`Save file ${file} is not in a valid format`);
 		}
 
-		return null;
+		return {
+			type: "begin",
+			keyword: "DATALOADED",
+		};
 	}
 }

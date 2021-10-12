@@ -4,6 +4,7 @@ import {savefile, GlobalSave} from "../../savedata";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";
 import Int2DValue from "../../value/int-2d";
+import Int3DValue from "../../value/int-3d";
 import Str0DValue from "../../value/str-0d";
 import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
@@ -37,6 +38,9 @@ export default class LoadGlobal extends Statement {
 					cell.reset(value);
 				} else if (cell instanceof Int2DValue) {
 					assert.numArray2D(value, "");
+					cell.reset(value);
+				} else if (cell instanceof Int3DValue) {
+					assert.numArray3D(value, "");
 					cell.reset(value);
 				} else if (cell instanceof Str0DValue) {
 					assert.string(value, "");

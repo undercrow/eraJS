@@ -97,6 +97,9 @@ export default class LoadData extends Statement {
 					throw new Error("");
 				}
 			}
+
+			vm.getValue("LASTLOAD_VERSION").set(vm, parsed.version, []);
+			vm.getValue("LASTLOAD_TEXT").set(vm, parsed.data.comment, []);
 		} catch {
 			throw new Error(`Save file ${file} is not in a valid format`);
 		}

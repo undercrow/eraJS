@@ -4,7 +4,6 @@ import Fn from "../fn";
 import Property from "../property";
 import Statement from "../statement";
 import Assign from "../statement/assign";
-import Abs from "../statement/command/abs";
 import AddChara from "../statement/command/addchara";
 import AddCopyChara from "../statement/command/addcopychara";
 import AddDefChara from "../statement/command/adddefchara";
@@ -12,7 +11,6 @@ import AddVoidChara from "../statement/command/addvoidchara";
 import Alignment from "../statement/command/alignment";
 import ArrayShift from "../statement/command/arrayshift";
 import Bar from "../statement/command/bar";
-import BarStr from "../statement/command/barstr";
 import Begin from "../statement/command/begin";
 import Break from "../statement/command/break";
 import Call from "../statement/command/call";
@@ -31,20 +29,6 @@ import ClearLine from "../statement/command/clearline";
 import ClearTextBox from "../statement/command/cleartextbox";
 import Continue from "../statement/command/continue";
 import CopyChara from "../statement/command/copychara";
-import CsvAbl from "../statement/command/csvabl";
-import CsvBase from "../statement/command/csvbase";
-import CsvCallname from "../statement/command/csvcallname";
-import CsvCflag from "../statement/command/csvcflag";
-import CsvCstr from "../statement/command/csvcstr";
-import CsvEquip from "../statement/command/csvequip";
-import CsvExp from "../statement/command/csvexp";
-import CsvJuel from "../statement/command/csvjuel";
-import CsvMark from "../statement/command/csvmark";
-import CsvMastername from "../statement/command/csvmastername";
-import CsvName from "../statement/command/csvname";
-import CsvNickname from "../statement/command/csvnickname";
-import CsvRelation from "../statement/command/csvrelation";
-import CsvTalent from "../statement/command/csvtalent";
 import CUpCheck from "../statement/command/cupcheck";
 import CurrentAlign from "../statement/command/currentalign";
 import CurrentRedraw from "../statement/command/currentredraw";
@@ -60,23 +44,13 @@ import DrawLineForm from "../statement/command/drawlineform";
 import DumpRand from "../statement/command/dumprand";
 import EncodeToUni from "../statement/command/encodetouni";
 import Escape from "../statement/command/escape";
-import ExistCSV from "../statement/command/existcsv";
-import FindChara from "../statement/command/findchara";
-import FindLastChara from "../statement/command/findlastchara";
 import FontBold from "../statement/command/fontbold";
 import FontItalic from "../statement/command/fontitalic";
 import FontRegular from "../statement/command/fontregular";
 import FontStyle from "../statement/command/fontstyle";
 import For from "../statement/command/for";
 import ForceWait from "../statement/command/forcewait";
-import GetBgColor from "../statement/command/getbgcolor";
-import GetBit from "../statement/command/getbit";
-import GetChara from "../statement/command/getchara";
-import GetColor from "../statement/command/getcolor";
-import GetDefBgColor from "../statement/command/getdefbgcolor";
-import GetDefColor from "../statement/command/getdefcolor";
 import GetExpLv from "../statement/command/getexplv";
-import GetFocusColor from "../statement/command/getfocuscolor";
 import GetFont from "../statement/command/getfont";
 import GetMillisecond from "../statement/command/getmillisecond";
 import GetPalamLv from "../statement/command/getpalamlv";
@@ -89,19 +63,15 @@ import If from "../statement/command/if";
 import Input from "../statement/command/input";
 import InputS from "../statement/command/inputs";
 import InitRand from "../statement/command/initrand";
-import InRange from "../statement/command/inrange";
 import InvertBit from "../statement/command/invertbit";
 import IsActive from "../statement/command/isactive";
 import IsSkip from "../statement/command/isskip";
 import Jump from "../statement/command/jump";
 import JumpForm from "../statement/command/jumpform";
-import Limit from "../statement/command/limit";
-import LineIsEmpty from "../statement/command/lineisempty";
 import LoadData from "../statement/command/loaddata";
 import LoadGame from "../statement/command/loadgame";
 import LoadGlobal from "../statement/command/loadglobal";
-import Max from "../statement/command/max";
-import Min from "../statement/command/min";
+import Method from "../statement/command/method";
 import MouseSkip from "../statement/command/mouseskip";
 import MouseX from "../statement/command/mousex";
 import MouseY from "../statement/command/mousey";
@@ -109,7 +79,6 @@ import OneInput from "../statement/command/oneinput";
 import OneInputS from "../statement/command/oneinputs";
 import OutputLog from "../statement/command/outputlog";
 import PickupChara from "../statement/command/pickupchara";
-import Power from "../statement/command/power";
 import Print from "../statement/command/print";
 import PrintButton from "../statement/command/printbutton";
 import PrintC from "../statement/command/printc";
@@ -151,11 +120,9 @@ import SetBit from "../statement/command/setbit";
 import SetColor from "../statement/command/setcolor";
 import SetColorByName from "../statement/command/setcolorbyname";
 import SetFont from "../statement/command/setfont";
-import Sign from "../statement/command/sign";
 import SkipDisp from "../statement/command/skipdisp";
 import SortChara from "../statement/command/sortchara";
 import Split from "../statement/command/split";
-import Sqrt from "../statement/command/sqrt";
 import StopCallTrain from "../statement/command/stopcalltrain";
 import StrData from "../statement/command/strdata";
 import StrFind from "../statement/command/strfind";
@@ -163,8 +130,6 @@ import StrFindU from "../statement/command/strfindu";
 import StrLen from "../statement/command/strlen";
 import StrLenForm from "../statement/command/strlenform";
 import StrLenFormU from "../statement/command/strlenformu";
-import StrLenS from "../statement/command/strlens";
-import StrLenSU from "../statement/command/strlensu";
 import StrLenU from "../statement/command/strlenu";
 import Substring from "../statement/command/substring";
 import SubstringU from "../statement/command/substringu";
@@ -188,7 +153,6 @@ import TryGoto from "../statement/command/trygoto";
 import TryGotoForm from "../statement/command/trygotoform";
 import TryJump from "../statement/command/tryjump";
 import TryJumpForm from "../statement/command/tryjumpform";
-import Unicode from "../statement/command/unicode";
 import UpCheck from "../statement/command/upcheck";
 import VarSet from "../statement/command/varset";
 import Wait from "../statement/command/wait";
@@ -405,11 +369,11 @@ const commandParser: Record<string, CommandParser> = {
 	SETBGCOLOR: (arg) => [new SetBgColor(arg), 1],
 	SETCOLORBYNAME: (arg) => [new SetColorByName(arg), 1],
 	SETBGCOLORBYNAME: (arg) => [new SetBgColorByName(arg), 1],
-	GETCOLOR: (arg) => [new GetColor(arg), 1],
-	GETDEFCOLOR: (arg) => [new GetDefColor(arg), 1],
-	GETBGCOLOR: (arg) => [new GetBgColor(arg), 1],
-	GETDEFBGCOLOR: (arg) => [new GetDefBgColor(arg), 1],
-	GETFOCUSCOLOR: (arg) => [new GetFocusColor(arg), 1],
+	GETCOLOR: (arg) => [new Method("GETCOLOR", arg), 1],
+	GETDEFCOLOR: (arg) => [new Method("GETDEFCOLOR", arg), 1],
+	GETBGCOLOR: (arg) => [new Method("GETBGCOLOR", arg), 1],
+	GETDEFBGCOLOR: (arg) => [new Method("GETDEFBGCOLOR", arg), 1],
+	GETFOCUSCOLOR: (arg) => [new Method("GETFOCUSCOLOR", arg), 1],
 	FONTBOLD: (arg) => [new FontBold(arg), 1],
 	FONTITALIC: (arg) => [new FontItalic(arg), 1],
 	FONTREGULAR: (arg) => [new FontRegular(arg), 1],
@@ -423,18 +387,18 @@ const commandParser: Record<string, CommandParser> = {
 	REDRAW: (arg) => [new Redraw(arg), 1],
 	CURRENTREDRAW: (arg) => [new CurrentRedraw(arg), 1],
 	PRINTCPERLINE: (arg) => [new PrintCPerLine(arg), 1],
-	LINEISEMPTY: (arg) => [new LineIsEmpty(arg), 1],
+	LINEISEMPTY: (arg) => [new Method("LINEISEMPTY", arg), 1],
 	SKIPDISP: (arg) => [new SkipDisp(arg), 1],
 	BAR: (arg) => [new Bar(arg), 1],
 	BARL: (arg) => [new Bar(arg, true), 1],
-	BARSTR: (arg) => [new BarStr(arg), 1],
+	BARSTR: (arg) => [new Method("BARSTR", arg), 1],
 	ISSKIP: (arg) => [new IsSkip(arg), 1],
 	MOUSESKIP: (arg) => [new MouseSkip(arg), 1],
 	STRLEN: (arg) => [new StrLen(arg), 1],
-	STRLENS: (arg) => [new StrLenS(arg), 1],
+	STRLENS: (arg) => [new Method("STRLENS", arg), 1],
 	STRLENFORM: (arg) => [new StrLenForm(arg), 1],
 	STRLENU: (arg) => [new StrLenU(arg), 1],
-	STRLENSU: (arg) => [new StrLenSU(arg), 1],
+	STRLENSU: (arg) => [new Method("STRLENSU", arg), 1],
 	STRLENFORMU: (arg) => [new StrLenFormU(arg), 1],
 	SUBSTRING: (arg) => [new Substring(arg), 1],
 	SUBSTRINGU: (arg) => [new SubstringU(arg), 1],
@@ -442,17 +406,17 @@ const commandParser: Record<string, CommandParser> = {
 	STRFINDU: (arg) => [new StrFindU(arg), 1],
 	SPLIT: (arg) => [new Split(arg), 1],
 	ESCAPE: (arg) => [new Escape(arg), 1],
-	UNICODE: (arg) => [new Unicode(arg), 1],
+	UNICODE: (arg) => [new Method("UNICODE", arg), 1],
 	ENCODETOUNI: (arg) => [new EncodeToUni(arg), 1],
-	POWER: (arg) => [new Power(arg), 1],
-	ABS: (arg) => [new Abs(arg), 1],
-	SIGN: (arg) => [new Sign(arg), 1],
-	SQRT: (arg) => [new Sqrt(arg), 1],
-	MAX: (arg) => [new Max(arg), 1],
-	MIN: (arg) => [new Min(arg), 1],
-	LIMIT: (arg) => [new Limit(arg), 1],
-	INRANGE: (arg) => [new InRange(arg), 1],
-	GETBIT: (arg) => [new GetBit(arg), 1],
+	POWER: (arg) => [new Method("POWER", arg), 1],
+	ABS: (arg) => [new Method("ABS", arg), 1],
+	SIGN: (arg) => [new Method("SIGN", arg), 1],
+	SQRT: (arg) => [new Method("SQRT", arg), 1],
+	MAX: (arg) => [new Method("MAX", arg), 1],
+	MIN: (arg) => [new Method("MIN", arg), 1],
+	LIMIT: (arg) => [new Method("LIMIT", arg), 1],
+	INRANGE: (arg) => [new Method("INRANGE", arg), 1],
+	GETBIT: (arg) => [new Method("GETBIT", arg), 1],
 	SETBIT: (arg) => [new SetBit(arg), 1],
 	CLEARBIT: (arg) => [new ClearBit(arg), 1],
 	INVERTBIT: (arg) => [new InvertBit(arg), 1],
@@ -461,33 +425,33 @@ const commandParser: Record<string, CommandParser> = {
 	ADDVOIDCHARA: (arg) => [new AddVoidChara(arg), 1],
 	DELCHARA: (arg) => [new DelChara(arg), 1],
 	DELALLCHARA: (arg) => [new DelAllChara(arg), 1],
-	GETCHARA: (arg) => [new GetChara(arg), 1],
+	GETCHARA: (arg) => [new Method("GETCHARA", arg), 1],
 	SWAPCHARA: (arg) => [new SwapChara(arg), 1],
 	SORTCHARA: (arg) => [new SortChara(arg), 1],
 	PICKUPCHARA: (arg) => [new PickupChara(arg), 1],
-	FINDCHARA: (arg) => [new FindChara(arg), 1],
-	FINDLASTCHARA: (arg) => [new FindLastChara(arg), 1],
+	FINDCHARA: (arg) => [new Method("FINDCHARA", arg), 1],
+	FINDLASTCHARA: (arg) => [new Method("FINDLASTCHARA", arg), 1],
 	COPYCHARA: (arg) => [new CopyChara(arg), 1],
 	ADDCOPYCHARA: (arg) => [new AddCopyChara(arg), 1],
-	EXISTCSV: (arg) => [new ExistCSV(arg), 1],
+	EXISTCSV: (arg) => [new Method("EXISTCSV", arg), 1],
 	SWAP: (arg) => [new Swap(arg), 1],
 	RESETDATA: (arg) => [new ResetData(arg), 1],
 	RESETGLOBAL: (arg) => [new ResetGlobal(arg), 1],
 	RESET_STAIN: (arg) => [new ResetStain(arg), 1],
-	CSVABL: (arg) => [new CsvAbl(arg), 1],
-	CSVBASE: (arg) => [new CsvBase(arg), 1],
-	CSVCALLNAME: (arg) => [new CsvCallname(arg), 1],
-	CSVCFLAG: (arg) => [new CsvCflag(arg), 1],
-	CSVCSTR: (arg) => [new CsvCstr(arg), 1],
-	CSVEQUIP: (arg) => [new CsvEquip(arg), 1],
-	CSVEXP: (arg) => [new CsvExp(arg), 1],
-	CSVJUEL: (arg) => [new CsvJuel(arg), 1],
-	CSVMARK: (arg) => [new CsvMark(arg), 1],
-	CSVMASTERNAME: (arg) => [new CsvMastername(arg), 1],
-	CSVNAME: (arg) => [new CsvName(arg), 1],
-	CSVNICKNAME: (arg) => [new CsvNickname(arg), 1],
-	CSVRELATION: (arg) => [new CsvRelation(arg), 1],
-	CSVTALENT: (arg) => [new CsvTalent(arg), 1],
+	CSVABL: (arg) => [new Method("CSVABL", arg), 1],
+	CSVBASE: (arg) => [new Method("CSVBASE", arg), 1],
+	CSVCALLNAME: (arg) => [new Method("CSVCALLNAME", arg), 1],
+	CSVCFLAG: (arg) => [new Method("CSVCFLAG", arg), 1],
+	CSVCSTR: (arg) => [new Method("CSVCSTR", arg), 1],
+	CSVEQUIP: (arg) => [new Method("CSVEQUIP", arg), 1],
+	CSVEXP: (arg) => [new Method("CSVEXP", arg), 1],
+	CSVJUEL: (arg) => [new Method("CSVJUEL", arg), 1],
+	CSVMARK: (arg) => [new Method("CSVMARK", arg), 1],
+	CSVMASTERNAME: (arg) => [new Method("CSVMASTERNAME", arg), 1],
+	CSVNAME: (arg) => [new Method("CSVNAM", arg), 1],
+	CSVNICKNAME: (arg) => [new Method("CSVNICKNAME", arg), 1],
+	CSVRELATION: (arg) => [new Method("CSVRELATION", arg), 1],
+	CSVTALENT: (arg) => [new Method("CSVTALENT", arg), 1],
 	GETPALAMLV: (arg) => [new GetPalamLv(arg), 1],
 	GETEXPLV: (arg) => [new GetExpLv(arg), 1],
 	VARSET: (arg) => [new VarSet(arg), 1],

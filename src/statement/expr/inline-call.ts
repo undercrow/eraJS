@@ -41,6 +41,7 @@ import rand from "../method/rand";
 import sign from "../method/sign";
 import sqrt from "../method/sqrt";
 import strLenS from "../method/strlens";
+import strLenSU from "../method/strlensu";
 import sumArray from "../method/sumarray";
 import toInt from "../method/toint";
 import toStr from "../method/tostr";
@@ -107,6 +108,7 @@ export default class InlineCall implements Expr {
 			case "SIGN": return sign(vm, this.arg);
 			case "SQRT": return sqrt(vm, this.arg);
 			case "STRLENS": return strLenS(vm, this.arg);
+			case "STRLENSU": return strLenSU(vm, this.arg);
 			case "SUMARRAY": return sumArray(vm, this.arg);
 			case "TOINT": return toInt(vm, this.arg);
 			case "TOSTR": return toStr(vm, this.arg);

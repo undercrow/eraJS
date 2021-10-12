@@ -1,0 +1,34 @@
+import { Data } from "../data";
+import type VM from "../vm";
+import Int0DValue from "./int-0d";
+import Int1DValue from "./int-1d";
+import Int2DValue from "./int-2d";
+import Int3DValue from "./int-3d";
+import IntChar0DValue from "./int-char-0d";
+import IntChar1DValue from "./int-char-1d";
+import RandValue from "./rand";
+import Str0DValue from "./str-0d";
+import Str1DValue from "./str-1d";
+import StrChar0DValue from "./str-char-0d";
+import StrChar1DValue from "./str-char-1d";
+export declare type Leaf = number | string;
+export declare type SimpleValue = Int0DValue | Int1DValue | Int2DValue | Int3DValue | Str0DValue | Str1DValue;
+export default abstract class Value {
+    abstract type: "string" | "number";
+    abstract name: string;
+    abstract get(vm: VM, index: number[]): Leaf;
+    abstract set(vm: VM, value: Leaf, index: number[]): void;
+    abstract rangeSet(vm: VM, value: Leaf, index: number[], range: [number, number]): void;
+    abstract length(depth: number): number;
+    static Rand(_data: Data, name: string): RandValue;
+    static Int0D(_data: Data, name: string): Int0DValue;
+    static Str0D(_data: Data, name: string): Str0DValue;
+    static Int1D(data: Data, name: string, size?: number): Int1DValue;
+    static Str1D(data: Data, name: string, size?: number): Str1DValue;
+    static Int2D(_data: Data, name: string, size0?: number, size1?: number): Int2DValue;
+    static Int3D(_data: Data, name: string, size0?: number, size1?: number, size2?: number): Int3DValue;
+    static IntChar0D(_data: Data, name: string): IntChar0DValue;
+    static StrChar0D(_data: Data, name: string): StrChar0DValue;
+    static IntChar1D(data: Data, name: string, size?: number): IntChar1DValue;
+    static StrChar1D(data: Data, name: string, size?: number): StrChar1DValue;
+}

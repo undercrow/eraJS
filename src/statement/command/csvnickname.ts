@@ -6,9 +6,10 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-const PARSER = U.arg1R1(E.expr);
+// TODO: second argument
+const PARSER = U.arg2R1(E.expr, E.expr);
 export default class CsvNickname extends Statement {
-	public arg: Lazy<Expr>;
+	public arg: Lazy<[Expr, Expr | undefined]>;
 
 	public constructor(arg: string) {
 		super();
@@ -16,7 +17,7 @@ export default class CsvNickname extends Statement {
 	}
 
 	public *run(vm: VM) {
-		const numExpr = this.arg.get();
+		const [numExpr] = this.arg.get();
 		const num = numExpr.reduce(vm);
 		assert.number(num, "1st Argument of CSVNICKNAME should be an integer");
 

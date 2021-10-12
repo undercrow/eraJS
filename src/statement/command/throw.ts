@@ -6,7 +6,7 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-const PARSER = U.arg1R1(E.expr);
+const PARSER = U.arg1R1(E.form[""]);
 export default class Throw extends Statement {
 	public arg: Lazy<Expr>;
 

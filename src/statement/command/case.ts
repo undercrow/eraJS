@@ -28,7 +28,7 @@ const PARSER_BRANCH = U.argNR0(P.alt(
 	})),
 	P.seqMap(
 		P.regex(/IS/i).then(U.alt("<=", "<", ">=", ">").trim(U.WS0)),
-		U.Int,
+		E.expr,
 		(op, value) => ({type: "compare", op, value}),
 	),
 	U.Int.map((value) => ({type: "equal", value})),

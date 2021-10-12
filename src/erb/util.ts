@@ -65,7 +65,11 @@ export const WS0 = WS.many().map(nullFn);
 export const WS1 = WS.atLeast(1).map(nullFn);
 export const Identifier = P.noneOf(SPECIAL_CHAR.join("")).atLeast(1).tie();
 export const UInt = P.alt(
-	P.regex(/1p/i).then(P.regex(/[0-9]+/)).map((val) => 2 ** parseInt(val, 10)),
+	P.seqMap(
+		P.regex(/[0-9]+p/i),
+		P.regex(/[0-9]+/),
+		(base, exponent) => parseInt(base) ** parseInt(exponent),
+	),
 	P.regex(/0b/i).then(P.regex(/[0-1]+/)).map((val) => parseInt(val, 2)),
 	P.regex(/0x/i).then(P.regex(/[0-9a-fA-F]+/)).map((val) => parseInt(val, 16)),
 	P.regex(/[0-9]+/).map((val) => parseInt(val, 10)),
@@ -121,6 +125,19 @@ export function arg1R0<A0>(a0: P.Parser<A0>): P.Parser<A0 | undefined> {
 
 export function arg1R1<A0>(a0: P.Parser<A0>): P.Parser<A0> {
 	return WS1.then(a0);
+}
+
+export function arg2R0<A0, A1>(
+	a0: P.Parser<A0>,
+	a1: P.Parser<A1>,
+): P.Parser<[A0 | undefined, A1 | undefined]> {
+	return P.alt<[A0 | undefined, A1 | undefined]>(
+		WS1.then(P.seq(
+			a0,
+			P.string(",").trim(WS0).then(a1).fallback(undefined),
+		)),
+		WS0.map(() => [undefined, undefined]),
+	);
 }
 
 export function arg2R1<A0, A1>(
@@ -206,6 +223,23 @@ export function arg5R1<A0, A1, A2, A3, A4>(
 		a0,
 		P.string(",").trim(WS0).then(a1).fallback(undefined),
 		P.string(",").trim(WS0).then(a2).fallback(undefined),
+		P.string(",").trim(WS0).then(a3).fallback(undefined),
+		P.string(",").trim(WS0).then(a4).fallback(undefined),
+		(...arg) => arg,
+	));
+}
+
+export function arg5R3<A0, A1, A2, A3, A4>(
+	a0: P.Parser<A0>,
+	a1: P.Parser<A1>,
+	a2: P.Parser<A2>,
+	a3: P.Parser<A3>,
+	a4: P.Parser<A4>
+): P.Parser<[A0, A1, A2, A3 | undefined, A4 | undefined]> {
+	return WS1.then(P.seqMap(
+		a0,
+		P.string(",").trim(WS0).then(a1),
+		P.string(",").trim(WS0).then(a2),
 		P.string(",").trim(WS0).then(a3).fallback(undefined),
 		P.string(",").trim(WS0).then(a4).fallback(undefined),
 		(...arg) => arg,

@@ -5,9 +5,9 @@ import type VM from "../../vm";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
-const PARSER = U.arg2R1(E.variable, U.alt("FORWARD", "BACK"));
+const PARSER = U.arg2R0(E.variable, U.alt("FORWARD", "BACK"));
 export default class SortChara extends Statement {
-	public value: Lazy<[Variable, "FORWARD" | "BACK" | undefined]>;
+	public value: Lazy<[Variable | undefined, "FORWARD" | "BACK" | undefined]>;
 
 	public constructor(raw: string) {
 		super();

@@ -7,9 +7,9 @@ import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
-const PARSER = U.arg3R3(E.variable, E.expr, E.expr);
+const PARSER = U.arg5R3(E.variable, E.expr, E.expr, E.expr, E.expr);
 export default class ArrayShift extends Statement {
-	public arg: Lazy<[Variable, Expr, Expr]>;
+	public arg: Lazy<[Variable, Expr, Expr, Expr | undefined, Expr | undefined]>;
 
 	public constructor(arg: string) {
 		super();
@@ -17,6 +17,7 @@ export default class ArrayShift extends Statement {
 	}
 
 	public *run(vm: VM) {
+		// TODO: 4th and 5th argument
 		const [targetExpr, countExpr, fillExpr] = this.arg.get();
 
 		const target = targetExpr.getCell(vm);

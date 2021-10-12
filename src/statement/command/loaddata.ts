@@ -68,6 +68,7 @@ export default class LoadData extends Statement {
 						cell.reset(value);
 					}
 				}
+				newCharacters.push(newCharacter);
 			}
 			vm.characterList = newCharacters;
 			vm.getValue("CHARANUM").set(vm, newCharacters.length, []);

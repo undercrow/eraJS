@@ -1,4 +1,4 @@
-import * as U from "../../erb/util";
+import * as U from "../../parser/util";
 import Dim from "../../property/dim";
 import {savefile, GlobalSave} from "../../savedata";
 import Int0DValue from "../../value/int-0d";

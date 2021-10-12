@@ -1,7 +1,7 @@
 import * as assert from "../../assert";
 import Character from "../../character";
-import * as E from "../../erb/expr";
-import * as U from "../../erb/util";
+import * as E from "../../parser/expr";
+import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import type VM from "../../vm";
 import type Expr from "../expr";

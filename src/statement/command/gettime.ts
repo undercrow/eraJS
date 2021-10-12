@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-import * as U from "../../erb/util";
+import * as U from "../../parser/util";
 import type VM from "../../vm";
 import Statement from "../index";
 

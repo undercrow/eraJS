@@ -1,5 +1,5 @@
-import * as E from "../../erb/expr";
-import * as U from "../../erb/util";
+import * as E from "../../parser/expr";
+import * as U from "../../parser/util";
 import type VM from "../../vm";
 import type Form from "../expr/form";
 import Statement from "../index";

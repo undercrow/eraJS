@@ -1,6 +1,6 @@
 import * as assert from "../../assert";
-import * as E from "../../erb/expr";
-import * as U from "../../erb/util";
+import * as E from "../../parser/expr";
+import * as U from "../../parser/util";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Const from "../expr/const";

@@ -1,6 +1,6 @@
-import {parseThunk} from "../../erb/erb";
-import * as E from "../../erb/expr";
-import * as U from "../../erb/util";
+import {parseThunk} from "../../parser/erb";
+import * as E from "../../parser/expr";
+import * as U from "../../parser/util";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Form from "../expr/form";

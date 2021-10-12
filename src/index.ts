@@ -1,8 +1,8 @@
 import type Config from "./config";
 import parseCSV from "./data";
-import parseERB from "./erb/erb";
-import parseERH from "./erb/erh";
 import type Fn from "./fn";
+import parseERB from "./parser/erb";
+import parseERH from "./parser/erh";
 import type Property from "./property";
 import Define from "./property/define";
 import VM from "./vm";

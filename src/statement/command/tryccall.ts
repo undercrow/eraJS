@@ -1,4 +1,4 @@
-import {parseThunk} from "../../erb/erb";
+import {parseThunk} from "../../parser/erb";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import Expr from "../expr";

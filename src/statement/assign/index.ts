@@ -1,7 +1,7 @@
 import P from "parsimmon";
 
-import * as E from "../../erb/expr";
-import * as U from "../../erb/util";
+import * as E from "../../parser/expr";
+import * as U from "../../parser/util";
 import type VM from "../../vm";
 import Const from "../expr/const";
 import Statement from "../index";

@@ -1,4 +1,4 @@
-import * as U from "../../erb/util";
+import * as U from "../../parser/util";
 import Statement from "../index";
 
 const PARSER = U.arg1R1(U.Identifier);

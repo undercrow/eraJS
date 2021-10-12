@@ -1,4 +1,4 @@
-import * as U from "../../erb/util";
+import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Statement from "../index";
 

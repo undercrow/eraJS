@@ -1,5 +1,5 @@
 import * as assert from "../../assert";
-import * as U from "../../erb/util";
+import * as U from "../../parser/util";
 import {savefile, GlobalSave} from "../../savedata";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";

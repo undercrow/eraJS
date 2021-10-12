@@ -1,4 +1,4 @@
-import * as U from "../../erb/util";
+import * as U from "../../parser/util";
 import * as color from "../../color";
 import type VM from "../../vm";
 import Statement from "../index";

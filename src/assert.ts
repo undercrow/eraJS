@@ -40,3 +40,10 @@ export function numArray2D(value: any, message: string): asserts value is number
 		numArray(value[i], message);
 	}
 }
+
+export function numArray3D(value: any, message: string): asserts value is number[][][] {
+	array(value, message);
+	for (let i = 0; i < value.length; ++i) {
+		numArray2D(value[i], message);
+	}
+}

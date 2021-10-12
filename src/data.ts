@@ -47,7 +47,7 @@ export type Data = {
 	palam: Map<number, string>;
 	train: Map<number, string>;
 	str: Map<number, string>;
-	varSize: Map<string, number>;
+	varSize: Map<string, number[]>;
 };
 
 export default function parseCSV(content: Map<string, string>): Data {

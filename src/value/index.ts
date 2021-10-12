@@ -41,16 +41,19 @@ export default abstract class Value {
 	}
 
 	public static Int1D(data: Data, name: string, size: number = 1000) {
-		return new Int1DValue(name, data.varSize.get(name) ?? size);
+		return new Int1DValue(name, data.varSize.get(name)?.[0] ?? size);
 	}
 
 	public static Str1D(data: Data, name: string, size: number = 100) {
-		return new Str1DValue(name, data.varSize.get(name) ?? size);
+		return new Str1DValue(name, data.varSize.get(name)?.[0] ?? size);
 	}
 
-	public static Int2D(_data: Data, name: string, size0: number = 100, size1: number = 100) {
-		// TODO: Get varsize from data
-		return new Int2DValue(name, size0, size1);
+	public static Int2D(data: Data, name: string, size0: number = 100, size1: number = 100) {
+		return new Int2DValue(
+			name,
+			data.varSize.get(name)?.[0] ?? size0,
+			data.varSize.get(name)?.[1] ?? size1,
+		);
 	}
 
 	public static Int3D(
@@ -73,10 +76,10 @@ export default abstract class Value {
 	}
 
 	public static IntChar1D(data: Data, name: string, size: number = 1000) {
-		return new IntChar1DValue(name, data.varSize.get(name) ?? size);
+		return new IntChar1DValue(name, data.varSize.get(name)?.[0] ?? size);
 	}
 
 	public static StrChar1D(data: Data, name: string, size: number = 100) {
-		return new StrChar1DValue(name, data.varSize.get(name) ?? size);
+		return new StrChar1DValue(name, data.varSize.get(name)?.[0] ?? size);
 	}
 }

@@ -7,6 +7,7 @@ import Form from "../statement/expr/form";
 import InlineCall from "../statement/expr/inline-call";
 import Ternary from "../statement/expr/ternary";
 import Unary from "../statement/expr/unary";
+import UnaryOp from "../statement/expr/unary-op";
 import Variable from "../statement/expr/variable";
 import * as U from "./util";
 
@@ -56,10 +57,17 @@ const language = P.createLanguage<LanguageSpec>({
 			return variable;
 		}
 	),
-	// TODO
 	UnaryOp: (r) => P.alt(
-		P.seqMap(r.FullVariable, U.alt("++", "--"), (variable) => variable),
-		P.seqMap(U.alt("++", "--"), r.FullVariable, (_op, variable) => variable),
+		P.seqMap(
+			r.FullVariable,
+			U.alt("++", "--"),
+			(variable, op) => new UnaryOp(variable, op, true),
+		),
+		P.seqMap(
+			U.alt("++", "--"),
+			r.FullVariable,
+			(op, variable) => new UnaryOp(variable, op, false),
+		),
 	),
 	Leaf: (r) => P.alt(
 		U.UInt.map((val) => new Const(val)),

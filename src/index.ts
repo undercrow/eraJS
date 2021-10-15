@@ -1,31 +1,37 @@
 import type Config from "./config";
 import parseCSV from "./data";
-import type Fn from "./fn";
 import parseERB from "./parser/erb";
 import parseERH from "./parser/erh";
-import type Property from "./property";
 import Define from "./property/define";
 import VM from "./vm";
 
-export function compile(erh: string[], erb: string[], csv: Map<string, string>): VM {
-	const data = parseCSV(csv);
+export {default as EraJSError} from "./error";
+
+export function compile(files: Map<string, string>): VM {
+	const csvFiles = new Map<string, string>();
+	const erhFiles = new Map<string, string>();
+	const erbFiles = new Map<string, string>();
+	for (const [file, content] of files) {
+		const FILE = file.toUpperCase();
+		if (FILE.endsWith(".CSV")) {
+			csvFiles.set(file, content);
+		} else if (FILE.endsWith(".ERH")) {
+			erhFiles.set(file, content);
+		} else if (FILE.endsWith(".ERB")) {
+			erbFiles.set(file, content);
+		}
+	}
+
+	const data = parseCSV(csvFiles);
 
 	const macros = new Set<string>();
-	let header: Property[] = [];
-	for (const content of erh) {
-		const parsed = parseERH(content, macros);
-		for (const property of parsed) {
-			if (property instanceof Define) {
-				macros.add(property.name);
-			}
+	const header = parseERH(erhFiles, macros);
+	for (const property of header) {
+		if (property instanceof Define) {
+			macros.add(property.name);
 		}
-		header = header.concat(parsed);
 	}
-
-	let fnList: Fn[] = [];
-	for (const content of erb) {
-		fnList = fnList.concat(parseERB(content, macros));
-	}
+	const fnList = parseERB(erbFiles, macros);
 
 	return new VM({header, fnList, data});
 }

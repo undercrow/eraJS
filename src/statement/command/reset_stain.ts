@@ -2,6 +2,7 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import Int1DValue from "../../value/int-1d";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -11,9 +12,10 @@ const PARSER = U.arg1R1(E.expr);
 export default class ResetStain extends Statement {
 	public arg: Lazy<Expr>;
 
-	public constructor(arg: string) {
-		super();
-		this.arg = new Lazy(arg, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

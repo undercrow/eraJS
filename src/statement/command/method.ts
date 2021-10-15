@@ -1,6 +1,8 @@
+import * as EM from "../../error";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -56,10 +58,11 @@ export default class Method extends Statement {
 	public name: string;
 	public arg: Lazy<Expr[]>;
 
-	public constructor(name: string, arg: string) {
-		super();
+	public constructor(name: string, raw: Slice) {
+		super(raw);
+
 		this.name = name;
-		this.arg = new Lazy(arg, PARSER);
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
@@ -112,7 +115,7 @@ export default class Method extends Statement {
 			case "TOSTR": result = toStr(vm, arg); break;
 			case "VARSIZE": result = varSize(vm, arg); break;
 			case "UNICODE": result = unicode(vm, arg); break;
-			default: throw new Error(`${this.name} is not a valid method command`);
+			default: throw EM.internal(`${this.name} is not a valid method command`);
 		}
 
 		if (typeof result === "number") {

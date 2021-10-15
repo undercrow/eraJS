@@ -5,6 +5,7 @@ import * as color from "../../color";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -14,15 +15,16 @@ const PARSER = P.alt<Expr | [Expr, Expr, Expr]>(
 	U.arg1R1(E.expr),
 );
 export default class SetColor extends Statement {
-	public value: Lazy<Expr | [Expr, Expr, Expr]>;
+	public arg: Lazy<Expr | [Expr, Expr, Expr]>;
 
-	public constructor(raw: string) {
-		super();
-		this.value = new Lazy(raw, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
-		const parsed = this.value.get();
+		const parsed = this.arg.get();
 		let value: number;
 		if (Array.isArray(parsed)) {
 			const r = parsed[0].reduce(vm);

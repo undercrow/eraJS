@@ -1,15 +1,19 @@
+import * as EM from "../../error";
 import * as U from "../../parser/util";
+import Slice from "../../slice";
 import Statement from "../index";
 
 const PARSER = U.arg0R0();
 export default class CurrentAlign extends Statement {
-	public constructor(arg: string) {
-		super();
-		PARSER.tryParse(arg);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		U.tryParse(PARSER, raw);
 	}
 
 	public *run() {
-		throw new Error("CURRENTALIGN is not implemented yet!");
+		throw EM.notImpl("CURRENTALIGN");
+
 		return null;
 	}
 }

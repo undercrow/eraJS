@@ -1,27 +1,32 @@
 import * as assert from "../../assert";
+import Lazy from "../../lazy";
+import * as E from "../../parser/expr";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Variable from "../expr/variable";
 import Statement from "../index";
 
+const PARSER = E.expr;
 type Operator = "*=" | "/=" | "%=" | "+=" | "-=" | "&=" | "|=" | "^=";
-export default class OpAssign extends Statement {
+export default class AssignOpInt extends Statement {
 	public dest: Variable;
 	public operator: Operator;
-	public expr: Expr;
+	public arg: Lazy<Expr>;
 
-	public constructor(dest: Variable, operator: Operator, expr: Expr) {
-		super();
+	public constructor(dest: Variable, operator: Operator, raw: Slice) {
+		super(raw);
 		this.dest = dest;
 		this.operator = operator;
-		this.expr = expr;
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
 		const dest = this.dest.getCell(vm);
 		const index = this.dest.reduceIndex(vm);
 		const original = dest.get(vm, index) as number;
-		const value = this.expr.reduce(vm);
+		const value = this.arg.get().reduce(vm);
 		assert.number(value, `Right operand of ${this.operator} should be an integer`);
 
 		switch (this.operator) {

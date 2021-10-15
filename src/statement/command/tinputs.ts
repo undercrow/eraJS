@@ -2,6 +2,7 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type Expr from "../expr";
 import type VM from "../../vm";
 import Statement from "../index";
@@ -10,8 +11,9 @@ const PARSER = U.arg4R2(E.expr, E.expr, E.expr, U.charSeq());
 export default class TInputS extends Statement {
 	public arg: Lazy<[Expr, Expr, Expr | undefined, string | undefined]>;
 
-	public constructor(raw: string) {
-		super();
+	public constructor(raw: Slice) {
+		super(raw);
+
 		this.arg = new Lazy(raw, PARSER);
 	}
 

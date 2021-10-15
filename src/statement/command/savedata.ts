@@ -4,6 +4,7 @@ import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Dim from "../../property/dim";
 import {savefile, GameSave} from "../../savedata";
+import Slice from "../../slice";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";
 import Int2DValue from "../../value/int-2d";
@@ -29,9 +30,10 @@ const PARSER = U.arg2R2(E.expr, E.expr);
 export default class SaveData extends Statement {
 	public arg: Lazy<[Expr, Expr]>;
 
-	public constructor(arg: string) {
-		super();
-		this.arg = new Lazy(arg, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

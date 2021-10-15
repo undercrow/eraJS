@@ -1,6 +1,7 @@
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Form from "../expr/form";
 import Statement from "../index";
@@ -11,8 +12,9 @@ export default class PrintSingleForm extends Statement {
 	public postfix: string;
 	public arg: Lazy<Form>;
 
-	public constructor(postfix: string, raw: string) {
-		super();
+	public constructor(postfix: string, raw: Slice) {
+		super(raw);
+
 		this.postfix = postfix;
 		this.arg = new Lazy(raw, PARSER);
 	}

@@ -3,6 +3,7 @@ import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import {savefile, GameSave} from "../../savedata";
+import Slice from "../../slice";
 import Int0DValue from "../../value/int-0d";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -12,9 +13,10 @@ const PARSER = U.arg1R1(E.expr);
 export default class ChkData extends Statement {
 	public arg: Lazy<Expr>;
 
-	public constructor(arg: string) {
-		super();
-		this.arg = new Lazy(arg, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

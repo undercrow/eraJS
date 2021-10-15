@@ -1,10 +1,12 @@
 import P from "parsimmon";
 
 import * as assert from "../../assert";
+import * as EM from "../../error";
 import {parseThunk} from "../../parser/erb";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -35,21 +37,18 @@ const PARSER_BRANCH = U.argNR0(P.alt(
 	U.Str.map((value) => ({type: "equal", value})),
 ));
 export default class Case extends Statement {
-	public static parse(lines: string[], from: number): [Case, number] {
-		let index = from;
-		const expr = lines[index].slice("SELECTCASE".length);
-		index += 1;
-
-		const branch: Array<[string, Thunk]> = [];
+	public static parse(arg: Slice, lines: Slice[], from: number): [Case, number] {
+		let index = from + 1;
+		const branch: Array<[Slice, Thunk]> = [];
 		let def = new Thunk([]);
 		while (true) {
 			if (lines.length <= index) {
-				throw new Error("Unexpected end of thunk!");
+				throw EM.parser("Unexpected end of thunk in CASE expression");
 			}
 			const current = lines[index];
 			index += 1;
 
-			if (CASE.test(current)) {
+			if (CASE.test(current.get())) {
 				const [thunk, consumed] = parseThunk(
 					lines,
 					index,
@@ -57,30 +56,26 @@ export default class Case extends Statement {
 				);
 				branch.push([current.slice("CASE".length), thunk]);
 				index += consumed;
-			} else if (CASEELSE.test(current)) {
+			} else if (CASEELSE.test(current.get())) {
 				const [thunk, consumed] = parseThunk(lines, index, (l) => ENDSELECT.test(l));
 				def = thunk;
 				index += consumed;
-			} else if (ENDSELECT.test(current)) {
-				return [new Case(expr, branch, def), index - from];
+			} else if (ENDSELECT.test(current.get())) {
+				return [new Case(arg, branch, def), index - from];
 			} else {
-				throw new Error("Unexpected statement found while parsing CASE statement");
+				throw EM.parser("Unexpected statement in CASE expression");
 			}
 		}
 	}
 
-	public expr: Lazy<Expr>;
+	public arg: Lazy<Expr>;
 	public branch: Array<[Lazy<Condition[]>, Thunk]>;
 	public def: Thunk;
 
-	public constructor(
-		expr: string,
-		branch: Array<[string, Thunk]>,
-		def: Thunk,
-	) {
-		super();
+	public constructor(raw: Slice, branch: Array<[Slice, Thunk]>, def: Thunk) {
+		super(raw);
 
-		this.expr = new Lazy(expr, PARSER_EXPR);
+		this.arg = new Lazy(raw, PARSER_EXPR);
 		this.branch = branch.map(([cond, thunk]) => [new Lazy(cond, PARSER_BRANCH), thunk]);
 		this.def = def;
 	}
@@ -94,7 +89,7 @@ export default class Case extends Statement {
 			}
 		}
 
-		const value = this.expr.get().reduce(vm);
+		const value = this.arg.get().reduce(vm);
 
 		for (const [cond, expr] of this.branch) {
 			const satisfied = cond.get().some((c) => {

@@ -1,8 +1,9 @@
+import * as EM from "../../error";
 import {parseThunk} from "../../parser/erb";
+import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
-import type Expr from "../expr";
-import type Form from "../expr/form";
 import Statement from "../index";
 import CallForm from "./callform";
 import Jump from "./jump";
@@ -10,40 +11,36 @@ import Jump from "./jump";
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
 export default class TryCJumpForm extends Statement {
-	public static parse(lines: string[], from: number): [TryCJumpForm, number] {
-		let index = from;
-
-		const [target, arg] = CallForm.PARSER("").tryParse(
-			lines[index].slice("TRYCJUMPFORM".length),
-		);
-		index += 1;
-
-		if (lines.length <= index || !CATCH.test(lines[index])) {
-			throw new Error("Expected CATCH statement");
+	public static parse(arg: Slice, lines: Slice[], from: number): [TryCJumpForm, number] {
+		let index = from + 1;
+		if (lines.length <= index) {
+			throw EM.parser("Unexpected end of thunk in TRYCJUMPFORM expression");
+		} else if (!CATCH.test(lines[index].content)) {
+			throw EM.parser("Could not find CATCH for TRYCJUMPFORM expression");
 		}
 		index += 1;
 
 		const [catchThunk, consumed] = parseThunk(lines, index, (l) => ENDCATCH.test(l));
 		index += consumed + 1;
 
-		return [new TryCJumpForm(target, arg, catchThunk), index - from];
+		return [new TryCJumpForm(arg, catchThunk), index - from];
 	}
 
-	public target: Form;
-	public arg: (Expr | undefined)[];
+	public arg: CallForm["arg"];
 	public catchThunk: Thunk;
 
-	public constructor(target: Form, arg: TryCJumpForm["arg"], catchThunk: Thunk) {
-		super();
-		this.target = target;
-		this.arg = arg;
+	public constructor(raw: Slice, catchThunk: Thunk) {
+		super(raw);
+
+		this.arg = new Lazy(raw, CallForm.PARSER(""));
 		this.catchThunk = catchThunk;
 	}
 
 	public *run(vm: VM, label?: string) {
-		const target = this.target.reduce(vm).toUpperCase();
+		const [targetExpr, argExpr] = this.arg.get();
+		const target = targetExpr.reduce(vm).toUpperCase();
 		if (vm.fnMap.has(target)) {
-			return yield* Jump.exec(vm, target, this.arg);
+			return yield* Jump.exec(vm, target, argExpr);
 		} else {
 			return yield* this.catchThunk.run(vm, label);
 		}

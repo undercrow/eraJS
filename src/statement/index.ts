@@ -1,3 +1,4 @@
+import Slice from "../slice";
 import type VM from "../vm";
 
 export type Output =
@@ -21,8 +22,13 @@ export type Result =
 	| {type: "return"; value: Array<number | string>}
 	| {type: "quit"};
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default class Statement {
+	public raw: Slice;
+
+	public constructor(raw: Slice) {
+		this.raw = raw;
+	}
+
 	public *run(_vm: VM, _label?: string): Generator<Output, Result | null, string | null> {
 		return null;
 	}

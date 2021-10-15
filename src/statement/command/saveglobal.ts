@@ -1,6 +1,7 @@
 import * as U from "../../parser/util";
 import Dim from "../../property/dim";
 import {savefile, GlobalSave} from "../../savedata";
+import Slice from "../../slice";
 import Int0DValue from "../../value/int-0d";
 import Int1DValue from "../../value/int-1d";
 import Int2DValue from "../../value/int-2d";
@@ -27,9 +28,10 @@ export const savedVariables = [
 
 const PARSER = U.arg0R0();
 export default class SaveGlobal extends Statement {
-	public constructor(arg: string) {
-		super();
-		PARSER.tryParse(arg);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		U.tryParse(PARSER, raw);
 	}
 
 	public *run(vm: VM) {

@@ -3,6 +3,7 @@ import {parseThunk} from "../../parser/erb";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -12,25 +13,26 @@ const LOOP = /^LOOP\s+/i;
 const PARSER_ARG = U.arg0R0();
 const PARSER_COND = U.arg1R1(E.expr);
 export default class DoWhile extends Statement {
-	public static parse(arg: string, lines: string[], from: number): [DoWhile, number] {
+	public static parse(arg: Slice, lines: Slice[], from: number): [DoWhile, number] {
 		let index: number = from + 1;
 
-		PARSER_ARG.tryParse(arg);
+		U.tryParse(PARSER_ARG, arg);
 		const [thunk, consumed] = parseThunk(lines, index, (l) => LOOP.test(l));
 		index += consumed;
 
-		const expr = lines[index].slice("LOOP".length);
+		const condition = lines[index].slice("LOOP".length);
 		index += 1;
 
-		return [new DoWhile(expr, thunk), index - from];
+		return [new DoWhile(condition, thunk), index - from];
 	}
 
-	public condition: Lazy<Expr>;
+	public arg: Lazy<Expr>;
 	public thunk: Thunk;
 
-	public constructor(condition: string, thunk: Thunk) {
-		super();
-		this.condition = new Lazy(condition, PARSER_COND);
+	public constructor(raw: Slice, thunk: Thunk) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER_COND);
 		this.thunk = thunk;
 	}
 
@@ -39,7 +41,7 @@ export default class DoWhile extends Statement {
 		while (true) {
 			const result = yield* this.thunk.run(vm, firstLoop ? label : undefined);
 
-			const condition = this.condition.get().reduce(vm);
+			const condition = this.arg.get().reduce(vm);
 			assert.number(condition, "Condition of DO should be an integer");
 			if (condition === 0) {
 				break;

@@ -1,5 +1,8 @@
 import P from "parsimmon";
 
+import * as EM from "../error";
+import Slice from "../slice";
+
 /* eslint-disable array-element-newline */
 const SPECIAL_CHAR = [
 	"+", "-", "*", "/", "%", "=", "!", "<", ">", "|", "&", "^", "~", "?", "#", "(", ")", "{", "}",
@@ -253,4 +256,13 @@ export function argNR0<AN>(an: P.Parser<AN>): P.Parser<AN[]> {
 
 export function argNR1<A0, AN>(a0: P.Parser<A0>, an: P.Parser<AN>): P.Parser<[A0, ...AN[]]> {
 	return WS1.then(sepBy1(",", a0, an)).skip(P.string(",").fallback(""));
+}
+
+export function tryParse<T>(parser: P.Parser<T>, raw: Slice): T {
+	const result = parser.parse(raw.get());
+	if (result.status) {
+		return result.value;
+	} else {
+		throw EM.parser(`Expected one of (${result.expected.join(", ")})`);
+	}
 }

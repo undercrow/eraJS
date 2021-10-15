@@ -2,6 +2,7 @@ import P from "parsimmon";
 
 import Fn from "../fn";
 import Property from "../property";
+import Slice from "../slice";
 import Statement from "../statement";
 import Assign from "../statement/assign";
 import AddChara from "../statement/command/addchara";
@@ -160,29 +161,32 @@ import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
 import Thunk from "../thunk";
 import * as E from "./expr";
-import preprocess from "./preprocess";
+import {normalize, preprocess, toLines} from "./preprocess";
 import prop from "./property";
 import * as U from "./util";
 
-export default function parseERB(content: string, macros: Set<string>): Fn[] {
-	const lineList = preprocess(content, macros);
-
+export default function parseERB(files: Map<string, string>, macros: Set<string>): Fn[] {
 	const result: Fn[] = [];
-	let index = 0;
-	while (lineList.length > index) {
-		const [fn, consumed] = parseFn(lineList, index);
-		result.push(fn);
-		index += consumed;
+	for (const [name, content] of files) {
+		const normalized = normalize(content);
+		const lines = preprocess(toLines(normalized), macros);
+		for (const line of lines) {
+			line.file = name;
+		}
+
+		let index = 0;
+		while (lines.length > index) {
+			const [fn, consumed] = parseFn(lines, index);
+			result.push(fn);
+			index += consumed;
+		}
 	}
 
 	return result;
 }
 
-function parseFn(lines: string[], from: number): [Fn, number] {
+function parseFn(lines: Slice[], from: number): [Fn, number] {
 	let index = from;
-	if (lines.length <= index) {
-		throw new Error("Expected a function");
-	}
 
 	// Prepare definition, property and body of function
 	const defIndex = index;
@@ -190,7 +194,7 @@ function parseFn(lines: string[], from: number): [Fn, number] {
 
 	const propIndex = index;
 	while (lines.length > index) {
-		if (!lines[index].startsWith("#")) {
+		if (!lines[index].content.startsWith("#")) {
 			break;
 		}
 		index += 1;
@@ -198,7 +202,7 @@ function parseFn(lines: string[], from: number): [Fn, number] {
 
 	const bodyIndex = index;
 	while (lines.length > index) {
-		if (lines[index].startsWith("@")) {
+		if (lines[index].content.startsWith("@")) {
 			break;
 		}
 		index += 1;
@@ -219,11 +223,11 @@ function parseFn(lines: string[], from: number): [Fn, number] {
 		P.succeed([]),
 	)));
 
-	const definition = defParser.tryParse(lines[defIndex]);
+	const definition = U.tryParse(defParser, lines[defIndex]);
 
 	const property: Property[] = [];
 	for (let i = propIndex; i < bodyIndex; ++i) {
-		property.push(prop.tryParse(lines[i]));
+		property.push(U.tryParse(prop, lines[i]));
 	}
 	const [body] = parseThunk(lines.slice(bodyIndex, index), 0);
 
@@ -234,7 +238,7 @@ function parseFn(lines: string[], from: number): [Fn, number] {
 }
 
 export function parseThunk(
-	lines: string[],
+	lines: Slice[],
 	from: number,
 	until?: (l: string) => boolean,
 ): [Thunk, number] {
@@ -243,11 +247,11 @@ export function parseThunk(
 	while (index < lines.length) {
 		const current = lines[index];
 		// eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-		if (until != null && until(current)) {
+		if (until != null && until(current.content)) {
 			break;
 		}
-		if (current.startsWith("$")) {
-			body.push(current.slice(1));
+		if (current.content.startsWith("$")) {
+			body.push(current.content.slice(1));
 			index += 1;
 		} else {
 			const [statement, consumed] = parseStatement(lines, index);
@@ -261,9 +265,9 @@ export function parseThunk(
 
 // eslint-disable-next-line no-useless-escape
 const ID_REGEX = /^[^\+\-\*\/\%\=\!\<\>\|\&\^\~\?\#\(\)\{\}\[\]\.\,\:\$\\\'\"\@\;\s]+/;
-function parseStatement(lines: string[], index: number): [Statement, number] {
+function parseStatement(lines: Slice[], index: number): [Statement, number] {
 	const current = lines[index];
-	const match = ID_REGEX.exec(current);
+	const match = ID_REGEX.exec(current.content);
 	if (match != null) {
 		const IDENTIFIER = match[0].toUpperCase();
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -276,7 +280,7 @@ function parseStatement(lines: string[], index: number): [Statement, number] {
 	return [new Assign(current), 1];
 }
 
-type CommandParser = (arg: string, lines: string[], from: number) => [Statement, number];
+type CommandParser = (arg: Slice, lines: Slice[], from: number) => [Statement, number];
 const commandParser: Record<string, CommandParser> = {
 	PRINT: (arg) => [new Print("PRINT", arg), 1],
 	PRINTL: (arg) => [new Print("PRINTL", arg), 1],
@@ -496,22 +500,22 @@ const commandParser: Record<string, CommandParser> = {
 	CALLFORM: (arg) => [new CallForm(arg), 1],
 	CALLF: (arg) => [new CallF(arg), 1],
 	CALLFORMF: (arg) => [new CallFormF(arg), 1],
-	TRYCALL: (arg) => [TryCall.parse(arg), 1],
+	TRYCALL: (arg) => [new TryCall(arg), 1],
 	TRYCALLFORM: (arg) => [new TryCallForm(arg), 1],
-	TRYCCALL: (_arg, lines, from) => TryCCall.parse(lines, from),
-	TRYCCALLFORM: (_arg, lines, from) => TryCCallForm.parse(lines, from),
+	TRYCCALL: (arg, lines, from) => TryCCall.parse(arg, lines, from),
+	TRYCCALLFORM: (arg, lines, from) => TryCCallForm.parse(arg, lines, from),
 	JUMP: (arg) => [new Jump(arg), 1],
 	JUMPFORM: (arg) => [new JumpForm(arg), 1],
-	TRYJUMP: (arg) => [TryJump.parse(arg), 1],
-	TRYJUMPFORM: (arg) => [TryJumpForm.parse(arg), 1],
-	TRYCJUMP: (_arg, lines, from) => TryCJump.parse(lines, from),
-	TRYCJUMPFORM: (_arg, lines, from) => TryCJumpForm.parse(lines, from),
+	TRYJUMP: (arg) => [new TryJump(arg), 1],
+	TRYJUMPFORM: (arg) => [new TryJumpForm(arg), 1],
+	TRYCJUMP: (arg, lines, from) => TryCJump.parse(arg, lines, from),
+	TRYCJUMPFORM: (arg, lines, from) => TryCJumpForm.parse(arg, lines, from),
 	GOTO: (arg) => [new Goto(arg), 1],
 	GOTOFORM: (arg) => [new GotoForm(arg), 1],
-	TRYGOTO: (arg) => [TryGoto.parse(arg), 1],
-	TRYGOTOFORM: (arg) => [TryGotoForm.parse(arg), 1],
-	TRYCGOTO: (_arg, lines, from) => TryCGoto.parse(lines, from),
-	TRYCGOTOFORM: (_arg, lines, from) => TryCGotoForm.parse(lines, from),
+	TRYGOTO: (arg) => [new TryGoto(arg), 1],
+	TRYGOTOFORM: (arg) => [new TryGotoForm(arg), 1],
+	TRYCGOTO: (arg, lines, from) => TryCGoto.parse(arg, lines, from),
+	TRYCGOTOFORM: (arg, lines, from) => TryCGotoForm.parse(arg, lines, from),
 	RESTART: (arg) => [new Restart(arg), 1],
 	RETURN: (arg) => [new Return(arg), 1],
 	RETURNF: (arg) => [new ReturnF(arg), 1],
@@ -539,7 +543,7 @@ const commandParser: Record<string, CommandParser> = {
 		return [new If([[arg, new Thunk([statement])]], new Thunk([])), consumed + 1];
 	},
 	IF: (_arg, lines, from) => If.parse(lines, from),
-	SELECTCASE: (_arg, lines, from) => Case.parse(lines, from),
+	SELECTCASE: (arg, lines, from) => Case.parse(arg, lines, from),
 	REPEAT: (arg, lines, from) => Repeat.parse(arg, lines, from),
 	FOR: (arg, lines, from) => For.parse(arg, lines, from),
 	WHILE: (arg, lines, from) => While.parse(arg, lines, from),

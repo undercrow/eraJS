@@ -1,14 +1,17 @@
 import P from "parsimmon";
 
+import * as U from "./parser/util";
+import Slice from "./slice";
+
 export default class Lazy<T> {
+	public raw: Slice;
 	public parser: P.Parser<T>;
-	public raw: string;
 	public isCompiled: boolean;
 	public cache?: T;
 
-	public constructor(raw: string, parser: P.Parser<T>) {
-		this.raw = raw;
+	public constructor(raw: Slice, parser: P.Parser<T>) {
 		this.parser = parser;
+		this.raw = raw;
 		this.isCompiled = false;
 	}
 
@@ -17,7 +20,7 @@ export default class Lazy<T> {
 			return this.cache!;
 		}
 
-		const result = this.parser.tryParse(this.raw);
+		const result = U.tryParse(this.parser, this.raw);
 		this.isCompiled = true;
 		this.cache = result;
 

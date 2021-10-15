@@ -1,28 +1,24 @@
+import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
-import Expr from "../expr";
 import Statement from "../index";
 import Call from "./call";
 import Jump from "./jump";
 
 export default class TryJump extends Statement {
-	public static parse(raw: string): TryJump {
-		const [target, arg] = Call.PARSER.tryParse(raw);
-		return new TryJump(target, arg);
-	}
+	public arg: Jump["arg"];
 
-	public target: string;
-	public arg: (Expr | undefined)[];
+	public constructor(raw: Slice) {
+		super(raw);
 
-	public constructor(target: string, arg: TryJump["arg"]) {
-		super();
-		this.target = target;
-		this.arg = arg;
+		this.arg = new Lazy(raw, Call.PARSER);
 	}
 
 	public *run(vm: VM) {
-		const target = this.target.toUpperCase();
-		if (vm.fnMap.has(target)) {
-			return yield* Jump.exec(vm, target, this.arg);
+		const [target, argExpr] = this.arg.get();
+		const realTarget = target.toUpperCase();
+		if (vm.fnMap.has(realTarget)) {
+			return yield* Jump.exec(vm, realTarget, argExpr);
 		}
 
 		return null;

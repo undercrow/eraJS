@@ -1,29 +1,24 @@
+import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
-import Expr from "../expr";
-import Form from "../expr/form";
 import Statement from "../index";
 import CallForm from "./callform";
 import Jump from "./jump";
 
 export default class TryJumpForm extends Statement {
-	public static parse(raw: string): TryJumpForm {
-		const [target, arg] = CallForm.PARSER("(").tryParse(raw);
-		return new TryJumpForm(target, arg);
-	}
+	public arg: CallForm["arg"];
 
-	public target: Form;
-	public arg: (Expr | undefined)[];
+	public constructor(raw: Slice) {
+		super(raw);
 
-	public constructor(target: Form, arg: TryJumpForm["arg"]) {
-		super();
-		this.target = target;
-		this.arg = arg;
+		this.arg = new Lazy(raw, CallForm.PARSER("("));
 	}
 
 	public *run(vm: VM) {
-		const target = this.target.reduce(vm).toUpperCase();
+		const [targetExpr, argExpr] = this.arg.get();
+		const target = targetExpr.reduce(vm).toUpperCase();
 		if (vm.fnMap.has(target)) {
-			return yield* Jump.exec(vm, target, this.arg);
+			return yield* Jump.exec(vm, target, argExpr);
 		}
 
 		return null;

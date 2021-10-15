@@ -4,6 +4,7 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Form from "../expr/form";
@@ -20,8 +21,9 @@ export default class CallForm extends Statement {
 
 	public arg: Lazy<[Form, Array<Expr | undefined>]>;
 
-	public constructor(raw: string) {
-		super();
+	public constructor(raw: Slice) {
+		super(raw);
+
 		this.arg = new Lazy(raw, CallForm.PARSER("(,"));
 	}
 

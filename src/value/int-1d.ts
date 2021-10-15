@@ -1,4 +1,5 @@
 import * as assert from "../assert";
+import * as EM from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -7,7 +8,7 @@ export default class Int1DValue implements Value {
 	public name: string;
 	public value: number[];
 
-	public static normalizeIndex(index: number[]): number[] {
+	public static normalizeIndex(name: string, index: number[]): number[] {
 		if (index.length === 0) {
 			return [0];
 		} else if (index.length === 1) {
@@ -15,7 +16,7 @@ export default class Int1DValue implements Value {
 		} else if (index.length === 2 && index[1] === 0) {
 			return index.slice(0, -1);
 		} else {
-			throw new Error("1D variable must be indexed by at most 1 value");
+			throw EM.invalidIndex("1D", name, index);
 		}
 	}
 
@@ -42,12 +43,12 @@ export default class Int1DValue implements Value {
 	}
 
 	public get(_vm: VM, index: number[]): number {
-		const realIndex = Int1DValue.normalizeIndex(index);
+		const realIndex = Int1DValue.normalizeIndex(this.name, index);
 		return this.value[realIndex[0]];
 	}
 
 	public set(_vm: VM, value: Leaf, index: number[]) {
-		const realIndex = Int1DValue.normalizeIndex(index);
+		const realIndex = Int1DValue.normalizeIndex(this.name, index);
 		assert.number(value, "Cannot assign a string to a numeric variable");
 
 		this.value[realIndex[0]] = value;

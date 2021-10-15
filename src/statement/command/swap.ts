@@ -1,6 +1,7 @@
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Variable from "../expr/variable";
 import Statement from "../index";
@@ -9,9 +10,10 @@ const PARSER = U.arg2R2(E.variable, E.variable);
 export default class Swap extends Statement {
 	public arg: Lazy<[Variable, Variable]>;
 
-	public constructor(arg: string) {
-		super();
-		this.arg = new Lazy(arg, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

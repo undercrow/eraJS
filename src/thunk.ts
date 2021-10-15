@@ -7,13 +7,12 @@ import Repeat from "./statement/command/repeat";
 import While from "./statement/command/while";
 import type VM from "./vm";
 
-export default class Thunk extends Statement {
+export default class Thunk {
 	public statement: Statement[];
 	public labelMap: Map<string, number>;
 
 	// NOTE: `statement` argument is mixed array of statments and labels
 	public constructor(statement: Array<Statement | string>) {
-		super();
 		this.statement = [];
 		this.labelMap = new Map();
 
@@ -37,7 +36,7 @@ export default class Thunk extends Statement {
 			} else if (s instanceof For) {
 				s.thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 			} else if (s instanceof If) {
-				for (const [, thunk] of s.ifThunk) {
+				for (const [,, thunk] of s.ifThunk) {
 					thunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
 				}
 				s.elseThunk.labelMap.forEach((_, l) => this.labelMap.set(l, i));
@@ -59,7 +58,7 @@ export default class Thunk extends Statement {
 
 		for (let i = start; i < this.statement.length; ++i) {
 			const statement = this.statement[i];
-			const result = yield* statement.run(vm, label);
+			const result = yield* vm.run(statement, label);
 			switch (result?.type) {
 				case "begin": return result;
 				case "goto": {

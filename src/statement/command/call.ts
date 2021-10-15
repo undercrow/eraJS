@@ -4,6 +4,7 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Statement from "../index";
@@ -45,8 +46,9 @@ export default class Call extends Statement {
 
 	public arg: Lazy<[string, Array<Expr | undefined>]>;
 
-	public constructor(raw: string) {
-		super();
+	public constructor(raw: Slice) {
+		super(raw);
+
 		this.arg = new Lazy(raw, Call.PARSER);
 	}
 

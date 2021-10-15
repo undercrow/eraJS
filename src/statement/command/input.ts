@@ -1,6 +1,7 @@
 import * as assert from "../../assert";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
 
@@ -8,8 +9,9 @@ const PARSER = U.arg1R0(U.Int);
 export default class Input extends Statement {
 	public arg: Lazy<number | undefined>;
 
-	public constructor(raw: string) {
-		super();
+	public constructor(raw: Slice) {
+		super(raw);
+
 		this.arg = new Lazy(raw, PARSER);
 	}
 

@@ -1,20 +1,23 @@
+import * as EM from "../../error";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type Expr from "../expr";
 import Statement from "../index";
 
 const PARSER = U.arg2R2(E.expr, E.expr);
 export default class CopyChara extends Statement {
-	public expr: Lazy<[Expr, Expr]>;
+	public arg: Lazy<[Expr, Expr]>;
 
-	public constructor(raw: string) {
-		super();
-		this.expr = new Lazy(raw, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run() {
-		throw new Error("COPYCHARA is not implemented yet!");
+		throw EM.notImpl("COPYCHARA");
 
 		return null;
 	}

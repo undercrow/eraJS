@@ -2,6 +2,7 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -11,10 +12,11 @@ export default class PrintButton extends Statement {
 	public align?: "LEFT" | "RIGHT";
 	public arg: Lazy<[Expr, Expr]>;
 
-	public constructor(arg: string, align?: PrintButton["align"]) {
-		super();
+	public constructor(raw: Slice, align?: PrintButton["align"]) {
+		super(raw);
+
 		this.align = align;
-		this.arg = new Lazy(arg, PARSER);
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {

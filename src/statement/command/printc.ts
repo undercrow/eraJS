@@ -1,5 +1,6 @@
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
 import Print from "./print";
@@ -10,8 +11,9 @@ export default class PrintC extends Statement {
 	public postfix: string;
 	public value: Lazy<string>;
 
-	public constructor(align: PrintC["align"], postfix: string, raw: string) {
-		super();
+	public constructor(align: PrintC["align"], postfix: string, raw: Slice) {
+		super(raw);
+
 		this.align = align;
 		this.postfix = postfix;
 		this.value = new Lazy(raw, PARSER);

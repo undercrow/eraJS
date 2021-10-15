@@ -1,4 +1,5 @@
 import * as assert from "../assert";
+import * as EM from "../error";
 import type Expr from "../statement/expr";
 import Value from "../value";
 import Int0DValue from "../value/int-0d";
@@ -110,7 +111,7 @@ export default class Dim {
 			assert.number(size0, "Size of an array must be an integer");
 			return new StrChar1DValue(this.name, size0);
 		} else {
-			throw new Error("Invalid #DIM(S) definition found");
+			throw EM.parser("Invalid #DIM(S) definition found");
 		}
 	}
 }

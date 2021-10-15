@@ -1,27 +1,35 @@
+import Lazy from "../../lazy";
+import * as E from "../../parser/expr";
+import * as U from "../../parser/util";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Form from "../expr/form";
 import Variable from "../expr/variable";
 import Statement from "../index";
 
-export default class Assign extends Statement {
+const PARSER = U.sepBy0(",", E.form[","]);
+export default class AssignForm extends Statement {
 	public dest: Variable;
-	public value: Form[];
+	public arg: Lazy<Form[]>;
 
-	public constructor(dest: Variable, value: Form[]) {
-		super();
+	public constructor(dest: Variable, raw: Slice) {
+		super(raw);
 		this.dest = dest;
-		this.value = value;
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
 		const dest = this.dest.getCell(vm);
 		const index = this.dest.reduceIndex(vm);
+		const arg = this.arg.get();
+
 		const partialIndex = index.slice(0, -1);
 		const lastIndex = index[index.length - 1] ?? 0;
 
-		if (this.value.length !== 0) {
-			for (let i = 0; i < this.value.length; ++i) {
-				const value = this.value[i].reduce(vm);
+		if (arg.length !== 0) {
+			for (let i = 0; i < arg.length; ++i) {
+				const value = arg[i].reduce(vm);
 				dest.set(vm, value, [...partialIndex, lastIndex + i]);
 			}
 		} else {

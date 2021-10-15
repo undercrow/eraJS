@@ -1,6 +1,9 @@
 import * as assert from "../../assert";
+import * as EM from "../../error";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
+import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Const from "../expr/const";
@@ -13,40 +16,42 @@ const DATAFORM_EMPTY = /^DATAFORM$/i;
 const DATALIST = /^DATALIST$/i;
 const ENDLIST = /^ENDLIST$/i;
 const ENDDATA = /^ENDDATA$/i;
-const PARSER_CONST = U.arg1R0(U.charSeq());
+const PARSER_CONST = U.arg1R0(U.charSeq()).map((value) => new Const(value ?? ""));
 const PARSER_FORM = U.arg1R1(E.form[""]);
 export default class PrintData extends Statement {
-	public static parse(postfix: string, lines: string[], from: number): [PrintData, number] {
+	public static parse(postfix: string, lines: Slice[], from: number): [PrintData, number] {
 		let index = from + 1;
-		const data: Expr[] = [];
+		const data: Lazy<Expr>[] = [];
 		while (true) {
 			if (lines.length <= index) {
-				throw new Error("Unexpected end of thunk!");
+				throw EM.parser("Unexpected end of thunk in PRINTDATA expression");
 			}
 			const current = lines[index];
 			index += 1;
 
-			if (DATA.test(current)) {
-				data.push(new Const(PARSER_CONST.tryParse(current.slice("DATA".length)) ?? ""));
-			} else if (DATAFORM.test(current)) {
-				data.push(PARSER_FORM.tryParse(current.slice("DATAFORM".length)));
-			} else if (DATAFORM_EMPTY.test(current)) {
-				data.push(new Const(""));
-			} else if (DATALIST.test(current) || ENDLIST.test(current)) {
+			if (DATA.test(current.content)) {
+				data.push(new Lazy(current.slice("DATA".length), PARSER_CONST));
+			} else if (DATAFORM.test(current.content)) {
+				data.push(new Lazy(current.slice("DATAFORM".length), PARSER_FORM));
+			} else if (DATAFORM_EMPTY.test(current.content)) {
+				// TODO: Refactor this part
+				data.push(new Lazy(current.slice("DATAFORM".length), PARSER_CONST));
+			} else if (DATALIST.test(current.content) || ENDLIST.test(current.content)) {
 				// Do nothing
-			} else if (ENDDATA.test(current)) {
-				return [new PrintData(postfix, data), index - from];
+			} else if (ENDDATA.test(current.content)) {
+				return [new PrintData(lines[from], postfix, data), index - from];
 			} else {
-				throw new Error("Unexpected statement found while parsing PRINTDATA statement");
+				throw EM.parser("Unexpected statement in PRINTDATA expression");
 			}
 		}
 	}
 
 	public postfix: string;
-	public data: Expr[];
+	public data: Lazy<Expr>[];
 
-	public constructor(postfix: string, data: Expr[]) {
-		super();
+	public constructor(raw: Slice, postfix: string, data: Lazy<Expr>[]) {
+		super(raw);
+
 		this.postfix = postfix;
 		this.data = data;
 	}
@@ -57,7 +62,7 @@ export default class PrintData extends Statement {
 		}
 
 		const index = vm.random.next() % this.data.length;
-		const value = this.data[index].reduce(vm);
+		const value = this.data[index].get().reduce(vm);
 		assert.string(value, "Item of PRINTDATA must be a string");
 
 		yield* vm.print(value);

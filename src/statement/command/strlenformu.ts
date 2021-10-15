@@ -2,21 +2,23 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Form from "../expr/form";
 import Statement from "../index";
 
 const PARSER = U.arg1R1(E.form[""]);
 export default class StrLenFormU extends Statement {
-	public value: Lazy<Form>;
+	public arg: Lazy<Form>;
 
-	public constructor(arg: string) {
-		super();
-		this.value = new Lazy(arg, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
-		const value = this.value.get().reduce(vm);
+		const value = this.arg.get().reduce(vm);
 		assert.string(value, "Argument of STRLENFORMU must be a string!");
 		vm.getValue("RESULT").set(vm, value.length, [0]);
 

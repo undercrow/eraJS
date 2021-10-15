@@ -1,13 +1,14 @@
 import * as U from "../../parser/util";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
-import PrintC from "./printc";
 
 const PARSER = U.arg0R0();
 export default class PrintShopItem extends Statement {
-	public constructor(arg: string) {
-		super();
-		PARSER.tryParse(arg);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		U.tryParse(PARSER, raw);
 	}
 
 	public *run(vm: VM) {
@@ -30,7 +31,7 @@ export default class PrintShopItem extends Statement {
 			const price = vm.getValue("ITEMPRICE").get(vm, [index]) as number;
 			const text = `[${index}] ${name}(${price}$)`;
 
-			yield* new PrintC("LEFT", "", " " + text).run(vm);
+			yield* vm.print(text, "LEFT");
 			if ((i + 1) % vm.printCPerLine === 0) {
 				yield* vm.newline();
 			}

@@ -1,6 +1,8 @@
+import * as EM from "../../error";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Form from "../expr/form";
 import Statement from "../index";
@@ -9,8 +11,9 @@ const PARSER = U.arg1R1(E.form[""]);
 export default class GotoForm extends Statement {
 	public arg: Lazy<Form>;
 
-	public constructor(raw: string) {
-		super();
+	public constructor(raw: Slice) {
+		super(raw);
+
 		this.arg = new Lazy(raw, PARSER);
 	}
 
@@ -19,7 +22,7 @@ export default class GotoForm extends Statement {
 
 		const context = vm.context();
 		if (!context.fn.thunk.labelMap.has(target)) {
-			throw new Error(`Label ${target} does not exist`);
+			throw EM.notFound("Label", target);
 		}
 
 		return <const>{

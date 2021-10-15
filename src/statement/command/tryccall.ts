@@ -1,18 +1,16 @@
 import {parseThunk} from "../../parser/erb";
+import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
-import Expr from "../expr";
 import Statement from "../index";
 import Call from "./call";
 
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
 export default class TryCCall extends Statement {
-	public static parse(lines: string[], from: number): [TryCCall, number] {
-		let index = from;
-
-		const [target, arg] = Call.PARSER.tryParse(lines[index].slice("TRYCCALL".length));
-		index += 1;
+	public static parse(arg: Slice, lines: Slice[], from: number): [TryCCall, number] {
+		let index = from + 1;
 
 		const [thenThunk, consumedT] = parseThunk(lines, index, (l) => CATCH.test(l));
 		index += consumedT + 1;
@@ -20,18 +18,17 @@ export default class TryCCall extends Statement {
 		const [catchThunk, consumedC] = parseThunk(lines, index, (l) => ENDCATCH.test(l));
 		index += consumedC + 1;
 
-		return [new TryCCall(target, arg, thenThunk, catchThunk), index - from];
+		return [new TryCCall(arg, thenThunk, catchThunk), index - from];
 	}
 
-	public target: string;
-	public arg: (Expr | undefined)[];
+	public arg: Call["arg"];
 	public thenThunk: Thunk;
 	public catchThunk: Thunk;
 
-	public constructor(target: string, arg: TryCCall["arg"], thenThunk: Thunk, catchThunk: Thunk) {
-		super();
-		this.target = target;
-		this.arg = arg;
+	public constructor(raw: Slice, thenThunk: Thunk, catchThunk: Thunk) {
+		super(raw);
+
+		this.arg = new Lazy(raw, Call.PARSER);
 		this.thenThunk = thenThunk;
 		this.catchThunk = catchThunk;
 	}
@@ -44,9 +41,10 @@ export default class TryCCall extends Statement {
 			return yield* this.catchThunk.run(vm, label);
 		}
 
-		const target = this.target.toUpperCase();
-		if (vm.fnMap.has(target)) {
-			yield* Call.exec(vm, target, this.arg);
+		const [target, argExpr] = this.arg.get();
+		const realTarget = target.toUpperCase();
+		if (vm.fnMap.has(realTarget)) {
+			yield* Call.exec(vm, realTarget, argExpr);
 			return yield* this.thenThunk.run(vm, label);
 		} else {
 			return yield* this.catchThunk.run(vm, label);

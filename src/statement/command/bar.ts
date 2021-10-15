@@ -2,6 +2,7 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -11,8 +12,9 @@ export default class Bar extends Statement {
 	public arg: Lazy<[Expr, Expr, Expr]>;
 	public newline: boolean;
 
-	public constructor(raw: string, newline: boolean = false) {
-		super();
+	public constructor(raw: Slice, newline: boolean = false) {
+		super(raw);
+
 		this.arg = new Lazy(raw, PARSER);
 		this.newline = newline;
 	}

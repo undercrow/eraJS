@@ -3,6 +3,8 @@ import type Config from "./config";
 import * as color from "./color";
 import type Color from "./color";
 import {Template, Data} from "./data";
+import EraJSError from "./error";
+import * as EM from "./error";
 import Fn from "./fn";
 import type Property from "./property";
 import Define from "./property/define";
@@ -407,12 +409,12 @@ export default class VM {
 	public getValue<T extends Value>(name: string, scope?: string): T {
 		if (scope != null) {
 			if (!this.staticMap.has(scope)) {
-				throw new Error(`Scope ${scope} does not exist`);
+				throw EM.notFound("Scope", scope);
 			}
 			if (this.staticMap.get(scope)!.has(name)) {
 				return this.staticMap.get(scope)!.get(name)! as T;
 			} else {
-				throw new Error(`Variable ${name}:${scope} does not exist`);
+				throw EM.notFound("Variable", name + ":" + scope);
 			}
 		} else {
 			const context = this.context();
@@ -445,14 +447,12 @@ export default class VM {
 				case "ABLUP": result = yield* scene.ABLUP(this); break;
 				case "TURNEND": result = yield* scene.TURNEND(this); break;
 				case "DATALOADED": result = yield* scene.DATALOADED(this); break;
-				default: {
-					throw new Error(`${begin} is not a valid keyword`);
-				}
+				default: throw EM.notFound("Scene", begin);
 			}
 
 			switch (result?.type) {
 				case "begin": begin = result.keyword; continue;
-				case "goto": throw new Error(`Label ${result.label} not found`);
+				case "goto": throw EM.notFound("Label", result.label);
 				case "break": return null;
 				case "continue": return null;
 				case "throw": throw new Error(`Uncaught error ${result.value}`);
@@ -460,6 +460,24 @@ export default class VM {
 				case "quit": return null;
 				case undefined: continue;
 			}
+		}
+	}
+
+	public *run(statement: Statement, label?: string): ReturnType<Statement["run"]> {
+		try {
+			return yield* statement.run(this, label);
+		} catch (e) {
+			if (e instanceof EraJSError) {
+				throw e;
+			}
+
+			const trace = [];
+			// NOTE: @DUMMY context is excluded
+			for (const context of this.contextStack.slice(1)) {
+				trace.push(context.fn.name);
+			}
+
+			throw new EraJSError((e as Error).message, statement.raw, trace);
 		}
 	}
 

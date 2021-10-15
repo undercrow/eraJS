@@ -3,6 +3,7 @@ import {parseThunk} from "../../parser/erb";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -11,7 +12,7 @@ import Statement from "../index";
 const REND = /^REND$/i;
 const PARSER = U.arg1R1(E.expr);
 export default class Repeat extends Statement {
-	public static parse(arg: string, lines: string[], from: number): [Repeat, number] {
+	public static parse(arg: Slice, lines: Slice[], from: number): [Repeat, number] {
 		let index = from + 1;
 
 		const [thunk, consumed] = parseThunk(lines, index, (l) => REND.test(l));
@@ -20,12 +21,13 @@ export default class Repeat extends Statement {
 		return [new Repeat(arg, thunk), index - from];
 	}
 
-	public condition: Lazy<Expr>;
+	public arg: Lazy<Expr>;
 	public thunk: Thunk;
 
-	public constructor(arg: string, thunk: Thunk) {
-		super();
-		this.condition = new Lazy(arg, PARSER);
+	public constructor(raw: Slice, thunk: Thunk) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 		this.thunk = thunk;
 	}
 
@@ -36,7 +38,7 @@ export default class Repeat extends Statement {
 			}
 		}
 
-		const condition = this.condition.get().reduce(vm);
+		const condition = this.arg.get().reduce(vm);
 		assert.number(condition, "Condition for REPEAT should be an integer");
 
 		loop: for (let i = 0; i < condition; ++i) {

@@ -1,19 +1,22 @@
+import Lazy from "../../lazy";
 import * as U from "../../parser/util";
+import Slice from "../../slice";
 import Statement from "../index";
 
 const PARSER = U.arg1R1(U.Identifier);
 export default class Begin extends Statement {
-	public target: string;
+	public arg: Lazy<string>;
 
-	public constructor(arg: string) {
-		super();
-		this.target = PARSER.tryParse(arg);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run() {
 		return <const>{
 			type: "begin",
-			keyword: this.target,
+			keyword: this.arg.get(),
 		};
 	}
 }

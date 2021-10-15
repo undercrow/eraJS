@@ -1,18 +1,17 @@
-import * as assert from "../../assert";
+import P from "parsimmon";
+
 import Lazy from "../../lazy";
-import * as E from "../../parser/expr";
 import Slice from "../../slice";
 import type VM from "../../vm";
-import Expr from "../expr";
 import Variable from "../expr/variable";
 import Statement from "../index";
 
-const PARSER = E.expr;
-type Operator = "+=";
-export default class AssignOpStr extends Statement {
+const PARSER = P.eof;
+type Operator = "++" | "--";
+export default class AssignPostfix extends Statement {
 	public dest: Variable;
 	public operator: Operator;
-	public arg: Lazy<Expr>;
+	public arg: Lazy<undefined>;
 
 	public constructor(dest: Variable, operator: Operator, raw: Slice) {
 		super(raw);
@@ -23,15 +22,15 @@ export default class AssignOpStr extends Statement {
 	}
 
 	public *run(vm: VM) {
+		this.raw.get();
+
 		const dest = this.dest.getCell(vm);
 		const index = this.dest.reduceIndex(vm);
-
-		const original = dest.get(vm, index) as string;
-		const arg = this.arg.get().reduce(vm);
-		assert.string(arg, `Right operand of ${this.operator} should be a string`);
+		const original = dest.get(vm, index) as number;
 
 		switch (this.operator) {
-			case "+=": dest.set(vm, original + arg, index); break;
+			case "++": dest.set(vm, original + 1, index); break;
+			case "--": dest.set(vm, original - 1, index); break;
 		}
 
 		return null;

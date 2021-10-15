@@ -1,5 +1,6 @@
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
 
@@ -48,8 +49,9 @@ export default class Print extends Statement {
 	public postfix: string;
 	public value: Lazy<string>;
 
-	public constructor(instruction: string, raw: string) {
-		super();
+	public constructor(instruction: string, raw: Slice) {
+		super(raw);
+
 		this.postfix = instruction.replace(/^PRINT/, "");
 		this.value = new Lazy(raw, PARSER);
 	}

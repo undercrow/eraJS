@@ -1,4 +1,5 @@
 import * as assert from "../assert";
+import * as EM from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -6,7 +7,7 @@ export default class IntChar0DValue implements Value {
 	public type = <const>"number";
 	public name: string;
 
-	public static normalizeIndex(vm: VM, index: number[]): number[] {
+	public static normalizeIndex(vm: VM, name: string, index: number[]): number[] {
 		if (index.length === 0) {
 			return [vm.getValue("TARGET").get(vm, []) as number];
 		} else if (index.length === 1) {
@@ -14,7 +15,7 @@ export default class IntChar0DValue implements Value {
 		} else if (index.length === 2 && index[1] === 0) {
 			return index.slice(0, -1);
 		} else {
-			throw new Error("0D character variable must be indexed by at most 1 value");
+			throw EM.invalidIndex("0D character", name, index);
 		}
 	}
 
@@ -23,9 +24,9 @@ export default class IntChar0DValue implements Value {
 	}
 
 	public get(vm: VM, index: number[]): number {
-		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
+		const realIndex = IntChar0DValue.normalizeIndex(vm, this.name, index);
 		if (vm.characterList.length <= realIndex[0]) {
-			throw new Error(`Character #${realIndex[0]} does not exist`);
+			throw EM.notFound("Character", `#${realIndex[0]}`);
 		}
 
 		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
@@ -33,10 +34,10 @@ export default class IntChar0DValue implements Value {
 	}
 
 	public set(vm: VM, value: Leaf, index: number[]) {
-		const realIndex = IntChar0DValue.normalizeIndex(vm, index);
+		const realIndex = IntChar0DValue.normalizeIndex(vm, this.name, index);
 		assert.number(value, "Cannot assign a string to a numeric variable");
 		if (vm.characterList.length <= realIndex[0]) {
-			throw new Error(`Character #${realIndex[0]} does not exist`);
+			throw EM.notFound("Character", `#${realIndex[0]}`);
 		}
 
 		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;

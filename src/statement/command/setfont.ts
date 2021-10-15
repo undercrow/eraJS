@@ -2,22 +2,24 @@ import * as assert from "../../assert";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
 const PARSER = U.arg1R0(E.expr);
 export default class SetFont extends Statement {
-	public font: Lazy<Expr | undefined>;
+	public arg: Lazy<Expr | undefined>;
 
-	public constructor(arg: string) {
-		super();
-		this.font = new Lazy(arg, PARSER);
+	public constructor(raw: Slice) {
+		super(raw);
+
+		this.arg = new Lazy(raw, PARSER);
 	}
 
 	public *run(vm: VM) {
 		// TODO: use default font
-		const font = this.font.get()?.reduce(vm) ?? "";
+		const font = this.arg.get()?.reduce(vm) ?? "";
 		assert.string(font, "Argument of SETFONT must be a string");
 
 		vm.font.name = font;

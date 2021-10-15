@@ -1,4 +1,5 @@
 import * as assert from "../assert";
+import * as EM from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -7,7 +8,7 @@ export default class Int2DValue implements Value {
 	public name: string;
 	public value: number[][];
 
-	public static normalizeIndex(index: number[]): number[] {
+	public static normalizeIndex(name: string, index: number[]): number[] {
 		if (index.length === 0) {
 			return [0, 0];
 		} else if (index.length === 1) {
@@ -17,7 +18,7 @@ export default class Int2DValue implements Value {
 		} else if (index.length === 3 && index[2] === 0) {
 			return index.slice(0, -1);
 		} else {
-			throw new Error("2D variable must be indexed by at most 2 value");
+			throw EM.invalidIndex("2D", name, index);
 		}
 	}
 
@@ -43,12 +44,12 @@ export default class Int2DValue implements Value {
 	}
 
 	public get(_vm: VM, index: number[]): number {
-		const realIndex = Int2DValue.normalizeIndex(index);
+		const realIndex = Int2DValue.normalizeIndex(this.name, index);
 		return this.value[realIndex[0]][realIndex[1]];
 	}
 
 	public set(_vm: VM, value: Leaf, index: number[]) {
-		const realIndex = Int2DValue.normalizeIndex(index);
+		const realIndex = Int2DValue.normalizeIndex(this.name, index);
 		assert.number(value, "Cannot assign a string to a numeric variable");
 
 		this.value[realIndex[0]][realIndex[1]] = value;

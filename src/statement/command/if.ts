@@ -1,8 +1,10 @@
 import * as assert from "../../assert";
+import * as EM from "../../error";
 import {parseThunk} from "../../parser/erb";
 import * as E from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import Slice from "../../slice";
 import Thunk from "../../thunk";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -14,18 +16,18 @@ const ELSE = /^ELSE$/i;
 const ENDIF = /^ENDIF$/i;
 const PARSER = U.arg1R1(E.expr);
 export default class If extends Statement {
-	public static parse(lines: string[], from: number): [If, number] {
+	public static parse(lines: Slice[], from: number): [If, number] {
 		let index = from;
-		const ifThunk: Array<[string, Thunk]> = [];
+		const ifThunk: Array<[Slice, Thunk]> = [];
 		let elseThunk = new Thunk([]);
 		while (true) {
 			if (lines.length <= index) {
-				throw new Error("Unexpected end of thunk!");
+				throw EM.parser("Unexpected end of thunk in IF expression");
 			}
 			const current = lines[index];
 			index += 1;
 
-			if (IF.test(current)) {
+			if (IF.test(current.content)) {
 				const [thunk, consumed] = parseThunk(
 					lines,
 					index,
@@ -33,7 +35,7 @@ export default class If extends Statement {
 				);
 				ifThunk.push([current.slice("IF".length), thunk]);
 				index += consumed;
-			} else if (ELSEIF.test(current)) {
+			} else if (ELSEIF.test(current.content)) {
 				const [thunk, consumed] = parseThunk(
 					lines,
 					index,
@@ -41,7 +43,7 @@ export default class If extends Statement {
 				);
 				ifThunk.push([current.slice("ELSEIF".length), thunk]);
 				index += consumed;
-			} else if (ELSE.test(current)) {
+			} else if (ELSE.test(current.content)) {
 				const [thunk, consumed] = parseThunk(
 					lines,
 					index,
@@ -49,21 +51,22 @@ export default class If extends Statement {
 				);
 				elseThunk = thunk;
 				index += consumed;
-			} else if (ENDIF.test(current)) {
+			} else if (ENDIF.test(current.content)) {
 				return [new If(ifThunk, elseThunk), index - from];
 			} else {
-				throw new Error("Unexpected statement found while parsing IF statement");
+				throw EM.parser("Unexpected statement in IF expression");
 			}
 		}
 	}
 
-	public ifThunk: Array<[Lazy<Expr>, Thunk]>;
+	public ifThunk: Array<[Slice, Lazy<Expr>, Thunk]>;
 	public elseThunk: Thunk;
 
-	public constructor(ifThunk: Array<[string, Thunk]>, elseThunk: Thunk) {
-		super();
-		this.ifThunk = ifThunk.map(([cond, thunk]) => [
-			new Lazy(cond, PARSER),
+	public constructor(ifThunk: Array<[Slice, Thunk]>, elseThunk: Thunk) {
+		super(ifThunk[0][0]);
+		this.ifThunk = ifThunk.map(([raw, thunk]) => [
+			raw,
+			new Lazy(raw, PARSER),
 			thunk,
 		]);
 		this.elseThunk = elseThunk;
@@ -71,7 +74,7 @@ export default class If extends Statement {
 
 	public *run(vm: VM, label?: string) {
 		if (label != null) {
-			for (const [, thunk] of this.ifThunk) {
+			for (const [,, thunk] of this.ifThunk) {
 				if (thunk.labelMap.has(label)) {
 					return yield* thunk.run(vm, label);
 				}
@@ -81,8 +84,7 @@ export default class If extends Statement {
 			}
 		}
 
-		for (let i = 0; i < this.ifThunk.length; ++i) {
-			const [cond, thunk] = this.ifThunk[i];
+		for (const [, cond, thunk] of this.ifThunk) {
 			const condValue = cond.get().reduce(vm);
 			assert.number(condValue, "Condition should be an integer");
 			if (condValue !== 0) {

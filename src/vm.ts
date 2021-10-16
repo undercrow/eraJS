@@ -217,7 +217,7 @@ export default class VM {
 		this.globalMap.set("RANDDATA", Value.Int1D(data, "RANDDATA").reset(
 			[this.random.state],
 		));
-		// TODO: SAVESTR
+		this.globalMap.set("SAVESTR", Value.Str1D(data, "SAVESTR"));
 		this.globalMap.set("STR", Value.Str1D(data, "STR").reset(data.str));
 		this.globalMap.set("RESULTS", Value.Str1D(data, "RESULTS"));
 		this.globalMap.set("TSTR", Value.Str1D(data, "TSTR"));

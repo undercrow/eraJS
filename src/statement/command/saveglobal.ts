@@ -11,20 +11,7 @@ import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
 import Statement from "../index";
 
-export const savedVariables = [
-	"GLOBAL",
-	"GLOBALS",
-	"RANDDATA",
-	"TSTR",
-	"DITEMTYPE",
-	"DA",
-	"DB",
-	"DC",
-	"DD",
-	"DE",
-	"TA",
-	"TB",
-];
+export const whitelist = ["GLOBAL", "GLOBALS"];
 
 const PARSER = U.arg0R0();
 export default class SaveGlobal extends Statement {
@@ -40,22 +27,8 @@ export default class SaveGlobal extends Statement {
 			version: vm.getValue<Int0DValue>("GAMEBASE_VERSION").get(vm, []),
 			data: {},
 		};
-		for (const name of savedVariables) {
-			const cell = vm.getValue(name);
-			if (cell instanceof Int0DValue) {
-				saveData.data[name] = cell.value;
-			} else if (cell instanceof Int1DValue) {
-				saveData.data[name] = cell.value;
-			} else if (cell instanceof Int2DValue) {
-				saveData.data[name] = cell.value;
-			} else if (cell instanceof Int3DValue) {
-				saveData.data[name] = cell.value;
-			} else if (cell instanceof Str0DValue) {
-				saveData.data[name] = cell.value;
-			} else if (cell instanceof Str1DValue) {
-				saveData.data[name] = cell.value;
-			}
-		}
+		saveData.data.GLOBAL = vm.getValue<Int1DValue>("GLOBAL").value;
+		saveData.data.GLOBALS = vm.getValue<Str1DValue>("GLOBALS").value;
 		for (const property of vm.code.header) {
 			if (property instanceof Dim && property.isSave() && property.isGlobal()) {
 				const cell = vm.getValue(property.name);

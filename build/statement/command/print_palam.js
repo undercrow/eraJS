@@ -1,0 +1,66 @@
+import * as assert from "../../assert";
+import * as E from "../../parser/expr";
+import * as U from "../../parser/util";
+import Lazy from "../../lazy";
+import Statement from "../index";
+const PARSER = U.arg1R1(E.expr);
+export default class PrintPalam extends Statement {
+    arg;
+    constructor(raw) {
+        super(raw);
+        this.arg = new Lazy(raw, PARSER);
+    }
+    *run(vm) {
+        if (vm.skipDisp) {
+            return null;
+        }
+        const index = this.arg.get().reduce(vm);
+        assert.number(index, "1st argument of PRINT_PALAM must be a number");
+        const palamName = vm.getValue("PALAMNAME");
+        const validName = [];
+        for (let i = 0; i < palamName.length(0); ++i) {
+            const name = palamName.get(vm, [i]);
+            if (name !== "") {
+                validName.push(name);
+            }
+        }
+        for (let i = 0; i < validName.length; ++i) {
+            const name = validName[i];
+            const value = vm.getValue("PALAM").get(vm, [index, i]);
+            const palamLv = [
+                vm.getValue("PALAMLV").get(vm, [0]),
+                vm.getValue("PALAMLV").get(vm, [1]),
+                vm.getValue("PALAMLV").get(vm, [2]),
+                vm.getValue("PALAMLV").get(vm, [3]),
+                vm.getValue("PALAMLV").get(vm, [4]),
+            ];
+            let text = name;
+            if (value >= palamLv[4]) {
+                text += "[" + "*".repeat(10) + "]";
+            }
+            else if (value >= palamLv[3]) {
+                const filled = Math.floor(10 * (value / palamLv[4]));
+                text += "[" + "*".repeat(filled) + ".".repeat(10 - filled) + "]";
+            }
+            else if (value >= palamLv[2]) {
+                const filled = Math.floor(10 * (value / palamLv[3]));
+                text += "[" + ">".repeat(filled) + ".".repeat(10 - filled) + "]";
+            }
+            else if (value >= palamLv[1]) {
+                const filled = Math.floor(10 * (value / palamLv[2]));
+                text += "[" + "=".repeat(filled) + ".".repeat(10 - filled) + "]";
+            }
+            else {
+                const filled = Math.floor(10 * (value / palamLv[1]));
+                text += "[" + "-".repeat(filled) + ".".repeat(10 - filled) + "]";
+            }
+            text += value.toString();
+            yield* vm.print(text, "LEFT");
+            if ((i + 1) % vm.printCPerLine === 0) {
+                yield* vm.newline();
+            }
+        }
+        yield* vm.newline();
+        return null;
+    }
+}

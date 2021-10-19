@@ -1,4 +1,4 @@
-import * as EM from "../../error";
+import * as E from "../../error";
 import * as U from "../../parser/util";
 import Slice from "../../slice";
 import Statement from "../index";
@@ -12,7 +12,7 @@ export default class CbgClearButton extends Statement {
 	}
 
 	public *run() {
-		throw EM.notImpl("CBGCLEARBUTTON");
+		throw E.notImpl("CBGCLEARBUTTON");
 
 		return null;
 	}

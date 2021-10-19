@@ -1,12 +1,12 @@
-import * as EM from "../../error";
-import * as E from "../../parser/expr";
+import * as E from "../../error";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type Expr from "../expr";
 import Statement from "../index";
 
-const PARSER = U.arg1R1(E.expr);
+const PARSER = U.arg1R1(X.expr);
 export default class AddCopyChara extends Statement {
 	public arg: Lazy<Expr>;
 
@@ -17,7 +17,7 @@ export default class AddCopyChara extends Statement {
 	}
 
 	public *run() {
-		throw EM.notImpl("ADDCOPYCHARA");
+		throw E.notImpl("ADDCOPYCHARA");
 
 		return null;
 	}

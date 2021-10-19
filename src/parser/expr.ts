@@ -9,6 +9,7 @@ import Ternary from "../statement/expr/ternary";
 import Unary from "../statement/expr/unary";
 import UnaryOp from "../statement/expr/unary-op";
 import Variable from "../statement/expr/variable";
+import * as C from "./const";
 import * as U from "./util";
 
 type LanguageSpec = {
@@ -29,21 +30,21 @@ type LanguageSpec = {
 
 const language = P.createLanguage<LanguageSpec>({
 	Variable: () => P.seqMap(
-		U.Identifier,
-		U.optional(P.string("@").then(U.Identifier)),
+		C.Identifier,
+		U.optional(P.string("@").then(C.Identifier)),
 		(name, scope) => new Variable(name, [], scope),
 	),
 	Index: (r) => P.alt(
-		U.UInt.map((value) => new Const(value)),
+		C.UInt.map((value) => new Const(value)),
 		r.InlineCall,
 		U.wrap("(", ")", r.Expr),
 		r.Variable,
 	),
 	FullVariable: (r) => P.seqMap(
 		r.Variable,
-		U.optional(P.string(":").trim(U.WS0).then(r.Index)),
-		U.optional(P.string(":").trim(U.WS0).then(r.Index)),
-		U.optional(P.string(":").trim(U.WS0).then(r.Index)),
+		U.optional(P.string(":").trim(C.WS0).then(r.Index)),
+		U.optional(P.string(":").trim(C.WS0).then(r.Index)),
+		U.optional(P.string(":").trim(C.WS0).then(r.Index)),
 		(variable, index0, index1, index2) => {
 			if (index0 == null) {
 				variable.index = [];
@@ -70,8 +71,8 @@ const language = P.createLanguage<LanguageSpec>({
 		),
 	),
 	Leaf: (r) => P.alt(
-		U.UInt.map((val) => new Const(val)),
-		U.Str.map((value) => new Const(value)),
+		C.UInt.map((val) => new Const(val)),
+		C.Str.map((value) => new Const(value)),
 		r.InlineCall,
 		U.wrap("@\"", "\"", form["\""]),
 		U.wrap("(", ")", r.Expr),
@@ -80,7 +81,7 @@ const language = P.createLanguage<LanguageSpec>({
 	),
 	Unary: (r) => P.alt(
 		P.seqMap(
-			U.alt("+", "-", "!", "~").skip(U.WS0),
+			U.alt("+", "-", "!", "~").skip(C.WS0),
 			r.Leaf,
 			(op, expr) => new Unary(op, expr),
 		),
@@ -100,7 +101,7 @@ const language = P.createLanguage<LanguageSpec>({
 		for (const op of operators) {
 			result = P.seqMap(
 				result,
-				P.seq(U.alt(...op).trim(U.WS0), result).many(),
+				P.seq(U.alt(...op).trim(C.WS0), result).many(),
 				(first, rest) => rest.reduce((acc, val) => new Binary(val[0], acc, val[1]), first),
 			);
 		}
@@ -121,7 +122,7 @@ const language = P.createLanguage<LanguageSpec>({
 		for (const op of operators) {
 			result = P.seqMap(
 				result,
-				P.seq(U.alt(...op).trim(U.WS0), result).many(),
+				P.seq(U.alt(...op).trim(C.WS0), result).many(),
 				(first, rest) => rest.reduce((acc, val) => new Binary(val[0], acc, val[1]), first),
 			);
 		}
@@ -131,14 +132,14 @@ const language = P.createLanguage<LanguageSpec>({
 	Ternary: (r) => P.alt(
 		U.wrap("\\@", "\\@", P.seqMap(
 			r.Binary,
-			P.string("?").trim(U.WS0).then(U.optional(P.lazy(() => form["#"]))),
-			U.optional(P.string("#").trim(U.WS0).then(U.optional(P.lazy(() => formEnd)))),
+			P.string("?").trim(C.WS0).then(U.optional(P.lazy(() => form["#"]))),
+			U.optional(P.string("#").trim(C.WS0).then(U.optional(P.lazy(() => formEnd)))),
 			(expr, left, right) => new Ternary(expr, left ?? new Const(""), right ?? new Const("")),
 		)),
 		P.seqMap(
 			r.Binary,
-			P.string("?").trim(U.WS0).then(r.Binary),
-			P.string("#").trim(U.WS0).then(r.Binary),
+			P.string("?").trim(C.WS0).then(r.Binary),
+			P.string("#").trim(C.WS0).then(r.Binary),
 			(expr, left, right) => new Ternary(expr, left, right),
 		),
 		r.Binary,
@@ -146,14 +147,14 @@ const language = P.createLanguage<LanguageSpec>({
 	PercentlessTernary: (r) => P.alt(
 		U.wrap("\\@", "\\@", P.seqMap(
 			r.PercentlessBinary,
-			P.string("?").trim(U.WS0).then(U.optional(P.lazy(() => form["#"]))),
-			U.optional(P.string("#").trim(U.WS0).then(U.optional(P.lazy(() => formEnd)))),
+			P.string("?").trim(C.WS0).then(U.optional(P.lazy(() => form["#"]))),
+			U.optional(P.string("#").trim(C.WS0).then(U.optional(P.lazy(() => formEnd)))),
 			(expr, left, right) => new Ternary(expr, left ?? new Const(""), right ?? new Const("")),
 		)),
 		P.seqMap(
 			r.PercentlessBinary,
-			P.string("?").trim(U.WS0).then(r.PercentlessBinary),
-			P.string("#").trim(U.WS0).then(r.PercentlessBinary),
+			P.string("?").trim(C.WS0).then(r.PercentlessBinary),
+			P.string("#").trim(C.WS0).then(r.PercentlessBinary),
 			(expr, left, right) => new Ternary(expr, left, right),
 		),
 		r.PercentlessBinary,
@@ -161,8 +162,8 @@ const language = P.createLanguage<LanguageSpec>({
 	Expr: (r) => r.Ternary,
 	PercentlessExpr: (r) => r.PercentlessTernary,
 	InlineCall: (r) => P.seqMap(
-		U.Identifier,
-		U.WS0.then(U.wrap("(", ")", U.sepBy0(",", r.Expr))),
+		C.Identifier,
+		C.WS0.then(U.wrap("(", ")", U.sepBy0(",", r.Expr))),
 		(name, arg) => new InlineCall(name, arg),
 	),
 });
@@ -171,33 +172,33 @@ function formParser(exclude: string, withTernary: boolean): P.Parser<Form> {
 	const chunkParser: P.Parser<Form["expr"][number]>[] = [];
 
 	chunkParser.push(U.wrap("{", "}", P.seqMap(
-		language.Expr.trim(U.WS0),
-		P.string(",").trim(U.WS0).then(U.optional(language.Expr)).fallback(undefined),
-		P.string(",").trim(U.WS0).then(U.optional(U.alt("LEFT", "RIGHT"))).fallback(undefined),
+		language.Expr.trim(C.WS0),
+		P.string(",").trim(C.WS0).then(U.optional(language.Expr)).fallback(undefined),
+		P.string(",").trim(C.WS0).then(U.optional(U.alt("LEFT", "RIGHT"))).fallback(undefined),
 		(value, display, align) => ({value, display, align}),
 	)));
 
 	chunkParser.push(U.wrap("%", "%", P.seqMap(
-		language.PercentlessExpr.trim(U.WS0),
-		P.string(",").trim(U.WS0).then(
+		language.PercentlessExpr.trim(C.WS0),
+		P.string(",").trim(C.WS0).then(
 			U.optional(language.PercentlessExpr),
 		).fallback(undefined),
-		P.string(",").trim(U.WS0).then(U.optional(U.alt("LEFT", "RIGHT"))).fallback(undefined),
+		P.string(",").trim(C.WS0).then(U.optional(U.alt("LEFT", "RIGHT"))).fallback(undefined),
 		(value, display, align) => ({value, display, align}),
 	)));
 
 	if (withTernary) {
 		chunkParser.push(U.wrap("\\@", "\\@", P.seqMap(
 			language.Binary,
-			P.string("?").trim(U.WS0).then(U.optional(P.lazy(() => form["#"]))),
-			U.optional(P.string("#").trim(U.WS0).then(U.optional(P.lazy(() => formEnd)))),
+			P.string("?").trim(C.WS0).then(U.optional(P.lazy(() => form["#"]))),
+			U.optional(P.string("#").trim(C.WS0).then(U.optional(P.lazy(() => formEnd)))),
 			(expr, left, right) => ({
 				value: new Ternary(expr, left ?? new Const(""), right ?? new Const("")),
 			}),
 		)));
 	}
 
-	chunkParser.push(U.charSeq("{", "%", "\\@", ...exclude).map((value) => ({value})));
+	chunkParser.push(C.charSeq("{", "%", "\\@", ...exclude).map((value) => ({value})));
 
 	return P.alt(...chunkParser).atLeast(1).map((expr) => new Form(expr));
 }

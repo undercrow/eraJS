@@ -1,6 +1,7 @@
 import P from "parsimmon";
 
-import * as E from "../../parser/expr";
+import * as C from "../../parser/const";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -11,8 +12,8 @@ import Statement from "../index";
 import Print from "./print";
 
 const PARSER = U.argNR0(P.alt(
-	P.string("'").then(U.charSeq(",").map((str) => new Const(str))),
-	E.expr,
+	P.string("'").then(C.charSeq(",").map((str) => new Const(str))),
+	X.expr,
 ));
 export default class PrintV extends Statement {
 	public postfix: string;

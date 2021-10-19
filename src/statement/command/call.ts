@@ -1,7 +1,8 @@
 import P from "parsimmon";
 
 import * as assert from "../../assert";
-import * as E from "../../parser/expr";
+import * as C from "../../parser/const";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -12,10 +13,10 @@ import Statement from "../index";
 export default class Call extends Statement {
 	public static PARSER = P.alt<[string, Array<Expr | undefined>]>(
 		U.arg1R1(P.seq(
-			U.Identifier.skip(U.WS0),
-			U.wrap("(", ")", U.sepBy0(",", U.optional(E.expr))),
+			C.Identifier.skip(C.WS0),
+			U.wrap("(", ")", U.sepBy0(",", U.optional(X.expr))),
 		)),
-		U.argNR1(U.Identifier, U.optional(E.expr)).map(([f, ...r]) => [f, r]),
+		U.argNR1(C.Identifier, U.optional(X.expr)).map(([f, ...r]) => [f, r]),
 	);
 
 	public static *exec(vm: VM, target: string, argExpr: Array<Expr | undefined>) {

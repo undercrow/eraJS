@@ -4,7 +4,7 @@ import * as color from "./color";
 import type Color from "./color";
 import {Template, Data} from "./data";
 import EraJSError from "./error";
-import * as EM from "./error";
+import * as E from "./error";
 import Fn from "./fn";
 import type Property from "./property";
 import Define from "./property/define";
@@ -409,12 +409,12 @@ export default class VM {
 	public getValue<T extends Value>(name: string, scope?: string): T {
 		if (scope != null) {
 			if (!this.staticMap.has(scope)) {
-				throw EM.notFound("Scope", scope);
+				throw E.notFound("Scope", scope);
 			}
 			if (this.staticMap.get(scope)!.has(name)) {
 				return this.staticMap.get(scope)!.get(name)! as T;
 			} else {
-				throw EM.notFound("Variable", name + ":" + scope);
+				throw E.notFound("Variable", name + ":" + scope);
 			}
 		} else {
 			const context = this.context();
@@ -447,12 +447,12 @@ export default class VM {
 				case "ABLUP": result = yield* scene.ABLUP(this); break;
 				case "TURNEND": result = yield* scene.TURNEND(this); break;
 				case "DATALOADED": result = yield* scene.DATALOADED(this); break;
-				default: throw EM.notFound("Scene", begin);
+				default: throw E.notFound("Scene", begin);
 			}
 
 			switch (result?.type) {
 				case "begin": begin = result.keyword; continue;
-				case "goto": throw EM.notFound("Label", result.label);
+				case "goto": throw E.notFound("Label", result.label);
 				case "break": return null;
 				case "continue": return null;
 				case "throw": throw new Error(`Uncaught error ${result.value}`);

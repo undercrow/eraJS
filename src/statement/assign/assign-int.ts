@@ -1,5 +1,5 @@
 import Lazy from "../../lazy";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Slice from "../../slice";
 import type VM from "../../vm";
@@ -7,7 +7,7 @@ import type Expr from "../expr";
 import Variable from "../expr/variable";
 import Statement from "../index";
 
-const PARSER = U.sepBy0(",", E.expr);
+const PARSER = U.sepBy0(",", X.expr);
 export default class AssignInt extends Statement {
 	public dest: Variable;
 	public arg: Lazy<Expr[]>;

@@ -1,6 +1,6 @@
-import * as EM from "../../error";
+import * as E from "../../error";
 import {parseThunk} from "../../parser/erb";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -12,14 +12,14 @@ import Goto from "./goto";
 
 const CATCH = /^CATCH$/i;
 const ENDCATCH = /^ENDCATCH$/i;
-const PARSER = U.arg1R1(E.form[""]);
+const PARSER = U.arg1R1(X.form[""]);
 export default class TryCGotoForm extends Statement {
 	public static parse(arg: Slice, lines: Slice[], from: number): [TryCGotoForm, number] {
 		let index = from + 1;
 		if (lines.length <= index) {
-			throw EM.parser("Unexpected end of thunk in TRYCGOTOFORM expression");
+			throw E.parser("Unexpected end of thunk in TRYCGOTOFORM expression");
 		} else if (!CATCH.test(lines[index].content)) {
-			throw EM.parser("Could not find CATCH for TRYCGOTOFORM expression");
+			throw E.parser("Could not find CATCH for TRYCGOTOFORM expression");
 		}
 		index += 1;
 

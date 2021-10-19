@@ -1,5 +1,5 @@
 import * as assert from "../assert";
-import * as EM from "../error";
+import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -14,7 +14,7 @@ export default class Str0DValue implements Value {
 		} else if (index.length === 1 && index[0] === 0) {
 			return [];
 		} else {
-			throw EM.invalidIndex("0D", name, index);
+			throw E.invalidIndex("0D", name, index);
 		}
 	}
 

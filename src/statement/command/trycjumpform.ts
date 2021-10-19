@@ -1,4 +1,4 @@
-import * as EM from "../../error";
+import * as E from "../../error";
 import {parseThunk} from "../../parser/erb";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -14,9 +14,9 @@ export default class TryCJumpForm extends Statement {
 	public static parse(arg: Slice, lines: Slice[], from: number): [TryCJumpForm, number] {
 		let index = from + 1;
 		if (lines.length <= index) {
-			throw EM.parser("Unexpected end of thunk in TRYCJUMPFORM expression");
+			throw E.parser("Unexpected end of thunk in TRYCJUMPFORM expression");
 		} else if (!CATCH.test(lines[index].content)) {
-			throw EM.parser("Could not find CATCH for TRYCJUMPFORM expression");
+			throw E.parser("Could not find CATCH for TRYCJUMPFORM expression");
 		}
 		index += 1;
 

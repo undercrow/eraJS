@@ -1,7 +1,7 @@
 import P from "parsimmon";
 
 import * as assert from "../../assert";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -12,10 +12,10 @@ import Statement from "../index";
 import Call from "./call";
 
 export default class CallForm extends Statement {
-	public static PARSER(exclude: keyof (typeof E.form)) {
+	public static PARSER(exclude: keyof (typeof X.form)) {
 		return P.alt<[Form, Array<Expr | undefined>]>(
-			U.arg1R1(P.seq(E.form[exclude], U.wrap("(", ")", U.sepBy0(",", U.optional(E.expr))))),
-			U.argNR1(E.form[exclude], U.optional(E.expr)).map(([f, ...r]) => [f, r]),
+			U.arg1R1(P.seq(X.form[exclude], U.wrap("(", ")", U.sepBy0(",", U.optional(X.expr))))),
+			U.argNR1(X.form[exclude], U.optional(X.expr)).map(([f, ...r]) => [f, r]),
 		);
 	}
 

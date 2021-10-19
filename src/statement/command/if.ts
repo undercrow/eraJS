@@ -1,7 +1,7 @@
 import * as assert from "../../assert";
-import * as EM from "../../error";
+import * as E from "../../error";
 import {parseThunk} from "../../parser/erb";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -14,7 +14,7 @@ const IF = /^IF\s+/i;
 const ELSEIF = /^ELSEIF\s+/i;
 const ELSE = /^ELSE$/i;
 const ENDIF = /^ENDIF$/i;
-const PARSER = U.arg1R1(E.expr);
+const PARSER = U.arg1R1(X.expr);
 export default class If extends Statement {
 	public static parse(lines: Slice[], from: number): [If, number] {
 		let index = from;
@@ -22,7 +22,7 @@ export default class If extends Statement {
 		let elseThunk = new Thunk([]);
 		while (true) {
 			if (lines.length <= index) {
-				throw EM.parser("Unexpected end of thunk in IF expression");
+				throw E.parser("Unexpected end of thunk in IF expression");
 			}
 			const current = lines[index];
 			index += 1;
@@ -54,7 +54,7 @@ export default class If extends Statement {
 			} else if (ENDIF.test(current.content)) {
 				return [new If(ifThunk, elseThunk), index - from];
 			} else {
-				throw EM.parser("Unexpected statement in IF expression");
+				throw E.parser("Unexpected statement in IF expression");
 			}
 		}
 	}

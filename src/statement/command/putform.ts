@@ -1,5 +1,5 @@
-import * as EM from "../../error";
-import * as E from "../../parser/expr";
+import * as E from "../../error";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -7,7 +7,7 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-const PARSER = U.arg1R1(E.form[""]);
+const PARSER = U.arg1R1(X.form[""]);
 export default class PutForm extends Statement {
 	public arg: Lazy<Expr>;
 
@@ -18,7 +18,7 @@ export default class PutForm extends Statement {
 	}
 
 	public *run(_vm: VM) {
-		throw EM.notImpl("PUTFORM");
+		throw E.notImpl("PUTFORM");
 
 		return null;
 	}

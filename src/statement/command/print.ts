@@ -1,3 +1,4 @@
+import * as C from "../../parser/const";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -7,7 +8,7 @@ import Statement from "../index";
 // type OutType = "K" | "D" | null;
 type Action = "newline" | "wait" | null;
 
-const PARSER = U.arg1R0(U.charSeq()).map((str) => str ?? "");
+const PARSER = U.arg1R0(C.charSeq()).map((str) => str ?? "");
 export default class Print extends Statement {
 	public static *runPostfix(vm: VM, value: string): ReturnType<Statement["run"]> {
 		// let out: OutType = null;

@@ -160,7 +160,8 @@ import Wait from "../statement/command/wait";
 import WaitAnyKey from "../statement/command/waitanykey";
 import While from "../statement/command/while";
 import Thunk from "../thunk";
-import * as E from "./expr";
+import * as C from "./const";
+import * as X from "./expr";
 import {normalize, preprocess, toLines} from "./preprocess";
 import prop from "./property";
 import * as U from "./util";
@@ -209,17 +210,17 @@ function parseFn(lines: Slice[], from: number): [Fn, number] {
 	}
 
 	const argParser = U.sepBy0(",", P.seq(
-		E.variable,
+		X.variable,
 		P.alt(
-			P.string("=").trim(U.WS0).then(U.Int),
-			P.string("=").trim(U.WS0).then(U.Str),
-			P.string("=").trim(U.WS0).then(E.variable),
+			P.string("=").trim(C.WS0).then(C.Int),
+			P.string("=").trim(C.WS0).then(C.Str),
+			P.string("=").trim(C.WS0).then(X.variable),
 			P.succeed(null),
 		),
 	));
-	const defParser = P.string("@").then(P.seq(U.Identifier.skip(U.WS0), P.alt(
+	const defParser = P.string("@").then(P.seq(C.Identifier.skip(C.WS0), P.alt(
 		U.wrap("(", ")", argParser),
-		P.string(",").trim(U.WS0).then(argParser),
+		P.string(",").trim(C.WS0).then(argParser),
 		P.succeed([]),
 	)));
 

@@ -1,5 +1,6 @@
 import * as assert from "../../assert";
-import * as E from "../../parser/expr";
+import * as C from "../../parser/const";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -7,7 +8,7 @@ import type VM from "../../vm";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
-const PARSER = U.arg2R2(E.variable, U.Float);
+const PARSER = U.arg2R2(X.variable, C.Float);
 export default class Times extends Statement {
 	public arg: Lazy<[Variable, number]>;
 

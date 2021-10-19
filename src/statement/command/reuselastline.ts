@@ -1,6 +1,6 @@
 import * as assert from "../../assert";
-import * as EM from "../../error";
-import * as E from "../../parser/expr";
+import * as E from "../../error";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -8,7 +8,7 @@ import type VM from "../../vm";
 import type Form from "../expr/form";
 import Statement from "../index";
 
-const PARSER = U.arg1R0(E.form[""]);
+const PARSER = U.arg1R0(X.form[""]);
 export default class ReuseLastLine extends Statement {
 	public arg: Lazy<Form | undefined>;
 
@@ -22,7 +22,7 @@ export default class ReuseLastLine extends Statement {
 		const value = this.arg.get()?.reduce(vm) ?? "";
 		assert.string(value, "Argument of REUSELASTLINE must be a string");
 
-		throw EM.notImpl("REUSELASTLINE");
+		throw E.notImpl("REUSELASTLINE");
 
 		return null;
 	}

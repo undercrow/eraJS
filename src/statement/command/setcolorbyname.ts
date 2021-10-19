@@ -1,11 +1,12 @@
-import * as EM from "../../error";
+import * as E from "../../error";
+import * as C from "../../parser/const";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
 
-const PARSER = U.arg1R1(U.charSeq());
+const PARSER = U.arg1R1(C.charSeq());
 export default class SetColorByName extends Statement {
 	public arg: Lazy<string>;
 
@@ -16,7 +17,7 @@ export default class SetColorByName extends Statement {
 	}
 
 	public *run(_vm: VM) {
-		throw EM.notImpl("SETCOLORBYNAME");
+		throw E.notImpl("SETCOLORBYNAME");
 
 		return null;
 	}

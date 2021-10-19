@@ -1,5 +1,5 @@
 import {Template} from "./data";
-import * as EM from "./error";
+import * as E from "./error";
 import {SimpleValue} from "./value";
 import Int0DValue from "./value/int-0d";
 import Int1DValue from "./value/int-1d";
@@ -49,7 +49,7 @@ export default class Character {
 		if (this.values.has(name)) {
 			return this.values.get(name) as T;
 		} else {
-			throw EM.notFound("Character", name);
+			throw E.notFound("Character", name);
 		}
 	}
 }

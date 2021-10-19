@@ -1,13 +1,13 @@
 import * as assert from "../../assert";
 import Lazy from "../../lazy";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Variable from "../expr/variable";
 import Statement from "../index";
 
-const PARSER = E.expr;
+const PARSER = X.expr;
 type Operator = "*=" | "/=" | "%=" | "+=" | "-=" | "&=" | "|=" | "^=";
 export default class AssignOpInt extends Statement {
 	public dest: Variable;

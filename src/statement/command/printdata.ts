@@ -1,6 +1,7 @@
 import * as assert from "../../assert";
-import * as EM from "../../error";
-import * as E from "../../parser/expr";
+import * as E from "../../error";
+import * as C from "../../parser/const";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -16,15 +17,15 @@ const DATAFORM_EMPTY = /^DATAFORM$/i;
 const DATALIST = /^DATALIST$/i;
 const ENDLIST = /^ENDLIST$/i;
 const ENDDATA = /^ENDDATA$/i;
-const PARSER_CONST = U.arg1R0(U.charSeq()).map((value) => new Const(value ?? ""));
-const PARSER_FORM = U.arg1R1(E.form[""]);
+const PARSER_CONST = U.arg1R0(C.charSeq()).map((value) => new Const(value ?? ""));
+const PARSER_FORM = U.arg1R1(X.form[""]);
 export default class PrintData extends Statement {
 	public static parse(postfix: string, lines: Slice[], from: number): [PrintData, number] {
 		let index = from + 1;
 		const data: Lazy<Expr>[] = [];
 		while (true) {
 			if (lines.length <= index) {
-				throw EM.parser("Unexpected end of thunk in PRINTDATA expression");
+				throw E.parser("Unexpected end of thunk in PRINTDATA expression");
 			}
 			const current = lines[index];
 			index += 1;
@@ -41,7 +42,7 @@ export default class PrintData extends Statement {
 			} else if (ENDDATA.test(current.content)) {
 				return [new PrintData(lines[from], postfix, data), index - from];
 			} else {
-				throw EM.parser("Unexpected statement in PRINTDATA expression");
+				throw E.parser("Unexpected statement in PRINTDATA expression");
 			}
 		}
 	}

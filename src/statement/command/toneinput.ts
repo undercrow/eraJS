@@ -1,5 +1,6 @@
 import * as assert from "../../assert";
-import * as E from "../../parser/expr";
+import * as C from "../../parser/const";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -7,7 +8,7 @@ import type Expr from "../expr";
 import type VM from "../../vm";
 import Statement from "../index";
 
-const PARSER = U.arg4R2(E.expr, E.expr, E.expr, U.charSeq());
+const PARSER = U.arg4R2(X.expr, X.expr, X.expr, C.charSeq());
 export default class TOneInput extends Statement {
 	public arg: Lazy<[Expr, Expr, Expr | undefined, string | undefined]>;
 

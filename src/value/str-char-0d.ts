@@ -1,5 +1,5 @@
 import * as assert from "../assert";
-import * as EM from "../error";
+import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -15,7 +15,7 @@ export default class StrChar0DValue implements Value {
 		} else if (index.length === 2 && index[0] === 0) {
 			return index.slice(0, -1);
 		} else {
-			throw EM.invalidIndex("0D character", name, index);
+			throw E.invalidIndex("0D character", name, index);
 		}
 	}
 
@@ -26,7 +26,7 @@ export default class StrChar0DValue implements Value {
 	public get(vm: VM, index: number[]): string {
 		const realIndex = StrChar0DValue.normalizeIndex(vm, this.name, index);
 		if (vm.characterList.length <= realIndex[0]) {
-			throw EM.notFound("Character", `#${realIndex[0]}`);
+			throw E.notFound("Character", `#${realIndex[0]}`);
 		}
 
 		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
@@ -37,7 +37,7 @@ export default class StrChar0DValue implements Value {
 		const realIndex = StrChar0DValue.normalizeIndex(vm, this.name, index);
 		assert.string(value, "Cannot assign a number to a string variable");
 		if (vm.characterList.length <= realIndex[0]) {
-			throw EM.notFound("Character", `#${realIndex[0]}`);
+			throw E.notFound("Character", `#${realIndex[0]}`);
 		}
 
 		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;

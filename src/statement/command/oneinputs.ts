@@ -1,11 +1,12 @@
 import * as assert from "../../assert";
+import * as C from "../../parser/const";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
 
-const PARSER = U.arg1R0(U.charSeq());
+const PARSER = U.arg1R0(C.charSeq());
 export default class OneInputS extends Statement {
 	public arg: Lazy<string | undefined>;
 

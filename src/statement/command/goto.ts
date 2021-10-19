@@ -1,11 +1,12 @@
 import * as assert from "../../assert";
+import * as C from "../../parser/const";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
 
-const PARSER = U.arg1R1(U.Identifier);
+const PARSER = U.arg1R1(C.Identifier);
 export default class Goto extends Statement {
 	public static *exec(vm: VM, target: string) {
 		const realTarget = target.toUpperCase();

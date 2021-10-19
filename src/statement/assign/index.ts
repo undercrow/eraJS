@@ -1,7 +1,8 @@
 import P from "parsimmon";
 
-import * as EM from "../../error";
-import * as E from "../../parser/expr";
+import * as E from "../../error";
+import * as C from "../../parser/const";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Slice from "../../slice";
 import type VM from "../../vm";
@@ -14,13 +15,13 @@ import AssignPostfix from "./assign-postfix";
 import AssignStr from "./assign-str";
 
 const PARSER_VAR = P.seq(
-	E.variable,
+	X.variable,
 	P.alt(
 		U.alt("="),
 		U.alt("'="),
 		U.alt("*=", "/=", "%=", "+=", "-=", "&=", "|=", "^="),
 		U.alt("++", "--"),
-	).trim(U.WS0),
+	).trim(C.WS0),
 	P.all,
 );
 export default class Assign extends Statement {
@@ -53,7 +54,7 @@ export default class Assign extends Statement {
 			) {
 				this.inner = new AssignOpInt(dest, op as AssignOpInt["operator"], restSlice);
 			} else {
-				throw EM.parser("Invalid assignment expression");
+				throw E.parser("Invalid assignment expression");
 			}
 		}
 

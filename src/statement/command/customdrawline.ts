@@ -1,9 +1,10 @@
+import * as C from "../../parser/const";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import Statement from "../index";
 
-const PARSER = U.arg1R1(U.charSeq());
+const PARSER = U.arg1R1(C.charSeq());
 export default class CustomDrawLine extends Statement {
 	public arg: Lazy<string>;
 

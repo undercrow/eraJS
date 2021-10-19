@@ -1,5 +1,5 @@
 import * as assert from "../../assert";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -8,7 +8,7 @@ import type Expr from "../expr";
 import type Variable from "../expr/variable";
 import Statement from "../index";
 
-const PARSER = U.arg5R3(E.variable, E.expr, E.expr, E.expr, E.expr);
+const PARSER = U.arg5R3(X.variable, X.expr, X.expr, X.expr, X.expr);
 export default class ArrayShift extends Statement {
 	public arg: Lazy<[Variable, Expr, Expr, Expr | undefined, Expr | undefined]>;
 

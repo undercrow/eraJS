@@ -1,6 +1,6 @@
 import * as assert from "../../assert";
 import Character from "../../character";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -8,7 +8,7 @@ import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
 
-const PARSER = U.argNR0(E.expr);
+const PARSER = U.argNR0(X.expr);
 export default class AddChara extends Statement {
 	public arg: Lazy<Expr[]>;
 

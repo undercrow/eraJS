@@ -1,5 +1,5 @@
-import * as EM from "../../error";
-import * as E from "../../parser/expr";
+import * as E from "../../error";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -53,7 +53,7 @@ import toStr from "../method/tostr";
 import varSize from "../method/varsize";
 import unicode from "../method/unicode";
 
-const PARSER = U.argNR0(E.expr);
+const PARSER = U.argNR0(X.expr);
 export default class Method extends Statement {
 	public name: string;
 	public arg: Lazy<Expr[]>;
@@ -115,7 +115,7 @@ export default class Method extends Statement {
 			case "TOSTR": result = toStr(vm, arg); break;
 			case "VARSIZE": result = varSize(vm, arg); break;
 			case "UNICODE": result = unicode(vm, arg); break;
-			default: throw EM.internal(`${this.name} is not a valid method command`);
+			default: throw E.internal(`${this.name} is not a valid method command`);
 		}
 
 		if (typeof result === "number") {

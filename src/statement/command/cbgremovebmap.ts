@@ -1,4 +1,4 @@
-import * as EM from "../../error";
+import * as E from "../../error";
 import * as U from "../../parser/util";
 import Slice from "../../slice";
 import Statement from "../index";
@@ -12,7 +12,7 @@ export default class CbgRemoveBmap extends Statement {
 	}
 
 	public *run() {
-		throw EM.notImpl("CBGREMOVEBMAP");
+		throw E.notImpl("CBGREMOVEBMAP");
 
 		return null;
 	}

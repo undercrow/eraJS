@@ -1,5 +1,5 @@
 import * as assert from "../assert";
-import * as EM from "../error";
+import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
@@ -18,7 +18,7 @@ export default class Int2DValue implements Value {
 		} else if (index.length === 3 && index[2] === 0) {
 			return index.slice(0, -1);
 		} else {
-			throw EM.invalidIndex("2D", name, index);
+			throw E.invalidIndex("2D", name, index);
 		}
 	}
 

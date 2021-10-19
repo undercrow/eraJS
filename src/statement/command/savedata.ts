@@ -1,5 +1,5 @@
 import * as assert from "../../assert";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Dim from "../../property/dim";
@@ -42,7 +42,7 @@ export const whitelist = [
 ];
 /* eslint-enable array-element-newline */
 
-const PARSER = U.arg2R2(E.expr, E.expr);
+const PARSER = U.arg2R2(X.expr, X.expr);
 export default class SaveData extends Statement {
 	public arg: Lazy<[Expr, Expr]>;
 

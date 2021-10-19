@@ -2,7 +2,7 @@ import P from "parsimmon";
 
 import * as assert from "../../assert";
 import * as color from "../../color";
-import * as E from "../../parser/expr";
+import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
@@ -11,8 +11,8 @@ import type Expr from "../expr";
 import Statement from "../index";
 
 const PARSER = P.alt<Expr | [Expr, Expr, Expr]>(
-	U.arg3R3(E.expr, E.expr, E.expr),
-	U.arg1R1(E.expr),
+	U.arg3R3(X.expr, X.expr, X.expr),
+	U.arg1R1(X.expr),
 );
 export default class SetBgColor extends Statement {
 	public arg: Lazy<Expr | [Expr, Expr, Expr]>;

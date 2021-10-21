@@ -1,5 +1,4 @@
 import * as assert from "../../assert";
-import * as E from "../../error";
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
@@ -18,11 +17,12 @@ export default class ReuseLastLine extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public *run(vm: VM): ReturnType<Statement["run"]> {
 		const value = this.arg.get()?.reduce(vm) ?? "";
 		assert.string(value, "Argument of REUSELASTLINE must be a string");
 
-		throw E.notImpl("REUSELASTLINE");
+		yield* vm.print(value);
+		vm.isLineTemp = true;
 
 		return null;
 	}

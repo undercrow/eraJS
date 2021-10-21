@@ -63,6 +63,7 @@ export default class VM {
 	public alignment!: Align;
 	public draw!: boolean;
 	public isLineEmpty!: boolean;
+	public isLineTemp!: boolean;
 	public skipDisp!: boolean;
 	public font!: {
 		name: string;
@@ -137,6 +138,7 @@ export default class VM {
 		this.alignment = "LEFT";
 		this.draw = true;
 		this.isLineEmpty = true;
+		this.isLineTemp = false;
 		this.skipDisp = false;
 		this.font = {
 			name: "",
@@ -482,6 +484,11 @@ export default class VM {
 	}
 
 	public *print(text: string, cell?: "LEFT" | "RIGHT"): ReturnType<Statement["run"]> {
+		if (this.isLineTemp) {
+			yield <const>{type: "clearline", count: 1};
+			this.isLineTemp = false;
+		}
+
 		if (text.length > 0) {
 			yield <const>{type: "string", text, cell};
 			this.isLineEmpty = false;
@@ -491,6 +498,11 @@ export default class VM {
 	}
 
 	public *newline(): ReturnType<Statement["run"]> {
+		if (this.isLineTemp) {
+			yield <const>{type: "clearline", count: 1};
+			this.isLineTemp = false;
+		}
+
 		yield <const>{type: "newline"};
 		const lineCount = this.getValue("LINECOUNT").get(this, []) as number;
 		this.getValue("LINECOUNT").set(this, lineCount + 1, []);

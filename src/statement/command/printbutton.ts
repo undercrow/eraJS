@@ -26,12 +26,11 @@ export default class PrintButton extends Statement {
 		assert.string(text, "1st argument of PRINTBUTTON must be a string");
 		const value = valueExpr.reduce(vm);
 
-		yield <const>{
-			type: "button",
+		yield* vm.queue.button(
 			text,
-			value: typeof value === "string" ? value : value.toString(),
-			cell: this.align,
-		};
+			typeof value === "string" ? value : value.toString(),
+			this.align,
+		);
 
 		return null;
 	}

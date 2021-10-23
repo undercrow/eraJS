@@ -20,7 +20,7 @@ export default class Bar extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
@@ -34,10 +34,10 @@ export default class Bar extends Statement {
 		assert.number(length, "3rd argument of BAR must be a number");
 
 		const filled = Math.floor(length * (value / max));
-		yield* vm.print("[" + "*".repeat(filled) + ".".repeat(length - filled) + "]");
+		yield* vm.queue.print("[" + "*".repeat(filled) + ".".repeat(length - filled) + "]");
 
 		if (this.newline) {
-			yield* vm.newline();
+			yield* vm.queue.newline();
 		}
 
 		return null;

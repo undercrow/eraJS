@@ -18,7 +18,7 @@ export default class PrintPalam extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
@@ -64,12 +64,12 @@ export default class PrintPalam extends Statement {
 
 			text += value.toString();
 
-			yield* vm.print(text, "LEFT");
+			yield* vm.queue.print(text, "LEFT");
 			if ((i + 1) % vm.printCPerLine === 0) {
-				yield* vm.newline();
+				yield* vm.queue.newline();
 			}
 		}
-		yield* vm.newline();
+		yield* vm.queue.newline();
 
 		return null;
 	}

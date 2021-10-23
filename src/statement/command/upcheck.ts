@@ -32,7 +32,7 @@ export default class UpCheck extends Statement {
 			vm.getValue("UP").set(vm, 0, [i]);
 			vm.getValue("DOWN").set(vm, 0, [i]);
 
-			if (!vm.skipDisp) {
+			if (!vm.queue.skipDisp) {
 				const name = vm.code.data.palam.get(i)!;
 				let text = `${name} ${palam}`;
 				if (up > 0) {
@@ -43,8 +43,8 @@ export default class UpCheck extends Statement {
 				}
 				text += `=${result}`;
 
-				yield* vm.print(text);
-				yield* vm.newline();
+				yield* vm.queue.print(text);
+				yield* vm.queue.newline();
 			}
 		}
 

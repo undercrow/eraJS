@@ -21,14 +21,14 @@ export default class PrintSingleS extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
 		const arg = this.arg.get().reduce(vm);
 		assert.string(arg, "1st argument of PRINTSINGLES must be a string");
 
-		yield* vm.printSingle(arg);
+		yield* vm.queue.printSingle(arg);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

@@ -21,10 +21,7 @@ export default class ClearLine extends Statement {
 		const count = this.arg.get().reduce(vm);
 		assert.number(count, "Argument of CLEARLINE must be an integer!");
 
-		yield <const>{type: "clearline", count};
-
-		const lineCount = vm.getValue("LINECOUNT").get(vm, [0]) as number;
-		vm.getValue("LINECOUNT").set(vm, lineCount - count, []);
+		yield* vm.queue.clear(count);
 
 		return null;
 	}

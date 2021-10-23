@@ -58,7 +58,7 @@ export default class PrintData extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
@@ -66,7 +66,7 @@ export default class PrintData extends Statement {
 		const value = this.data[index].get().reduce(vm);
 		assert.string(value, "Item of PRINTDATA must be a string");
 
-		yield* vm.print(value);
+		yield* vm.queue.print(value);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

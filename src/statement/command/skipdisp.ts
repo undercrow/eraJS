@@ -21,7 +21,7 @@ export default class SkipDisp extends Statement {
 		const value = this.arg.get().reduce(vm);
 		assert.number(value, "Argument of SKIPDISP must be a number");
 
-		vm.skipDisp = value !== 0;
+		vm.queue.skipDisp = value !== 0;
 
 		return null;
 	}

@@ -20,8 +20,14 @@ export default class Redraw extends Statement {
 	public *run(vm: VM) {
 		const value = this.arg.get().reduce(vm);
 		assert.number(value, "Argument of REDRAW must be a number");
+		assert.cond(value > 0 && value <= 3, "Argument of REDRAW must be between 0 and 3");
 
-		vm.draw = value !== 0;
+		switch (value) {
+			case 0: vm.queue.draw = false; break;
+			case 1: vm.queue.draw = true; break;
+			case 2: vm.queue.draw = false; yield* vm.queue.flush(); break;
+			case 3: vm.queue.draw = true; yield* vm.queue.flush(); break;
+		}
 
 		return null;
 	}

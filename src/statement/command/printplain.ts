@@ -29,14 +29,14 @@ export default class PrintPlain extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
 		const text = this.arg.get().reduce(vm);
 		assert.string(text, "1st argument of PRINTPLAIN must be a string");
 
-		yield* vm.print(text);
+		yield* vm.queue.print(text);
 
 		return null;
 	}

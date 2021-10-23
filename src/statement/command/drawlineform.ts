@@ -18,11 +18,7 @@ export default class DrawLineForm extends Statement {
 
 	public *run(vm: VM) {
 		const value = this.arg.get().reduce(vm);
-
-		yield <const>{
-			type: "line",
-			value,
-		};
+		yield* vm.queue.line(value);
 
 		return null;
 	}

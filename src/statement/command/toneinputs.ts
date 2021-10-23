@@ -27,17 +27,12 @@ export default class TOneInputS extends Statement {
 		const show = showExpr?.reduce(vm) ?? 0;
 		assert.number(show, "3rd argument of TONEINPUTS should be a number");
 
-		const input = yield <const>{
-			type: "input",
-			numeric: false,
-			timeout,
-			showClock: show === 1,
-		};
+		const input = yield* vm.queue.input(false, timeout, show === 1);
 
 		let value: string;
 		if (input == null) {
 			if (message != null) {
-				yield* vm.printSingle(message);
+				yield* vm.queue.printSingle(message);
 			}
 			value = def;
 		} else {

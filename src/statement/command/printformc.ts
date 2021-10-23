@@ -22,11 +22,11 @@ export default class PrintFormC extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
-		yield* vm.print(this.arg.get().reduce(vm), this.align);
+		yield* vm.queue.print(this.arg.get().reduce(vm), this.align);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

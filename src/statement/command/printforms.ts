@@ -21,7 +21,7 @@ export default class PrintFormS extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
@@ -30,7 +30,7 @@ export default class PrintFormS extends Statement {
 		const text = X.form[""].tryParse(form).reduce(vm);
 		assert.string(text, "1st argument of PRINTFORMS must be reduced to a string");
 
-		yield* vm.print(text);
+		yield* vm.queue.print(text);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

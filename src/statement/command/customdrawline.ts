@@ -2,6 +2,7 @@ import * as C from "../../parser/const";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
+import type VM from "../../vm";
 import Statement from "../index";
 
 const PARSER = U.arg1R1(C.charSeq());
@@ -14,13 +15,10 @@ export default class CustomDrawLine extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run() {
+	public *run(vm: VM) {
 		const value = this.arg.get();
 
-		yield <const>{
-			type: "line",
-			value,
-		};
+		yield* vm.queue.line(value);
 
 		return null;
 	}

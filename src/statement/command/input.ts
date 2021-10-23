@@ -19,7 +19,7 @@ export default class Input extends Statement {
 	public *run(vm: VM): ReturnType<Statement["run"]> {
 		const arg = this.arg.get();
 
-		const input = yield <const>{type: "input", numeric: true};
+		const input = yield* vm.queue.input(true);
 		assert.cond(input != null, "Input value for INPUT should be a valid number");
 
 		let value = Number(input);

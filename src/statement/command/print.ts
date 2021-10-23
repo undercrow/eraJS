@@ -30,12 +30,12 @@ export default class Print extends Statement {
 		// TODO: Apply outType
 		switch (action) {
 			case "newline": {
-				yield* vm.newline();
+				yield* vm.queue.newline();
 				break;
 			}
 			case "wait": {
-				yield* vm.newline();
-				yield <const>{type: "wait", force: false};
+				yield* vm.queue.newline();
+				yield* vm.queue.wait(false);
 				break;
 			}
 			case null: {
@@ -58,11 +58,11 @@ export default class Print extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
-		yield* vm.print(this.value.get());
+		yield* vm.queue.print(this.value.get());
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

@@ -1,13 +1,5 @@
 import Slice from "./slice";
 
-export enum ErrorType {
-	Parser,
-	NotFound,
-	InvalidIndex,
-	NotImpl,
-	Internal,
-}
-
 export default class EraJSError extends Error {
 	public line: Slice;
 	public trace: string[];

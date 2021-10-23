@@ -19,11 +19,11 @@ export default class PrintSingle extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
-		yield* vm.printSingle(this.arg.get());
+		yield* vm.queue.printSingle(this.arg.get());
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

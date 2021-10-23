@@ -12,11 +12,7 @@ export default class Wait extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
-			return null;
-		}
-
-		yield <const>{type: "wait", force: false};
+		yield* vm.queue.wait(false);
 
 		return null;
 	}

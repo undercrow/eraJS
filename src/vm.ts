@@ -6,6 +6,7 @@ import {Template, Data} from "./data";
 import EraJSError from "./error";
 import * as E from "./error";
 import Fn from "./fn";
+import OutputQueue from "./output-queue";
 import type Property from "./property";
 import Define from "./property/define";
 import Dim from "./property/dim";
@@ -18,6 +19,7 @@ import * as scene from "./scene";
 import Thunk from "./thunk";
 import Value from "./value";
 import CharaNumValue from "./value/special/charanum";
+import LineCountValue from "./value/special/linecount";
 import RandValue from "./value/special/rand";
 
 type Context = {
@@ -62,11 +64,9 @@ export default class VM {
 	public characterList: Array<Character>;
 	private contextStack: Array<Context>;
 
+	public queue!: OutputQueue;
+
 	public alignment!: Align;
-	public draw!: boolean;
-	public isLineEmpty!: boolean;
-	public isLineTemp!: boolean;
-	public skipDisp!: boolean;
 	public font!: {
 		name: string;
 		bold: boolean;
@@ -137,11 +137,9 @@ export default class VM {
 	}
 
 	public reset() {
+		this.queue = new OutputQueue();
+
 		this.alignment = "LEFT";
-		this.draw = true;
-		this.isLineEmpty = true;
-		this.isLineTemp = false;
-		this.skipDisp = false;
 		this.font = {
 			name: "",
 			bold: false,
@@ -319,7 +317,7 @@ export default class VM {
 		this.globalMap.set("GAMEBASE_NOITEM", Value.Int0D(data, "GAMEBASE_NOITEM"));
 		this.globalMap.set("LASTLOAD_VERSION", Value.Int0D(data, "LASTLOAD_VERSION").reset(-1));
 		this.globalMap.set("LASTLOAD_NO", Value.Int0D(data, "LASTLOAD_NO").reset(-1));
-		this.globalMap.set("LINECOUNT", Value.Int0D(data, "LINECOUNT"));
+		this.globalMap.set("LINECOUNT", new LineCountValue());
 		this.globalMap.set("ISTIMEOUT", Value.Int0D(data, "ISTIMEOUT"));
 		this.globalMap.set("__INT_MAX__", Value.Int0D(data, "__INT_MAX__").reset(2 ** 32 - 1));
 		this.globalMap.set("__INT_MIN__", Value.Int0D(data, "__INT_MIN__").reset(-(2 ** 32 - 1)));
@@ -483,43 +481,5 @@ export default class VM {
 
 			throw new EraJSError((e as Error).message, statement.raw, trace);
 		}
-	}
-
-	public *print(text: string, cell?: "LEFT" | "RIGHT"): ReturnType<Statement["run"]> {
-		if (this.isLineTemp) {
-			yield <const>{type: "clearline", count: 1};
-			this.isLineTemp = false;
-		}
-
-		if (text.length > 0) {
-			yield <const>{type: "string", text, cell};
-			this.isLineEmpty = false;
-		}
-
-		return null;
-	}
-
-	public *newline(): ReturnType<Statement["run"]> {
-		if (this.isLineTemp) {
-			yield <const>{type: "clearline", count: 1};
-			this.isLineTemp = false;
-		}
-
-		yield <const>{type: "newline"};
-		const lineCount = this.getValue("LINECOUNT").get(this, []) as number;
-		this.getValue("LINECOUNT").set(this, lineCount + 1, []);
-		this.isLineEmpty = true;
-
-		return null;
-	}
-
-	public *printSingle(text: string): ReturnType<Statement["run"]> {
-		if (!this.isLineEmpty) {
-			yield* this.newline();
-		}
-		yield* this.print(text);
-		yield* this.newline();
-
-		return null;
 	}
 }

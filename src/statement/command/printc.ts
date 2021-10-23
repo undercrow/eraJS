@@ -21,11 +21,11 @@ export default class PrintC extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
-		yield* vm.print(this.value.get(), this.align);
+		yield* vm.queue.print(this.value.get(), this.align);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

@@ -111,7 +111,7 @@ export function* TRAIN(vm: VM) {
 				}
 				yield new Call(new Slice(FILE, 0, "CALL SHOW_USERCOM", "CALL".length));
 
-				vm.skipDisp = false;
+				vm.queue.skipDisp = false;
 				vm.getValue<Int1DValue>("UP").reset([]);
 				vm.getValue<Int1DValue>("DOWN").reset([]);
 				vm.getValue<Int1DValue>("LOSEBASE").reset([]);
@@ -156,7 +156,7 @@ export function* TRAIN(vm: VM) {
 export function* AFTERTRAIN(vm: VM) {
 	return yield* runScene(vm, function* () {
 		// TODO: Ctrain
-		vm.skipDisp = false;
+		vm.queue.skipDisp = false;
 		yield* eventStatement(vm, "EVENTEND");
 	});
 }
@@ -164,7 +164,7 @@ export function* AFTERTRAIN(vm: VM) {
 export function* ABLUP(vm: VM) {
 	return yield* runScene(vm, function* () {
 		while (true) {
-			vm.skipDisp = false;
+			vm.queue.skipDisp = false;
 			yield new Call(new Slice(FILE, 0, "CALL SHOW_JUEL", "CALL".length));
 			yield new Call(new Slice(FILE, 0, "CALL SHOW_ABLUP_SELECT", "CALL".length));
 			yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
@@ -180,7 +180,7 @@ export function* ABLUP(vm: VM) {
 
 export function* TURNEND(vm: VM) {
 	return yield* runScene(vm, function* () {
-		vm.skipDisp = false;
+		vm.queue.skipDisp = false;
 		yield* eventStatement(vm, "EVENTTURNEND");
 	});
 }

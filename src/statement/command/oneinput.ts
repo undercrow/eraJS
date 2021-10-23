@@ -20,7 +20,7 @@ export default class OneInput extends Statement {
 	public *run(vm: VM): ReturnType<Statement["run"]> {
 		const arg = this.arg.get();
 
-		const input = yield <const>{type: "input", numeric: true};
+		const input = yield* vm.queue.input(true);
 		assert.cond(input != null, "First value of input for ONEINPUT should be a valid number");
 
 		let value = Number(input[0]);

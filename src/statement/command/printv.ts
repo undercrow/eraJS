@@ -27,7 +27,7 @@ export default class PrintV extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
@@ -36,7 +36,7 @@ export default class PrintV extends Statement {
 			text += value.reduce(vm).toString();
 		}
 
-		yield* vm.print(text);
+		yield* vm.queue.print(text);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

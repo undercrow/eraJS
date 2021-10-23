@@ -21,14 +21,14 @@ export default class PrintS extends Statement {
 	}
 
 	public *run(vm: VM) {
-		if (vm.skipDisp) {
+		if (vm.queue.skipDisp) {
 			return null;
 		}
 
 		const text = this.arg.get().reduce(vm);
 		assert.string(text, "1st argument of PRINTS must be a string");
 
-		yield* vm.print(text);
+		yield* vm.queue.print(text);
 		yield* Print.runPostfix(vm, this.postfix);
 
 		return null;

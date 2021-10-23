@@ -13,7 +13,7 @@ import Dim from "./property/dim";
 import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import PRNG from "./random";
-import type {default as Statement, Result} from "./statement";
+import type {default as Statement, EraGenerator, Result} from "./statement";
 import type {Align} from "./statement/command/alignment";
 import * as scene from "./scene";
 import Thunk from "./thunk";
@@ -434,7 +434,7 @@ export default class VM {
 		}
 	}
 
-	public *start(external: VM["external"]): ReturnType<Statement["run"]> {
+	public *start(external: VM["external"]): EraGenerator {
 		this.external = external;
 
 		let begin = "TITLE";
@@ -465,7 +465,7 @@ export default class VM {
 		}
 	}
 
-	public *run(statement: Statement, label?: string): ReturnType<Statement["run"]> {
+	public *run(statement: Statement, label?: string): EraGenerator {
 		try {
 			return yield* statement.run(this, label);
 		} catch (e) {

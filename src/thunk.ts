@@ -1,4 +1,4 @@
-import Statement from "./statement";
+import Statement, {EraGenerator} from "./statement";
 import Case from "./statement/command/case";
 import DoWhile from "./statement/command/dowhile";
 import For from "./statement/command/for";
@@ -50,7 +50,7 @@ export default class Thunk {
 		}
 	}
 
-	public *run(vm: VM, label?: string): ReturnType<Statement["run"]> {
+	public *run(vm: VM, label?: string): EraGenerator {
 		let start = 0;
 		if (label != null) {
 			start = this.labelMap.get(label) ?? 0;

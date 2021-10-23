@@ -6,7 +6,7 @@ import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type Expr from "../expr";
 import type VM from "../../vm";
-import Statement from "../index";
+import Statement, {EraGenerator} from "../index";
 
 const PARSER = U.arg4R2(X.expr, X.expr, X.expr, C.charSeq());
 export default class TInput extends Statement {
@@ -18,7 +18,7 @@ export default class TInput extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM): ReturnType<Statement["run"]> {
+	public *run(vm: VM): EraGenerator {
 		const [timeoutExpr, defExpr, showExpr, message] = this.arg.get();
 		const timeout = timeoutExpr.reduce(vm);
 		assert.number(timeout, "1st argument of TINPUT should be a number");

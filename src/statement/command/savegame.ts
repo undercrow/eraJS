@@ -1,6 +1,6 @@
 import * as U from "../../parser/util";
 import Slice from "../../slice";
-import Statement from "../index";
+import Statement, {EraGenerator} from "../index";
 
 const PARSER = U.arg0R0();
 export default class SaveGame extends Statement {
@@ -10,7 +10,7 @@ export default class SaveGame extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(): ReturnType<Statement["run"]> {
+	public *run(): EraGenerator {
 		return {
 			type: "begin",
 			keyword: "SAVEGAME",

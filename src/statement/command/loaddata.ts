@@ -13,7 +13,7 @@ import Str0DValue from "../../value/str-0d";
 import Str1DValue from "../../value/str-1d";
 import type VM from "../../vm";
 import type Expr from "../expr";
-import Statement from "../index";
+import Statement, {EraGenerator} from "../index";
 
 const PARSER = U.arg1R1(X.expr);
 export default class LoadData extends Statement {
@@ -25,7 +25,7 @@ export default class LoadData extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM): ReturnType<Statement["run"]> {
+	public *run(vm: VM): EraGenerator {
 		const index = this.arg.get().reduce(vm);
 		assert.number(index, "Argument of LOADDATA must be a number");
 

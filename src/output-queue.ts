@@ -1,4 +1,4 @@
-import type {default as Statement, Output} from "./statement";
+import type {EraGenerator, Output} from "./statement";
 
 export default class OutputQueue {
 	public buffer: Output[];
@@ -17,27 +17,23 @@ export default class OutputQueue {
 		this.isLineTemp = false;
 	}
 
-	private *clearTemp(): ReturnType<Statement["run"]> {
+	private *clearTemp(): EraGenerator<void> {
 		if (this.isLineTemp) {
 			this.buffer.push({type: "clear", count: 1});
 			this.buffer.push({type: "newline"});
 			this.isLineTemp = false;
 			this.isLineEmpty = true;
 		}
-
-		return null;
 	}
 
-	public *flush(): ReturnType<Statement["run"]> {
+	public *flush(): EraGenerator<void> {
 		for (const output of this.buffer) {
 			yield output;
 		}
 		this.buffer = [];
-
-		return null;
 	}
 
-	public *newline(): ReturnType<Statement["run"]> {
+	public *newline(): EraGenerator<void> {
 		if (this.isLineTemp) {
 			this.buffer.push({type: "clear", count: 1});
 			this.lineCount -= 1;
@@ -50,11 +46,9 @@ export default class OutputQueue {
 		if (this.draw) {
 			yield* this.flush();
 		}
-
-		return null;
 	}
 
-	public *print(text: string, cell?: "LEFT" | "RIGHT"): ReturnType<Statement["run"]> {
+	public *print(text: string, cell?: "LEFT" | "RIGHT"): EraGenerator<void> {
 		yield* this.clearTemp();
 		if (text.length > 0) {
 			this.buffer.push({type: "string", text, cell});
@@ -64,25 +58,17 @@ export default class OutputQueue {
 		if (this.draw) {
 			yield* this.flush();
 		}
-
-		return null;
 	}
 
-	public *printSingle(text: string): ReturnType<Statement["run"]> {
+	public *printSingle(text: string): EraGenerator<void> {
 		if (!this.isLineEmpty) {
 			yield* this.newline();
 		}
 		yield* this.print(text);
 		yield* this.newline();
-
-		return null;
 	}
 
-	public *button(
-		text: string,
-		value: string,
-		cell?: "LEFT" | "RIGHT",
-	): ReturnType<Statement["run"]> {
+	public *button(text: string, value: string, cell?: "LEFT" | "RIGHT"): EraGenerator<void> {
 		yield* this.clearTemp();
 		this.buffer.push({type: "button", text, value, cell});
 		this.isLineEmpty = false;
@@ -90,11 +76,9 @@ export default class OutputQueue {
 		if (this.draw) {
 			yield* this.flush();
 		}
-
-		return null;
 	}
 
-	public *line(value?: string): ReturnType<Statement["run"]> {
+	public *line(value?: string): EraGenerator<void> {
 		yield* this.clearTemp();
 		this.buffer.push({type: "line", value});
 
@@ -104,11 +88,9 @@ export default class OutputQueue {
 
 		this.lineCount += 1;
 		this.isLineEmpty = true;
-
-		return null;
 	}
 
-	public *clear(count: number): ReturnType<Statement["run"]> {
+	public *clear(count: number): EraGenerator<void> {
 		if (count > 0) {
 			this.buffer.push({type: "clear", count});
 			this.lineCount = Math.max(0, this.lineCount - count);
@@ -118,22 +100,18 @@ export default class OutputQueue {
 		if (this.draw) {
 			yield* this.flush();
 		}
-
-		return null;
 	}
 
-	public *wait(force: boolean): ReturnType<Statement["run"]> {
+	public *wait(force: boolean): EraGenerator<void> {
 		yield* this.flush();
 		yield {type: "wait", force};
-
-		return null;
 	}
 
 	public *input(
 		numeric: boolean,
 		timeout?: number,
 		showClock?: boolean,
-	): Generator<Output, string | null, string | null> {
+	): EraGenerator<string | null> {
 		yield* this.flush();
 		return yield {type: "input", numeric, timeout, showClock};
 	}

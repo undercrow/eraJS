@@ -4,7 +4,7 @@ import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type VM from "../../vm";
-import Statement from "../index";
+import Statement, {EraGenerator} from "../index";
 
 const PARSER = U.arg1R0(C.Int);
 export default class OneInput extends Statement {
@@ -17,7 +17,7 @@ export default class OneInput extends Statement {
 	}
 
 	// TODO: use only the first character of argument
-	public *run(vm: VM): ReturnType<Statement["run"]> {
+	public *run(vm: VM): EraGenerator {
 		const arg = this.arg.get();
 
 		const input = yield* vm.queue.input(true);

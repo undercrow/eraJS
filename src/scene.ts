@@ -1,5 +1,5 @@
 import Slice from "./slice";
-import type {default as Statement} from "./statement";
+import type {default as Statement, EraGenerator} from "./statement";
 import Call from "./statement/command/call";
 import Input from "./statement/command/input";
 import Print from "./statement/command/print";
@@ -10,7 +10,7 @@ import VM from "./vm";
 
 const FILE = "BUILTIN.ERB";
 
-function* runScene(vm: VM, scene: () => Generator<Statement>): ReturnType<Statement["run"]> {
+function* runScene(vm: VM, scene: () => Generator<Statement>): EraGenerator {
 	const generator = scene();
 	while (true) {
 		const next = generator.next();

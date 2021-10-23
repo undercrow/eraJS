@@ -3,14 +3,14 @@ import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type VM from "../../vm";
-import Statement from "../index";
+import Statement, {EraGenerator} from "../index";
 
 // type OutType = "K" | "D" | null;
 type Action = "newline" | "wait" | null;
 
 const PARSER = U.arg1R0(C.charSeq()).map((str) => str ?? "");
 export default class Print extends Statement {
-	public static *runPostfix(vm: VM, value: string): ReturnType<Statement["run"]> {
+	public static *runPostfix(vm: VM, value: string): EraGenerator<void> {
 		// let out: OutType = null;
 		let action: Action = null;
 
@@ -43,8 +43,6 @@ export default class Print extends Statement {
 				break;
 			}
 		}
-
-		return null;
 	}
 
 	public postfix: string;

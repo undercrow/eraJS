@@ -20,6 +20,8 @@ export type Result =
 	| {type: "return"; value: Array<number | string>}
 	| {type: "quit"};
 
+export type EraGenerator<T = Result | null> = Generator<Output, T, string | null>;
+
 export default class Statement {
 	public raw: Slice;
 
@@ -27,7 +29,7 @@ export default class Statement {
 		this.raw = raw;
 	}
 
-	public *run(_vm: VM, _label?: string): Generator<Output, Result | null, string | null> {
+	public *run(_vm: VM, _label?: string): EraGenerator {
 		return null;
 	}
 }

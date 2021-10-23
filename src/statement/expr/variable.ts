@@ -3,7 +3,6 @@ import Value from "../../value";
 import type VM from "../../vm";
 import type Expr from "./index";
 
-// TODO: index
 export default class Variable implements Expr {
 	public name: string;
 	public index: Expr[];

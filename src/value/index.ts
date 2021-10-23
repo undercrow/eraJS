@@ -12,13 +12,6 @@ import StrChar0DValue from "./str-char-0d";
 import StrChar1DValue from "./str-char-1d";
 
 export type Leaf = number | string;
-export type SimpleValue =
-	| Int0DValue
-	| Int1DValue
-	| Int2DValue
-	| Int3DValue
-	| Str0DValue
-	| Str1DValue;
 export default abstract class Value<T> {
 	public abstract type: "string" | "number";
 	public abstract name: string;

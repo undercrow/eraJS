@@ -27,22 +27,22 @@ export default class Character {
 				this.values.set(name, new Str1DValue(name, value.size));
 			}
 		}
-		(this.values.get("NO") as Int0DValue).reset(template.id);
-		(this.values.get("NAME") as Str0DValue).reset(template.name);
-		(this.values.get("CALLNAME") as Str0DValue).reset(template.callname);
-		(this.values.get("NICKNAME") as Str0DValue).reset(template.nickname);
-		(this.values.get("MASTERNAME") as Str0DValue).reset(template.mastername);
-		(this.values.get("BASE") as Int1DValue).reset(template.maxBase);
-		(this.values.get("MAXBASE") as Int1DValue).reset(template.maxBase);
-		(this.values.get("MARK") as Int1DValue).reset(template.mark);
-		(this.values.get("EXP") as Int1DValue).reset(template.exp);
-		(this.values.get("ABL") as Int1DValue).reset(template.abilities);
-		(this.values.get("TALENT") as Int1DValue).reset(template.talent);
+		this.getValue<Int0DValue>("NO").reset(template.id);
+		this.getValue<Str0DValue>("NAME").reset(template.name);
+		this.getValue<Str0DValue>("CALLNAME").reset(template.callname);
+		this.getValue<Str0DValue>("NICKNAME").reset(template.nickname);
+		this.getValue<Str0DValue>("MASTERNAME").reset(template.mastername);
+		this.getValue<Int1DValue>("BASE").reset(template.maxBase);
+		this.getValue<Int1DValue>("MAXBASE").reset(template.maxBase);
+		this.getValue<Int1DValue>("MARK").reset(template.mark);
+		this.getValue<Int1DValue>("EXP").reset(template.exp);
+		this.getValue<Int1DValue>("ABL").reset(template.abilities);
+		this.getValue<Int1DValue>("TALENT").reset(template.talent);
 		// TODO: RELATION
-		(this.values.get("CFLAG") as Int1DValue).reset(template.flags);
+		this.getValue<Int1DValue>("CFLAG").reset(template.flags);
 		// TODO: EQUIP
-		(this.values.get("JUEL") as Int1DValue).reset(template.juel);
-		(this.values.get("CSTR") as Str1DValue).reset(template.cstr);
+		this.getValue<Int1DValue>("JUEL").reset(template.juel);
+		this.getValue<Str1DValue>("CSTR").reset(template.cstr);
 	}
 
 	public getValue<T extends Value<any>>(name: string): T {

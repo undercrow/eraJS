@@ -6,7 +6,6 @@ import Int2DValue from "./int-2d";
 import Int3DValue from "./int-3d";
 import IntChar0DValue from "./int-char-0d";
 import IntChar1DValue from "./int-char-1d";
-import RandValue from "./rand";
 import Str0DValue from "./str-0d";
 import Str1DValue from "./str-1d";
 import StrChar0DValue from "./str-char-0d";
@@ -20,17 +19,15 @@ export type SimpleValue =
 	| Int3DValue
 	| Str0DValue
 	| Str1DValue;
-export default abstract class Value {
+export default abstract class Value<T> {
 	public abstract type: "string" | "number";
 	public abstract name: string;
+	public abstract value: T;
+	public abstract reset(value: T): this;
 	public abstract get(vm: VM, index: number[]): Leaf;
 	public abstract set(vm: VM, value: Leaf, index: number[]): void;
 	public abstract rangeSet(vm: VM, value: Leaf, index: number[], range: [number, number]): void;
 	public abstract length(depth: number): number;
-
-	public static Rand(_data: Data, name: string): RandValue {
-		return new RandValue(name);
-	}
 
 	public static Int0D(_data: Data, name: string) {
 		return new Int0DValue(name);

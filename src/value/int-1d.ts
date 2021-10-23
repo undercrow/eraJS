@@ -3,7 +3,7 @@ import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
-export default class Int1DValue implements Value {
+export default class Int1DValue implements Value<number[]> {
 	public type = <const>"number";
 	public name: string;
 	public value: number[];
@@ -25,7 +25,7 @@ export default class Int1DValue implements Value {
 		this.value = new Array<number>(size0).fill(0);
 	}
 
-	public reset(value: number[] | Map<number, number>): Int1DValue {
+	public reset(value: number[] | Map<number, number>): this {
 		for (let i = 0; i < this.value.length; ++i) {
 			this.value[i] = 0;
 		}

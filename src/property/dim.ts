@@ -55,7 +55,7 @@ export default class Dim {
 		return this.prefix.has("CHARADATA");
 	}
 
-	public build(vm: VM): Value {
+	public build(vm: VM): Value<any> {
 		if (this.value != null && this.value.length === 0 && this.type === "number") {
 			const value = this.value[0].reduce(vm);
 			assert.number(value, "Default value for 0D #DIM must be a number");

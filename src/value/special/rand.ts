@@ -1,13 +1,19 @@
-import * as assert from "../assert";
-import type VM from "../vm";
-import type {default as Value, Leaf} from "./index";
+import * as assert from "../../assert";
+import * as E from "../../error";
+import type VM from "../../vm";
+import type {default as Value, Leaf} from "../index";
 
-export default class RandValue implements Value {
+export default class RandValue implements Value<never> {
 	public type = <const>"number";
-	public name: string;
+	public name = <const>"RAND";
+	public value!: never;
 
-	public constructor(name: string) {
-		this.name = name;
+	public constructor() {
+		// Do nothing
+	}
+
+	public reset(): this {
+		throw E.internal(`${this.name} cannot be reset`);
 	}
 
 	public get(vm: VM, index: number[]): number {

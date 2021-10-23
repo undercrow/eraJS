@@ -3,9 +3,10 @@ import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
-export default class IntChar1DValue implements Value {
+export default class IntChar1DValue implements Value<never> {
 	public type = <const>"number";
 	public name: string;
+	public value!: never;
 	public size: number;
 
 	public static normalizeIndex(vm: VM, name: string, index: number[]): number[] {
@@ -25,6 +26,10 @@ export default class IntChar1DValue implements Value {
 	public constructor(name: string, size: number) {
 		this.name = name;
 		this.size = size;
+	}
+
+	public reset(): this {
+		throw E.internal(`1D character variable ${this.name} cannot be reset`);
 	}
 
 	public get(vm: VM, index: number[]): number {

@@ -17,10 +17,12 @@ import type {Align} from "./statement/command/alignment";
 import * as scene from "./scene";
 import Thunk from "./thunk";
 import Value from "./value";
+import CharaNumValue from "./value/special/charanum";
+import RandValue from "./value/special/rand";
 
 type Context = {
 	fn: Fn;
-	dynamicMap: Map<string, Value>;
+	dynamicMap: Map<string, Value<any>>;
 	refMap: Map<string, string>;
 };
 
@@ -55,8 +57,8 @@ export default class VM {
 	public macroMap: Map<string, Define>;
 	public templateMap: Map<number, Template>;
 
-	public globalMap: Map<string, Value>;
-	public staticMap: Map<string, Map<string, Value>>;
+	public globalMap: Map<string, Value<any>>;
+	public staticMap: Map<string, Map<string, Value<any>>>;
 	public characterList: Array<Character>;
 	private contextStack: Array<Context>;
 
@@ -261,8 +263,8 @@ export default class VM {
 		this.globalMap.set("DE", Value.Int2D(data, "DE"));
 		this.globalMap.set("TA", Value.Int3D(data, "TA"));
 		this.globalMap.set("TB", Value.Int3D(data, "TB"));
-		this.globalMap.set("RAND", Value.Rand(data, "RAND"));
-		this.globalMap.set("CHARANUM", Value.Int0D(data, "CHARANUM"));
+		this.globalMap.set("RAND", new RandValue());
+		this.globalMap.set("CHARANUM", new CharaNumValue());
 		this.globalMap.set("ABLNAME", Value.Str1D(data, "ABLNAME").reset(data.ability));
 		this.globalMap.set("EXPNAME", Value.Str1D(data, "EXPNAME").reset(data.exp));
 		this.globalMap.set("TALENTNAME", Value.Str1D(data, "TALENTNAME").reset(data.talent));
@@ -408,7 +410,7 @@ export default class VM {
 		this.contextStack.pop();
 	}
 
-	public getValue<T extends Value>(name: string, scope?: string): T {
+	public getValue<T extends Value<any>>(name: string, scope?: string): T {
 		if (scope != null) {
 			if (!this.staticMap.has(scope)) {
 				throw E.notFound("Scope", scope);

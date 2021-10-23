@@ -3,7 +3,7 @@ import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
-export default class Int0DValue implements Value {
+export default class Int0DValue implements Value<number> {
 	public type = <const>"number";
 	public name: string;
 	public value: number;
@@ -23,7 +23,7 @@ export default class Int0DValue implements Value {
 		this.value = 0;
 	}
 
-	public reset(value: number): Int0DValue {
+	public reset(value: number): this {
 		this.value = value;
 		return this;
 	}

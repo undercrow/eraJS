@@ -1,6 +1,6 @@
 import {Template} from "./data";
 import * as E from "./error";
-import {SimpleValue} from "./value";
+import Value from "./value";
 import Int0DValue from "./value/int-0d";
 import Int1DValue from "./value/int-1d";
 import IntChar0DValue from "./value/int-char-0d";
@@ -12,7 +12,7 @@ import StrChar1DValue from "./value/str-char-1d";
 import VM from "./vm";
 
 export default class Character {
-	public values: Map<string, SimpleValue>;
+	public values: Map<string, Value<any>>;
 
 	public constructor(vm: VM, template: Template) {
 		this.values = new Map();
@@ -45,7 +45,7 @@ export default class Character {
 		(this.values.get("CSTR") as Str1DValue).reset(template.cstr);
 	}
 
-	public getValue<T extends SimpleValue>(name: string): T {
+	public getValue<T extends Value<any>>(name: string): T {
 		if (this.values.has(name)) {
 			return this.values.get(name) as T;
 		} else {

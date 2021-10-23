@@ -23,10 +23,8 @@ export default class DelChara extends Statement {
 		indexList.sort();
 		indexList.reverse();
 
-		const charaNum = vm.getValue("CHARANUM");
 		for (const index of indexList as number[]) {
 			vm.characterList.splice(index, 1);
-			charaNum.set(vm, charaNum.get(vm, []) as number - 1, []);
 		}
 
 		return null;

@@ -15,7 +15,7 @@ export default class Variable implements Expr {
 		this.scope = scope;
 	}
 
-	public getCell(vm: VM): Value {
+	public getCell(vm: VM): Value<any> {
 		return vm.getValue(this.name, this.scope);
 	}
 

@@ -3,9 +3,10 @@ import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
-export default class StrChar0DValue implements Value {
+export default class StrChar0DValue implements Value<never> {
 	public type = <const>"string";
 	public name: string;
+	public value!: never;
 
 	public static normalizeIndex(vm: VM, name: string, index: number[]): number[] {
 		if (index.length === 0) {
@@ -21,6 +22,10 @@ export default class StrChar0DValue implements Value {
 
 	public constructor(name: string) {
 		this.name = name;
+	}
+
+	public reset(): this {
+		throw E.internal(`0D character variable ${this.name} cannot be reset`);
 	}
 
 	public get(vm: VM, index: number[]): string {

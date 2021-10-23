@@ -3,7 +3,7 @@ import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
-export default class Int3DValue implements Value {
+export default class Int3DValue implements Value<number[][][]> {
 	public type = <const>"number";
 	public name: string;
 	public value: number[][][];
@@ -33,7 +33,7 @@ export default class Int3DValue implements Value {
 		);
 	}
 
-	public reset(value: number[][][]): Int3DValue {
+	public reset(value: number[][][]): this {
 		for (let i = 0; i < this.value.length; ++i) {
 			for (let j = 0; j < this.value[i].length; ++j) {
 				for (let k = 0; k < this.value[i][j].length; ++k) {

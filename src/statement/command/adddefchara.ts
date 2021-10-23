@@ -18,8 +18,6 @@ export default class AddDefChara extends Statement {
 		assert.cond(template != null, "Character template with id 0 does not exist");
 
 		vm.characterList.push(new Character(vm, template));
-		const charaNum = vm.getValue("CHARANUM").get(vm, []) as number;
-		vm.getValue("CHARANUM").set(vm, charaNum + 1, []);
 
 		return null;
 	}

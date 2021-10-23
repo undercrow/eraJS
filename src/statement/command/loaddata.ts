@@ -73,7 +73,6 @@ export default class LoadData extends Statement {
 				newCharacters.push(newCharacter);
 			}
 			vm.characterList = newCharacters;
-			vm.getValue("CHARANUM").set(vm, newCharacters.length, []);
 
 			for (const [name, value] of Object.entries(parsed.data.variables)) {
 				const cell = vm.getValue(name);

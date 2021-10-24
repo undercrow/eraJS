@@ -39,20 +39,22 @@ export default class LoadData extends Statement {
 			const newCharacters: Character[] = [];
 			for (const character of parsed.data.characters) {
 				const newCharacter = new Character(vm, {
-					id: 0,
+					no: 0,
 					name: "",
 					callname: "",
 					nickname: "",
 					mastername: "",
-					talent: new Map(),
-					maxBase: new Map(),
 					base: new Map(),
-					abilities: new Map(),
-					exp: new Map(),
-					flags: new Map(),
-					cstr: new Map(),
+					maxBase: new Map(),
 					mark: new Map(),
+					exp: new Map(),
+					abl: new Map(),
+					talent: new Map(),
+					relation: new Map(),
+					cflag: new Map(),
+					equip: new Map(),
 					juel: new Map(),
+					cstr: new Map(),
 				});
 				for (const [name, value] of Object.entries(character)) {
 					const cell = newCharacter.getValue(name);

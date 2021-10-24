@@ -11,5 +11,5 @@ export default function csvAbl(vm: VM, arg: Expr[]): number {
 	const character = vm.code.data.character.get(num);
 	assert.cond(character != null, `Character #${num} does not exist`);
 
-	return character.abilities.get(index) ?? 0;
+	return character.abl.get(index) ?? 0;
 }

@@ -27,7 +27,7 @@ export default class Character {
 				this.values.set(name, new Str1DValue(name, value.size));
 			}
 		}
-		this.getValue<Int0DValue>("NO").reset(template.id);
+		this.getValue<Int0DValue>("NO").reset(template.no);
 		this.getValue<Str0DValue>("NAME").reset(template.name);
 		this.getValue<Str0DValue>("CALLNAME").reset(template.callname);
 		this.getValue<Str0DValue>("NICKNAME").reset(template.nickname);
@@ -36,11 +36,11 @@ export default class Character {
 		this.getValue<Int1DValue>("MAXBASE").reset(template.maxBase);
 		this.getValue<Int1DValue>("MARK").reset(template.mark);
 		this.getValue<Int1DValue>("EXP").reset(template.exp);
-		this.getValue<Int1DValue>("ABL").reset(template.abilities);
+		this.getValue<Int1DValue>("ABL").reset(template.abl);
 		this.getValue<Int1DValue>("TALENT").reset(template.talent);
-		// TODO: RELATION
-		this.getValue<Int1DValue>("CFLAG").reset(template.flags);
-		// TODO: EQUIP
+		this.getValue<Int1DValue>("RELATION").reset(template.relation);
+		this.getValue<Int1DValue>("CFLAG").reset(template.cflag);
+		this.getValue<Int1DValue>("EQUIP").reset(template.equip);
 		this.getValue<Int1DValue>("JUEL").reset(template.juel);
 		this.getValue<Str1DValue>("CSTR").reset(template.cstr);
 	}

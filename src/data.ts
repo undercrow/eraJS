@@ -13,20 +13,22 @@ import parseTrain from "./csv/train";
 import parseVarSize from "./csv/varsize";
 
 export type Template = {
-	id: number;
+	no: number;
 	name: string;
 	callname: string;
 	nickname: string;
 	mastername: string;
-	talent: Map<number, number>,
-	maxBase: Map<number, number>;
 	base: Map<number, number>;
-	abilities: Map<number, number>;
-	exp: Map<number, number>;
-	flags: Map<number, number>;
-	cstr: Map<number, string>;
+	maxBase: Map<number, number>;
 	mark: Map<number, number>;
+	exp: Map<number, number>;
+	abl: Map<number, number>;
+	talent: Map<number, number>;
+	relation: Map<number, number>;
+	cflag: Map<number, number>;
+	equip: Map<number, number>;
 	juel: Map<number, number>;
+	cstr: Map<number, string>;
 };
 
 export type Data = {

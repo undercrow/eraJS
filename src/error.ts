@@ -27,6 +27,10 @@ export function notImpl(target: string) {
 	return new Error(`${target} is not implemented yet`);
 }
 
+export function misc(message: string) {
+	return new Error(`Runtime error found: ${message}`);
+}
+
 export function internal(message: string) {
 	return new Error(`Unexpected internal error found: ${message}`);
 }

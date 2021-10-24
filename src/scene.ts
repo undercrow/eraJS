@@ -1,10 +1,14 @@
+import dayjs from "dayjs";
+
 import Slice from "./slice";
 import type {default as Statement, EraGenerator} from "./statement";
 import Call from "./statement/command/call";
 import Input from "./statement/command/input";
 import Print from "./statement/command/print";
 import PrintC from "./statement/command/printc";
+import SaveData from "./statement/command/savedata";
 import TryCall from "./statement/command/trycall";
+import Wait from "./statement/command/wait";
 import Int1DValue from "./value/int-1d";
 import VM from "./vm";
 
@@ -36,27 +40,28 @@ function* eventStatement(vm: VM, target: string) {
 	}
 }
 
-export function* TITLE(vm: VM) {
-	return yield* runScene(vm, function* () {
-		yield new Call(new Slice(FILE, 0, "CALL SYSTEM_TITLE", "CALL".length));
-	});
-}
-
-export function* FIRST(vm: VM) {
-	return yield* runScene(vm, function* () {
-		yield* eventStatement(vm, "EVENTFIRST");
-	});
+function* MAIN() {
+	while (true) {
+		yield new Call(new Slice(FILE, 0, "CALL SHOW_SHOP", "CALL".length));
+		yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
+		yield new Call(new Slice(FILE, 0, "CALL USERSHOP", "CALL".length));
+		// TODO: Check isLineTemp
+	}
 }
 
 export function* SHOP(vm: VM) {
 	return yield* runScene(vm, function* () {
 		yield* eventStatement(vm, "EVENTSHOP");
-		// TODO: autosave
-		while (true) {
-			yield new Call(new Slice(FILE, 0, "CALL SHOW_SHOP", "CALL".length));
-			yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
-			yield new Call(new Slice(FILE, 0, "CALL USERSHOP", "CALL".length));
+		if (vm.fnMap.has("SYSTEM_AUTOSAVE")) {
+			yield new Call(new Slice(FILE, 0, "CALL SYSTEM_AUTOSAVE", "CALL".length));
+		} else {
+			const now = dayjs(vm.external.getTime());
+			vm.getValue("SAVEDATA_TEXT").set(vm, now.format("YYYY/MM/DD HH:mm:ss"), []);
+			yield new Call(new Slice(FILE, 0, "CALL SAVEINFO", "CALL".length));
+			yield new SaveData(new Slice(FILE, 0, "SAVEDATA 99 SAVEDATA_TEXT"));
 		}
+
+		yield* MAIN();
 	});
 }
 
@@ -65,97 +70,100 @@ export function* TRAIN(vm: VM) {
 		vm.getValue("ASSIPLAY").set(vm, 0, []);
 		vm.getValue("PREVCOM").set(vm, -1, []);
 		vm.getValue("NEXTCOM").set(vm, -1, []);
-		vm.getValue<Int1DValue>("TFLAG").reset([]);
+		vm.getValue("TFLAG").reset([]);
+		vm.getValue("TSTR").reset([]);
 		for (const character of vm.characterList) {
-			character.getValue<Int1DValue>("GOTJUEL").reset([]);
-			character.getValue<Int1DValue>("TEQUIP").reset([]);
-			character.getValue<Int1DValue>("EX").reset([]);
-			character.getValue<Int1DValue>("PALAM").reset([]);
-			character.getValue<Int1DValue>("SOURCE").reset([]);
+			character.getValue("GOTJUEL").reset([]);
+			character.getValue("TEQUIP").reset([]);
+			character.getValue("EX").reset([]);
+			// TODO: Use values from _Replace.CSV
 			character.getValue<Int1DValue>("STAIN").reset([0, 0, 2, 1, 8]);
+			character.getValue("PALAM").reset([]);
+			character.getValue("SOURCE").reset([]);
+			character.getValue("TCVAR").reset([]);
 		}
 
 		yield* eventStatement(vm, "EVENTTRAIN");
-
 		while (true) {
-			let selected: number | null = null;
-			const nextCom = vm.getValue("NEXTCOM").get(vm, []) as number;
+			const nextCom = vm.getValue<Int1DValue>("NEXTCOM").get(vm, []);
 			if (nextCom >= 0) {
+				vm.getValue("SELECTCOM").set(vm, nextCom, []);
 				vm.getValue("NEXTCOM").set(vm, 0, []);
-				selected = nextCom;
 			} else {
-				const comAble: number[] = [];
+				const comAble = new Set<number>();
 
-				// TODO: Skip display on CTRAIN
 				yield new Call(new Slice(FILE, 0, "CALL SHOW_STATUS", "CALL".length));
-
-				let count = 0;
-				for (const index of vm.code.data.train.keys()) {
-					count += 1;
+				const trainIds = [...vm.code.data.train.keys()];
+				trainIds.sort((a, b) => a - b);
+				for (let i = 0; i < trainIds.length; ++i) {
+					const id = trainIds[i];
+					// TODO: Set to 0 if configured to disable command by default
 					vm.getValue("RESULT").set(vm, 1, []);
-					yield new Call(new Slice(FILE, 0, `CALL COM_ABLE${index}`, "CALL".length));
+					if (vm.fnMap.has(`COM_ABLE${id}`)) {
+						yield new Call(new Slice(FILE, 0, `CALL COM_ABLE${id}`, "CALL".length));
+					}
 					if (vm.getValue("RESULT").get(vm, []) !== 0) {
-						comAble.push(index);
-						const name = vm.code.data.train.get(index)!;
-						const indexString = index.toString().padStart(3, " ");
+						comAble.add(id);
+						const name = vm.code.data.train.get(id)!;
+						const idString = id.toString().padStart(3, " ");
 						yield new PrintC(
 							"RIGHT",
 							[],
-							new Slice(FILE, 0, `PRINTC ${name}[${indexString}]`, "PRINTC".length),
+							new Slice(FILE, 0, `PRINTC ${name}[${idString}]`, "PRINTC".length),
 						);
-						if (count % vm.printCPerLine === 0) {
+						if (i % vm.printCPerLine === 0) {
 							yield new Print(["L"], new Slice(FILE, 0, "PRINTL", "PRINTL".length));
 						}
-						// TODO: isCTrain
 					}
 				}
-				yield new Call(new Slice(FILE, 0, "CALL SHOW_USERCOM", "CALL".length));
 
-				vm.queue.skipDisp = false;
-				vm.getValue<Int1DValue>("UP").reset([]);
-				vm.getValue<Int1DValue>("DOWN").reset([]);
-				vm.getValue<Int1DValue>("LOSEBASE").reset([]);
-				for (const character of vm.characterList) {
-					character.getValue<Int1DValue>("DOWNBASE").reset([]);
-					character.getValue<Int1DValue>("CUP").reset([]);
-					character.getValue<Int1DValue>("CDOWN").reset([]);
-				}
+				yield new Call(new Slice(FILE, 0, "CALL SHOW_USERCOM", "CALL".length));
 
 				yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
 				const input = vm.getValue("RESULT").get(vm, [0]) as number;
-				if (comAble.includes(input)) {
-					selected = input;
+				if (comAble.has(input)) {
+					vm.getValue("SELECTCOM").set(vm, input, []);
+				} else {
+					vm.getValue("SELECTCOM").set(vm, -1, []);
 				}
 			}
 
-			if (selected == null) {
-				yield new Call(new Slice(FILE, 0, "CALL USERCOM", "CALL".length));
-			} else {
-				vm.getValue("SELECTCOM").set(vm, selected, []);
-				for (const character of vm.characterList) {
-					character.getValue<Int1DValue>("NOWEX").reset([]);
-				}
-
-				yield* eventStatement(vm, "EVENTCOM");
-				yield new Call(new Slice(FILE, 0, `CALL COM${selected}`, "CALL".length));
-				if (vm.getValue("RESULT").get(vm, [0]) !== 0) {
-					yield new Call(new Slice(FILE, 0, "CALL SOURCE_CHECK", "CALL".length));
+			while (true) {
+				let wait = false;
+				const selectCom = vm.getValue<Int1DValue>("SELECTCOM").get(vm, []);
+				if (selectCom >= 0) {
 					for (const character of vm.characterList) {
-						character.getValue<Int1DValue>("SOURCE").reset([]);
+						character.getValue<Int1DValue>("NOWEX").reset([]);
 					}
-					yield* eventStatement(vm, "EVENTCOMEND");
+					yield* eventStatement(vm, "EVENTCOM");
+
+					yield new Call(new Slice(FILE, 0, `CALL COM${selectCom}`, "CALL".length));
+					if (vm.getValue("RESULT").get(vm, [0]) !== 0) {
+						wait = true;
+						yield new Call(new Slice(FILE, 0, "CALL SOURCE_CHECK", "CALL".length));
+						for (const character of vm.characterList) {
+							character.getValue<Int1DValue>("SOURCE").reset([]);
+						}
+						yield* eventStatement(vm, "EVENTCOMEND");
+					}
+				} else {
+					yield new Call(new Slice(FILE, 0, "CALL USERCOM", "CALL".length));
 				}
+
+				if (wait) {
+					yield new Wait(new Slice(FILE, 0, "WAIT", "WAIT".length));
+				}
+
+				// TODO: Check isLineTemp
+
+				break;
 			}
-			// TODO: console.LastLineIsTemporary
-			// TODO: Ctrain
-			// TODO: NeedWaitToEventComEnd
 		}
 	});
 }
 
 export function* AFTERTRAIN(vm: VM) {
 	return yield* runScene(vm, function* () {
-		// TODO: Ctrain
 		vm.queue.skipDisp = false;
 		yield* eventStatement(vm, "EVENTEND");
 	});
@@ -170,10 +178,12 @@ export function* ABLUP(vm: VM) {
 			yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
 			const input = vm.getValue("RESULT").get(vm, []) as number;
 			if (input >= 0 && input < 100) {
-				yield new Call(new Slice(FILE, 0, `CALL ABLUP${input}`, "CALL".length));
+				// TODO: Print temp line if ABLUP does not exists
+				yield new TryCall(new Slice(FILE, 0, `TRYCALL ABLUP${input}`, "TRYCALL".length));
 			} else {
 				yield new Call(new Slice(FILE, 0, "CALL USERABLUP", "CALL".length));
 			}
+			// TODO: Check isLineTemp
 		}
 	});
 }
@@ -185,14 +195,22 @@ export function* TURNEND(vm: VM) {
 	});
 }
 
+export function* FIRST(vm: VM) {
+	return yield* runScene(vm, function* () {
+		yield* eventStatement(vm, "EVENTFIRST");
+	});
+}
+
+export function* TITLE(vm: VM) {
+	return yield* runScene(vm, function* () {
+		yield new Call(new Slice(FILE, 0, "CALL SYSTEM_TITLE", "CALL".length));
+	});
+}
+
 export function* DATALOADED(vm: VM) {
 	return yield* runScene(vm, function* () {
 		yield new TryCall(new Slice(FILE, 0, "TRYCALL SYSTEM_LOADEND", "TRYCALL".length));
 		yield* eventStatement(vm, "EVENTLOAD");
-		while (true) {
-			yield new Call(new Slice(FILE, 0, "CALL SHOW_SHOP", "CALL".length));
-			yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
-			yield new Call(new Slice(FILE, 0, "CALL USERSHOP", "CALL".length));
-		}
+		yield* MAIN();
 	});
 }

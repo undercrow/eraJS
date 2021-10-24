@@ -1,4 +1,4 @@
-import {Template} from "./data";
+import {Template} from "./csv/character";
 import * as E from "./error";
 import Value from "./value";
 import Int0DValue from "./value/int-0d";
@@ -20,11 +20,11 @@ export default class Character {
 			if (value instanceof IntChar0DValue) {
 				this.values.set(name, new Int0DValue(name));
 			} else if (value instanceof IntChar1DValue) {
-				this.values.set(name, new Int1DValue(name, value.size));
+				this.values.set(name, new Int1DValue(name, [value.size]));
 			} else if (value instanceof StrChar0DValue) {
 				this.values.set(name, new Str0DValue(name));
 			} else if (value instanceof StrChar1DValue) {
-				this.values.set(name, new Str1DValue(name, value.size));
+				this.values.set(name, new Str1DValue(name, [value.size]));
 			}
 		}
 		this.getValue<Int0DValue>("NO").reset(template.no);

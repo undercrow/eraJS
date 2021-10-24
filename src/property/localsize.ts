@@ -9,6 +9,6 @@ export default class LocalSize {
 	}
 
 	public apply(vm: VM, fn: string) {
-		vm.staticMap.get(fn)!.set("LOCAL", new Int1DValue("LOCAL", this.size));
+		vm.staticMap.get(fn)!.set("LOCAL", new Int1DValue("LOCAL", [this.size]));
 	}
 }

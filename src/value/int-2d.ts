@@ -22,9 +22,14 @@ export default class Int2DValue implements Value<number[][]> {
 		}
 	}
 
-	public constructor(name: string, size0: number, size1: number) {
+	public constructor(name: string, size?: number[]) {
+		const realSize = size ?? [100, 100];
+		assert.cond(realSize.length === 2, `${name} is not a ${realSize.length}D variable`);
+
 		this.name = name;
-		this.value = new Array(size0).fill(0).map(() => new Array<number>(size1).fill(0));
+		this.value = new Array(realSize[0]).fill(0).map(
+			() => new Array<number>(realSize[1]).fill(0),
+		);
 	}
 
 	public reset(value: number[][]): this {

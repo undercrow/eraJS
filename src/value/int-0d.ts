@@ -1,7 +1,7 @@
 import * as assert from "../assert";
 import * as E from "../error";
 import type VM from "../vm";
-import type {default as Value, Leaf} from "./index";
+import Value, {Leaf} from "./index";
 
 export default class Int0DValue implements Value<number> {
 	public type = <const>"number";

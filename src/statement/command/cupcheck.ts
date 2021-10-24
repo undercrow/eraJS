@@ -33,7 +33,7 @@ export default class CUpCheck extends Statement {
 			vm.getValue("CDOWN").set(vm, 0, [target, i]);
 
 			if (!vm.queue.skipDisp) {
-				const name = vm.code.data.palam.get(i)!;
+				const name = vm.code.csv.palam.get(i)!;
 				let text = `${name} ${palam}`;
 				if (up > 0) {
 					text += `+${up}`;

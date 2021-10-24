@@ -67,11 +67,11 @@ export default class Dim {
 		} else if (this.value != null && this.value.length === 1 && this.type === "number") {
 			const value = this.value.map((v) => v.reduce(vm));
 			assert.numArray(value, "Default value for 1D #DIM must be a number array");
-			return new Int1DValue(this.name, value.length).reset(value);
+			return new Int1DValue(this.name, [value.length]).reset(value);
 		} else if (this.value != null && this.value.length === 1 && this.type === "string") {
 			const value = this.value.map((v) => v.reduce(vm));
 			assert.strArray(value, "Default value for 1D #DIMS must be a string array");
-			return new Str1DValue(this.name, value.length).reset(value);
+			return new Str1DValue(this.name, [value.length]).reset(value);
 		} else if (this.size.length === 0 && this.type === "number" && !this.isChar()) {
 			return new Int0DValue(this.name);
 		} else if (this.size.length === 0 && this.type === "string" && !this.isChar()) {
@@ -79,17 +79,17 @@ export default class Dim {
 		} else if (this.size.length === 1 && this.type === "number" && !this.isChar()) {
 			const size = this.size[0].reduce(vm);
 			assert.number(size, "Size of an array must be an integer");
-			return new Int1DValue(this.name, size);
+			return new Int1DValue(this.name, [size]);
 		} else if (this.size.length === 1 && this.type === "string" && !this.isChar()) {
 			const size = this.size[0].reduce(vm);
 			assert.number(size, "Size of an array must be an integer");
-			return new Str1DValue(this.name, size);
+			return new Str1DValue(this.name, [size]);
 		} else if (this.size.length === 2 && this.type === "number" && !this.isChar()) {
 			const size0 = this.size[0].reduce(vm);
 			assert.number(size0, "Size of an array must be an integer");
 			const size1 = this.size[1].reduce(vm);
 			assert.number(size1, "Size of an array must be an integer");
-			return new Int2DValue(this.name, size0, size1);
+			return new Int2DValue(this.name, [size0, size1]);
 		} else if (this.size.length === 3 && this.type === "number" && !this.isChar()) {
 			const size0 = this.size[0].reduce(vm);
 			assert.number(size0, "Size of an array must be an integer");
@@ -97,19 +97,19 @@ export default class Dim {
 			assert.number(size1, "Size of an array must be an integer");
 			const size2 = this.size[2].reduce(vm);
 			assert.number(size2, "Size of an array must be an integer");
-			return new Int3DValue(this.name, size0, size1, size2);
+			return new Int3DValue(this.name, [size0, size1, size2]);
 		} else if (this.size.length === 0 && this.type === "number" && this.isChar()) {
 			return new IntChar0DValue(this.name);
 		} else if (this.size.length === 1 && this.type === "number" && this.isChar()) {
 			const size0 = this.size[0].reduce(vm);
 			assert.number(size0, "Size of an array must be an integer");
-			return new IntChar1DValue(this.name, size0);
+			return new IntChar1DValue(this.name, [size0]);
 		} else if (this.size.length === 0 && this.type === "string" && this.isChar()) {
 			return new StrChar0DValue(this.name);
 		} else if (this.size.length === 1 && this.type === "string" && this.isChar()) {
 			const size0 = this.size[0].reduce(vm);
 			assert.number(size0, "Size of an array must be an integer");
-			return new StrChar1DValue(this.name, size0);
+			return new StrChar1DValue(this.name, [size0]);
 		} else {
 			throw EM.parser("Invalid #DIM(S) definition found");
 		}

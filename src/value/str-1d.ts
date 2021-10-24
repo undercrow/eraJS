@@ -20,9 +20,12 @@ export default class Str1DValue implements Value<string[]> {
 		}
 	}
 
-	public constructor(name: string, size0: number) {
+	public constructor(name: string, size?: number[]) {
+		const realSize = size ?? [100];
+		assert.cond(realSize.length === 1, `${name} is not a ${realSize.length}D variable`);
+
 		this.name = name;
-		this.value = new Array<string>(size0).fill("");
+		this.value = new Array<string>(realSize[0]).fill("");
 	}
 
 	public reset(value: string[] | Map<number, string>): this {

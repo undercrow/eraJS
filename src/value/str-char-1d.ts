@@ -23,9 +23,12 @@ export default class StrChar1DValue implements Value<never> {
 		}
 	}
 
-	public constructor(name: string, size: number) {
+	public constructor(name: string, size?: number[]) {
+		const realSize = size ?? [100];
+		assert.cond(realSize.length === 1, `${name} is not a ${realSize.length}D variable`);
+
 		this.name = name;
-		this.size = size;
+		this.size = realSize[0];
 	}
 
 	public reset(): this {

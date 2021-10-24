@@ -8,7 +8,7 @@ export default function csvCstr(vm: VM, arg: Expr[]): string {
 	const index = arg[1].reduce(vm);
 	assert.number(index, "2nd argument of CSVCSTR must be an integer");
 
-	const character = vm.code.data.character.get(num);
+	const character = vm.code.csv.character.get(num);
 	assert.cond(character != null, `Character #${num} does not exist`);
 
 	return character.cstr.get(index) ?? "";

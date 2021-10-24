@@ -1,13 +1,15 @@
 import * as assert from "../assert";
-import type {Data} from "../data";
 
-export default function parse(values: Map<string, string[][]>): Data["item"] {
-	const rowList = values.get("ITEM.CSV");
+type Item = {
+	name: string;
+	price: number;
+};
 
-	const result: Data["item"] = new Map();
-	for (const row of rowList ?? []) {
+export default function parse(fileName: string, rows: string[][]): Map<number, Item> {
+	const result = new Map<number, Item>();
+	for (const row of rows) {
 		const index = parseInt(row[0]);
-		assert.number(index, "Index of item in ITEM.CSV should be an integer");
+		assert.number(index, `Index value in ${fileName} should be an integer`);
 
 		result.set(index, {
 			name: row[1] ?? "",

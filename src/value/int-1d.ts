@@ -20,9 +20,12 @@ export default class Int1DValue implements Value<number[]> {
 		}
 	}
 
-	public constructor(name: string, size0: number) {
+	public constructor(name: string, size?: number[]) {
+		const realSize = size ?? [1000];
+		assert.cond(realSize.length === 1, `${name} is not a ${realSize.length}D variable`);
+
 		this.name = name;
-		this.value = new Array<number>(size0).fill(0);
+		this.value = new Array<number>(realSize[0]).fill(0);
 	}
 
 	public reset(value: number[] | Map<number, number>): this {

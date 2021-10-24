@@ -1,5 +1,5 @@
 import type Config from "./config";
-import parseCSV from "./data";
+import parseCSV from "./csv";
 import parseERB from "./parser/erb";
 import parseERH from "./parser/erh";
 import Define from "./property/define";
@@ -14,15 +14,15 @@ export function compile(files: Map<string, string>): VM {
 	for (const [file, content] of files) {
 		const FILE = file.toUpperCase();
 		if (FILE.endsWith(".CSV")) {
-			csvFiles.set(file, content);
+			csvFiles.set(file.toUpperCase(), content);
 		} else if (FILE.endsWith(".ERH")) {
-			erhFiles.set(file, content);
+			erhFiles.set(file.toUpperCase(), content);
 		} else if (FILE.endsWith(".ERB")) {
-			erbFiles.set(file, content);
+			erbFiles.set(file.toUpperCase(), content);
 		}
 	}
 
-	const data = parseCSV(csvFiles);
+	const csv = parseCSV(csvFiles);
 
 	const macros = new Set<string>();
 	const header = parseERH(erhFiles, macros);
@@ -33,7 +33,7 @@ export function compile(files: Map<string, string>): VM {
 	}
 	const fnList = parseERB(erbFiles, macros);
 
-	return new VM({header, fnList, data});
+	return new VM({header, fnList, csv});
 }
 
 export type {Config, VM};

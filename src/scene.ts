@@ -93,7 +93,7 @@ export function* TRAIN(vm: VM) {
 				const comAble = new Set<number>();
 
 				yield new Call(new Slice(FILE, 0, "CALL SHOW_STATUS", "CALL".length));
-				const trainIds = [...vm.code.data.train.keys()];
+				const trainIds = [...vm.code.csv.train.keys()];
 				trainIds.sort((a, b) => a - b);
 				for (let i = 0; i < trainIds.length; ++i) {
 					const id = trainIds[i];
@@ -104,7 +104,7 @@ export function* TRAIN(vm: VM) {
 					}
 					if (vm.getValue("RESULT").get(vm, []) !== 0) {
 						comAble.add(id);
-						const name = vm.code.data.train.get(id)!;
+						const name = vm.code.csv.train.get(id)!;
 						const idString = id.toString().padStart(3, " ");
 						yield new PrintC(
 							"RIGHT",

@@ -1,8 +1,9 @@
-import * as E from "../../error";
+import * as assert from "../../assert";
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
+import Str0DValue from "../../value/str-0d";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -17,8 +18,12 @@ export default class PutForm extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(_vm: VM) {
-		throw E.notImpl("PUTFORM");
+	public *run(vm: VM) {
+		const value = this.arg.get().reduce(vm);
+		assert.string(value, "1st argument of PUTFORM should be a number");
+
+		const cell = vm.getValue<Str0DValue>("SAVEDATA_TEXT");
+		cell.set(vm, cell.get(vm, []) + value, []);
 
 		return null;
 	}

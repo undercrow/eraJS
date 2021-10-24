@@ -36,7 +36,7 @@ export default class PrintPlain extends Statement {
 		const text = this.arg.get().reduce(vm);
 		assert.string(text, "1st argument of PRINTPLAIN must be a string");
 
-		yield* vm.queue.print(text);
+		yield* vm.queue.print(text, new Set());
 
 		return null;
 	}

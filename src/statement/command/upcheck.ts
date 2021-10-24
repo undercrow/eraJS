@@ -43,8 +43,7 @@ export default class UpCheck extends Statement {
 				}
 				text += `=${result}`;
 
-				yield* vm.queue.print(text);
-				yield* vm.queue.newline();
+				yield* vm.queue.print(text, new Set(["L"]));
 			}
 		}
 

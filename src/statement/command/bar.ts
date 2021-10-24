@@ -34,7 +34,8 @@ export default class Bar extends Statement {
 		assert.number(length, "3rd argument of BAR must be a number");
 
 		const filled = Math.floor(length * (value / max));
-		yield* vm.queue.print("[" + "*".repeat(filled) + ".".repeat(length - filled) + "]");
+		const text = "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]";
+		yield* vm.queue.print(text, new Set());
 
 		if (this.newline) {
 			yield* vm.queue.newline();

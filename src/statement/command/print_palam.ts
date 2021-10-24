@@ -64,7 +64,7 @@ export default class PrintPalam extends Statement {
 
 			text += value.toString();
 
-			yield* vm.queue.print(text, "LEFT");
+			yield* vm.queue.print(text, new Set(), "LEFT");
 			if ((i + 1) % vm.printCPerLine === 0) {
 				yield* vm.queue.newline();
 			}

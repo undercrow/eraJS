@@ -1,5 +1,7 @@
 import type {EraGenerator, Output} from "./statement";
 
+export type PrintFlag = "K" | "D" | "W" | "L" | "S";
+
 export default class OutputQueue {
 	public buffer: Output[];
 	public lineCount: number;
@@ -48,24 +50,32 @@ export default class OutputQueue {
 		}
 	}
 
-	public *print(text: string, cell?: "LEFT" | "RIGHT"): EraGenerator<void> {
+	public *print(
+		text: string,
+		flags: Set<PrintFlag>,
+		cell?: "LEFT" | "RIGHT",
+	): EraGenerator<void> {
 		yield* this.clearTemp();
+
+		if (flags.has("S") && !this.isLineEmpty) {
+			yield* this.newline();
+		}
+
 		if (text.length > 0) {
 			this.buffer.push({type: "string", text, cell});
 			this.isLineEmpty = false;
 		}
 
+		if (flags.has("S") || flags.has("L") || flags.has("W")) {
+			yield* this.newline();
+		}
+		if (flags.has("W")) {
+			yield* this.wait(false);
+		}
+
 		if (this.draw) {
 			yield* this.flush();
 		}
-	}
-
-	public *printSingle(text: string): EraGenerator<void> {
-		if (!this.isLineEmpty) {
-			yield* this.newline();
-		}
-		yield* this.print(text);
-		yield* this.newline();
 	}
 
 	public *button(text: string, value: string, cell?: "LEFT" | "RIGHT"): EraGenerator<void> {

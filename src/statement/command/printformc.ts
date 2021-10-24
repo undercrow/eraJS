@@ -1,23 +1,23 @@
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
+import {PrintFlag} from "../../output-queue";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Form from "../expr/form";
 import Statement from "../index";
-import Print from "./print";
 
 const PARSER = U.arg1R0(X.form[""]).map((form) => form ?? new Form([{value: ""}]));
 export default class PrintFormC extends Statement {
 	public align: "LEFT" | "RIGHT";
-	public postfix: string;
+	public flags: Set<PrintFlag>;
 	public arg: Lazy<Form>;
 
-	public constructor(align: PrintFormC["align"], postfix: string, raw: Slice) {
+	public constructor(align: PrintFormC["align"], flags: PrintFlag[], raw: Slice) {
 		super(raw);
 
 		this.align = align;
-		this.postfix = postfix;
+		this.flags = new Set(flags);
 		this.arg = new Lazy(raw, PARSER);
 	}
 
@@ -26,8 +26,8 @@ export default class PrintFormC extends Statement {
 			return null;
 		}
 
-		yield* vm.queue.print(this.arg.get().reduce(vm), this.align);
-		yield* Print.runPostfix(vm, this.postfix);
+		const value = this.arg.get().reduce(vm);
+		yield* vm.queue.print(value, this.flags, this.align);
 
 		return null;
 	}

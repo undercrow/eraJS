@@ -32,7 +32,7 @@ export default class TInputS extends Statement {
 		let value: string;
 		if (input == null) {
 			if (message != null) {
-				yield* vm.queue.printSingle(message);
+				yield* vm.queue.print(message, new Set(["S"]));
 			}
 			value = def;
 		} else {

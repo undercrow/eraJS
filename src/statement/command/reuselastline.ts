@@ -24,7 +24,7 @@ export default class ReuseLastLine extends Statement {
 		if (!vm.queue.isLineEmpty) {
 			yield* vm.queue.newline();
 		}
-		yield* vm.queue.print(value);
+		yield* vm.queue.print(value, new Set());
 		vm.queue.isLineTemp = true;
 
 		return null;

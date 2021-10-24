@@ -100,11 +100,11 @@ export function* TRAIN(vm: VM) {
 						const indexString = index.toString().padStart(3, " ");
 						yield new PrintC(
 							"RIGHT",
-							"",
+							[],
 							new Slice(FILE, 0, `PRINTC ${name}[${indexString}]`, "PRINTC".length),
 						);
 						if (count % vm.printCPerLine === 0) {
-							yield new Print("L", new Slice(FILE, 0, "PRINTL", "PRINTL".length));
+							yield new Print(["L"], new Slice(FILE, 0, "PRINTL", "PRINTL".length));
 						}
 						// TODO: isCTrain
 					}

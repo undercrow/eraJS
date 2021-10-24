@@ -31,7 +31,7 @@ export default class PrintShopItem extends Statement {
 			const price = vm.getValue("ITEMPRICE").get(vm, [index]) as number;
 			const text = `[${index}] ${name}(${price}$)`;
 
-			yield* vm.queue.print(text, "LEFT");
+			yield* vm.queue.print(text, new Set(), "LEFT");
 			if ((i + 1) % vm.printCPerLine === 0) {
 				yield* vm.queue.newline();
 			}

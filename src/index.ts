@@ -3,6 +3,7 @@ import parseCSV from "./csv";
 import parseERB from "./parser/erb";
 import parseERH from "./parser/erh";
 import Define from "./property/define";
+import {Output} from "./statement";
 import VM from "./vm";
 
 export {default as EraJSError} from "./error";
@@ -36,4 +37,4 @@ export function compile(files: Map<string, string>): VM {
 	return new VM({header, fnList, csv});
 }
 
-export type {Config, VM};
+export type {Config, Output, VM};

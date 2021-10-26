@@ -19,7 +19,7 @@ export default class InputS extends Statement {
 	public *run(vm: VM): EraGenerator {
 		const arg = this.arg.get();
 
-		let input = yield* vm.queue.input(false);
+		let input = yield* vm.queue.input(false, arg != null);
 		assert.string(input, "Input value for INPUTS should be a valid string");
 		if (arg != null && input === "") {
 			input = arg;

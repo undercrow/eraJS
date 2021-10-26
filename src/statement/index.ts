@@ -8,8 +8,8 @@ export type Output =
 	| {type: "line"; value?: string}
 	| {type: "clear"; count: number}
 	| {type: "wait"; force: boolean}
-	| {type: "input"; numeric: boolean}
-	| {type: "input"; numeric: boolean; timeout: number; showClock: boolean};
+	| {type: "input"; numeric: boolean; nullable: boolean}
+	| {type: "tinput"; numeric: boolean; timeout: number; showClock: boolean};
 
 export type Result =
 	| {type: "begin"; keyword: string}

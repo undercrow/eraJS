@@ -117,12 +117,17 @@ export default class OutputQueue {
 		yield {type: "wait", force};
 	}
 
-	public *input(
+	public *input(numeric: boolean, nullable: boolean): EraGenerator<string | null> {
+		yield* this.flush();
+		return yield {type: "input", numeric, nullable};
+	}
+
+	public *tinput(
 		numeric: boolean,
-		timeout?: number,
-		showClock?: boolean,
+		timeout: number,
+		showClock: boolean,
 	): EraGenerator<string | null> {
 		yield* this.flush();
-		return yield {type: "input", numeric, timeout, showClock};
+		return yield {type: "tinput", numeric, timeout, showClock};
 	}
 }

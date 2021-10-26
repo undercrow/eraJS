@@ -27,7 +27,7 @@ export default class TInputS extends Statement {
 		const show = showExpr?.reduce(vm) ?? 0;
 		assert.number(show, "3rd argument of TINPUTS should be a number");
 
-		const input = yield* vm.queue.input(false, timeout, show === 1);
+		const input = yield* vm.queue.tinput(false, timeout, show === 1);
 
 		let value: string;
 		if (input == null) {

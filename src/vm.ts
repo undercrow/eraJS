@@ -233,8 +233,8 @@ export default class VM {
 		globalMap.get("GAMEBASE_VERSION")!.reset(csv.gamebase.version ?? 0);
 		globalMap.get("LASTLOAD_VERSION")!.reset(-1);
 		globalMap.get("LASTLOAD_NO")!.reset(-1);
-		globalMap.get("__INT_MAX__")!.reset(2 ** 32 - 1);
-		globalMap.get("__INT_MIN__")!.reset(-(2 ** 32 - 1));
+		globalMap.get("__INT_MAX__")!.reset(2 ** 53 - 1);
+		globalMap.get("__INT_MIN__")!.reset(-(2 ** 53 - 1));
 
 		for (const [i, name] of csv.abl.entries()) {
 			globalMap.set(name, new Int0DValue(name).reset(i));

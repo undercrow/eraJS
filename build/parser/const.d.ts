@@ -1,0 +1,11 @@
+import P from "parsimmon";
+export declare const WS0: P.Parser<null>;
+export declare const WS1: P.Parser<null>;
+export declare const Identifier: P.Parser<string>;
+export declare const UInt: P.Parser<number>;
+export declare const Int: P.Parser<number>;
+export declare const Float: P.Parser<number>;
+export declare const Str: P.Parser<string>;
+export declare function char(...exclude: string[]): P.Parser<string>;
+export declare function charSeq(...exclude: string[]): P.Parser<string>;
+export declare function charSeq0(...exclude: string[]): P.Parser<string>;

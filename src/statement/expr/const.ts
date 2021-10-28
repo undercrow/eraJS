@@ -8,7 +8,8 @@ export default class Const implements Expr {
 		this.value = value;
 	}
 
-	public reduce(_vm: VM): number | string {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async reduce(_vm: VM): Promise<number | string> {
 		return this.value;
 	}
 }

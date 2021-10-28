@@ -18,8 +18,8 @@ export default class DelData extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const index = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const index = await this.arg.get().reduce(vm);
 		assert.number(index, "Argument of DELDATA must be a number");
 
 		throw E.notImpl("DELDATA");

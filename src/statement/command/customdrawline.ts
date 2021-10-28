@@ -15,7 +15,7 @@ export default class CustomDrawLine extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const value = this.arg.get();
 
 		yield* vm.queue.line(value);

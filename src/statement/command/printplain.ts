@@ -28,12 +28,12 @@ export default class PrintPlain extends Statement {
 		}
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (vm.queue.skipDisp) {
 			return null;
 		}
 
-		const text = this.arg.get().reduce(vm);
+		const text = await this.arg.get().reduce(vm);
 		assert.string(text, "1st argument of PRINTPLAIN must be a string");
 
 		yield* vm.queue.print(text, new Set());

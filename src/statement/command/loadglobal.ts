@@ -19,9 +19,9 @@ export default class LoadGlobal extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const file = savefile.global;
-		const raw = vm.external.getSavedata(file);
+		const raw = await vm.external.getSavedata(file);
 
 		try {
 			assert.nonNull(raw, "");

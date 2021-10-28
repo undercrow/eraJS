@@ -38,7 +38,7 @@ export default class TryCGoto extends Statement {
 		this.catchThunk = catchThunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		const target = this.arg.get().toUpperCase();
 		const context = vm.context();
 		if (context.fn.thunk.labelMap.has(target)) {

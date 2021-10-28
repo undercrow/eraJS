@@ -11,7 +11,8 @@ export default class DumpRand extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		vm.getValue("RANDDATA").set(vm, vm.random.state, []);
 
 		return null;

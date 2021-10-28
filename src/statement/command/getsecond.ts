@@ -15,7 +15,8 @@ export default class GetSecond extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		const time = dayjs(vm.external.getTime());
 
 		vm.getValue("RESULT").set(vm, time.unix() - UNIX_EPOCH, [0]);

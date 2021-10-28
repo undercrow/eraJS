@@ -11,8 +11,8 @@ export default class ResetData extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
-		vm.reset();
+	public async *run(vm: VM) {
+		await vm.reset();
 
 		return null;
 	}

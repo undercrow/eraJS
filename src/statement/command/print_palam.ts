@@ -17,12 +17,12 @@ export default class PrintPalam extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (vm.queue.skipDisp) {
 			return null;
 		}
 
-		const index = this.arg.get().reduce(vm);
+		const index = await this.arg.get().reduce(vm);
 		assert.number(index, "1st argument of PRINT_PALAM must be a number");
 
 		const palamName = vm.getValue("PALAMNAME");

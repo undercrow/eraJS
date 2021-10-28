@@ -57,13 +57,13 @@ export default class PrintData extends Statement {
 		this.data = data;
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (vm.queue.skipDisp) {
 			return null;
 		}
 
 		const index = vm.random.next() % this.data.length;
-		const value = this.data[index].get().reduce(vm);
+		const value = await this.data[index].get().reduce(vm);
 		assert.string(value, "Item of PRINTDATA must be a string");
 
 		yield* vm.queue.print(value, this.flags);

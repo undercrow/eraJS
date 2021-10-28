@@ -17,9 +17,9 @@ export default class SetFont extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		// TODO: use default font
-		const font = this.arg.get()?.reduce(vm) ?? "";
+		const font = await this.arg.get()?.reduce(vm) ?? "";
 		assert.string(font, "Argument of SETFONT must be a string");
 
 		vm.font.name = font;

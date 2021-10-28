@@ -16,9 +16,9 @@ export default class UnaryOp implements Expr {
 		this.postfix = postfix;
 	}
 
-	public reduce(vm: VM): number {
+	public async reduce(vm: VM): Promise<number> {
 		const cell = this.target.getCell(vm);
-		const index = this.target.reduceIndex(vm);
+		const index = await this.target.reduceIndex(vm);
 		const value = cell.get(vm, index);
 		assert.number(value, `Operand of ${this.op} should be an integer`);
 		switch (this.op) {

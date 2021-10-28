@@ -17,12 +17,12 @@ export default class StrFindU extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [valueExpr, searchExpr] = this.arg.get();
 
-		const value = valueExpr.reduce(vm);
+		const value = await valueExpr.reduce(vm);
 		assert.string(value, "1st argument of STRFINDU must be a string!");
-		const search = searchExpr.reduce(vm);
+		const search = await searchExpr.reduce(vm);
 		assert.string(search, "2nd argument of STRFINDU must be a string!");
 		// TODO: unicode
 		vm.getValue("RESULT").set(vm, value.indexOf(search), [0]);

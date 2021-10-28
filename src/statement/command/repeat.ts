@@ -31,14 +31,14 @@ export default class Repeat extends Statement {
 		this.thunk = thunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		if (label != null) {
 			if (this.thunk.labelMap.has(label)) {
 				return yield* this.thunk.run(vm, label);
 			}
 		}
 
-		const condition = this.arg.get().reduce(vm);
+		const condition = await this.arg.get().reduce(vm);
 		assert.number(condition, "Condition for REPEAT should be an integer");
 
 		loop: for (let i = 0; i < condition; ++i) {

@@ -17,8 +17,8 @@ export default class Escape extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const value = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const value = await this.arg.get().reduce(vm);
 		assert.string(value, "1st argument of ESCAPE must be a string");
 
 		let result = value;

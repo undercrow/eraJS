@@ -17,8 +17,8 @@ export default class SkipDisp extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const value = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const value = await this.arg.get().reduce(vm);
 		assert.number(value, "Argument of SKIPDISP must be a number");
 
 		vm.queue.skipDisp = value !== 0;

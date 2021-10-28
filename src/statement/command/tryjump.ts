@@ -14,7 +14,7 @@ export default class TryJump extends Statement {
 		this.arg = new Lazy(raw, Call.PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [target, argExpr] = this.arg.get();
 		const realTarget = target.toUpperCase();
 		if (vm.fnMap.has(realTarget)) {

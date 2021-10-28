@@ -17,7 +17,7 @@ export default class OneInput extends Statement {
 	}
 
 	// TODO: use only the first character of argument
-	public *run(vm: VM): EraGenerator {
+	public async *run(vm: VM): EraGenerator {
 		const arg = this.arg.get();
 
 		const input = yield* vm.queue.input(true, arg != null);

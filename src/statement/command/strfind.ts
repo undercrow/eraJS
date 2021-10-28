@@ -17,12 +17,12 @@ export default class StrFind extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [valueExpr, searchExpr] = this.arg.get();
 
-		const value = valueExpr.reduce(vm);
+		const value = await valueExpr.reduce(vm);
 		assert.string(value, "1st argument of STRFIND must be a string!");
-		const search = searchExpr.reduce(vm);
+		const search = await searchExpr.reduce(vm);
 		assert.string(search, "2nd argument of STRFIND must be a string!");
 		vm.getValue("RESULT").set(vm, value.indexOf(search), [0]);
 

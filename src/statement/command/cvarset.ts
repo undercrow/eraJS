@@ -24,15 +24,15 @@ export default class VarSet extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [destExpr, indexExpr, valueExpr, startExpr, endExpr] = this.arg.get();
 
-		const index = indexExpr?.reduce(vm) ?? 0;
+		const index = await indexExpr?.reduce(vm) ?? 0;
 		assert.number(index, "2nd argument of CVARSET must be a number");
-		const value = valueExpr?.reduce(vm);
-		const start = startExpr?.reduce(vm) ?? 0;
+		const value = await valueExpr?.reduce(vm);
+		const start = await startExpr?.reduce(vm) ?? 0;
 		assert.number(start, "4th argument of CVARSET must be a number");
-		const end = endExpr?.reduce(vm) ?? vm.characterList.length;
+		const end = await endExpr?.reduce(vm) ?? vm.characterList.length;
 		assert.number(end, "5th argument of CVARSET must be a number");
 
 		for (let i = start; i < end; ++i) {

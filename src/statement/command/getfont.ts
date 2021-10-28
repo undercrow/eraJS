@@ -11,7 +11,8 @@ export default class GetFont extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		const result = vm.font.name;
 		vm.getValue("RESULTS").set(vm, result, [0]);
 

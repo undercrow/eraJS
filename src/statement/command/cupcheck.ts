@@ -11,7 +11,7 @@ export default class CUpCheck extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const target = vm.getValue("TARGET").get(vm, [0]) as number;
 		const length = Math.min(
 			vm.getValue("PALAM").length(1),

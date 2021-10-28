@@ -17,8 +17,8 @@ export default class Throw extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const value = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const value = await this.arg.get().reduce(vm);
 		assert.string(value, "Argument of THROW must be a string");
 
 		return <const>{

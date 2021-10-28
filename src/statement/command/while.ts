@@ -31,14 +31,14 @@ export default class While extends Statement {
 		this.thunk = thunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		let firstLoop = true;
 		while (true) {
 			let result: Result | null;
 			if (firstLoop && label != null && this.thunk.labelMap.has(label)) {
 				result = yield* this.thunk.run(vm, label);
 			} else {
-				const condition = this.arg.get().reduce(vm);
+				const condition = await this.arg.get().reduce(vm);
 				assert.number(condition, "Condition of WHILE should be an integer");
 				if (condition === 0) {
 					break;

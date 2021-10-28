@@ -16,7 +16,8 @@ export default class CopyChara extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run() {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run() {
 		throw E.notImpl("COPYCHARA");
 
 		return null;

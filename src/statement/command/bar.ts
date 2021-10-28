@@ -19,18 +19,18 @@ export default class Bar extends Statement {
 		this.newline = newline;
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (vm.queue.skipDisp) {
 			return null;
 		}
 
 		const [valueExpr, maxExpr, lengthExpr] = this.arg.get();
 
-		const value = valueExpr.reduce(vm);
+		const value = await valueExpr.reduce(vm);
 		assert.number(value, "1st argument of BAR must be a number");
-		const max = maxExpr.reduce(vm);
+		const max = await maxExpr.reduce(vm);
 		assert.number(max, "2nd argument of BAR must be a number");
-		const length = lengthExpr.reduce(vm);
+		const length = await lengthExpr.reduce(vm);
 		assert.number(length, "3rd argument of BAR must be a number");
 
 		const filled = Math.floor(length * (value / max));

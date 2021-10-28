@@ -22,7 +22,7 @@ export default class SortChara extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		let [varExpr, order] = this.arg.get();
 		varExpr = varExpr ?? new Variable("NO", []);
 		order = order ?? "FORWARD";
@@ -44,7 +44,7 @@ export default class SortChara extends Statement {
 				return order === "FORWARD" ? compare : -compare;
 			});
 		} else if (cell instanceof IntChar1DValue) {
-			const index = varExpr.reduceIndex(vm);
+			const index = await varExpr.reduceIndex(vm);
 			characterList.sort((a, b) => {
 				const left = cell.get(vm, [a.index, ...index]);
 				const right = cell.get(vm, [b.index, ...index]);
@@ -59,7 +59,7 @@ export default class SortChara extends Statement {
 				return order === "FORWARD" ? compare : -compare;
 			});
 		} else if (cell instanceof StrChar1DValue) {
-			const index = varExpr.reduceIndex(vm);
+			const index = await varExpr.reduceIndex(vm);
 			characterList.sort((a, b) => {
 				const left = cell.get(vm, [a.index, ...index]);
 				const right = cell.get(vm, [b.index, ...index]);

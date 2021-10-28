@@ -72,7 +72,7 @@ export default class If extends Statement {
 		this.elseThunk = elseThunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		if (label != null) {
 			for (const [,, thunk] of this.ifThunk) {
 				if (thunk.labelMap.has(label)) {
@@ -85,7 +85,7 @@ export default class If extends Statement {
 		}
 
 		for (const [, cond, thunk] of this.ifThunk) {
-			const condValue = cond.get().reduce(vm);
+			const condValue = await cond.get().reduce(vm);
 			assert.number(condValue, "Condition should be an integer");
 			if (condValue !== 0) {
 				return yield* thunk.run(vm);

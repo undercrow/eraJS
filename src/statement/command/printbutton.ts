@@ -19,12 +19,12 @@ export default class PrintButton extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [textExpr, valueExpr] = this.arg.get();
 
-		const text = textExpr.reduce(vm);
+		const text = await textExpr.reduce(vm);
 		assert.string(text, "1st argument of PRINTBUTTON must be a string");
-		const value = valueExpr.reduce(vm);
+		const value = await valueExpr.reduce(vm);
 
 		yield* vm.queue.button(
 			text,

@@ -50,7 +50,7 @@ export default class Thunk {
 		}
 	}
 
-	public *run(vm: VM, label?: string): EraGenerator {
+	public async *run(vm: VM, label?: string): EraGenerator {
 		let start = 0;
 		if (label != null) {
 			start = this.labelMap.get(label) ?? 0;

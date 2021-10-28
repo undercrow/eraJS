@@ -16,12 +16,12 @@ export default class Swap extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [leftExpr, rightExpr] = this.arg.get();
 		const left = leftExpr.getCell(vm);
-		const leftIndex = leftExpr.reduceIndex(vm);
+		const leftIndex = await leftExpr.reduceIndex(vm);
 		const right = rightExpr.getCell(vm);
-		const rightIndex = rightExpr.reduceIndex(vm);
+		const rightIndex = await rightExpr.reduceIndex(vm);
 
 		const leftValue = left.get(vm, leftIndex);
 		const rightValue = right.get(vm, rightIndex);

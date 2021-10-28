@@ -18,9 +18,8 @@ export default class ResetStain extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const numExpr = this.arg.get();
-		const num = numExpr.reduce(vm);
+	public async *run(vm: VM) {
+		const num = await this.arg.get().reduce(vm);
 		assert.number(num, "1st Argument of RESET_STAIN should be an integer");
 
 		assert.cond(vm.characterList.length > num, `Character #${num} does not exist`);

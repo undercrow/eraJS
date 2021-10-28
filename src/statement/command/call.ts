@@ -19,11 +19,14 @@ export default class Call extends Statement {
 		U.argNR1(C.Identifier, U.optional(X.expr)).map(([f, ...r]) => [f, r]),
 	);
 
-	public static *exec(vm: VM, target: string, argExpr: Array<Expr | undefined>) {
+	public static async *exec(vm: VM, target: string, argExpr: Array<Expr | undefined>) {
 		const realTarget = target.toUpperCase();
 		assert.cond(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
 
-		const arg = argExpr.map((a) => a?.reduce(vm));
+		const arg: Array<string | number | undefined> = [];
+		for (const a of argExpr) {
+			arg.push(await a?.reduce(vm));
+		}
 		const result = yield* vm.fnMap.get(realTarget)!.run(vm, arg);
 		switch (result?.type) {
 			case "begin": return result;
@@ -53,7 +56,7 @@ export default class Call extends Statement {
 		this.arg = new Lazy(raw, Call.PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [target, argExpr] = this.arg.get();
 
 		return yield* Call.exec(vm, target, argExpr);

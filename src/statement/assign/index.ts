@@ -31,7 +31,7 @@ export default class Assign extends Statement {
 		super(raw);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (this.inner == null) {
 			const [dest, op, rest] = U.tryParse(PARSER_VAR, this.raw);
 			const restSlice = this.raw.slice(this.raw.length() - rest.length);

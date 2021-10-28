@@ -22,12 +22,12 @@ export default class AssignOpStr extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const dest = this.dest.getCell(vm);
-		const index = this.dest.reduceIndex(vm);
+		const index = await this.dest.reduceIndex(vm);
 
 		const original = dest.get(vm, index) as string;
-		const arg = this.arg.get().reduce(vm);
+		const arg = await this.arg.get().reduce(vm);
 		assert.string(arg, `Right operand of ${this.operator} should be a string`);
 
 		switch (this.operator) {

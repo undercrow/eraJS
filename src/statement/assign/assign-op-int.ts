@@ -22,11 +22,11 @@ export default class AssignOpInt extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const dest = this.dest.getCell(vm);
-		const index = this.dest.reduceIndex(vm);
+		const index = await this.dest.reduceIndex(vm);
 		const original = dest.get(vm, index) as number;
-		const value = this.arg.get().reduce(vm);
+		const value = await this.arg.get().reduce(vm);
 		assert.number(value, `Right operand of ${this.operator} should be an integer`);
 
 		switch (this.operator) {

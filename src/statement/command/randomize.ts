@@ -8,7 +8,7 @@ import type Expr from "../expr";
 import Statement from "../index";
 
 const PARSER = U.arg1R1(X.expr);
-export default class AddChara extends Statement {
+export default class Randomize extends Statement {
 	public arg: Lazy<Expr>;
 
 	public constructor(raw: Slice) {
@@ -17,9 +17,8 @@ export default class AddChara extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const expr = this.arg.get();
-		const seed = expr.reduce(vm);
+	public async *run(vm: VM) {
+		const seed = await this.arg.get().reduce(vm);
 		assert.number(seed, "1st argument of RANDOMIZE must be a number");
 
 		vm.random.state = seed;

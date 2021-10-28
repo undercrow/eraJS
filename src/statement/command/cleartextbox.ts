@@ -11,7 +11,8 @@ export default class ClearTextBox extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run() {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run() {
 		throw E.notImpl("CLEARTEXTBOX");
 
 		return null;

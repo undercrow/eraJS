@@ -12,7 +12,8 @@ export default class ResetBgColor extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		vm.color.back = color.copy(vm.color.defaultBack);
 
 		return null;

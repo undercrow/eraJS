@@ -16,10 +16,15 @@ export default class Return extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
+		const result: Array<number | string> = [];
+		for (const expr of this.arg.get()) {
+			result.push(await expr.reduce(vm));
+		}
+
 		return <const>{
 			type: "return",
-			value: this.arg.get().map((a) => a.reduce(vm)),
+			value: result,
 		};
 	}
 }

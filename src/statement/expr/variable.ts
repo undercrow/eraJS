@@ -18,7 +18,7 @@ export default class Variable implements Expr {
 		return vm.getValue(this.name, this.scope);
 	}
 
-	public reduce(vm: VM): string | number {
+	public async reduce(vm: VM): Promise<string | number> {
 		if (vm.macroMap.has(this.name)) {
 			if (this.index.length !== 0) {
 				throw new Error("Macro cannot be indexed");
@@ -31,16 +31,20 @@ export default class Variable implements Expr {
 
 			return expr.reduce(vm);
 		} else {
-			return this.getCell(vm).get(vm, this.reduceIndex(vm));
+			return this.getCell(vm).get(vm, await this.reduceIndex(vm));
 		}
 	}
 
-	public reduceIndex(vm: VM): number[] {
+	public async reduceIndex(vm: VM): Promise<number[]> {
 		if (this.index.length !== 0) {
-			const index = this.index.map((i) => i.reduce(vm));
-			index.forEach((i) => assert.number(i, "Index of variable should be an integer"));
+			const result: number[] = [];
+			for (const i of this.index) {
+				const value = await i.reduce(vm);
+				assert.number(value, "Index of variable should be an integer");
+				result.push(value);
+			}
 
-			return index as number[];
+			return result;
 		} else {
 			return [];
 		}

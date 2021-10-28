@@ -14,7 +14,7 @@ import VM from "./vm";
 
 const FILE = "BUILTIN.ERB";
 
-function* runScene(vm: VM, scene: () => Generator<Statement>): EraGenerator {
+async function* runScene(vm: VM, scene: () => Generator<Statement>): EraGenerator {
 	const generator = scene();
 	while (true) {
 		const next = generator.next();
@@ -33,7 +33,7 @@ function* eventStatement(vm: VM, target: string) {
 	for (const fn of vm.eventMap.get(target) ?? []) {
 		yield {
 			raw: new Slice(FILE, 0, "CALL " + target, "CALL".length),
-			run: function* () {
+			run: async function* () {
 				return yield* fn.run(vm, []);
 			},
 		};
@@ -49,7 +49,7 @@ function* MAIN() {
 	}
 }
 
-export function* SHOP(vm: VM) {
+export async function* SHOP(vm: VM) {
 	return yield* runScene(vm, function* () {
 		yield* eventStatement(vm, "EVENTSHOP");
 		if (vm.fnMap.has("SYSTEM_AUTOSAVE")) {
@@ -65,7 +65,7 @@ export function* SHOP(vm: VM) {
 	});
 }
 
-export function* TRAIN(vm: VM) {
+export async function* TRAIN(vm: VM) {
 	return yield* runScene(vm, function* () {
 		vm.getValue("ASSIPLAY").set(vm, 0, []);
 		vm.getValue("PREVCOM").set(vm, -1, []);
@@ -162,14 +162,14 @@ export function* TRAIN(vm: VM) {
 	});
 }
 
-export function* AFTERTRAIN(vm: VM) {
+export async function* AFTERTRAIN(vm: VM) {
 	return yield* runScene(vm, function* () {
 		vm.queue.skipDisp = false;
 		yield* eventStatement(vm, "EVENTEND");
 	});
 }
 
-export function* ABLUP(vm: VM) {
+export async function* ABLUP(vm: VM) {
 	return yield* runScene(vm, function* () {
 		while (true) {
 			vm.queue.skipDisp = false;
@@ -188,26 +188,26 @@ export function* ABLUP(vm: VM) {
 	});
 }
 
-export function* TURNEND(vm: VM) {
+export async function* TURNEND(vm: VM) {
 	return yield* runScene(vm, function* () {
 		vm.queue.skipDisp = false;
 		yield* eventStatement(vm, "EVENTTURNEND");
 	});
 }
 
-export function* FIRST(vm: VM) {
+export async function* FIRST(vm: VM) {
 	return yield* runScene(vm, function* () {
 		yield* eventStatement(vm, "EVENTFIRST");
 	});
 }
 
-export function* TITLE(vm: VM) {
+export async function* TITLE(vm: VM) {
 	return yield* runScene(vm, function* () {
 		yield new Call(new Slice(FILE, 0, "CALL SYSTEM_TITLE", "CALL".length));
 	});
 }
 
-export function* DATALOADED(vm: VM) {
+export async function* DATALOADED(vm: VM) {
 	return yield* runScene(vm, function* () {
 		yield new TryCall(new Slice(FILE, 0, "TRYCALL SYSTEM_LOADEND", "TRYCALL".length));
 		yield* eventStatement(vm, "EVENTLOAD");

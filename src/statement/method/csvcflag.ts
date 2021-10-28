@@ -2,10 +2,10 @@ import * as assert from "../../assert";
 import type VM from "../../vm";
 import type Expr from "../expr";
 
-export default function csvCflag(vm: VM, arg: Expr[]): number {
-	const num = arg[0].reduce(vm);
+export default async function csvCflag(vm: VM, arg: Expr[]): Promise<number> {
+	const num = await arg[0].reduce(vm);
 	assert.number(num, "1st argument of CSVCFLAG must be an integer");
-	const index = arg[1].reduce(vm);
+	const index = await arg[1].reduce(vm);
 	assert.number(index, "2nd argument of CSVCFLAG must be an integer");
 
 	const character = vm.code.csv.character.get(num);

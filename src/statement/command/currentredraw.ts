@@ -11,7 +11,8 @@ export default class CurrentRedraw extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		vm.getValue("RESULT").set(vm, vm.queue.draw ? 1 : 0, [0]);
 
 		return null;

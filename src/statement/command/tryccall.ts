@@ -33,7 +33,7 @@ export default class TryCCall extends Statement {
 		this.catchThunk = catchThunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		if (label != null && this.thenThunk.labelMap.has(label)) {
 			return yield* this.thenThunk.run(vm, label);
 		}

@@ -19,14 +19,14 @@ export default class ChkData extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const index = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const index = await this.arg.get().reduce(vm);
 		assert.number(index, "1st argument of CHKDATA must be a number");
 
 		let result: number;
 		let message: string = "";
 		const file = savefile.game(index);
-		const raw = vm.external.getSavedata(file);
+		const raw = await vm.external.getSavedata(file);
 		if (raw == null) {
 			result = 1;
 			message = "----";

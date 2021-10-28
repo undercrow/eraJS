@@ -11,7 +11,7 @@ export default class DrawLine extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		yield* vm.queue.line();
 		return null;
 	}

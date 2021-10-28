@@ -19,7 +19,8 @@ export default class OutputQueue {
 		this.isLineTemp = false;
 	}
 
-	private *clearTemp(): EraGenerator<void> {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	private async *clearTemp(): EraGenerator<void> {
 		if (this.isLineTemp) {
 			this.buffer.push({type: "clear", count: 1});
 			this.buffer.push({type: "newline"});
@@ -28,14 +29,15 @@ export default class OutputQueue {
 		}
 	}
 
-	public *flush(): EraGenerator<void> {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *flush(): EraGenerator<void> {
 		for (const output of this.buffer) {
 			yield output;
 		}
 		this.buffer = [];
 	}
 
-	public *newline(): EraGenerator<void> {
+	public async *newline(): EraGenerator<void> {
 		if (this.isLineTemp) {
 			this.buffer.push({type: "clear", count: 1});
 			this.lineCount -= 1;
@@ -50,7 +52,7 @@ export default class OutputQueue {
 		}
 	}
 
-	public *print(
+	public async *print(
 		text: string,
 		flags: Set<PrintFlag>,
 		cell?: "LEFT" | "RIGHT",
@@ -78,7 +80,7 @@ export default class OutputQueue {
 		}
 	}
 
-	public *button(text: string, value: string, cell?: "LEFT" | "RIGHT"): EraGenerator<void> {
+	public async *button(text: string, value: string, cell?: "LEFT" | "RIGHT"): EraGenerator<void> {
 		yield* this.clearTemp();
 		this.buffer.push({type: "button", text, value, cell});
 		this.isLineEmpty = false;
@@ -88,7 +90,7 @@ export default class OutputQueue {
 		}
 	}
 
-	public *line(value?: string): EraGenerator<void> {
+	public async *line(value?: string): EraGenerator<void> {
 		yield* this.clearTemp();
 		this.buffer.push({type: "line", value});
 
@@ -100,7 +102,7 @@ export default class OutputQueue {
 		this.isLineEmpty = true;
 	}
 
-	public *clear(count: number): EraGenerator<void> {
+	public async *clear(count: number): EraGenerator<void> {
 		if (count > 0) {
 			this.buffer.push({type: "clear", count});
 			this.lineCount = Math.max(0, this.lineCount - count);
@@ -112,17 +114,17 @@ export default class OutputQueue {
 		}
 	}
 
-	public *wait(force: boolean): EraGenerator<void> {
+	public async *wait(force: boolean): EraGenerator<void> {
 		yield* this.flush();
 		yield {type: "wait", force};
 	}
 
-	public *input(numeric: boolean, nullable: boolean): EraGenerator<string | null> {
+	public async *input(numeric: boolean, nullable: boolean): EraGenerator<string | null> {
 		yield* this.flush();
 		return yield {type: "input", numeric, nullable};
 	}
 
-	public *tinput(
+	public async *tinput(
 		numeric: boolean,
 		timeout: number,
 		showClock: boolean,

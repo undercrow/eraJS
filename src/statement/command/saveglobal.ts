@@ -21,7 +21,7 @@ export default class SaveGlobal extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const saveData: GlobalSave = {
 			code: vm.getValue<Int0DValue>("GAMEBASE_GAMECODE").get(vm, []),
 			version: vm.getValue<Int0DValue>("GAMEBASE_VERSION").get(vm, []),
@@ -48,7 +48,7 @@ export default class SaveGlobal extends Statement {
 			}
 		}
 
-		vm.external.setSavedata(savefile.global, JSON.stringify(saveData));
+		await vm.external.setSavedata(savefile.global, JSON.stringify(saveData));
 
 		return null;
 	}

@@ -16,7 +16,7 @@ export default class InputS extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM): EraGenerator {
+	public async *run(vm: VM): EraGenerator {
 		const arg = this.arg.get();
 
 		let input = yield* vm.queue.input(false, arg != null);

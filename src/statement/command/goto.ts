@@ -30,7 +30,8 @@ export default class Goto extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		const target = this.arg.get();
 		return yield* Goto.exec(vm, target);
 	}

@@ -53,8 +53,8 @@ export default class VM {
 		csv: Csv;
 	};
 	public external!: {
-		getSavedata: (key: string) => string | undefined;
-		setSavedata: (key: string, value: string) => void;
+		getSavedata: (key: string) => string | undefined | Promise<string | undefined>;
+		setSavedata: (key: string, value: string) => void | Promise<void>;
 		getFont: (name: string) => boolean;
 		getTime: () => number;
 	};
@@ -135,13 +135,9 @@ export default class VM {
 
 		this.globalMap.set("GLOBAL", new Int1DValue("GLOBAL", code.csv.varSize.get("GLOBAL")));
 		this.globalMap.set("GLOBALS", new Str1DValue("GLOBALS", code.csv.varSize.get("GLOBALS")));
-		this.reset();
-
-		// Push dummy context for outermost call
-		this.pushContext(new Fn("@DUMMY", [], [], new Thunk([])));
 	}
 
-	public reset() {
+	public async reset() {
 		this.queue = new OutputQueue();
 
 		this.alignment = "LEFT";
@@ -257,7 +253,7 @@ export default class VM {
 
 		for (const property of header) {
 			if (property instanceof Dim) {
-				globalMap.set(property.name, property.build(this));
+				globalMap.set(property.name, await property.build(this));
 			}
 		}
 
@@ -281,7 +277,7 @@ export default class VM {
 			);
 			for (const property of fn.property) {
 				if (property instanceof Dim && !property.isDynamic()) {
-					this.staticMap.get(fn.name)!.set(property.name, property.build(this));
+					this.staticMap.get(fn.name)!.set(property.name, await property.build(this));
 				} else if (property instanceof LocalSize || property instanceof LocalSSize) {
 					property.apply(this, fn.name);
 				}
@@ -305,7 +301,7 @@ export default class VM {
 		return this.contextStack[this.contextStack.length - 1];
 	}
 
-	public pushContext(fn: Fn): Context {
+	public async pushContext(fn: Fn): Promise<Context> {
 		const context: Context = {
 			fn,
 			dynamicMap: new Map(),
@@ -315,7 +311,7 @@ export default class VM {
 		context.dynamicMap.set("ARGS", new Str1DValue("ARGS", this.code.csv.varSize.get("ARGS")));
 		for (const property of fn.property) {
 			if (property instanceof Dim && property.isDynamic()) {
-				context.dynamicMap.set(property.name, property.build(this));
+				context.dynamicMap.set(property.name, await property.build(this));
 			}
 		}
 
@@ -354,8 +350,13 @@ export default class VM {
 		}
 	}
 
-	public *start(external: VM["external"]): EraGenerator {
+	public async *start(external: VM["external"]): EraGenerator {
 		this.external = external;
+		await this.reset();
+		this.contextStack = [];
+
+		// Push dummy context for outermost call
+		await this.pushContext(new Fn("@DUMMY", [], [], new Thunk([])));
 
 		let begin = "TITLE";
 		while (true) {
@@ -385,7 +386,7 @@ export default class VM {
 		}
 	}
 
-	public *run(statement: Statement, label?: string): EraGenerator {
+	public async *run(statement: Statement, label?: string): EraGenerator {
 		try {
 			return yield* statement.run(this, label);
 		} catch (e) {

@@ -17,11 +17,11 @@ export default class SwapChara extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [leftExpr, rightExpr] = this.arg.get();
-		const left = leftExpr.reduce(vm);
+		const left = await leftExpr.reduce(vm);
 		assert.number(left, "1st argument of SWAPCHARA must be a number");
-		const right = rightExpr.reduce(vm);
+		const right = await rightExpr.reduce(vm);
 		assert.number(right, "2nd argument of SWAPCHARA must be a number");
 
 		const temp = vm.characterList[left];

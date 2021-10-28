@@ -19,16 +19,16 @@ export default class AssignInt extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const dest = this.dest.getCell(vm);
-		const index = this.dest.reduceIndex(vm);
+		const index = await this.dest.reduceIndex(vm);
 		const arg = this.arg.get();
 
 		const partialIndex = index.slice(0, -1);
 		const lastIndex = index[index.length - 1] ?? 0;
 
 		for (let i = 0; i < arg.length; ++i) {
-			const value = arg[i].reduce(vm);
+			const value = await arg[i].reduce(vm);
 			dest.set(vm, value, [...partialIndex, lastIndex + i]);
 		}
 

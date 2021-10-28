@@ -17,8 +17,8 @@ export default class ReuseLastLine extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM): EraGenerator {
-		const value = this.arg.get()?.reduce(vm) ?? "";
+	public async *run(vm: VM): EraGenerator {
+		const value = await this.arg.get()?.reduce(vm) ?? "";
 		assert.string(value, "Argument of REUSELASTLINE must be a string");
 
 		if (!vm.queue.isLineEmpty) {

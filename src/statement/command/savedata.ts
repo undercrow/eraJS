@@ -52,12 +52,12 @@ export default class SaveData extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [indexExpr, commentExpr] = this.arg.get();
 
-		const index = indexExpr.reduce(vm);
+		const index = await indexExpr.reduce(vm);
 		assert.number(index, "1st argument of SAVEDATA must be a number");
-		const comment = commentExpr.reduce(vm);
+		const comment = await commentExpr.reduce(vm);
 		assert.string(comment, "2nd argument of SAVEDATA must be a string");
 
 		const saveData: GameSave = {
@@ -122,7 +122,7 @@ export default class SaveData extends Statement {
 				}
 			}
 		}
-		vm.external.setSavedata(savefile.game(index), JSON.stringify(saveData));
+		await vm.external.setSavedata(savefile.game(index), JSON.stringify(saveData));
 
 		return null;
 	}

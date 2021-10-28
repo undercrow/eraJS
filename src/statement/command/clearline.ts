@@ -17,8 +17,8 @@ export default class ClearLine extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const count = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const count = await this.arg.get().reduce(vm);
 		assert.number(count, "Argument of CLEARLINE must be an integer!");
 
 		yield* vm.queue.clear(count);

@@ -17,8 +17,8 @@ export default class Redraw extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const value = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const value = await this.arg.get().reduce(vm);
 		assert.number(value, "Argument of REDRAW must be a number");
 		assert.cond(value > 0 && value <= 3, "Argument of REDRAW must be between 0 and 3");
 

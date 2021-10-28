@@ -17,8 +17,8 @@ export default class CallTrain extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const value = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const value = await this.arg.get().reduce(vm);
 		assert.number(value, "Argument of CALLTRAIN must be a number");
 
 		// vm.getValue("CTRAIN_COUNT").set(vm, value, []);

@@ -17,11 +17,11 @@ export default class TWait extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM): EraGenerator {
+	public async *run(vm: VM): EraGenerator {
 		const [timeoutExpr, forceExpr] = this.arg.get();
-		const timeout = timeoutExpr.reduce(vm);
+		const timeout = await timeoutExpr.reduce(vm);
 		assert.number(timeout, "1st argument of TWAIT should be a number");
-		const force = forceExpr.reduce(vm);
+		const force = await forceExpr.reduce(vm);
 		assert.number(force, "2nd argument of TWAIT should be a number");
 
 		yield* vm.queue.wait(force !== 0);

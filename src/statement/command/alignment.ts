@@ -16,7 +16,8 @@ export default class Alignment extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		vm.alignment = this.arg.get();
 
 		return null;

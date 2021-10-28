@@ -16,9 +16,9 @@ export default class JumpForm extends Statement {
 		this.arg = new Lazy(raw, CallForm.PARSER("("));
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [targetExpr, argExpr] = this.arg.get();
-		const target = targetExpr.reduce(vm);
+		const target = await targetExpr.reduce(vm);
 		return yield* Jump.exec(vm, target, argExpr);
 	}
 }

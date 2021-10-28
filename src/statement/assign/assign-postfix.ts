@@ -21,11 +21,11 @@ export default class AssignPostfix extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		this.raw.get();
 
 		const dest = this.dest.getCell(vm);
-		const index = this.dest.reduceIndex(vm);
+		const index = await this.dest.reduceIndex(vm);
 		const original = dest.get(vm, index) as number;
 
 		switch (this.operator) {

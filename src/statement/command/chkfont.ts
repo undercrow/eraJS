@@ -17,8 +17,8 @@ export default class ChkFont extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const arg = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const arg = await this.arg.get().reduce(vm);
 		assert.string(arg, "1st argument of CHKFONT should be a string");
 
 		const result = vm.external.getFont(arg) ? 1 : 0;

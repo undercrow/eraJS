@@ -18,20 +18,25 @@ export default class PickupChara extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const arg = this.arg.get().map((expr) => expr.reduce(vm));
+	public async *run(vm: VM) {
+		const argExpr = this.arg.get();
+		const arg: number[] = [];
+		for (let i = 0; i < argExpr.length; ++i) {
+			const value = await argExpr[i].reduce(vm);
+			assert.number(value, `${i + 1}th argument of PICKUPCHARA should be a number`);
+			assert.cond(
+				value >= 0 && value < vm.characterList.length,
+				`${i + 1}th argument of PICKUPCHARA is out of range`,
+			);
+			arg.push(value);
+		}
+
 		let target = -1;
 		let assi = -1;
 		let master = -1;
 		const characterList: Character[] = [];
 		for (let i = 0; i < arg.length; ++i) {
 			const index = arg[i];
-			assert.number(index, `${i + 1}th argument of PICKUPCHARA should be a number`);
-			assert.cond(
-				index >= 0 && index < vm.characterList.length,
-				`${i + 1}th argument of PICKUPCHARA is out of range`,
-			);
-
 			if (index === vm.getValue("TARGET").get(vm, [])) {
 				target = i;
 			}

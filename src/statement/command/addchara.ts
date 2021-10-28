@@ -18,9 +18,9 @@ export default class AddChara extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		for (const expr of this.arg.get()) {
-			const id = expr.reduce(vm);
+			const id = await expr.reduce(vm);
 			assert.number(id, "Character id should be an integer");
 
 			const template = vm.templateMap.get(id);

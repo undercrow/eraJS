@@ -18,13 +18,13 @@ export default class TOneInputS extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM): EraGenerator {
+	public async *run(vm: VM): EraGenerator {
 		const [timeoutExpr, defExpr, showExpr, message] = this.arg.get();
-		const timeout = timeoutExpr.reduce(vm);
+		const timeout = await timeoutExpr.reduce(vm);
 		assert.number(timeout, "1st argument of TONEINPUTS should be a number");
-		const def = defExpr.reduce(vm);
+		const def = await defExpr.reduce(vm);
 		assert.string(def, "2nd argument of TONEINPUTS should be a string");
-		const show = showExpr?.reduce(vm) ?? 0;
+		const show = await showExpr?.reduce(vm) ?? 0;
 		assert.number(show, "3rd argument of TONEINPUTS should be a number");
 
 		const input = yield* vm.queue.tinput(false, timeout, show === 1);

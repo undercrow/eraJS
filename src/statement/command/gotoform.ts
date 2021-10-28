@@ -17,8 +17,9 @@ export default class GotoForm extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const target = this.arg.get().reduce(vm).toUpperCase();
+	public async *run(vm: VM) {
+		const arg = await this.arg.get().reduce(vm);
+		const target = arg.toUpperCase();
 
 		const context = vm.context();
 		if (!context.fn.thunk.labelMap.has(target)) {

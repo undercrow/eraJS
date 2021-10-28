@@ -14,9 +14,9 @@ export default class TryCallForm extends Statement {
 		this.arg = new Lazy(raw, CallForm.PARSER("(,"));
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [targetExpr, argExpr] = this.arg.get();
-		const target = targetExpr.reduce(vm).toUpperCase();
+		const target = (await targetExpr.reduce(vm)).toUpperCase();
 		if (vm.fnMap.has(target)) {
 			return yield* Call.exec(vm, target, argExpr);
 		}

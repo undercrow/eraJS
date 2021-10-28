@@ -18,16 +18,16 @@ export default class ArrayShift extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		// TODO: 4th and 5th argument
 		const [targetExpr, countExpr, fillExpr] = this.arg.get();
 
 		const target = targetExpr.getCell(vm);
-		const index = targetExpr.reduceIndex(vm);
+		const index = await targetExpr.reduceIndex(vm);
 		const length = target.length(index.length);
-		const count = countExpr.reduce(vm);
+		const count = await countExpr.reduce(vm);
 		assert.number(count, "2nd argument of ARRAYSHIFT must be a number");
-		const fill = fillExpr.reduce(vm);
+		const fill = await fillExpr.reduce(vm);
 
 		if (count > 0) {
 			for (let i = length - 1; i >= count; --i) {

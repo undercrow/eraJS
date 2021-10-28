@@ -17,13 +17,18 @@ export default class DelChara extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const indexList = this.arg.get().map((c) => c.reduce(vm));
-		indexList.forEach((index) => assert.number(index, "Character index should be an integer"));
+	public async *run(vm: VM) {
+		const arg = this.arg.get();
+		const indexList: number[] = [];
+		for (let i = 0; i < arg.length; ++i) {
+			const index = await arg[i].reduce(vm);
+			assert.number(index, `${i + 1}th argument of DELCHARA should be a number`);
+			indexList.push(index);
+		}
 		indexList.sort();
 		indexList.reverse();
 
-		for (const index of indexList as number[]) {
+		for (const index of indexList) {
 			vm.characterList.splice(index, 1);
 		}
 

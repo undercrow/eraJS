@@ -20,14 +20,14 @@ export default class PrintFormS extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (vm.queue.skipDisp) {
 			return null;
 		}
 
-		const form = this.arg.get().reduce(vm);
+		const form = await this.arg.get().reduce(vm);
 		assert.string(form, "1st argument of PRINTFORMS must be a string");
-		const text = X.form[""].tryParse(form).reduce(vm);
+		const text = await X.form[""].tryParse(form).reduce(vm);
 		assert.string(text, "1st argument of PRINTFORMS must be reduced to a string");
 		yield* vm.queue.print(text, this.flags);
 

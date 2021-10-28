@@ -13,8 +13,8 @@ export default class Ternary implements Expr {
 		this.right = right;
 	}
 
-	public reduce(vm: VM) {
-		const condition = this.condition.reduce(vm);
+	public async reduce(vm: VM) {
+		const condition = await this.condition.reduce(vm);
 		assert.number(condition, "Condition of ternary operator should be an integer");
 		return condition !== 0 ? this.left.reduce(vm) : this.right.reduce(vm);
 	}

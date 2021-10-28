@@ -24,14 +24,14 @@ export default class Form implements Expr {
 		this.expr = merged;
 	}
 
-	public reduce(vm: VM): string {
+	public async reduce(vm: VM): Promise<string> {
 		let result = "";
 		for (const expr of this.expr) {
 			let value: string;
 			if (typeof expr.value === "string") {
 				value = expr.value;
 			} else {
-				const reduced = expr.value.reduce(vm);
+				const reduced = await expr.value.reduce(vm);
 				// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 				switch (typeof reduced) {
 					case "string": value = reduced; break;
@@ -40,7 +40,7 @@ export default class Form implements Expr {
 			}
 
 			if (expr.display != null) {
-				const display = expr.display.reduce(vm);
+				const display = await expr.display.reduce(vm);
 				assert.number(display, "Display size of form string should be an integer");
 
 				if (expr.align == null || expr.align === "LEFT") {

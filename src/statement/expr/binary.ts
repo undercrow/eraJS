@@ -21,8 +21,8 @@ export default class Binary implements Expr {
 		this.right = right;
 	}
 
-	public reduce(vm: VM) {
-		const left = this.left.reduce(vm);
+	public async reduce(vm: VM) {
+		const left = await this.left.reduce(vm);
 		switch (this.op) {
 			case "&&": if (typeof left === "number" && left === 0) { return 0; } break;
 			case "!&": if (typeof left === "number" && left === 0) { return 1; } break;
@@ -31,7 +31,7 @@ export default class Binary implements Expr {
 			default: { /* Do nothing */ }
 		}
 
-		const right = this.right.reduce(vm);
+		const right = await this.right.reduce(vm);
 		if (typeof left === "number" && typeof right === "number") {
 			switch (this.op) {
 				case "*": return left * right;

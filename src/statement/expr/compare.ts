@@ -15,9 +15,9 @@ export default class Compare implements Expr {
 		this.right = right;
 	}
 
-	public reduce(vm: VM): number {
-		const left = this.left.reduce(vm);
-		const right = this.right.reduce(vm);
+	public async reduce(vm: VM): Promise<number> {
+		const left = await this.left.reduce(vm);
+		const right = await this.right.reduce(vm);
 
 		if (typeof left !== typeof right) {
 			assert.cond(false, `Type of left and right operand of ${this.op} should be equal`);

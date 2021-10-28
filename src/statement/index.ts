@@ -20,7 +20,7 @@ export type Result =
 	| {type: "return"; value: Array<number | string>}
 	| {type: "quit"};
 
-export type EraGenerator<T = Result | null> = Generator<Output, T, string | null>;
+export type EraGenerator<T = Result | null> = AsyncGenerator<Output, T, string | null>;
 
 export default class Statement {
 	public raw: Slice;
@@ -29,7 +29,8 @@ export default class Statement {
 		this.raw = raw;
 	}
 
-	public *run(_vm: VM, _label?: string): EraGenerator {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(_vm: VM, _label?: string): EraGenerator {
 		return null;
 	}
 }

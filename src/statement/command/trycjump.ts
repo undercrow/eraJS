@@ -36,7 +36,7 @@ export default class TryCJump extends Statement {
 		this.catchExpr = catchExpr;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		const [target, argExpr] = this.arg.get();
 		const realTarget = target.toUpperCase();
 		if (vm.fnMap.has(realTarget)) {

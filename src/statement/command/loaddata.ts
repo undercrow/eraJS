@@ -25,12 +25,12 @@ export default class LoadData extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM): EraGenerator {
-		const index = this.arg.get().reduce(vm);
+	public async *run(vm: VM): EraGenerator {
+		const index = await this.arg.get().reduce(vm);
 		assert.number(index, "Argument of LOADDATA must be a number");
 
 		const file = savefile.game(index);
-		const raw = vm.external.getSavedata(file);
+		const raw = await vm.external.getSavedata(file);
 		assert.nonNull(raw, `Save file ${file} does not exist`);
 		try {
 			const parsed: GameSave = JSON.parse(raw);

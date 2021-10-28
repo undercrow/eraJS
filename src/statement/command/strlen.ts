@@ -16,7 +16,8 @@ export default class StrLen extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		const value = this.arg.get();
 		assert.string(value, "Argument of STRLEN must be a string!");
 		vm.getValue("RESULT").set(vm, value.length, [0]);

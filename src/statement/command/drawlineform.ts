@@ -16,8 +16,8 @@ export default class DrawLineForm extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const value = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const value = await this.arg.get().reduce(vm);
 		yield* vm.queue.line(value);
 
 		return null;

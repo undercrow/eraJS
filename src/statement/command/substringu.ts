@@ -17,14 +17,14 @@ export default class SubstringU extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [valueExpr, startExpr, endExpr] = this.arg.get();
 
-		const value = valueExpr.reduce(vm);
+		const value = await valueExpr.reduce(vm);
 		assert.string(value, "1st argument of SUBSTRINGU must be a string!");
-		const start = startExpr.reduce(vm);
+		const start = await startExpr.reduce(vm);
 		assert.number(start, "2nd argument of SUBSTRINGU must be a number!");
-		const end = endExpr.reduce(vm);
+		const end = await endExpr.reduce(vm);
 		assert.number(end, "3rd argument of SUBSTRINGU must be a number!");
 		if (end < 0) {
 			vm.getValue("RESULTS").set(vm, value.slice(start), [0]);

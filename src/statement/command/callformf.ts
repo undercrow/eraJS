@@ -17,9 +17,9 @@ export default class CallFormF extends Statement {
 		this.arg = new Lazy(raw, CallForm.PARSER("(,"));
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [targetExpr, argExpr] = this.arg.get();
-		const target = targetExpr.reduce(vm);
+		const target = await targetExpr.reduce(vm);
 		assert.string(target, "1st argument of CALLFORMF must be a string");
 
 		return yield* CallF.exec(vm, target, argExpr);

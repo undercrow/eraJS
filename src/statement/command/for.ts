@@ -32,7 +32,7 @@ export default class For extends Statement {
 		this.thunk = thunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		if (label != null) {
 			if (this.thunk.labelMap.has(label)) {
 				return yield* this.thunk.run(vm, label);
@@ -41,13 +41,13 @@ export default class For extends Statement {
 
 		const [counter, startExpr, endExpr, stepExpr] = this.arg.get();
 
-		const start = startExpr.reduce(vm);
+		const start = await startExpr.reduce(vm);
 		assert.number(start, "Starting value for FOR should be an integer");
-		const end = endExpr.reduce(vm);
+		const end = await endExpr.reduce(vm);
 		assert.number(end, "Ending value for FOR should be an integer");
-		const step = stepExpr?.reduce(vm) ?? 1;
+		const step = await stepExpr?.reduce(vm) ?? 1;
 		assert.number(step, "Step of FOR should be an integer");
-		const index = counter.reduceIndex(vm);
+		const index = await counter.reduceIndex(vm);
 
 		loop: for (let i = start; i < end; i += step) {
 			counter.getCell(vm).set(vm, i, index);

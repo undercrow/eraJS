@@ -11,7 +11,8 @@ export default class FontBold extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		vm.font.bold = !vm.font.bold;
 
 		return null;

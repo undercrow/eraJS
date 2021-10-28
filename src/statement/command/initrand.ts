@@ -11,7 +11,8 @@ export default class InitRand extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(vm: VM) {
 		vm.random.state = vm.getValue("RANDDATA").get(vm, []) as number;
 
 		return null;

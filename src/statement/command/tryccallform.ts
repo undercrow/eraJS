@@ -34,7 +34,7 @@ export default class TryCCallForm extends Statement {
 		this.catchThunk = catchThunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		if (label != null && this.thenThunk.labelMap.has(label)) {
 			return yield* this.thenThunk.run(vm, label);
 		}
@@ -43,7 +43,7 @@ export default class TryCCallForm extends Statement {
 		}
 
 		const [targetExpr, argExpr] = this.arg.get();
-		const target = targetExpr.reduce(vm).toUpperCase();
+		const target = (await targetExpr.reduce(vm)).toUpperCase();
 		if (vm.fnMap.has(target)) {
 			yield* Call.exec(vm, target, argExpr);
 			return yield* this.thenThunk.run(vm, label);

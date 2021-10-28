@@ -18,12 +18,12 @@ export default class Times extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [dest, value] = this.arg.get();
 
-		const original = dest.reduce(vm);
+		const original = await dest.reduce(vm);
 		assert.number(original, "1st argument of TIMES must be a number");
-		const index = dest.reduceIndex(vm);
+		const index = await dest.reduceIndex(vm);
 
 		dest.getCell(vm).set(vm, Math.floor(original * value), index);
 

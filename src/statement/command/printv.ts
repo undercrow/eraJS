@@ -26,14 +26,14 @@ export default class PrintV extends Statement {
 		this.value = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (vm.queue.skipDisp) {
 			return null;
 		}
 
 		let text = "";
 		for (const value of this.value.get()) {
-			text += value.reduce(vm).toString();
+			text += (await value.reduce(vm)).toString();
 		}
 		yield* vm.queue.print(text, this.flags);
 

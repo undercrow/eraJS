@@ -17,12 +17,12 @@ export default class GetExpLv extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		const [valExpr, maxExpr] = this.arg.get();
 
-		const value = valExpr.reduce(vm);
+		const value = await valExpr.reduce(vm);
 		assert.number(value, "1st argument of GETEXPLV must be a number");
-		const max = maxExpr.reduce(vm);
+		const max = await maxExpr.reduce(vm);
 		assert.number(max, "2nd argument of GETEXPLV must be a number");
 
 		let result = max;

@@ -13,8 +13,8 @@ export default class Unary implements Expr {
 		this.expr = expr;
 	}
 
-	public reduce(vm: VM): number {
-		const value = this.expr.reduce(vm);
+	public async reduce(vm: VM): Promise<number> {
+		const value = await this.expr.reduce(vm);
 		assert.number(value, `Operand of ${this.op} should be an integer`);
 
 		switch (this.op) {

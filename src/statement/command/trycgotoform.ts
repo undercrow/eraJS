@@ -39,8 +39,8 @@ export default class TryCGotoForm extends Statement {
 		this.catchThunk = catchThunk;
 	}
 
-	public *run(vm: VM, label?: string) {
-		const target = this.arg.get().reduce(vm).toUpperCase();
+	public async *run(vm: VM, label?: string) {
+		const target = (await this.arg.get().reduce(vm)).toUpperCase();
 		const context = vm.context();
 		if (context.fn.thunk.labelMap.has(target)) {
 			return yield* Goto.exec(vm, target);

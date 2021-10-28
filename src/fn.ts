@@ -1,7 +1,7 @@
 import * as assert from "./assert";
 import type Property from "./property";
 import Order from "./property/order";
-import type {Output, Result} from "./statement";
+import type {EraGenerator} from "./statement";
 import Variable from "./statement/expr/variable";
 import Thunk from "./thunk";
 import type VM from "./vm";
@@ -31,16 +31,13 @@ export default class Fn {
 		return this.property.some((p) => p instanceof Order && p.order === "LATER");
 	}
 
-	public *run(
-		vm: VM,
-		arg: Array<string | number | undefined>,
-	): Generator<Output, Result | null, string> {
-		vm.pushContext(this);
+	public async *run(vm: VM, arg: Array<string | number | undefined>): EraGenerator {
+		await vm.pushContext(this);
 
 		for (let i = 0; i < this.arg.length; ++i) {
 			const [argDest, argDef] = this.arg[i];
 			const dest = argDest.getCell(vm);
-			const index = argDest.reduceIndex(vm);
+			const index = await argDest.reduceIndex(vm);
 			if (dest.type === "number") {
 				let value: string | number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -48,7 +45,7 @@ export default class Fn {
 					value = arg[i]!;
 				} else if (argDef != null) {
 					if (argDef instanceof Variable) {
-						value = argDef.reduce(vm);
+						value = await argDef.reduce(vm);
 					} else {
 						value = argDef;
 					}
@@ -64,7 +61,7 @@ export default class Fn {
 					value = arg[i]!;
 				} else if (argDef != null) {
 					if (argDef instanceof Variable) {
-						value = argDef.reduce(vm);
+						value = await argDef.reduce(vm);
 					} else {
 						value = argDef;
 					}

@@ -16,7 +16,8 @@ export default class SetColorByName extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(_vm: VM) {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(_vm: VM) {
 		throw E.notImpl("SETCOLORBYNAME");
 
 		return null;

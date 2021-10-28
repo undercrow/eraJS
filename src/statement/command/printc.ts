@@ -20,7 +20,7 @@ export default class PrintC extends Statement {
 		this.value = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
+	public async *run(vm: VM) {
 		if (vm.queue.skipDisp) {
 			return null;
 		}

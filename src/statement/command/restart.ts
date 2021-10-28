@@ -11,7 +11,8 @@ export default class Restart extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run() {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run() {
 		return <const>{
 			type: "goto",
 			label: Fn.START_OF_FN,

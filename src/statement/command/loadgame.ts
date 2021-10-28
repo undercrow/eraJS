@@ -10,7 +10,8 @@ export default class LoadGame extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run(): EraGenerator {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run(): EraGenerator {
 		return {
 			type: "begin",
 			keyword: "LOADGAME",

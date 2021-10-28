@@ -11,7 +11,8 @@ export default class CbgClearButton extends Statement {
 		U.tryParse(PARSER, raw);
 	}
 
-	public *run() {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	public async *run() {
 		throw E.notImpl("CBGCLEARBUTTON");
 
 		return null;

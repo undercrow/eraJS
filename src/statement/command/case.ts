@@ -81,7 +81,7 @@ export default class Case extends Statement {
 		this.def = def;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		if (label != null) {
 			for (const [, thunk] of this.branch) {
 				if (thunk.labelMap.has(label)) {
@@ -90,7 +90,7 @@ export default class Case extends Statement {
 			}
 		}
 
-		const value = this.arg.get().reduce(vm);
+		const value = await this.arg.get().reduce(vm);
 
 		for (const [cond, expr] of this.branch) {
 			const satisfied = cond.get().some((c) => {

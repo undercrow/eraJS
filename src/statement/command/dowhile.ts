@@ -36,12 +36,12 @@ export default class DoWhile extends Statement {
 		this.thunk = thunk;
 	}
 
-	public *run(vm: VM, label?: string) {
+	public async *run(vm: VM, label?: string) {
 		let firstLoop = true;
 		while (true) {
 			const result = yield* this.thunk.run(vm, firstLoop ? label : undefined);
 
-			const condition = this.arg.get().reduce(vm);
+			const condition = await this.arg.get().reduce(vm);
 			assert.number(condition, "Condition of DO should be an integer");
 			if (condition === 0) {
 				break;

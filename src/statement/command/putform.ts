@@ -18,8 +18,8 @@ export default class PutForm extends Statement {
 		this.arg = new Lazy(raw, PARSER);
 	}
 
-	public *run(vm: VM) {
-		const value = this.arg.get().reduce(vm);
+	public async *run(vm: VM) {
+		const value = await this.arg.get().reduce(vm);
 		assert.string(value, "1st argument of PUTFORM should be a number");
 
 		const cell = vm.getValue<Str0DValue>("SAVEDATA_TEXT");

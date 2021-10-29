@@ -39,6 +39,7 @@ export default class TInput extends Statement {
 			value = Number(input);
 		}
 		assert.number(value, "Input value for TINPUT should be a valid number");
+		yield* vm.printer.print(value.toString(), new Set(["S"]));
 
 		vm.getValue("RESULT").set(vm, value, [0]);
 

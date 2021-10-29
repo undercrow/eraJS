@@ -28,6 +28,7 @@ export default class OneInput extends Statement {
 			value = arg;
 		}
 		assert.number(value, "First value of input for ONEINPUT should be a valid number");
+		yield* vm.printer.print(value.toString(), new Set(["S"]));
 
 		vm.getValue("RESULT").set(vm, value, [0]);
 

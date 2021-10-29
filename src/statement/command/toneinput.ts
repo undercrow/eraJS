@@ -39,6 +39,7 @@ export default class TOneInput extends Statement {
 			value = Number(input[0]);
 		}
 		assert.number(value, "First value of input for TONEINPUT should be a valid number");
+		yield* vm.printer.print(value.toString(), new Set(["S"]));
 
 		vm.getValue("RESULT").set(vm, value, [0]);
 

@@ -38,6 +38,7 @@ export default class TOneInputS extends Statement {
 		} else {
 			value = input;
 		}
+		yield* vm.printer.print(value, new Set(["S"]));
 
 		vm.getValue("RESULTS").set(vm, value, [0]);
 

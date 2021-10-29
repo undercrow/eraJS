@@ -24,6 +24,7 @@ export default class InputS extends Statement {
 		if (arg != null && input === "") {
 			input = arg;
 		}
+		yield* vm.printer.print(input, new Set(["S"]));
 		vm.getValue("RESULTS").set(vm, input, [0]);
 
 		return null;

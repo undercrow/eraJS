@@ -1,5 +1,4 @@
 import * as U from "../../parser/util";
-import * as color from "../../color";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
@@ -14,7 +13,7 @@ export default class ResetBgColor extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.color.back = color.copy(vm.color.defaultBack);
+		vm.printer.background = vm.printer.defaultBackground;
 
 		return null;
 	}

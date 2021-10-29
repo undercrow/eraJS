@@ -4,7 +4,7 @@ import * as C from "../../parser/const";
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
-import {PrintFlag} from "../../output-queue";
+import {PrintFlag} from "../../printer";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -58,7 +58,7 @@ export default class PrintData extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		if (vm.queue.skipDisp) {
+		if (vm.printer.skipDisp) {
 			return null;
 		}
 
@@ -66,7 +66,7 @@ export default class PrintData extends Statement {
 		const value = await this.data[index].get().reduce(vm);
 		assert.string(value, "Item of PRINTDATA must be a string");
 
-		yield* vm.queue.print(value, this.flags);
+		yield* vm.printer.print(value, this.flags);
 
 		return null;
 	}

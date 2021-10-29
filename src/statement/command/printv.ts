@@ -4,7 +4,7 @@ import * as C from "../../parser/const";
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
-import {PrintFlag} from "../../output-queue";
+import {PrintFlag} from "../../printer";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -27,7 +27,7 @@ export default class PrintV extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		if (vm.queue.skipDisp) {
+		if (vm.printer.skipDisp) {
 			return null;
 		}
 
@@ -35,7 +35,7 @@ export default class PrintV extends Statement {
 		for (const value of this.value.get()) {
 			text += (await value.reduce(vm)).toString();
 		}
-		yield* vm.queue.print(text, this.flags);
+		yield* vm.printer.print(text, this.flags);
 
 		return null;
 	}

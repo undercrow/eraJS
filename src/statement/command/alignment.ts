@@ -18,7 +18,7 @@ export default class Alignment extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.alignment = this.arg.get();
+		vm.printer.align = this.arg.get();
 
 		return null;
 	}

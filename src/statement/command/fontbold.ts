@@ -13,7 +13,7 @@ export default class FontBold extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.font.bold = !vm.font.bold;
+		vm.printer.font.bold = !vm.printer.font.bold;
 
 		return null;
 	}

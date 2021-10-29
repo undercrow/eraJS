@@ -20,7 +20,7 @@ export default class Bar extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		if (vm.queue.skipDisp) {
+		if (vm.printer.skipDisp) {
 			return null;
 		}
 
@@ -35,10 +35,10 @@ export default class Bar extends Statement {
 
 		const filled = Math.floor(length * (value / max));
 		const text = "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]";
-		yield* vm.queue.print(text, new Set());
+		yield* vm.printer.print(text, new Set());
 
 		if (this.newline) {
-			yield* vm.queue.newline();
+			yield* vm.printer.newline();
 		}
 
 		return null;

@@ -13,7 +13,7 @@ export default class FontItalic extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.font.italic = !vm.font.italic;
+		vm.printer.font.italic = !vm.printer.font.italic;
 
 		return null;
 	}

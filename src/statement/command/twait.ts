@@ -24,7 +24,7 @@ export default class TWait extends Statement {
 		const force = await forceExpr.reduce(vm);
 		assert.number(force, "2nd argument of TWAIT should be a number");
 
-		yield* vm.queue.wait(force !== 0);
+		yield* vm.printer.wait(force !== 0);
 
 		return null;
 	}

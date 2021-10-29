@@ -18,7 +18,7 @@ export default class DrawLineForm extends Statement {
 
 	public async *run(vm: VM) {
 		const value = await this.arg.get().reduce(vm);
-		yield* vm.queue.line(value);
+		yield* vm.printer.line(value);
 
 		return null;
 	}

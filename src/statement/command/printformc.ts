@@ -1,7 +1,7 @@
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
-import {PrintFlag} from "../../output-queue";
+import {PrintFlag} from "../../printer";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Form from "../expr/form";
@@ -22,12 +22,12 @@ export default class PrintFormC extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		if (vm.queue.skipDisp) {
+		if (vm.printer.skipDisp) {
 			return null;
 		}
 
 		const value = await this.arg.get().reduce(vm);
-		yield* vm.queue.print(value, this.flags, this.align);
+		yield* vm.printer.print(value, this.flags, this.align);
 
 		return null;
 	}

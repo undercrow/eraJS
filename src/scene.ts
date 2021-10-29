@@ -164,7 +164,7 @@ export async function* TRAIN(vm: VM) {
 
 export async function* AFTERTRAIN(vm: VM) {
 	return yield* runScene(vm, function* () {
-		vm.queue.skipDisp = false;
+		vm.printer.skipDisp = false;
 		yield* eventStatement(vm, "EVENTEND");
 	});
 }
@@ -172,7 +172,7 @@ export async function* AFTERTRAIN(vm: VM) {
 export async function* ABLUP(vm: VM) {
 	return yield* runScene(vm, function* () {
 		while (true) {
-			vm.queue.skipDisp = false;
+			vm.printer.skipDisp = false;
 			yield new Call(new Slice(FILE, 0, "CALL SHOW_JUEL", "CALL".length));
 			yield new Call(new Slice(FILE, 0, "CALL SHOW_ABLUP_SELECT", "CALL".length));
 			yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
@@ -190,7 +190,7 @@ export async function* ABLUP(vm: VM) {
 
 export async function* TURNEND(vm: VM) {
 	return yield* runScene(vm, function* () {
-		vm.queue.skipDisp = false;
+		vm.printer.skipDisp = false;
 		yield* eventStatement(vm, "EVENTTURNEND");
 	});
 }

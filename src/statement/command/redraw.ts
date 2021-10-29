@@ -23,10 +23,10 @@ export default class Redraw extends Statement {
 		assert.cond(value > 0 && value <= 3, "Argument of REDRAW must be between 0 and 3");
 
 		switch (value) {
-			case 0: vm.queue.draw = false; break;
-			case 1: vm.queue.draw = true; break;
-			case 2: vm.queue.draw = false; yield* vm.queue.flush(); break;
-			case 3: vm.queue.draw = true; yield* vm.queue.flush(); break;
+			case 0: vm.printer.draw = false; break;
+			case 1: vm.printer.draw = true; break;
+			case 2: vm.printer.draw = false; yield* vm.printer.flush(); break;
+			case 3: vm.printer.draw = true; yield* vm.printer.flush(); break;
 		}
 
 		return null;

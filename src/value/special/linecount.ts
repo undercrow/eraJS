@@ -19,7 +19,7 @@ export default class LineCountValue implements Value<never> {
 	public get(vm: VM, index: number[]): number {
 		assert.cond(index.length === 0, "LINECOUNT cannot be indexed");
 
-		return vm.queue.lineCount;
+		return vm.printer.lineCount;
 	}
 
 	public set(_vm: VM, _value: Leaf, _index: number[]) {

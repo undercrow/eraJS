@@ -1,13 +1,11 @@
 import Character from "./character";
 import {Csv} from "./csv";
 import type Config from "./config";
-import * as color from "./color";
-import type Color from "./color";
 import {Template} from "./csv/character";
 import EraJSError from "./error";
 import * as E from "./error";
 import Fn from "./fn";
-import OutputQueue from "./output-queue";
+import Printer from "./printer";
 import type Property from "./property";
 import Define from "./property/define";
 import Dim from "./property/dim";
@@ -15,7 +13,6 @@ import LocalSize from "./property/localsize";
 import LocalSSize from "./property/localssize";
 import PRNG from "./random";
 import type {default as Statement, EraGenerator, Result} from "./statement";
-import type {Align} from "./statement/command/alignment";
 import * as scene from "./scene";
 import Thunk from "./thunk";
 import Value from "./value";
@@ -69,23 +66,7 @@ export default class VM {
 	public characterList: Array<Character>;
 	private contextStack: Array<Context>;
 
-	public queue!: OutputQueue;
-
-	public alignment!: Align;
-	public font!: {
-		name: string;
-		bold: boolean;
-		italic: boolean;
-		strike: boolean;
-		underline: boolean;
-	};
-	public color!: {
-		defaultFront: Color;
-		defaultBack: Color;
-		front: Color;
-		back: Color;
-		focus: Color;
-	};
+	public printer!: Printer;
 	public printCPerLine!: number;
 
 	public constructor(code: VM["code"]) {
@@ -138,26 +119,8 @@ export default class VM {
 	}
 
 	public async reset() {
-		this.queue = new OutputQueue();
-
-		this.alignment = "LEFT";
-		this.font = {
-			name: "",
-			bold: false,
-			italic: false,
-			strike: false,
-			underline: false,
-		};
+		this.printer = new Printer();
 		this.printCPerLine = 3; // TODO
-
-		// Assign default colors
-		this.color = {
-			defaultFront: color.hex(0xFFFFFF),
-			defaultBack: color.hex(0x000000),
-			front: color.hex(0xFFFFFF),
-			back: color.hex(0x000000),
-			focus: color.hex(0xFFFF00),
-		};
 
 		const globalMap = this.globalMap;
 		const {header, csv} = this.code;
@@ -288,13 +251,11 @@ export default class VM {
 	}
 
 	public configure(config: Config) {
-		this.color = {
-			defaultFront: color.copy(config.front),
-			defaultBack: color.copy(config.back),
-			front: color.copy(config.front),
-			back: color.copy(config.back),
-			focus: color.copy(config.focus),
-		};
+		this.printer.defaultColor = config.front;
+		this.printer.defaultBackground = config.back;
+		this.printer.color = config.front;
+		this.printer.background = config.back;
+		this.printer.focus = config.focus;
 	}
 
 	public context(): Context {

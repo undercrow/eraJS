@@ -18,7 +18,7 @@ export default class CustomDrawLine extends Statement {
 	public async *run(vm: VM) {
 		const value = this.arg.get();
 
-		yield* vm.queue.line(value);
+		yield* vm.printer.line(value);
 
 		return null;
 	}

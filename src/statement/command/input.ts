@@ -19,7 +19,7 @@ export default class Input extends Statement {
 	public async *run(vm: VM): EraGenerator {
 		const arg = this.arg.get();
 
-		const input = yield* vm.queue.input(true, arg != null);
+		const input = yield* vm.printer.input(true, arg != null);
 		assert.cond(input != null, "Input value for INPUT should be a valid number");
 
 		let value = Number(input);

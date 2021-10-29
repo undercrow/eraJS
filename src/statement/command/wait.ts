@@ -12,7 +12,7 @@ export default class Wait extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		yield* vm.queue.wait(false);
+		yield* vm.printer.wait(false);
 
 		return null;
 	}

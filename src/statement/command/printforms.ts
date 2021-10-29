@@ -2,7 +2,7 @@ import * as assert from "../../assert";
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
-import {PrintFlag} from "../../output-queue";
+import {PrintFlag} from "../../printer";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import type Expr from "../expr";
@@ -21,7 +21,7 @@ export default class PrintFormS extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		if (vm.queue.skipDisp) {
+		if (vm.printer.skipDisp) {
 			return null;
 		}
 
@@ -29,7 +29,7 @@ export default class PrintFormS extends Statement {
 		assert.string(form, "1st argument of PRINTFORMS must be a string");
 		const text = await X.form[""].tryParse(form).reduce(vm);
 		assert.string(text, "1st argument of PRINTFORMS must be reduced to a string");
-		yield* vm.queue.print(text, this.flags);
+		yield* vm.printer.print(text, this.flags);
 
 		return null;
 	}

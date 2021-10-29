@@ -1,15 +1,79 @@
 import Slice from "../slice";
 import type VM from "../vm";
 
+export type StringChunk = {
+	type: "string";
+	text: string;
+	cell?: "LEFT" | "RIGHT";
+	style: {
+		color: string;
+		font: string;
+		bold: boolean;
+		italic: boolean;
+		strike: boolean;
+		underline: boolean;
+	};
+};
+
+export type ButtonChunk = {
+	type: "button";
+	text: string;
+	value: string;
+	cell?: "LEFT" | "RIGHT";
+	style: {
+		color: string;
+		focus: string;
+		font: string;
+		bold: boolean;
+		italic: boolean;
+		strike: boolean;
+		underline: boolean;
+	};
+};
+
+export type Chunk = StringChunk | ButtonChunk;
+
+export type ContentOutput = {
+	type: "content";
+	children: Chunk[];
+	align: "LEFT" | "CENTER" | "RIGHT";
+};
+
+export type LineOutput = {
+	type: "line";
+	value?: string;
+};
+
+export type ClearOutput = {
+	type: "clear";
+	count: number;
+};
+
+export type WaitOutput = {
+	type: "wait";
+	force: boolean;
+};
+
+export type InputOutput = {
+	type: "input";
+	numeric: boolean;
+	nullable: boolean;
+};
+
+export type TInputOutput = {
+	type: "tinput";
+	numeric: boolean;
+	timeout: number;
+	countdown: boolean;
+};
+
 export type Output =
-	| {type: "newline"}
-	| {type: "string"; text: string; cell?: "LEFT" | "RIGHT"}
-	| {type: "button"; text: string; value: string; cell?: "LEFT" | "RIGHT"}
-	| {type: "line"; value?: string}
-	| {type: "clear"; count: number}
-	| {type: "wait"; force: boolean}
-	| {type: "input"; numeric: boolean; nullable: boolean}
-	| {type: "tinput"; numeric: boolean; timeout: number; showClock: boolean};
+	| ContentOutput
+	| LineOutput
+	| ClearOutput
+	| WaitOutput
+	| InputOutput
+	| TInputOutput;
 
 export type Result =
 	| {type: "begin"; keyword: string}

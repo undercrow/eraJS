@@ -22,7 +22,7 @@ export default class SetFont extends Statement {
 		const font = await this.arg.get()?.reduce(vm) ?? "";
 		assert.string(font, "Argument of SETFONT must be a string");
 
-		vm.font.name = font;
+		vm.printer.font.name = font;
 
 		return null;
 	}

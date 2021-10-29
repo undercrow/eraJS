@@ -1,7 +1,6 @@
 import P from "parsimmon";
 
 import * as assert from "../../assert";
-import * as color from "../../color";
 import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
@@ -25,7 +24,7 @@ export default class SetBgColor extends Statement {
 
 	public async *run(vm: VM) {
 		const parsed = this.arg.get();
-		let value: number;
+		let color: string;
 		if (Array.isArray(parsed)) {
 			const r = await parsed[0].reduce(vm);
 			const g = await parsed[1].reduce(vm);
@@ -33,14 +32,17 @@ export default class SetBgColor extends Statement {
 			assert.number(r, "1st argument of SETBGCOLOR must be an integer");
 			assert.number(g, "2nd argument of SETBGCOLOR must be an integer");
 			assert.number(b, "3rd argument of SETBGCOLOR must be an integer");
-			value = color.toHex({r, g, b});
+			color =
+				r.toString(16).padStart(2, "0") +
+				g.toString(16).padStart(2, "0") +
+				b.toString(16).padStart(2, "0");
 		} else {
 			const rgb = await parsed.reduce(vm);
 			assert.number(rgb, "Argument of SETBGCOLOR must be an integer");
-			value = rgb;
+			color = rgb.toString(16).padStart(6, "0");
 		}
 
-		vm.color.back = color.hex(value);
+		vm.printer.background = color;
 
 		return null;
 	}

@@ -12,7 +12,8 @@ export default class DrawLine extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		yield* vm.queue.line();
+		yield* vm.printer.line();
+
 		return null;
 	}
 }

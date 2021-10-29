@@ -13,10 +13,10 @@ export default class FontRegular extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.font.bold = false;
-		vm.font.italic = false;
-		vm.font.strike = false;
-		vm.font.underline = false;
+		vm.printer.font.bold = false;
+		vm.printer.font.italic = false;
+		vm.printer.font.strike = false;
+		vm.printer.font.underline = false;
 
 		return null;
 	}

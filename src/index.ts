@@ -1,12 +1,24 @@
-import type Config from "./config";
 import parseCSV from "./csv";
 import parseERB from "./parser/erb";
 import parseERH from "./parser/erh";
 import Define from "./property/define";
-import {Output} from "./statement";
 import VM from "./vm";
 
+export {default as Config} from "./config";
 export {default as EraJSError} from "./error";
+export {
+	ButtonChunk,
+	Chunk,
+	ClearOutput,
+	ContentOutput,
+	InputOutput,
+	LineOutput,
+	Output,
+	StringChunk,
+	TInputOutput,
+	WaitOutput,
+} from "./statement";
+export type {VM};
 
 export function compile(files: Map<string, string>): VM {
 	const csvFiles = new Map<string, string>();
@@ -36,5 +48,3 @@ export function compile(files: Map<string, string>): VM {
 
 	return new VM({header, fnList, csv});
 }
-
-export type {Config, Output, VM};

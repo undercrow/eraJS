@@ -26,7 +26,7 @@ export default class PrintButton extends Statement {
 		assert.string(text, "1st argument of PRINTBUTTON must be a string");
 		const value = await valueExpr.reduce(vm);
 
-		yield* vm.queue.button(
+		yield* vm.printer.button(
 			text,
 			typeof value === "string" ? value : value.toString(),
 			this.align,

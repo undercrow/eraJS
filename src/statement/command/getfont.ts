@@ -13,7 +13,7 @@ export default class GetFont extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		const result = vm.font.name;
+		const result = vm.printer.font.name;
 		vm.getValue("RESULTS").set(vm, result, [0]);
 
 		return null;

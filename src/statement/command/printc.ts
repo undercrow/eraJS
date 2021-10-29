@@ -1,7 +1,7 @@
 import * as C from "../../parser/const";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
-import {PrintFlag} from "../../output-queue";
+import {PrintFlag} from "../../printer";
 import Slice from "../../slice";
 import type VM from "../../vm";
 import Statement from "../index";
@@ -21,12 +21,12 @@ export default class PrintC extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		if (vm.queue.skipDisp) {
+		if (vm.printer.skipDisp) {
 			return null;
 		}
 
 		const value = this.value.get();
-		yield* vm.queue.print(value, this.flags, this.align);
+		yield* vm.printer.print(value, this.flags, this.align);
 
 		return null;
 	}

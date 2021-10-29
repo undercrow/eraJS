@@ -12,7 +12,7 @@ export default class PrintShopItem extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		if (vm.queue.skipDisp) {
+		if (vm.printer.skipDisp) {
 			return null;
 		}
 
@@ -31,12 +31,12 @@ export default class PrintShopItem extends Statement {
 			const price = vm.getValue("ITEMPRICE").get(vm, [index]) as number;
 			const text = `[${index}] ${name}(${price}$)`;
 
-			yield* vm.queue.print(text, new Set(), "LEFT");
+			yield* vm.printer.print(text, new Set(), "LEFT");
 			if ((i + 1) % vm.printCPerLine === 0) {
-				yield* vm.queue.newline();
+				yield* vm.printer.newline();
 			}
 		}
-		yield* vm.queue.newline();
+		yield* vm.printer.newline();
 
 		return null;
 	}

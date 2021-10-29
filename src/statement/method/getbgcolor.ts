@@ -1,7 +1,6 @@
-import * as color from "../../color";
 import type VM from "../../vm";
 import type Expr from "../expr";
 
 export default function getBgColor(vm: VM, _arg: Expr[]): number {
-	return color.toHex(vm.color.back);
+	return parseInt(vm.printer.background, 16);
 }

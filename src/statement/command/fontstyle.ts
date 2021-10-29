@@ -22,10 +22,10 @@ export default class FontStyle extends Statement {
 		assert.number(value, "Argument of FONTSTYLE must be an integer!");
 
 		/* eslint-disable no-bitwise */
-		vm.font.bold = (value & (1 << 0)) !== 0;
-		vm.font.italic = (value & (1 << 1)) !== 0;
-		vm.font.strike = (value & (1 << 2)) !== 0;
-		vm.font.underline = (value & (1 << 3)) !== 0;
+		vm.printer.font.bold = (value & (1 << 0)) !== 0;
+		vm.printer.font.italic = (value & (1 << 1)) !== 0;
+		vm.printer.font.strike = (value & (1 << 2)) !== 0;
+		vm.printer.font.underline = (value & (1 << 3)) !== 0;
 		/* eslint-enable no-bitwise */
 
 		return null;

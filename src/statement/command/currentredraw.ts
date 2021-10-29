@@ -13,7 +13,7 @@ export default class CurrentRedraw extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.getValue("RESULT").set(vm, vm.queue.draw ? 1 : 0, [0]);
+		vm.getValue("RESULT").set(vm, vm.printer.draw ? 1 : 0, [0]);
 
 		return null;
 	}

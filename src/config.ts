@@ -1,9 +1,7 @@
-import type Color from "./color";
-
 type Config = {
-	front: Color;
-	back: Color;
-	focus: Color;
+	front: string;
+	back: string;
+	focus: string;
 };
 
 export default Config;

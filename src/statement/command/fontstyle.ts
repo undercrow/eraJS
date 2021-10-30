@@ -19,13 +19,13 @@ export default class FontStyle extends Statement {
 
 	public async *run(vm: VM) {
 		const value = await this.arg.get().reduce(vm);
-		assert.number(value, "Argument of FONTSTYLE must be an integer!");
+		assert.bigint(value, "Argument of FONTSTYLE must be an integer!");
 
 		/* eslint-disable no-bitwise */
-		vm.printer.font.bold = (value & (1 << 0)) !== 0;
-		vm.printer.font.italic = (value & (1 << 1)) !== 0;
-		vm.printer.font.strike = (value & (1 << 2)) !== 0;
-		vm.printer.font.underline = (value & (1 << 3)) !== 0;
+		vm.printer.font.bold = (value & (1n << 0n)) !== 0n;
+		vm.printer.font.italic = (value & (1n << 1n)) !== 0n;
+		vm.printer.font.strike = (value & (1n << 2n)) !== 0n;
+		vm.printer.font.underline = (value & (1n << 3n)) !== 0n;
 		/* eslint-enable no-bitwise */
 
 		return null;

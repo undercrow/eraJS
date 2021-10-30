@@ -1,6 +1,6 @@
 import type VM from "../vm";
 
-export type Leaf = number | string;
+export type Leaf = bigint | string;
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface _Value<T> {
 	type: "string" | "number";

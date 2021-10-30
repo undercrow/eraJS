@@ -1,5 +1,5 @@
 import * as assert from "../../assert";
-import Value from "../../value";
+import Value, {Leaf} from "../../value";
 import type VM from "../../vm";
 import type Expr from "./index";
 
@@ -18,7 +18,7 @@ export default class Variable implements Expr {
 		return vm.getValue(this.name, this.scope);
 	}
 
-	public async reduce(vm: VM): Promise<string | number> {
+	public async reduce(vm: VM): Promise<Leaf> {
 		if (vm.macroMap.has(this.name)) {
 			if (this.index.length !== 0) {
 				throw new Error("Macro cannot be indexed");
@@ -40,8 +40,8 @@ export default class Variable implements Expr {
 			const result: number[] = [];
 			for (const i of this.index) {
 				const value = await i.reduce(vm);
-				assert.number(value, "Index of variable should be an integer");
-				result.push(value);
+				assert.bigint(value, "Index of variable should be an integer");
+				result.push(Number(value));
 			}
 
 			return result;

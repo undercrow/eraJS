@@ -11,9 +11,9 @@ export default class StrChar1DValue implements Value<never> {
 
 	public static normalizeIndex(vm: VM, name: string, index: number[]): number[] {
 		if (index.length === 0) {
-			return [vm.getValue("TARGET").get(vm, []) as number, 0];
+			return [Number(vm.getValue("TARGET").get(vm, [])), 0];
 		} else if (index.length === 1) {
-			return [vm.getValue("TARGET").get(vm, []) as number, index[0]];
+			return [Number(vm.getValue("TARGET").get(vm, [])), index[0]];
 		} else if (index.length === 2) {
 			return index;
 		} else if (index.length === 3 && index[2] === 0) {

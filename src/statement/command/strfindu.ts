@@ -25,7 +25,7 @@ export default class StrFindU extends Statement {
 		const search = await searchExpr.reduce(vm);
 		assert.string(search, "2nd argument of STRFINDU must be a string!");
 		// TODO: unicode
-		vm.getValue("RESULT").set(vm, value.indexOf(search), [0]);
+		vm.getValue("RESULT").set(vm, BigInt(value.indexOf(search)), [0]);
 
 		return null;
 	}

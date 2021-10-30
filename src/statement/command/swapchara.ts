@@ -20,13 +20,13 @@ export default class SwapChara extends Statement {
 	public async *run(vm: VM) {
 		const [leftExpr, rightExpr] = this.arg.get();
 		const left = await leftExpr.reduce(vm);
-		assert.number(left, "1st argument of SWAPCHARA must be a number");
+		assert.bigint(left, "1st argument of SWAPCHARA must be a number");
 		const right = await rightExpr.reduce(vm);
-		assert.number(right, "2nd argument of SWAPCHARA must be a number");
+		assert.bigint(right, "2nd argument of SWAPCHARA must be a number");
 
-		const temp = vm.characterList[left];
-		vm.characterList[left] = vm.characterList[right];
-		vm.characterList[right] = temp;
+		const temp = vm.characterList[Number(left)];
+		vm.characterList[Number(left)] = vm.characterList[Number(right)];
+		vm.characterList[Number(right)] = temp;
 
 		return null;
 	}

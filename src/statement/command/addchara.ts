@@ -21,9 +21,9 @@ export default class AddChara extends Statement {
 	public async *run(vm: VM) {
 		for (const expr of this.arg.get()) {
 			const id = await expr.reduce(vm);
-			assert.number(id, "Character id should be an integer");
+			assert.bigint(id, "Character id should be an integer");
 
-			const template = vm.templateMap.get(id);
+			const template = vm.templateMap.get(Number(id));
 			assert.cond(template != null, `Character template with id ${id} does not exist`);
 
 			vm.characterList.push(new Character(vm, template));

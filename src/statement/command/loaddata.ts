@@ -27,9 +27,9 @@ export default class LoadData extends Statement {
 
 	public async *run(vm: VM): EraGenerator {
 		const index = await this.arg.get().reduce(vm);
-		assert.number(index, "Argument of LOADDATA must be a number");
+		assert.bigint(index, "Argument of LOADDATA must be a number");
 
-		const file = savefile.game(index);
+		const file = savefile.game(Number(index));
 		const raw = await vm.external.getSavedata(file);
 		assert.nonNull(raw, `Save file ${file} does not exist`);
 		try {
@@ -59,11 +59,11 @@ export default class LoadData extends Statement {
 				for (const [name, value] of Object.entries(character)) {
 					const cell = newCharacter.getValue(name);
 					if (cell instanceof Int0DValue) {
-						assert.number(value, "");
-						cell.reset(value);
+						assert.string(value, "");
+						cell.reset(BigInt(value));
 					} else if (cell instanceof Int1DValue) {
-						assert.numArray(value, "");
-						cell.reset(value);
+						assert.strArray(value, "");
+						cell.reset(value.map((v) => BigInt(v)));
 					} else if (cell instanceof Str0DValue) {
 						assert.string(value, "");
 						cell.reset(value);
@@ -79,17 +79,17 @@ export default class LoadData extends Statement {
 			for (const [name, value] of Object.entries(parsed.data.variables)) {
 				const cell = vm.getValue(name);
 				if (cell instanceof Int0DValue) {
-					assert.number(value, "");
-					cell.reset(value);
+					assert.string(value, "");
+					cell.reset(BigInt(value));
 				} else if (cell instanceof Int1DValue) {
-					assert.numArray(value, "");
-					cell.reset(value);
+					assert.strArray(value, "");
+					cell.reset(value.map((v) => BigInt(v)));
 				} else if (cell instanceof Int2DValue) {
-					assert.numArray2D(value, "");
-					cell.reset(value);
+					assert.strArray2D(value, "");
+					cell.reset(value.map((v0) => v0.map((v1) => BigInt(v1))));
 				} else if (cell instanceof Int3DValue) {
-					assert.numArray3D(value, "");
-					cell.reset(value);
+					assert.strArray3D(value, "");
+					cell.reset(value.map((v0) => v0.map((v1) => v1.map((v2) => BigInt(v2)))));
 				} else if (cell instanceof Str0DValue) {
 					assert.string(value, "");
 					cell.reset(value);
@@ -101,7 +101,7 @@ export default class LoadData extends Statement {
 				}
 			}
 
-			vm.getValue("LASTLOAD_VERSION").set(vm, parsed.version, []);
+			vm.getValue("LASTLOAD_VERSION").set(vm, BigInt(parsed.version), []);
 			vm.getValue("LASTLOAD_TEXT").set(vm, parsed.data.comment, []);
 		} catch {
 			throw new Error(`Save file ${file} is not in a valid format`);

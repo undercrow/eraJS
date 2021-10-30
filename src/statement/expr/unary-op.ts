@@ -16,22 +16,22 @@ export default class UnaryOp implements Expr {
 		this.postfix = postfix;
 	}
 
-	public async reduce(vm: VM): Promise<number> {
+	public async reduce(vm: VM): Promise<bigint> {
 		const cell = this.target.getCell(vm);
 		const index = await this.target.reduceIndex(vm);
 		const value = cell.get(vm, index);
-		assert.number(value, `Operand of ${this.op} should be an integer`);
+		assert.bigint(value, `Operand of ${this.op} should be an integer`);
 		switch (this.op) {
-			case "++": cell.set(vm, value + 1, index); break;
-			case "--": cell.set(vm, value - 1, index); break;
+			case "++": cell.set(vm, value + 1n, index); break;
+			case "--": cell.set(vm, value - 1n, index); break;
 		}
 
 		if (this.postfix) {
 			return value;
 		} else {
 			switch (this.op) {
-				case "++": return value + 1;
-				case "--": return value - 1;
+				case "++": return value + 1n;
+				case "--": return value - 1n;
 			}
 		}
 	}

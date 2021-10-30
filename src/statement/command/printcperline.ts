@@ -13,7 +13,7 @@ export default class PrintCPerLine extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.getValue("RESULT").set(vm, vm.printCPerLine, [0]);
+		vm.getValue("RESULT").set(vm, BigInt(vm.printCPerLine), [0]);
 
 		return null;
 	}

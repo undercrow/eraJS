@@ -32,7 +32,7 @@ export default class Split extends Statement {
 		for (let i = 0; i < chunkList.length; ++i) {
 			dest.set(vm, chunkList[i], [...index, i]);
 		}
-		vm.getValue("RESULT").set(vm, chunkList.length, [0]);
+		vm.getValue("RESULT").set(vm, BigInt(chunkList.length), [0]);
 
 		return null;
 	}

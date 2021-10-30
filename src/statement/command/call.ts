@@ -6,6 +6,7 @@ import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
+import {Leaf} from "../../value";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Statement from "../index";
@@ -23,7 +24,7 @@ export default class Call extends Statement {
 		const realTarget = target.toUpperCase();
 		assert.cond(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
 
-		const arg: Array<string | number | undefined> = [];
+		const arg: Array<Leaf | undefined> = [];
 		for (const a of argExpr) {
 			arg.push(await a?.reduce(vm));
 		}
@@ -42,7 +43,7 @@ export default class Call extends Statement {
 			}
 			case "quit": return result;
 			case undefined: {
-				vm.getValue("RESULT").set(vm, 0, [0]);
+				vm.getValue("RESULT").set(vm, 0n, [0]);
 				return null;
 			}
 		}

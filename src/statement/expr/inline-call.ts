@@ -1,4 +1,5 @@
 import * as assert from "../../assert";
+import type {Leaf} from "../../value";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import type {EraGenerator} from "../index";
@@ -67,57 +68,57 @@ export default class InlineCall implements Expr {
 		this.arg = arg;
 	}
 
-	public async reduce(vm: VM): Promise<string | number> {
+	public async reduce(vm: VM): Promise<Leaf> {
 		switch (this.name.toUpperCase()) {
 			case "ABS": return abs(vm, this.arg);
 			case "BARSTR": return barStr(vm, this.arg);
-			case "CSVABL": return csvAbl(vm, this.arg);
-			case "CSVBASE": return csvBase(vm, this.arg);
+			case "CSVABL": return BigInt(await csvAbl(vm, this.arg));
+			case "CSVBASE": return BigInt(await csvBase(vm, this.arg));
 			case "CSVCALLNAME": return csvCallname(vm, this.arg);
-			case "CSVCFLAG": return csvCflag(vm, this.arg);
+			case "CSVCFLAG": return BigInt(await csvCflag(vm, this.arg));
 			case "CSVCSTR": return csvCstr(vm, this.arg);
-			case "CSVEQUIP": return csvEquip(vm, this.arg);
-			case "CSVEXP": return csvExp(vm, this.arg);
-			case "CSVJUEL": return csvJuel(vm, this.arg);
-			case "CSVMARK": return csvMark(vm, this.arg);
+			case "CSVEQUIP": return BigInt(await csvEquip(vm, this.arg));
+			case "CSVEXP": return BigInt(await csvExp(vm, this.arg));
+			case "CSVJUEL": return BigInt(await csvJuel(vm, this.arg));
+			case "CSVMARK": return BigInt(await csvMark(vm, this.arg));
 			case "CSVMASTERNAME": return csvMastername(vm, this.arg);
 			case "CSVNAME": return csvName(vm, this.arg);
 			case "CSVNICKNAME": return csvNickname(vm, this.arg);
-			case "CSVRELATION": return csvRelation(vm, this.arg);
-			case "CSVTALENT": return csvTalent(vm, this.arg);
-			case "EXISTCSV": return existCsv(vm, this.arg);
+			case "CSVRELATION": return BigInt(await csvRelation(vm, this.arg));
+			case "CSVTALENT": return BigInt(await csvTalent(vm, this.arg));
+			case "EXISTCSV": return BigInt(await existCsv(vm, this.arg));
 			case "FINDCHARA": return findChara(vm, this.arg);
 			case "FINDLASTCHARA": return findLastChara(vm, this.arg);
-			case "GETBGCOLOR": return getBgColor(vm, this.arg);
-			case "GETBIT": return getBit(vm, this.arg);
-			case "GETCHARA": return getChara(vm, this.arg);
-			case "GETCOLOR": return getColor(vm, this.arg);
-			case "GETDEFBGCOLOR": return getDefBgColor(vm, this.arg);
-			case "GETDEFCOLOR": return getDefColor(vm, this.arg);
-			case "GETFOCUSCOLOR": return getFocusColor(vm, this.arg);
-			case "GROUPMATCH": return groupMatch(vm, this.arg);
-			case "INRANGE": return inRange(vm, this.arg);
+			case "GETBGCOLOR": return BigInt(getBgColor(vm, this.arg));
+			case "GETBIT": return BigInt(await getBit(vm, this.arg));
+			case "GETCHARA": return BigInt(await getChara(vm, this.arg));
+			case "GETCOLOR": return BigInt(getColor(vm, this.arg));
+			case "GETDEFBGCOLOR": return BigInt(getDefBgColor(vm, this.arg));
+			case "GETDEFCOLOR": return BigInt(getDefColor(vm, this.arg));
+			case "GETFOCUSCOLOR": return BigInt(getFocusColor(vm, this.arg));
+			case "GROUPMATCH": return BigInt(await groupMatch(vm, this.arg));
+			case "INRANGE": return BigInt(await inRange(vm, this.arg));
 			case "LIMIT": return limit(vm, this.arg);
-			case "LINEISEMPTY": return lineIsEmpty(vm, this.arg);
-			case "MATCH": return match(vm, this.arg);
+			case "LINEISEMPTY": return BigInt(lineIsEmpty(vm, this.arg));
+			case "MATCH": return BigInt(await match(vm, this.arg));
 			case "MAX": return max(vm, this.arg);
 			case "MAXARRAY": return maxArray(vm, this.arg);
 			case "MIN": return min(vm, this.arg);
 			case "MINARRAY": return minArray(vm, this.arg);
 			case "POWER": return power(vm, this.arg);
 			case "RAND": return rand(vm, this.arg);
-			case "SIGN": return sign(vm, this.arg);
+			case "SIGN": return BigInt(await sign(vm, this.arg));
 			case "SQRT": return sqrt(vm, this.arg);
-			case "STRLENS": return strLenS(vm, this.arg);
-			case "STRLENSU": return strLenSU(vm, this.arg);
+			case "STRLENS": return BigInt(await strLenS(vm, this.arg));
+			case "STRLENSU": return BigInt(await strLenSU(vm, this.arg));
 			case "SUMARRAY": return sumArray(vm, this.arg);
-			case "TOINT": return toInt(vm, this.arg);
+			case "TOINT": return BigInt(await toInt(vm, this.arg));
 			case "TOSTR": return toStr(vm, this.arg);
-			case "VARSIZE": return varSize(vm, this.arg);
+			case "VARSIZE": return BigInt(await varSize(vm, this.arg));
 			case "UNICODE": return unicode(vm, this.arg);
 			default: {
 				assert.cond(vm.fnMap.has(this.name), `Method ${this.name} does not exist`);
-				const values: Array<string | number> = [];
+				const values: Array<Leaf> = [];
 				for (const arg of this.arg) {
 					values.push(await arg.reduce(vm));
 				}

@@ -24,7 +24,7 @@ export default class StrFind extends Statement {
 		assert.string(value, "1st argument of STRFIND must be a string!");
 		const search = await searchExpr.reduce(vm);
 		assert.string(search, "2nd argument of STRFIND must be a string!");
-		vm.getValue("RESULT").set(vm, value.indexOf(search), [0]);
+		vm.getValue("RESULT").set(vm, BigInt(value.indexOf(search)), [0]);
 
 		return null;
 	}

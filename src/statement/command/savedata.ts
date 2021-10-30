@@ -56,13 +56,13 @@ export default class SaveData extends Statement {
 		const [indexExpr, commentExpr] = this.arg.get();
 
 		const index = await indexExpr.reduce(vm);
-		assert.number(index, "1st argument of SAVEDATA must be a number");
+		assert.bigint(index, "1st argument of SAVEDATA must be a number");
 		const comment = await commentExpr.reduce(vm);
 		assert.string(comment, "2nd argument of SAVEDATA must be a string");
 
 		const saveData: GameSave = {
-			code: vm.getValue<Int0DValue>("GAMEBASE_GAMECODE").get(vm, []),
-			version: vm.getValue<Int0DValue>("GAMEBASE_VERSION").get(vm, []),
+			code: vm.code.csv.gamebase.code ?? 0,
+			version: vm.code.csv.gamebase.version ?? 0,
 			data: {
 				comment,
 				characters: [],
@@ -73,23 +73,44 @@ export default class SaveData extends Statement {
 			saveData.data.characters.push({});
 		}
 
-		for (const name of whitelist) {
+		const nameList = [...whitelist];
+		for (const property of vm.code.header) {
+			if (property instanceof Dim && property.isSave() && !property.isGlobal()) {
+				nameList.push(property.name);
+			}
+		}
+
+		for (const name of nameList) {
 			const cell = vm.getValue(name);
-			if (
-				cell instanceof Int0DValue ||
-				cell instanceof Int1DValue ||
-				cell instanceof Int2DValue ||
-				cell instanceof Int3DValue ||
-				cell instanceof Str0DValue ||
-				cell instanceof Str1DValue
-			) {
+			if (cell instanceof Int0DValue) {
+				saveData.data.variables[name] = cell.value.toString();
+			} else if (cell instanceof Int1DValue) {
+				saveData.data.variables[name] = cell.value.map((value) => value.toString());
+			} else if (cell instanceof Int2DValue) {
+				saveData.data.variables[name] = cell.value.map(
+					(value0) => value0.map((value1) => value1.toString()),
+				);
+			} else if (cell instanceof Int3DValue) {
+				saveData.data.variables[name] = cell.value.map(
+					(value0) => value0.map(
+						(value1) => value1.map((value2) => value2.toString()),
+					),
+				);
+			} else if (cell instanceof Str0DValue || cell instanceof Str1DValue) {
 				saveData.data.variables[name] = cell.value;
-			} else if (
-				cell instanceof IntChar0DValue ||
-				cell instanceof IntChar1DValue ||
-				cell instanceof StrChar0DValue ||
-				cell instanceof StrChar1DValue
-			) {
+			} else if (cell instanceof IntChar0DValue) {
+				for (let i = 0; i < vm.characterList.length; ++i) {
+					const characterCell = vm.characterList[i].getValue<Int0DValue>(name);
+					saveData.data.characters[i][name] = characterCell.value.toString();
+				}
+			} else if (cell instanceof IntChar1DValue) {
+				for (let i = 0; i < vm.characterList.length; ++i) {
+					const characterCell = vm.characterList[i].getValue<Int1DValue>(name);
+					saveData.data.characters[i][name] = characterCell.value.map(
+						(value) => value.toString(),
+					);
+				}
+			} else if (cell instanceof StrChar0DValue || cell instanceof StrChar1DValue) {
 				for (let i = 0; i < vm.characterList.length; ++i) {
 					const characterCell = vm.characterList[i].getValue(name);
 					saveData.data.characters[i][name] = characterCell.value;
@@ -97,32 +118,7 @@ export default class SaveData extends Statement {
 			}
 		}
 
-		for (const property of vm.code.header) {
-			if (property instanceof Dim && property.isSave() && !property.isGlobal()) {
-				const cell = vm.getValue(property.name);
-				if (
-					cell instanceof Int0DValue ||
-					cell instanceof Int1DValue ||
-					cell instanceof Int2DValue ||
-					cell instanceof Int3DValue ||
-					cell instanceof Str0DValue ||
-					cell instanceof Str1DValue
-				) {
-					saveData.data.variables[property.name] = cell.value;
-				} else if (
-					cell instanceof IntChar0DValue ||
-					cell instanceof IntChar1DValue ||
-					cell instanceof StrChar0DValue ||
-					cell instanceof StrChar1DValue
-				) {
-					for (let i = 0; i < vm.characterList.length; ++i) {
-						const characterCell = vm.characterList[i].getValue(name);
-						saveData.data.characters[i][name] = characterCell.value;
-					}
-				}
-			}
-		}
-		await vm.external.setSavedata(savefile.game(index), JSON.stringify(saveData));
+		await vm.external.setSavedata(savefile.game(Number(index)), JSON.stringify(saveData));
 
 		return null;
 	}

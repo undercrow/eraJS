@@ -29,16 +29,16 @@ export default class SetColor extends Statement {
 			const r = await parsed[0].reduce(vm);
 			const g = await parsed[1].reduce(vm);
 			const b = await parsed[2].reduce(vm);
-			assert.number(r, "1st argument of SETCOLOR must be an integer");
-			assert.number(g, "2nd argument of SETCOLOR must be an integer");
-			assert.number(b, "3rd argument of SETCOLOR must be an integer");
+			assert.bigint(r, "1st argument of SETCOLOR must be an integer");
+			assert.bigint(g, "2nd argument of SETCOLOR must be an integer");
+			assert.bigint(b, "3rd argument of SETCOLOR must be an integer");
 			color =
 				r.toString(16).padStart(2, "0") +
 				g.toString(16).padStart(2, "0") +
 				b.toString(16).padStart(2, "0");
 		} else {
 			const rgb = await parsed.reduce(vm);
-			assert.number(rgb, "Argument of SETCOLOR must be an integer");
+			assert.bigint(rgb, "Argument of SETCOLOR must be an integer");
 			color = rgb.toString(16).padStart(6, "0");
 		}
 

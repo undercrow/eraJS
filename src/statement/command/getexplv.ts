@@ -21,14 +21,14 @@ export default class GetExpLv extends Statement {
 		const [valExpr, maxExpr] = this.arg.get();
 
 		const value = await valExpr.reduce(vm);
-		assert.number(value, "1st argument of GETEXPLV must be a number");
+		assert.bigint(value, "1st argument of GETEXPLV must be a number");
 		const max = await maxExpr.reduce(vm);
-		assert.number(max, "2nd argument of GETEXPLV must be a number");
+		assert.bigint(max, "2nd argument of GETEXPLV must be a number");
 
 		let result = max;
-		for (let i = 0; i <= max; ++i) {
-			if (value < vm.getValue("EXPLV").get(vm, [i])) {
-				result = i - 1;
+		for (let i = 0n; i <= max; ++i) {
+			if (value < vm.getValue("EXPLV").get(vm, [Number(i)])) {
+				result = i - 1n;
 				break;
 			}
 		}

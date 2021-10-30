@@ -42,11 +42,11 @@ export default class For extends Statement {
 		const [counter, startExpr, endExpr, stepExpr] = this.arg.get();
 
 		const start = await startExpr.reduce(vm);
-		assert.number(start, "Starting value for FOR should be an integer");
+		assert.bigint(start, "Starting value for FOR should be an integer");
 		const end = await endExpr.reduce(vm);
-		assert.number(end, "Ending value for FOR should be an integer");
-		const step = await stepExpr?.reduce(vm) ?? 1;
-		assert.number(step, "Step of FOR should be an integer");
+		assert.bigint(end, "Ending value for FOR should be an integer");
+		const step = await stepExpr?.reduce(vm) ?? 1n;
+		assert.bigint(step, "Step of FOR should be an integer");
 		const index = await counter.reduceIndex(vm);
 
 		loop: for (let i = start; i < end; i += step) {

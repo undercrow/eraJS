@@ -1,4 +1,5 @@
 import Slice from "../slice";
+import type {Leaf} from "../value";
 import type VM from "../vm";
 
 export type StringChunk = {
@@ -81,7 +82,7 @@ export type Result =
 	| {type: "break"}
 	| {type: "continue"}
 	| {type: "throw"; value: string}
-	| {type: "return"; value: Array<number | string>}
+	| {type: "return"; value: Array<Leaf>}
 	| {type: "quit"};
 
 export type EraGenerator<T = Result | null> = AsyncGenerator<Output, T, string | null>;

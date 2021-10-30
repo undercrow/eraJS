@@ -3,6 +3,7 @@ import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
+import type {Leaf} from "../../value";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -67,58 +68,58 @@ export default class Method extends Statement {
 
 	public async *run(vm: VM) {
 		const arg = this.arg.get();
-		let result: string | number;
+		let result: Leaf;
 		switch (this.name) {
 			case "ABS": result = await abs(vm, arg); break;
 			case "BARSTR": result = await barStr(vm, arg); break;
-			case "CSVABL": result = await csvAbl(vm, arg); break;
-			case "CSVBASE": result = await csvBase(vm, arg); break;
+			case "CSVABL": result = BigInt(await csvAbl(vm, arg)); break;
+			case "CSVBASE": result = BigInt(await csvBase(vm, arg)); break;
 			case "CSVCALLNAME": result = await csvCallname(vm, arg); break;
-			case "CSVCFLAG": result = await csvCflag(vm, arg); break;
+			case "CSVCFLAG": result = BigInt(await csvCflag(vm, arg)); break;
 			case "CSVCSTR": result = await csvCstr(vm, arg); break;
-			case "CSVEQUIP": result = await csvEquip(vm, arg); break;
-			case "CSVEXP": result = await csvExp(vm, arg); break;
-			case "CSVJUEL": result = await csvJuel(vm, arg); break;
-			case "CSVMARK": result = await csvMark(vm, arg); break;
+			case "CSVEQUIP": result = BigInt(await csvEquip(vm, arg)); break;
+			case "CSVEXP": result = BigInt(await csvExp(vm, arg)); break;
+			case "CSVJUEL": result = BigInt(await csvJuel(vm, arg)); break;
+			case "CSVMARK": result = BigInt(await csvMark(vm, arg)); break;
 			case "CSVMASTERNAME": result = await csvMastername(vm, arg); break;
 			case "CSVNAME": result = await csvName(vm, arg); break;
 			case "CSVNICKNAME": result = await csvNickname(vm, arg); break;
-			case "CSVRELATION": result = await csvRelation(vm, arg); break;
-			case "CSVTALENT": result = await csvTalent(vm, arg); break;
-			case "EXISTCSV": result = await existCsv(vm, arg); break;
+			case "CSVRELATION": result = BigInt(await csvRelation(vm, arg)); break;
+			case "CSVTALENT": result = BigInt(await csvTalent(vm, arg)); break;
+			case "EXISTCSV": result = BigInt(await existCsv(vm, arg)); break;
 			case "FINDCHARA": result = await findChara(vm, arg); break;
 			case "FINDLASTCHARA": result = await findLastChara(vm, arg); break;
-			case "GETBGCOLOR": result = getBgColor(vm, arg); break;
-			case "GETBIT": result = await getBit(vm, arg); break;
-			case "GETCHARA": result = await getChara(vm, arg); break;
-			case "GETCOLOR": result = getColor(vm, arg); break;
-			case "GETDEFBGCOLOR": result = getDefBgColor(vm, arg); break;
-			case "GETDEFCOLOR": result = getDefColor(vm, arg); break;
-			case "GETFOCUSCOLOR": result = getFocusColor(vm, arg); break;
-			case "GROUPMATCH": result = await groupMatch(vm, arg); break;
-			case "INRANGE": result = await inRange(vm, arg); break;
+			case "GETBGCOLOR": result = BigInt(getBgColor(vm, arg)); break;
+			case "GETBIT": result = BigInt(await getBit(vm, arg)); break;
+			case "GETCHARA": result = BigInt(await getChara(vm, arg)); break;
+			case "GETCOLOR": result = BigInt(getColor(vm, arg)); break;
+			case "GETDEFBGCOLOR": result = BigInt(getDefBgColor(vm, arg)); break;
+			case "GETDEFCOLOR": result = BigInt(getDefColor(vm, arg)); break;
+			case "GETFOCUSCOLOR": result = BigInt(getFocusColor(vm, arg)); break;
+			case "GROUPMATCH": result = BigInt(await groupMatch(vm, arg)); break;
+			case "INRANGE": result = BigInt(await inRange(vm, arg)); break;
 			case "LIMIT": result = await limit(vm, arg); break;
-			case "LINEISEMPTY": result = lineIsEmpty(vm, arg); break;
-			case "MATCH": result = await match(vm, arg); break;
+			case "LINEISEMPTY": result = BigInt(lineIsEmpty(vm, arg)); break;
+			case "MATCH": result = BigInt(await match(vm, arg)); break;
 			case "MAX": result = await max(vm, arg); break;
 			case "MAXARRAY": result = await maxArray(vm, arg); break;
 			case "MIN": result = await min(vm, arg); break;
 			case "MINARRAY": result = await minArray(vm, arg); break;
 			case "POWER": result = await power(vm, arg); break;
 			case "RAND": result = await rand(vm, arg); break;
-			case "SIGN": result = await sign(vm, arg); break;
+			case "SIGN": result = BigInt(await sign(vm, arg)); break;
 			case "SQRT": result = await sqrt(vm, arg); break;
-			case "STRLENS": result = await strLenS(vm, arg); break;
-			case "STRLENSU": result = await strLenSU(vm, arg); break;
+			case "STRLENS": result = BigInt(await strLenS(vm, arg)); break;
+			case "STRLENSU": result = BigInt(await strLenSU(vm, arg)); break;
 			case "SUMARRAY": result = await sumArray(vm, arg); break;
-			case "TOINT": result = await toInt(vm, arg); break;
+			case "TOINT": result = BigInt(await toInt(vm, arg)); break;
 			case "TOSTR": result = await toStr(vm, arg); break;
-			case "VARSIZE": result = await varSize(vm, arg); break;
+			case "VARSIZE": result = BigInt(await varSize(vm, arg)); break;
 			case "UNICODE": result = await unicode(vm, arg); break;
 			default: throw E.internal(`${this.name} is not a valid method command`);
 		}
 
-		if (typeof result === "number") {
+		if (typeof result === "bigint") {
 			vm.getValue("RESULT").set(vm, result, [0]);
 		} else {
 			vm.getValue("RESULTS").set(vm, result, [0]);

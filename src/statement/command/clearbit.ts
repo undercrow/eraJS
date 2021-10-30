@@ -22,18 +22,18 @@ export default class ClearBit extends Statement {
 		const [destExpr, ...bitExpr] = this.arg.get();
 
 		const value = await destExpr.reduce(vm);
-		assert.number(value, "1st argument of CLEARBIT must be a number");
-		const bitList: number[] = [];
+		assert.bigint(value, "1st argument of CLEARBIT must be a number");
+		const bitList: bigint[] = [];
 		for (let i = 0; i < bitExpr.length; ++i) {
 			const bit = await bitExpr[i].reduce(vm);
-			assert.number(bit, `${i + 1}th Argument of CLEARBIT must be a number`);
+			assert.bigint(bit, `${i + 1}th Argument of CLEARBIT must be a number`);
 			bitList.push(bit);
 		}
 
 		let result = value;
 		for (const bit of bitList) {
 			// eslint-disable-next-line no-bitwise
-			result &= ~(1 << bit);
+			result &= ~(1n << bit);
 		}
 		destExpr.getCell(vm).set(vm, result, await destExpr.reduceIndex(vm));
 

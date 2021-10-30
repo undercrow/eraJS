@@ -3,10 +3,10 @@ import * as E from "../error";
 import type VM from "../vm";
 import Value, {Leaf} from "./index";
 
-export default class Int0DValue implements Value<number> {
+export default class Int0DValue implements Value<bigint> {
 	public type = <const>"number";
 	public name: string;
-	public value: number;
+	public value: bigint;
 
 	public static normalizeIndex(name: string, index: number[]): number[] {
 		if (index.length === 0) {
@@ -20,29 +20,29 @@ export default class Int0DValue implements Value<number> {
 
 	public constructor(name: string) {
 		this.name = name;
-		this.value = 0;
+		this.value = 0n;
 	}
 
-	public reset(value: number): this {
-		this.value = value;
+	public reset(value: bigint | number): this {
+		this.value = BigInt(value);
 		return this;
 	}
 
-	public get(_vm: VM, index: number[]): number {
+	public get(_vm: VM, index: number[]): bigint {
 		Int0DValue.normalizeIndex(this.name, index);
 		return this.value;
 	}
 
 	public set(_vm: VM, value: Leaf, index: number[]) {
 		Int0DValue.normalizeIndex(this.name, index);
-		assert.number(value, "Cannot assign a string to a numeric variable");
+		assert.bigint(value, "Cannot assign a string to a numeric variable");
 
 		this.value = value;
 	}
 
 	// NOTE: index is ignored (Emuera emulation)
 	public rangeSet(_vm: VM, value: Leaf, _index: number[], _range: [number, number]) {
-		assert.number(value, "Cannot assign a string to a numeric variable");
+		assert.bigint(value, "Cannot assign a string to a numeric variable");
 
 		this.value = value;
 	}

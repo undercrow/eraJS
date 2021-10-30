@@ -16,10 +16,10 @@ export default class CharaNumValue implements Value<never> {
 		throw E.internal(`${this.name} cannot be reset`);
 	}
 
-	public get(vm: VM, index: number[]): number {
+	public get(vm: VM, index: number[]): bigint {
 		assert.cond(index.length === 0, "CHARANUM cannot be indexed");
 
-		return vm.characterList.length;
+		return BigInt(vm.characterList.length);
 	}
 
 	public set(_vm: VM, _value: Leaf, _index: number[]) {

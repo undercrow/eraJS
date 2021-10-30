@@ -207,7 +207,7 @@ function parseFn(lines: Slice[], from: number): [Fn, number] {
 	const argParser = U.sepBy0(",", P.seq(
 		X.variable,
 		P.alt(
-			P.string("=").trim(C.WS0).then(C.Int),
+			P.string("=").trim(C.WS0).then(C.Int).map((val) => BigInt(val)),
 			P.string("=").trim(C.WS0).then(C.Str),
 			P.string("=").trim(C.WS0).then(X.variable),
 			P.succeed(null),

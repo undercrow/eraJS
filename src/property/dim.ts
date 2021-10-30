@@ -58,7 +58,7 @@ export default class Dim {
 	public async build(vm: VM): Promise<Value<any>> {
 		if (this.value != null && this.value.length === 0 && this.type === "number") {
 			const value = await this.value[0].reduce(vm);
-			assert.number(value, "Default value for 0D #DIM must be a number");
+			assert.bigint(value, "Default value for 0D #DIM must be a number");
 			return new Int0DValue(this.name).reset(value);
 		} else if (this.value != null && this.value.length === 0 && this.type === "string") {
 			const value = await this.value[0].reduce(vm);
@@ -66,7 +66,7 @@ export default class Dim {
 			return new Str0DValue(this.name).reset(value);
 		} else if (this.value != null && this.value.length === 1 && this.type === "number") {
 			const value = await Promise.all(this.value.map((v) => v.reduce(vm)));
-			assert.numArray(value, "Default value for 1D #DIM must be a number array");
+			assert.bigintArray(value, "Default value for 1D #DIM must be a number array");
 			return new Int1DValue(this.name, [value.length]).reset(value);
 		} else if (this.value != null && this.value.length === 1 && this.type === "string") {
 			const value = await Promise.all(this.value.map((v) => v.reduce(vm)));
@@ -78,38 +78,38 @@ export default class Dim {
 			return new Str0DValue(this.name);
 		} else if (this.size.length === 1 && this.type === "number" && !this.isChar()) {
 			const size = await this.size[0].reduce(vm);
-			assert.number(size, "Size of an array must be an integer");
-			return new Int1DValue(this.name, [size]);
+			assert.bigint(size, "Size of an array must be an integer");
+			return new Int1DValue(this.name, [Number(size)]);
 		} else if (this.size.length === 1 && this.type === "string" && !this.isChar()) {
 			const size = await this.size[0].reduce(vm);
-			assert.number(size, "Size of an array must be an integer");
-			return new Str1DValue(this.name, [size]);
+			assert.bigint(size, "Size of an array must be an integer");
+			return new Str1DValue(this.name, [Number(size)]);
 		} else if (this.size.length === 2 && this.type === "number" && !this.isChar()) {
 			const size0 = await this.size[0].reduce(vm);
-			assert.number(size0, "Size of an array must be an integer");
+			assert.bigint(size0, "Size of an array must be an integer");
 			const size1 = await this.size[1].reduce(vm);
-			assert.number(size1, "Size of an array must be an integer");
-			return new Int2DValue(this.name, [size0, size1]);
+			assert.bigint(size1, "Size of an array must be an integer");
+			return new Int2DValue(this.name, [Number(size0), Number(size1)]);
 		} else if (this.size.length === 3 && this.type === "number" && !this.isChar()) {
 			const size0 = await this.size[0].reduce(vm);
-			assert.number(size0, "Size of an array must be an integer");
+			assert.bigint(size0, "Size of an array must be an integer");
 			const size1 = await this.size[1].reduce(vm);
-			assert.number(size1, "Size of an array must be an integer");
+			assert.bigint(size1, "Size of an array must be an integer");
 			const size2 = await this.size[2].reduce(vm);
-			assert.number(size2, "Size of an array must be an integer");
-			return new Int3DValue(this.name, [size0, size1, size2]);
+			assert.bigint(size2, "Size of an array must be an integer");
+			return new Int3DValue(this.name, [Number(size0), Number(size1), Number(size2)]);
 		} else if (this.size.length === 0 && this.type === "number" && this.isChar()) {
 			return new IntChar0DValue(this.name);
 		} else if (this.size.length === 1 && this.type === "number" && this.isChar()) {
 			const size0 = await this.size[0].reduce(vm);
-			assert.number(size0, "Size of an array must be an integer");
-			return new IntChar1DValue(this.name, [size0]);
+			assert.bigint(size0, "Size of an array must be an integer");
+			return new IntChar1DValue(this.name, [Number(size0)]);
 		} else if (this.size.length === 0 && this.type === "string" && this.isChar()) {
 			return new StrChar0DValue(this.name);
 		} else if (this.size.length === 1 && this.type === "string" && this.isChar()) {
 			const size0 = await this.size[0].reduce(vm);
-			assert.number(size0, "Size of an array must be an integer");
-			return new StrChar1DValue(this.name, [size0]);
+			assert.bigint(size0, "Size of an array must be an integer");
+			return new StrChar1DValue(this.name, [Number(size0)]);
 		} else {
 			throw EM.parser("Invalid #DIM(S) definition found");
 		}

@@ -21,24 +21,23 @@ export default class TOneInput extends Statement {
 	public async *run(vm: VM): EraGenerator {
 		const [timeoutExpr, defExpr, showExpr, message] = this.arg.get();
 		const timeout = await timeoutExpr.reduce(vm);
-		assert.number(timeout, "1st argument of TONEINPUT should be a number");
+		assert.bigint(timeout, "1st argument of TONEINPUT should be a number");
 		const def = await defExpr.reduce(vm);
-		assert.number(def, "2nd argument of TONEINPUT should be a number");
-		const show = await showExpr?.reduce(vm) ?? 0;
-		assert.number(show, "3rd argument of TONEINPUT should be a number");
+		assert.bigint(def, "2nd argument of TONEINPUT should be a number");
+		const show = await showExpr?.reduce(vm) ?? 0n;
+		assert.bigint(show, "3rd argument of TONEINPUT should be a number");
 
-		const input = yield* vm.printer.tinput(true, timeout, show === 1);
+		const input = yield* vm.printer.tinput(true, Number(timeout), show === 1n);
 
-		let value: number;
+		let value: bigint;
 		if (input == null) {
 			if (message != null) {
 				yield* vm.printer.print(message, new Set(["S"]));
 			}
 			value = def;
 		} else {
-			value = Number(input[0]);
+			value = BigInt(input[0]);
 		}
-		assert.number(value, "First value of input for TONEINPUT should be a valid number");
 		yield* vm.printer.print(value.toString(), new Set(["S"]));
 
 		vm.getValue("RESULT").set(vm, value, [0]);

@@ -2,6 +2,7 @@ import * as X from "../../parser/expr";
 import * as U from "../../parser/util";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
+import type {Leaf} from "../../value";
 import type VM from "../../vm";
 import type Expr from "../expr";
 import Statement from "../index";
@@ -19,7 +20,7 @@ export default class ReturnF extends Statement {
 	public async *run(vm: VM) {
 		return <const>{
 			type: "return",
-			value: [await this.arg.get().reduce(vm)] as Array<string | number>,
+			value: [await this.arg.get().reduce(vm)] as Array<Leaf>,
 		};
 	}
 }

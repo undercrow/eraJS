@@ -35,7 +35,7 @@ const language = P.createLanguage<LanguageSpec>({
 		(name, scope) => new Variable(name, [], scope),
 	),
 	Index: (r) => P.alt(
-		C.UInt.map((value) => new Const(value)),
+		C.UInt.map((value) => new Const(BigInt(value))),
 		r.InlineCall,
 		U.wrap("(", ")", r.Expr),
 		r.Variable,
@@ -71,7 +71,7 @@ const language = P.createLanguage<LanguageSpec>({
 		),
 	),
 	Leaf: (r) => P.alt(
-		C.UInt.map((val) => new Const(val)),
+		C.UInt.map((val) => new Const(BigInt(val))),
 		C.Str.map((value) => new Const(value)),
 		r.InlineCall,
 		U.wrap("@\"", "\"", form["\""]),

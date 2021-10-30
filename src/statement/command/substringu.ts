@@ -23,13 +23,13 @@ export default class SubstringU extends Statement {
 		const value = await valueExpr.reduce(vm);
 		assert.string(value, "1st argument of SUBSTRINGU must be a string!");
 		const start = await startExpr.reduce(vm);
-		assert.number(start, "2nd argument of SUBSTRINGU must be a number!");
+		assert.bigint(start, "2nd argument of SUBSTRINGU must be a number!");
 		const end = await endExpr.reduce(vm);
-		assert.number(end, "3rd argument of SUBSTRINGU must be a number!");
+		assert.bigint(end, "3rd argument of SUBSTRINGU must be a number!");
 		if (end < 0) {
-			vm.getValue("RESULTS").set(vm, value.slice(start), [0]);
+			vm.getValue("RESULTS").set(vm, value.slice(Number(start)), [0]);
 		} else {
-			vm.getValue("RESULTS").set(vm, value.slice(start, end), [0]);
+			vm.getValue("RESULTS").set(vm, value.slice(Number(start), Number(end)), [0]);
 		}
 
 		return null;

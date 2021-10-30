@@ -1,5 +1,6 @@
 import P from "parsimmon";
 
+import * as assert from "../../assert";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
 import type VM from "../../vm";
@@ -25,12 +26,13 @@ export default class AssignPrefix extends Statement {
 		this.raw.get();
 
 		const dest = this.dest.getCell(vm);
+		assert.cond(dest.type === "number", "++/-- should be used with a numeric variable");
 		const index = await this.dest.reduceIndex(vm);
-		const original = dest.get(vm, index) as number;
+		const original = dest.get(vm, index) as bigint;
 
 		switch (this.operator) {
-			case "++": dest.set(vm, original + 1, index); break;
-			case "--": dest.set(vm, original - 1, index); break;
+			case "++": dest.set(vm, original + 1n, index); break;
+			case "--": dest.set(vm, original - 1n, index); break;
 		}
 
 		return null;

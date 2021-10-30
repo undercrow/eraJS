@@ -20,10 +20,10 @@ export default class ResetStain extends Statement {
 
 	public async *run(vm: VM) {
 		const num = await this.arg.get().reduce(vm);
-		assert.number(num, "1st Argument of RESET_STAIN should be an integer");
+		assert.bigint(num, "1st Argument of RESET_STAIN should be an integer");
 
 		assert.cond(vm.characterList.length > num, `Character #${num} does not exist`);
-		const character = vm.characterList[num];
+		const character = vm.characterList[Number(num)];
 
 		character.getValue<Int1DValue>("STAIN").reset([0, 0, 2, 1, 8]);
 

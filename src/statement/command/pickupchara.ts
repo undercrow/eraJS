@@ -20,10 +20,10 @@ export default class PickupChara extends Statement {
 
 	public async *run(vm: VM) {
 		const argExpr = this.arg.get();
-		const arg: number[] = [];
+		const arg: bigint[] = [];
 		for (let i = 0; i < argExpr.length; ++i) {
 			const value = await argExpr[i].reduce(vm);
-			assert.number(value, `${i + 1}th argument of PICKUPCHARA should be a number`);
+			assert.bigint(value, `${i + 1}th argument of PICKUPCHARA should be a number`);
 			assert.cond(
 				value >= 0 && value < vm.characterList.length,
 				`${i + 1}th argument of PICKUPCHARA is out of range`,
@@ -31,12 +31,12 @@ export default class PickupChara extends Statement {
 			arg.push(value);
 		}
 
-		let target = -1;
-		let assi = -1;
-		let master = -1;
+		let target = -1n;
+		let assi = -1n;
+		let master = -1n;
 		const characterList: Character[] = [];
-		for (let i = 0; i < arg.length; ++i) {
-			const index = arg[i];
+		for (let i = 0n; i < arg.length; ++i) {
+			const index = arg[Number(i)];
 			if (index === vm.getValue("TARGET").get(vm, [])) {
 				target = i;
 			}
@@ -46,7 +46,7 @@ export default class PickupChara extends Statement {
 			if (index === vm.getValue("MASTER").get(vm, [])) {
 				master = i;
 			}
-			characterList.push(vm.characterList[i]);
+			characterList.push(vm.characterList[Number(i)]);
 		}
 		vm.getValue("TARGET").set(vm, target, []);
 		vm.getValue("ASSI").set(vm, assi, []);

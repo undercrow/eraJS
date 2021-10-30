@@ -16,10 +16,10 @@ export default class RandValue implements Value<never> {
 		throw E.internal(`${this.name} cannot be reset`);
 	}
 
-	public get(vm: VM, index: number[]): number {
+	public get(vm: VM, index: number[]): bigint {
 		assert.cond(index.length === 1, "RAND must be indexed by 1 value");
 
-		return Math.floor(vm.random.next() % index[0]);
+		return BigInt(Math.floor(vm.random.next() % index[0]));
 	}
 
 	public set(_vm: VM, _value: Leaf, _index: number[]) {

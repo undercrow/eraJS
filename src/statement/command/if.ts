@@ -86,8 +86,8 @@ export default class If extends Statement {
 
 		for (const [, cond, thunk] of this.ifThunk) {
 			const condValue = await cond.get().reduce(vm);
-			assert.number(condValue, "Condition should be an integer");
-			if (condValue !== 0) {
+			assert.bigint(condValue, "Condition should be an integer");
+			if (condValue !== 0n) {
 				return yield* thunk.run(vm);
 			}
 		}

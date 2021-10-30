@@ -25,13 +25,13 @@ export default class AssignOpInt extends Statement {
 	public async *run(vm: VM) {
 		const dest = this.dest.getCell(vm);
 		const index = await this.dest.reduceIndex(vm);
-		const original = dest.get(vm, index) as number;
+		const original = dest.get(vm, index) as bigint;
 		const value = await this.arg.get().reduce(vm);
-		assert.number(value, `Right operand of ${this.operator} should be an integer`);
+		assert.bigint(value, `Right operand of ${this.operator} should be a number`);
 
 		switch (this.operator) {
 			case "*=": dest.set(vm, original * value, index); break;
-			case "/=": dest.set(vm, Math.floor(original / value), index); break;
+			case "/=": dest.set(vm, original / value, index); break;
 			case "%=": dest.set(vm, original % value, index); break;
 			case "+=": dest.set(vm, original + value, index); break;
 			case "-=": dest.set(vm, original - value, index); break;

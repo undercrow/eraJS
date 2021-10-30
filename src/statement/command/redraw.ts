@@ -19,14 +19,14 @@ export default class Redraw extends Statement {
 
 	public async *run(vm: VM) {
 		const value = await this.arg.get().reduce(vm);
-		assert.number(value, "Argument of REDRAW must be a number");
+		assert.bigint(value, "Argument of REDRAW must be a number");
 		assert.cond(value > 0 && value <= 3, "Argument of REDRAW must be between 0 and 3");
 
 		switch (value) {
-			case 0: vm.printer.draw = false; break;
-			case 1: vm.printer.draw = true; break;
-			case 2: vm.printer.draw = false; yield* vm.printer.flush(); break;
-			case 3: vm.printer.draw = true; yield* vm.printer.flush(); break;
+			case 0n: vm.printer.draw = false; break;
+			case 1n: vm.printer.draw = true; break;
+			case 2n: vm.printer.draw = false; yield* vm.printer.flush(); break;
+			case 3n: vm.printer.draw = true; yield* vm.printer.flush(); break;
 		}
 
 		return null;

@@ -20,7 +20,7 @@ export default class DelData extends Statement {
 
 	public async *run(vm: VM) {
 		const index = await this.arg.get().reduce(vm);
-		assert.number(index, "Argument of DELDATA must be a number");
+		assert.bigint(index, "Argument of DELDATA must be a number");
 
 		throw E.notImpl("DELDATA");
 

@@ -1,5 +1,6 @@
 import * as U from "../../parser/util";
 import Slice from "../../slice";
+import IntChar1DValue from "../../value/int-char-1d";
 import type VM from "../../vm";
 import Statement from "../index";
 
@@ -12,25 +13,24 @@ export default class CUpCheck extends Statement {
 	}
 
 	public async *run(vm: VM) {
-		const target = vm.getValue("TARGET").get(vm, [0]) as number;
 		const length = Math.min(
-			vm.getValue("PALAM").length(1),
-			vm.getValue("CUP").length(1),
-			vm.getValue("CDOWN").length(1),
+			vm.getValue<IntChar1DValue>("PALAM").length(1),
+			vm.getValue<IntChar1DValue>("CUP").length(1),
+			vm.getValue<IntChar1DValue>("CDOWN").length(1),
 		);
 
 		for (let i = 0; i < length; ++i) {
-			const up = vm.getValue("CUP").get(vm, [target, i]) as number;
-			const down = vm.getValue("CDOWN").get(vm, [target, i]) as number;
-			const palam = vm.getValue("PALAM").get(vm, [target, i]) as number;
+			const up = vm.getValue<IntChar1DValue>("CUP").get(vm, [i]);
+			const down = vm.getValue<IntChar1DValue>("CDOWN").get(vm, [i]);
+			const palam = vm.getValue<IntChar1DValue>("PALAM").get(vm, [i]);
 
 			if (up <= 0 && down <= 0) {
 				continue;
 			}
 			const result = palam + up - down;
-			vm.getValue("PALAM").set(vm, result, [target, i]);
-			vm.getValue("CUP").set(vm, 0, [target, i]);
-			vm.getValue("CDOWN").set(vm, 0, [target, i]);
+			vm.getValue<IntChar1DValue>("PALAM").set(vm, result, [i]);
+			vm.getValue<IntChar1DValue>("CUP").set(vm, 0n, [i]);
+			vm.getValue<IntChar1DValue>("CDOWN").set(vm, 0n, [i]);
 
 			if (!vm.printer.skipDisp) {
 				const name = vm.code.csv.palam.get(i)!;

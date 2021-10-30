@@ -13,7 +13,7 @@ export default class InitRand extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.random.state = vm.getValue("RANDDATA").get(vm, []) as number;
+		vm.random.state = Number(vm.getValue("RANDDATA").get(vm, []));
 
 		return null;
 	}

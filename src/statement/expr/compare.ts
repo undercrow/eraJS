@@ -15,7 +15,7 @@ export default class Compare implements Expr {
 		this.right = right;
 	}
 
-	public async reduce(vm: VM): Promise<number> {
+	public async reduce(vm: VM): Promise<bigint> {
 		const left = await this.left.reduce(vm);
 		const right = await this.right.reduce(vm);
 
@@ -24,8 +24,8 @@ export default class Compare implements Expr {
 		}
 
 		switch (this.op) {
-			case "==": return left === right ? 1 : 0;
-			case "!=": return left !== right ? 1 : 0;
+			case "==": return left === right ? 1n : 0n;
+			case "!=": return left !== right ? 1n : 0n;
 		}
 	}
 }

@@ -26,23 +26,23 @@ export default class ArrayShift extends Statement {
 		const index = await targetExpr.reduceIndex(vm);
 		const length = target.length(index.length);
 		const count = await countExpr.reduce(vm);
-		assert.number(count, "2nd argument of ARRAYSHIFT must be a number");
+		assert.bigint(count, "2nd argument of ARRAYSHIFT must be a number");
 		const fill = await fillExpr.reduce(vm);
 
 		if (count > 0) {
 			for (let i = length - 1; i >= count; --i) {
-				const value = target.get(vm, [...index, i - count]);
+				const value = target.get(vm, [...index, i - Number(count)]);
 				target.set(vm, value, [...index, i]);
 			}
-			for (let i = count - 1; i >= 0; --i) {
-				target.set(vm, fill, [...index, i]);
+			for (let i = count - 1n; i >= 0; --i) {
+				target.set(vm, fill, [...index, Number(i)]);
 			}
 		} else if (count < 0) {
-			for (let i = 0; i < length + count; ++i) {
-				const value = target.get(vm, [...index, i - count]);
+			for (let i = 0; i < length + Number(count); ++i) {
+				const value = target.get(vm, [...index, i - Number(count)]);
 				target.set(vm, value, [...index, i]);
 			}
-			for (let i = length + count; i < length; ++i) {
+			for (let i = length + Number(count); i < length; ++i) {
 				target.set(vm, fill, [...index, i]);
 			}
 		}

@@ -19,9 +19,9 @@ export default class SkipDisp extends Statement {
 
 	public async *run(vm: VM) {
 		const value = await this.arg.get().reduce(vm);
-		assert.number(value, "Argument of SKIPDISP must be a number");
+		assert.bigint(value, "Argument of SKIPDISP must be a number");
 
-		vm.printer.skipDisp = value !== 0;
+		vm.printer.skipDisp = value !== 0n;
 
 		return null;
 	}

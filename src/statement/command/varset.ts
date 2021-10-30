@@ -23,19 +23,19 @@ export default class VarSet extends Statement {
 
 		const dest = destExpr.getCell(vm);
 		const index = await destExpr.reduceIndex(vm);
-		const start = await startExpr?.reduce(vm) ?? 0;
-		assert.number(start, "3rd argument of VARSET must be a number");
-		const end = await endExpr?.reduce(vm) ?? dest.length(index.length);
-		assert.number(end, "4th argument of VARSET must be a number");
+		const start = await startExpr?.reduce(vm) ?? 0n;
+		assert.bigint(start, "3rd argument of VARSET must be a number");
+		const end = await endExpr?.reduce(vm) ?? BigInt(dest.length(index.length));
+		assert.bigint(end, "4th argument of VARSET must be a number");
 
 		if (valueExpr != null) {
 			const value = await valueExpr.reduce(vm);
-			dest.rangeSet(vm, value, index, [start, end]);
+			dest.rangeSet(vm, value, index, [Number(start), Number(end)]);
 		} else {
 			if (dest.type === "number") {
-				dest.rangeSet(vm, 0, index, [start, end]);
+				dest.rangeSet(vm, 0n, index, [Number(start), Number(end)]);
 			} else {
-				dest.rangeSet(vm, "", index, [start, end]);
+				dest.rangeSet(vm, "", index, [Number(start), Number(end)]);
 			}
 		}
 

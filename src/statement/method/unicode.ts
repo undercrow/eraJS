@@ -4,7 +4,7 @@ import type Expr from "../expr";
 
 export default async function unicode(vm: VM, arg: Expr[]): Promise<string> {
 	const value = await arg[0].reduce(vm);
-	assert.number(value, "1st Argument of UNICODE should be a number");
+	assert.bigint(value, "1st Argument of UNICODE should be a number");
 
-	return String.fromCharCode(value);
+	return String.fromCharCode(Number(value));
 }

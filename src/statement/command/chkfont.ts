@@ -21,7 +21,7 @@ export default class ChkFont extends Statement {
 		const arg = await this.arg.get().reduce(vm);
 		assert.string(arg, "1st argument of CHKFONT should be a string");
 
-		const result = vm.external.getFont(arg) ? 1 : 0;
+		const result = vm.external.getFont(arg) ? 1n : 0n;
 		vm.getValue("RESULT").set(vm, result, [0]);
 
 		return null;

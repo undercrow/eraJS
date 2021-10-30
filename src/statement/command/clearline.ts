@@ -19,9 +19,9 @@ export default class ClearLine extends Statement {
 
 	public async *run(vm: VM) {
 		const count = await this.arg.get().reduce(vm);
-		assert.number(count, "Argument of CLEARLINE must be an integer!");
+		assert.bigint(count, "Argument of CLEARLINE must be an integer!");
 
-		yield* vm.printer.clear(count);
+		yield* vm.printer.clear(Number(count));
 
 		return null;
 	}

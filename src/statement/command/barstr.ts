@@ -21,14 +21,14 @@ export default class BarStr extends Statement {
 		const [valueExpr, maxExpr, lengthExpr] = this.arg.get();
 
 		const value = await valueExpr.reduce(vm);
-		assert.number(value, "1st argument of BAR must be a number");
+		assert.bigint(value, "1st argument of BAR must be a number");
 		const max = await maxExpr.reduce(vm);
-		assert.number(max, "2nd argument of BAR must be a number");
+		assert.bigint(max, "2nd argument of BAR must be a number");
 		const length = await lengthExpr.reduce(vm);
-		assert.number(length, "3rd argument of BAR must be a number");
+		assert.bigint(length, "3rd argument of BAR must be a number");
 
-		const filled = Math.floor(length * (value / max));
-		const result = "[" + "*".repeat(filled) + ".".repeat(length - filled) + "]";
+		const filled = length * value / max;
+		const result = "[" + "*".repeat(Number(filled)) + ".".repeat(Number(length - filled)) + "]";
 		vm.getValue("RESULTS").set(vm, result, [0]);
 
 		return null;

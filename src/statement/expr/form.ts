@@ -35,18 +35,18 @@ export default class Form implements Expr {
 				// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 				switch (typeof reduced) {
 					case "string": value = reduced; break;
-					case "number": value = reduced.toString(); break;
+					case "bigint": value = reduced.toString(); break;
 				}
 			}
 
 			if (expr.display != null) {
 				const display = await expr.display.reduce(vm);
-				assert.number(display, "Display size of form string should be an integer");
+				assert.bigint(display, "Display size of form string should be an integer");
 
 				if (expr.align == null || expr.align === "LEFT") {
-					value = value.padStart(display, " ");
+					value = value.padStart(Number(display), " ");
 				} else {
-					value = value.padEnd(display, " ");
+					value = value.padEnd(Number(display), " ");
 				}
 			}
 

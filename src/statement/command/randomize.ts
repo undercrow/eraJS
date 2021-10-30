@@ -19,9 +19,9 @@ export default class Randomize extends Statement {
 
 	public async *run(vm: VM) {
 		const seed = await this.arg.get().reduce(vm);
-		assert.number(seed, "1st argument of RANDOMIZE must be a number");
+		assert.bigint(seed, "1st argument of RANDOMIZE must be a number");
 
-		vm.random.state = seed;
+		vm.random.state = Number(seed);
 
 		return null;
 	}

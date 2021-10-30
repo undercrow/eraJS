@@ -22,10 +22,20 @@ export default class Times extends Statement {
 		const [dest, value] = this.arg.get();
 
 		const original = await dest.reduce(vm);
-		assert.number(original, "1st argument of TIMES must be a number");
+		assert.bigint(original, "1st argument of TIMES must be a number");
 		const index = await dest.reduceIndex(vm);
 
-		dest.getCell(vm).set(vm, Math.floor(original * value), index);
+		let result = 0n;
+		let remaining = value;
+		for (let i = 0; i < 100; ++i) {
+			if (remaining === 0) {
+				break;
+			}
+			const high = Math.floor(remaining);
+			result += original * BigInt(high) / (100n ** BigInt(i));
+			remaining = (remaining - high) * 100;
+		}
+		dest.getCell(vm).set(vm, result, index);
 
 		return null;
 	}

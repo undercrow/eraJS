@@ -42,8 +42,8 @@ export default class DoWhile extends Statement {
 			const result = yield* this.thunk.run(vm, firstLoop ? label : undefined);
 
 			const condition = await this.arg.get().reduce(vm);
-			assert.number(condition, "Condition of DO should be an integer");
-			if (condition === 0) {
+			assert.bigint(condition, "Condition of DO should be an integer");
+			if (condition === 0n) {
 				break;
 			}
 

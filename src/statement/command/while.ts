@@ -39,8 +39,8 @@ export default class While extends Statement {
 				result = yield* this.thunk.run(vm, label);
 			} else {
 				const condition = await this.arg.get().reduce(vm);
-				assert.number(condition, "Condition of WHILE should be an integer");
-				if (condition === 0) {
+				assert.bigint(condition, "Condition of WHILE should be an integer");
+				if (condition === 0n) {
 					break;
 				}
 				result = yield* this.thunk.run(vm);

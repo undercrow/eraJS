@@ -16,10 +16,10 @@ export default class LineCountValue implements Value<never> {
 		throw E.internal(`${this.name} cannot be reset`);
 	}
 
-	public get(vm: VM, index: number[]): number {
+	public get(vm: VM, index: number[]): bigint {
 		assert.cond(index.length === 0, "LINECOUNT cannot be indexed");
 
-		return vm.printer.lineCount;
+		return BigInt(vm.printer.lineCount);
 	}
 
 	public set(_vm: VM, _value: Leaf, _index: number[]) {

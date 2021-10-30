@@ -15,9 +15,9 @@ import Statement from "../index";
 
 type Operator = "<" | "<=" | ">" | ">=";
 type Condition =
-	| {type: "equal"; value: string | number}
-	| {type: "range"; from: number; to: number}
-	| {type: "compare"; op: Operator; value: number};
+	| {type: "equal"; value: string | bigint}
+	| {type: "range"; from: bigint; to: bigint}
+	| {type: "compare"; op: Operator; value: bigint};
 
 const CASE = /^CASE\s+/i;
 const CASEELSE = /^CASEELSE$/i;
@@ -26,15 +26,15 @@ const PARSER_EXPR = U.arg1R1(X.expr);
 const PARSER_BRANCH = U.argNR0(P.alt(
 	P.seqMap(C.Int, P.regex(/TO/i).trim(C.WS1).then(C.Int), (from, to) => ({
 		type: "range",
-		from,
-		to,
+		from: BigInt(from),
+		to: BigInt(to),
 	})),
 	P.seqMap(
 		P.regex(/IS/i).then(U.alt("<=", "<", ">=", ">").trim(C.WS0)),
 		X.expr,
 		(op, value) => ({type: "compare", op, value}),
 	),
-	C.Int.map((value) => ({type: "equal", value})),
+	C.Int.map((value) => ({type: "equal", value: BigInt(value)})),
 	C.Str.map((value) => ({type: "equal", value})),
 ));
 export default class Case extends Statement {
@@ -98,7 +98,7 @@ export default class Case extends Statement {
 					case "equal": return c.value === value;
 					case "range": return c.from <= value && value <= c.to;
 					case "compare": {
-						assert.number(value, "CASE IS ... should be used for an integer value");
+						assert.bigint(value, "CASE IS ... should be used for an integer value");
 						switch (c.op) {
 							case "<": return value < c.value;
 							case "<=": return value <= c.value;

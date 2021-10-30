@@ -33,14 +33,14 @@ export default class SortChara extends Statement {
 		const master = vm.getValue<Int1DValue>("MASTER").get(vm, []);
 		const characterList = vm.characterList.map((character, index) => ({character, index}));
 		if (master >= 0) {
-			characterList.splice(master, 1);
+			characterList.splice(Number(master), 1);
 		}
 
 		if (cell instanceof IntChar0DValue) {
 			characterList.sort((a, b) => {
 				const left = cell.get(vm, [a.index]);
 				const right = cell.get(vm, [b.index]);
-				const compare = left - right;
+				const compare = Number(left - right);
 				return order === "FORWARD" ? compare : -compare;
 			});
 		} else if (cell instanceof IntChar1DValue) {
@@ -48,7 +48,7 @@ export default class SortChara extends Statement {
 			characterList.sort((a, b) => {
 				const left = cell.get(vm, [a.index, ...index]);
 				const right = cell.get(vm, [b.index, ...index]);
-				const compare = left - right;
+				const compare = Number(left - right);
 				return order === "FORWARD" ? compare : -compare;
 			});
 		} else if (cell instanceof StrChar0DValue) {
@@ -71,16 +71,16 @@ export default class SortChara extends Statement {
 		}
 
 		for (let i = 0; i < characterList.length; ++i) {
-			if (characterList[i].index === target) {
-				vm.getValue("TARGET").set(vm, i, []);
+			if (characterList[i].index === Number(target)) {
+				vm.getValue<Int1DValue>("TARGET").set(vm, BigInt(i), []);
 			}
-			if (characterList[i].index === assi) {
-				vm.getValue("ASSI").set(vm, i, []);
+			if (characterList[i].index === Number(assi)) {
+				vm.getValue<Int1DValue>("ASSI").set(vm, BigInt(i), []);
 			}
 		}
 		if (master >= 0) {
-			characterList.splice(master, 0, {
-				character: vm.characterList[master],
+			characterList.splice(Number(master), 0, {
+				character: vm.characterList[Number(master)],
 				index: -1,
 			});
 		}

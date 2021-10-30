@@ -29,7 +29,7 @@ export default class Input extends Statement {
 		assert.number(value, "Input value for INPUT should be a valid number");
 		yield* vm.printer.print(value.toString(), new Set(["S"]));
 
-		vm.getValue("RESULT").set(vm, value, [0]);
+		vm.getValue("RESULT").set(vm, BigInt(value), [0]);
 
 		return null;
 	}

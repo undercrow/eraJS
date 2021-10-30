@@ -19,7 +19,7 @@ export default class GetSecond extends Statement {
 	public async *run(vm: VM) {
 		const time = dayjs(vm.external.getTime());
 
-		vm.getValue("RESULT").set(vm, time.unix() - UNIX_EPOCH, [0]);
+		vm.getValue("RESULT").set(vm, BigInt(time.unix() - UNIX_EPOCH), [0]);
 
 		return null;
 	}

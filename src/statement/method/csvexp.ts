@@ -4,12 +4,12 @@ import type Expr from "../expr";
 
 export default async function csvExp(vm: VM, arg: Expr[]): Promise<number> {
 	const num = await arg[0].reduce(vm);
-	assert.number(num, "1st argument of CSVEXP must be an integer");
+	assert.bigint(num, "1st argument of CSVEXP must be an integer");
 	const index = await arg[1].reduce(vm);
-	assert.number(index, "2nd argument of CSVEXP must be an integer");
+	assert.bigint(index, "2nd argument of CSVEXP must be an integer");
 
-	const character = vm.code.csv.character.get(num);
+	const character = vm.code.csv.character.get(Number(num));
 	assert.cond(character != null, `Character #${num} does not exist`);
 
-	return character.exp.get(index) ?? 0;
+	return character.exp.get(Number(index)) ?? 0;
 }

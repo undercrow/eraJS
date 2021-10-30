@@ -19,7 +19,7 @@ export default class GetMillisecond extends Statement {
 	public async *run(vm: VM) {
 		const time = dayjs(vm.external.getTime());
 
-		vm.getValue("RESULT").set(vm, time.valueOf() - UNIX_EPOCH * 1000, [0]);
+		vm.getValue("RESULT").set(vm, BigInt(time.valueOf() - UNIX_EPOCH * 1000), [0]);
 
 		return null;
 	}

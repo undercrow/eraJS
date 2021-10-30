@@ -15,7 +15,7 @@ export default class Ternary implements Expr {
 
 	public async reduce(vm: VM) {
 		const condition = await this.condition.reduce(vm);
-		assert.number(condition, "Condition of ternary operator should be an integer");
-		return condition !== 0 ? this.left.reduce(vm) : this.right.reduce(vm);
+		assert.bigint(condition, "Condition of ternary operator should be an integer");
+		return condition !== 0n ? this.left.reduce(vm) : this.right.reduce(vm);
 	}
 }

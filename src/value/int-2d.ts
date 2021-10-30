@@ -3,10 +3,10 @@ import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
 
-export default class Int2DValue implements Value<number[][]> {
+export default class Int2DValue implements Value<bigint[][]> {
 	public type = <const>"number";
 	public name: string;
-	public value: number[][];
+	public value: bigint[][];
 
 	public static normalizeIndex(name: string, index: number[]): number[] {
 		if (index.length === 0) {
@@ -28,41 +28,41 @@ export default class Int2DValue implements Value<number[][]> {
 
 		this.name = name;
 		this.value = new Array(realSize[0]).fill(0).map(
-			() => new Array<number>(realSize[1]).fill(0),
+			() => new Array<bigint>(realSize[1]).fill(0n),
 		);
 	}
 
-	public reset(value: number[][]): this {
+	public reset(value: bigint[][] | number[][]): this {
 		for (let i = 0; i < this.value.length; ++i) {
 			for (let j = 0; j < this.value[i].length; ++j) {
-				this.value[i][j] = 0;
+				this.value[i][j] = 0n;
 			}
 		}
 
 		for (let i = 0; i < value.length; ++i) {
 			for (let j = 0; j < value[i].length; ++j) {
-				this.value[i][j] = value[i][j];
+				this.value[i][j] = BigInt(value[i][j]);
 			}
 		}
 
 		return this;
 	}
 
-	public get(_vm: VM, index: number[]): number {
+	public get(_vm: VM, index: number[]): bigint {
 		const realIndex = Int2DValue.normalizeIndex(this.name, index);
 		return this.value[realIndex[0]][realIndex[1]];
 	}
 
 	public set(_vm: VM, value: Leaf, index: number[]) {
 		const realIndex = Int2DValue.normalizeIndex(this.name, index);
-		assert.number(value, "Cannot assign a string to a numeric variable");
+		assert.bigint(value, "Cannot assign a string to a numeric variable");
 
 		this.value[realIndex[0]][realIndex[1]] = value;
 	}
 
 	// NOTE: index, range are ignored (Emuera emulation)
 	public rangeSet(_vm: VM, value: Leaf, _index: number[], _range: [number, number]) {
-		assert.number(value, "Cannot assign a string to a numeric variable");
+		assert.bigint(value, "Cannot assign a string to a numeric variable");
 		for (let i = 0; i < this.value.length; ++i) {
 			for (let j = 0; j < this.value[i].length; ++j) {
 				this.value[i][j] = value;

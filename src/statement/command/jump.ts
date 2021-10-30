@@ -1,6 +1,7 @@
 import * as assert from "../../assert";
 import Lazy from "../../lazy";
 import Slice from "../../slice";
+import {Leaf} from "../../value";
 import type VM from "../../vm";
 import Expr from "../expr";
 import Statement from "../index";
@@ -11,7 +12,7 @@ export default class Jump extends Statement {
 		const realTarget = target.toUpperCase();
 		assert.cond(vm.fnMap.has(realTarget), `Function ${realTarget} does not exist`);
 
-		const arg: Array<string | number | undefined> = [];
+		const arg: Array<Leaf | undefined> = [];
 		for (const a of argExpr) {
 			arg.push(await a?.reduce(vm));
 		}

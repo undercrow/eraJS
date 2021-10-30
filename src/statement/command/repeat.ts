@@ -39,9 +39,9 @@ export default class Repeat extends Statement {
 		}
 
 		const condition = await this.arg.get().reduce(vm);
-		assert.number(condition, "Condition for REPEAT should be an integer");
+		assert.bigint(condition, "Condition for REPEAT should be an integer");
 
-		loop: for (let i = 0; i < condition; ++i) {
+		loop: for (let i = 0n; i < condition; ++i) {
 			vm.getValue("COUNT").set(vm, i, []);
 			const result = yield* this.thunk.run(vm);
 			switch (result?.type) {

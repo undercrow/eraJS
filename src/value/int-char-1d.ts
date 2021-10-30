@@ -2,6 +2,7 @@ import * as assert from "../assert";
 import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
+import Int1DValue from "./int-1d";
 
 export default class IntChar1DValue implements Value<never> {
 	public type = <const>"number";
@@ -11,9 +12,9 @@ export default class IntChar1DValue implements Value<never> {
 
 	public static normalizeIndex(vm: VM, name: string, index: number[]): number[] {
 		if (index.length === 0) {
-			return [vm.getValue("TARGET").get(vm, []) as number, 0];
+			return [Number(vm.getValue<Int1DValue>("TARGET").get(vm, [])), 0];
 		} else if (index.length === 1) {
-			return [vm.getValue("TARGET").get(vm, []) as number, index[0]];
+			return [Number(vm.getValue<Int1DValue>("TARGET").get(vm, [])), index[0]];
 		} else if (index.length === 2) {
 			return index;
 		} else if (index.length === 3 && index[2] === 0) {
@@ -35,19 +36,19 @@ export default class IntChar1DValue implements Value<never> {
 		throw E.internal(`1D character variable ${this.name} cannot be reset`);
 	}
 
-	public get(vm: VM, index: number[]): number {
+	public get(vm: VM, index: number[]): bigint {
 		const realIndex = IntChar1DValue.normalizeIndex(vm, this.name, index);
 		if (vm.characterList.length <= realIndex[0]) {
 			throw E.notFound("Character", `#${realIndex[0]}`);
 		}
 
-		const cell = vm.characterList[realIndex[0]].getValue(this.name)!;
-		return cell.get(vm, realIndex.slice(1)) as number;
+		const cell = vm.characterList[realIndex[0]].getValue<Int1DValue>(this.name)!;
+		return cell.get(vm, realIndex.slice(1));
 	}
 
 	public set(vm: VM, value: Leaf, index: number[]) {
 		const realIndex = IntChar1DValue.normalizeIndex(vm, this.name, index);
-		assert.number(value, "Cannot assign a string to a numeric variable");
+		assert.bigint(value, "Cannot assign a string to a numeric variable");
 		if (vm.characterList.length <= realIndex[0]) {
 			throw E.notFound("Character", `#${realIndex[0]}`);
 		}
@@ -58,7 +59,7 @@ export default class IntChar1DValue implements Value<never> {
 
 	public rangeSet(vm: VM, value: Leaf, index: number[], range: [number, number]) {
 		const realIndex = IntChar1DValue.normalizeIndex(vm, this.name, [...index, 0]);
-		assert.number(value, "Cannot assign a string to a numeric variable");
+		assert.bigint(value, "Cannot assign a string to a numeric variable");
 		if (vm.characterList.length <= realIndex[0]) {
 			throw E.notFound("Character", `#${realIndex[0]}`);
 		}

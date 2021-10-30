@@ -2,6 +2,7 @@ import * as assert from "../assert";
 import * as E from "../error";
 import type VM from "../vm";
 import type {default as Value, Leaf} from "./index";
+import Int1DValue from "./int-1d";
 
 export default class StrChar0DValue implements Value<never> {
 	public type = <const>"string";
@@ -10,7 +11,7 @@ export default class StrChar0DValue implements Value<never> {
 
 	public static normalizeIndex(vm: VM, name: string, index: number[]): number[] {
 		if (index.length === 0) {
-			return [vm.getValue("TARGET").get(vm, []) as number];
+			return [Number(vm.getValue<Int1DValue>("TARGET").get(vm, []))];
 		} else if (index.length === 1) {
 			return index;
 		} else if (index.length === 2 && index[0] === 0) {

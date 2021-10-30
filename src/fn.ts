@@ -4,13 +4,14 @@ import Order from "./property/order";
 import type {EraGenerator} from "./statement";
 import Variable from "./statement/expr/variable";
 import Thunk from "./thunk";
+import {Leaf} from "./value";
 import type VM from "./vm";
 
 export default class Fn {
 	public static START_OF_FN = "@@START";
 
 	public name: string;
-	public arg: Array<[Variable, Variable | string | number | null]>;
+	public arg: Array<[Variable, Variable | string | bigint | null]>;
 	public property: Property[];
 	public thunk: Thunk;
 
@@ -31,7 +32,7 @@ export default class Fn {
 		return this.property.some((p) => p instanceof Order && p.order === "LATER");
 	}
 
-	public async *run(vm: VM, arg: Array<string | number | undefined>): EraGenerator {
+	public async *run(vm: VM, arg: Array<string | bigint | undefined>): EraGenerator {
 		await vm.pushContext(this);
 
 		for (let i = 0; i < this.arg.length; ++i) {
@@ -39,7 +40,7 @@ export default class Fn {
 			const dest = argDest.getCell(vm);
 			const index = await argDest.reduceIndex(vm);
 			if (dest.type === "number") {
-				let value: string | number;
+				let value: Leaf;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (arg[i] != null) {
 					value = arg[i]!;
@@ -50,12 +51,12 @@ export default class Fn {
 						value = argDef;
 					}
 				} else {
-					value = 0;
+					value = 0n;
 				}
-				assert.number(value, "Value for number argument must be a number");
+				assert.bigint(value, "Value for number argument must be a number");
 				dest.set(vm, value, index);
 			} else {
-				let value: string | number;
+				let value: Leaf;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (arg[i] != null) {
 					value = arg[i]!;

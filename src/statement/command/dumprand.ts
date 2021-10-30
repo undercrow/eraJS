@@ -13,7 +13,7 @@ export default class DumpRand extends Statement {
 
 	// eslint-disable-next-line @typescript-eslint/require-await
 	public async *run(vm: VM) {
-		vm.getValue("RANDDATA").set(vm, vm.random.state, []);
+		vm.getValue("RANDDATA").set(vm, BigInt(vm.random.state), []);
 
 		return null;
 	}

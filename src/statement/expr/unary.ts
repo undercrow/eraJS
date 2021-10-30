@@ -13,14 +13,14 @@ export default class Unary implements Expr {
 		this.expr = expr;
 	}
 
-	public async reduce(vm: VM): Promise<number> {
+	public async reduce(vm: VM): Promise<bigint> {
 		const value = await this.expr.reduce(vm);
-		assert.number(value, `Operand of ${this.op} should be an integer`);
+		assert.bigint(value, `Operand of ${this.op} should be an integer`);
 
 		switch (this.op) {
 			case "+": return value;
 			case "-": return -value;
-			case "!": return value === 0 ? 1 : 0;
+			case "!": return value === 0n ? 1n : 0n;
 				// eslint-disable-next-line no-bitwise
 			case "~": return ~value;
 		}

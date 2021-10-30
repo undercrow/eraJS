@@ -67,9 +67,9 @@ export async function* SHOP(vm: VM) {
 
 export async function* TRAIN(vm: VM) {
 	return yield* runScene(vm, function* () {
-		vm.getValue("ASSIPLAY").set(vm, 0, []);
-		vm.getValue("PREVCOM").set(vm, -1, []);
-		vm.getValue("NEXTCOM").set(vm, -1, []);
+		vm.getValue("ASSIPLAY").set(vm, 0n, []);
+		vm.getValue("PREVCOM").set(vm, -1n, []);
+		vm.getValue("NEXTCOM").set(vm, -1n, []);
 		vm.getValue("TFLAG").reset([]);
 		vm.getValue("TSTR").reset([]);
 		for (const character of vm.characterList) {
@@ -88,7 +88,7 @@ export async function* TRAIN(vm: VM) {
 			const nextCom = vm.getValue<Int1DValue>("NEXTCOM").get(vm, []);
 			if (nextCom >= 0) {
 				vm.getValue("SELECTCOM").set(vm, nextCom, []);
-				vm.getValue("NEXTCOM").set(vm, 0, []);
+				vm.getValue("NEXTCOM").set(vm, 0n, []);
 			} else {
 				const comAble = new Set<number>();
 
@@ -98,11 +98,11 @@ export async function* TRAIN(vm: VM) {
 				for (let i = 0; i < trainIds.length; ++i) {
 					const id = trainIds[i];
 					// TODO: Set to 0 if configured to disable command by default
-					vm.getValue("RESULT").set(vm, 1, []);
+					vm.getValue("RESULT").set(vm, 1n, []);
 					if (vm.fnMap.has(`COM_ABLE${id}`)) {
 						yield new Call(new Slice(FILE, 0, `CALL COM_ABLE${id}`, "CALL".length));
 					}
-					if (vm.getValue("RESULT").get(vm, []) !== 0) {
+					if (vm.getValue("RESULT").get(vm, []) !== 0n) {
 						comAble.add(id);
 						const name = vm.code.csv.train.get(id)!;
 						const idString = id.toString().padStart(3, " ");
@@ -120,11 +120,11 @@ export async function* TRAIN(vm: VM) {
 				yield new Call(new Slice(FILE, 0, "CALL SHOW_USERCOM", "CALL".length));
 
 				yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
-				const input = vm.getValue("RESULT").get(vm, [0]) as number;
-				if (comAble.has(input)) {
+				const input = vm.getValue<Int1DValue>("RESULT").get(vm, [0]);
+				if (comAble.has(Number(input))) {
 					vm.getValue("SELECTCOM").set(vm, input, []);
 				} else {
-					vm.getValue("SELECTCOM").set(vm, -1, []);
+					vm.getValue("SELECTCOM").set(vm, -1n, []);
 				}
 			}
 
@@ -138,7 +138,7 @@ export async function* TRAIN(vm: VM) {
 					yield* eventStatement(vm, "EVENTCOM");
 
 					yield new Call(new Slice(FILE, 0, `CALL COM${selectCom}`, "CALL".length));
-					if (vm.getValue("RESULT").get(vm, [0]) !== 0) {
+					if (vm.getValue("RESULT").get(vm, [0]) !== 0n) {
 						wait = true;
 						yield new Call(new Slice(FILE, 0, "CALL SOURCE_CHECK", "CALL".length));
 						for (const character of vm.characterList) {
@@ -176,7 +176,7 @@ export async function* ABLUP(vm: VM) {
 			yield new Call(new Slice(FILE, 0, "CALL SHOW_JUEL", "CALL".length));
 			yield new Call(new Slice(FILE, 0, "CALL SHOW_ABLUP_SELECT", "CALL".length));
 			yield new Input(new Slice(FILE, 0, "INPUT", "INPUT".length));
-			const input = vm.getValue("RESULT").get(vm, []) as number;
+			const input = vm.getValue<Int1DValue>("RESULT").get(vm, []);
 			if (input >= 0 && input < 100) {
 				// TODO: Print temp line if ABLUP does not exists
 				yield new TryCall(new Slice(FILE, 0, `TRYCALL ABLUP${input}`, "TRYCALL".length));

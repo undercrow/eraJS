@@ -21,10 +21,7 @@ export default class ReuseLastLine extends Statement {
 		const value = await this.arg.get()?.reduce(vm) ?? "";
 		assert.string(value, "Argument of REUSELASTLINE must be a string");
 
-		if (vm.printer.chunks.length === 0) {
-			yield* vm.printer.newline();
-		}
-		yield* vm.printer.print(value, new Set());
+		yield* vm.printer.print(value, new Set(["S"]));
 		vm.printer.isLineTemp = true;
 
 		return null;

@@ -1,6 +1,38 @@
+import P from "parsimmon";
+
+import * as U from "./parser/util";
 import type {Chunk, EraGenerator, Output} from "./statement";
 
 export type PrintFlag = "K" | "D" | "W" | "L" | "S";
+
+const nonButton = P.noneOf("[").many().tie();
+const coreButton = P.regex(/\[\s*[0-9]+\s*\]/);
+const buttonParser = P.alt(
+	P.seqMap(
+		coreButton,
+		U.optional(nonButton),
+		(core, text) => [core, core + (text ?? "")],
+	).many().skip(P.eof),
+	P.seqMap(
+		U.optional(nonButton),
+		coreButton,
+		(text, core) => [core, (text ?? "") + core],
+	).many().skip(P.eof),
+	P.seqMap(
+		P.seqMap(
+			nonButton,
+			coreButton,
+			U.optional(nonButton),
+			(left, core, right) => [core, left + core + (right ?? "")],
+		),
+		P.seqMap(
+			coreButton,
+			U.optional(nonButton),
+			(core, text) => [core, core + (text ?? "")],
+		).many(),
+		(first, rest) => [first, ...rest],
+	).skip(P.eof),
+);
 
 export default class Printer {
 	public buffer: Output[];
@@ -66,10 +98,58 @@ export default class Printer {
 			this.buffer.push({type: "clear", count: 1});
 			this.lineCount -= 1;
 		}
+		const merged: Chunk[] = [];
+		if (this.chunks.length > 0) {
+			merged.push(this.chunks[0]);
+			for (let i = 1; i < this.chunks.length; ++i) {
+				const chunk = this.chunks[i];
+				const lastChunk = merged[merged.length - 1];
+				if (
+					chunk.type === "string" &&
+					lastChunk.type === "string" &&
+					chunk.cell == null &&
+					lastChunk.cell == null &&
+					chunk.style.font === lastChunk.style.font &&
+					chunk.style.color === lastChunk.style.color &&
+					chunk.style.bold === lastChunk.style.bold &&
+					chunk.style.italic === lastChunk.style.italic &&
+					chunk.style.underline === lastChunk.style.underline &&
+					chunk.style.strike === lastChunk.style.strike
+				) {
+					lastChunk.text += chunk.text;
+				} else {
+					merged.push(chunk);
+				}
+			}
+		}
+
+		const normalized: Chunk[] = [];
+		for (const chunk of merged) {
+			if (chunk.type === "string") {
+				const parsed = buttonParser.parse(chunk.text);
+				if (parsed.status && parsed.value.length > 0) {
+					for (const [core, text] of parsed.value) {
+						const valueMatch = /\[\s*(?<value>[0-9]+)\s*\]/.exec(core);
+						normalized.push({
+							type: "button",
+							text,
+							value: valueMatch!.groups!.value,
+							cell: chunk.cell,
+							style: {...chunk.style},
+						});
+					}
+				} else {
+					normalized.push(chunk);
+				}
+			} else {
+				normalized.push(chunk);
+			}
+		}
+
 		this.buffer.push({
 			type: "content",
 			align: this.align,
-			children: this.chunks,
+			children: normalized,
 		});
 		this.chunks = [];
 
@@ -99,6 +179,7 @@ export default class Printer {
 				cell,
 				style: {
 					color: this.color,
+					focus: this.focus,
 					font: this.font.name,
 					bold: this.font.bold,
 					italic: this.font.italic,

@@ -8,6 +8,7 @@ export type StringChunk = {
 	cell?: "LEFT" | "RIGHT";
 	style: {
 		color: string;
+		focus: string;
 		font: string;
 		bold: boolean;
 		italic: boolean;

@@ -12,58 +12,54 @@ import * as C from "./const";
 import * as X from "./expr";
 import * as U from "./util";
 
-const parser = P.string("#").then(C.Identifier).chain<Property>((property) => {
-	switch (property.toUpperCase()) {
-		case "DEFINE": return P.seqMap(
-			C.WS1,
-			C.Identifier,
-			C.WS1,
-			X.expr,
-			(_1, name, _2, expr) => new Define(name, expr),
-		);
-		case "PRI": return U.arg0R0().map(() => new Order("PRI"));
-		case "LATER": return U.arg0R0().map(() => new Order("LATER"));
-		case "SINGLE": return U.arg0R0().map(() => new Single());
-		case "DIM": return P.seqMap(
-			C.WS1.then(P.alt(
-				P.regex(/CONST/i),
-				P.regex(/DYNAMIC/i),
-				P.regex(/GLOBAL/i),
-				P.regex(/REF/i),
-				P.regex(/SAVEDATA/i),
-				P.regex(/CHARADATA/i),
-			)).many(),
-			C.WS1.then(U.sepBy1(",", C.Identifier, X.expr)),
-			P.alt(
-				P.string("=").trim(C.WS0).then(U.sepBy0(",", X.expr)),
-				P.succeed(undefined),
-			),
-			P.string(",").fallback(null),
-			(prefix, [name, ...size], value) => new Dim(name, "number", prefix, size, value),
-		);
-		case "DIMS": return P.seqMap(
-			C.WS1.then(P.alt(
-				P.regex(/CONST/i),
-				P.regex(/DYNAMIC/i),
-				P.regex(/GLOBAL/i),
-				P.regex(/REF/i),
-				P.regex(/SAVEDATA/i),
-				P.regex(/CHARADATA/i),
-			)).many(),
-			C.WS1.then(U.sepBy1(",", C.Identifier, X.expr)),
-			P.alt(
-				P.string("=").trim(C.WS0).then(U.sepBy0(",", X.expr)),
-				P.succeed(undefined),
-			),
-			P.string(",").fallback(null),
-			(prefix, [name, ...size], value) => new Dim(name, "string", prefix, size, value),
-		);
-		case "FUNCTION": return U.arg0R0().map(() => new Method());
-		case "FUNCTIONS": return U.arg0R0().map(() => new Method());
-		case "LOCALSIZE": return U.arg1R1(C.UInt).map((size) => new LocalSize(size));
-		case "LOCALSSIZE": return U.arg1R1(C.UInt).map((size) => new LocalSSize(size));
-		default: return P.fail(`${property} is not a valid property`);
-	}
-});
+const parser = P.string("#").then(P.alt<Property>(
+	P.regex(/DEFINE/i).skip(C.WS1).then(P.seqMap(
+		C.Identifier,
+		C.WS1,
+		X.expr,
+		(name, _2, expr) => new Define(name, expr),
+	)),
+	P.regex(/PRI/i).then(U.arg0R0()).map(() => new Order("PRI")),
+	P.regex(/LATER/i).map(() => new Order("LATER")),
+	P.regex(/SINGLE/i).map(() => new Single()),
+	P.regex(/FUNCTIONS/i).map(() => new Method()),
+	P.regex(/FUNCTION/i).map(() => new Method()),
+	P.regex(/LOCALSIZE/i).skip(C.WS1).then(C.UInt).map((size) => new LocalSize(size)),
+	P.regex(/LOCALSSIZE/i).skip(C.WS1).then(C.UInt).map((size) => new LocalSSize(size)),
+	P.regex(/DIM/i).skip(C.WS1).then(P.seqMap(
+		P.alt(
+			P.regex(/CONST/i).skip(C.WS1),
+			P.regex(/DYNAMIC/i).skip(C.WS1),
+			P.regex(/GLOBAL/i).skip(C.WS1),
+			P.regex(/REF/i).skip(C.WS1),
+			P.regex(/SAVEDATA/i).skip(C.WS1),
+			P.regex(/CHARADATA/i).skip(C.WS1),
+		).many(),
+		U.sepBy1(",", C.Identifier, X.expr),
+		P.alt(
+			P.string("=").trim(C.WS0).then(U.sepBy0(",", X.expr)),
+			P.succeed(undefined),
+		),
+		P.string(",").fallback(null),
+		(prefix, [name, ...size], value) => new Dim(name, "number", prefix, size, value),
+	)),
+	P.regex(/DIMS/i).skip(C.WS1).then(P.seqMap(
+		P.alt(
+			P.regex(/CONST/i).skip(C.WS1),
+			P.regex(/DYNAMIC/i).skip(C.WS1),
+			P.regex(/GLOBAL/i).skip(C.WS1),
+			P.regex(/REF/i).skip(C.WS1),
+			P.regex(/SAVEDATA/i).skip(C.WS1),
+			P.regex(/CHARADATA/i).skip(C.WS1),
+		).many(),
+		U.sepBy1(",", C.Identifier, X.expr),
+		P.alt(
+			P.string("=").trim(C.WS0).then(U.sepBy0(",", X.expr)),
+			P.succeed(undefined),
+		),
+		P.string(",").fallback(null),
+		(prefix, [name, ...size], value) => new Dim(name, "string", prefix, size, value),
+	)),
+));
 
 export default parser;

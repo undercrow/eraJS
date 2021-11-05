@@ -98,7 +98,17 @@ export default function parseCSV(content: Map<string, string>): Csv {
 	const character = new Map<number, Template>();
 	for (const name of content.keys()) {
 		if (name.startsWith("CHARA") && name.endsWith(".CSV")) {
-			const template = parseCharacter(name, getTable(name));
+			const template = parseCharacter(name, getTable(name), {
+				base: new Map([...base.entries()].map(([index, value]) => [value, index])),
+				mark: new Map([...mark.entries()].map(([index, value]) => [value, index])),
+				exp: new Map([...exp.entries()].map(([index, value]) => [value, index])),
+				abl: new Map([...abl.entries()].map(([index, value]) => [value, index])),
+				talent: new Map([...talent.entries()].map(([index, value]) => [value, index])),
+				cflag: new Map([...cflag.entries()].map(([index, value]) => [value, index])),
+				equip: new Map([...equip.entries()].map(([index, value]) => [value, index])),
+				juel: new Map([...palam.entries()].map(([index, value]) => [value, index])),
+				cstr: new Map([...cstr.entries()].map(([index, value]) => [value, index])),
+			});
 			character.set(template.no, template);
 		}
 	}

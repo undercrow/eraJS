@@ -19,7 +19,28 @@ export type Template = {
 	cstr: Map<number, string>;
 };
 
-export default function parse(fileName: string, rows: string[][]): Template {
+function parseWithName(value: string, names: Map<string, number>) {
+	const numValue = Number(value);
+	if (!isNaN(numValue)) {
+		return numValue;
+	} else if (names.has(value)) {
+		return names.get(value)!;
+	} else {
+		return null;
+	}
+}
+
+export default function parse(fileName: string, rows: string[][], names: {
+	base: Map<string, number>;
+	mark: Map<string, number>;
+	exp: Map<string, number>;
+	abl: Map<string, number>;
+	talent: Map<string, number>;
+	cflag: Map<string, number>;
+	equip: Map<string, number>;
+	juel: Map<string, number>;
+	cstr: Map<string, number>;
+}): Template {
 	const template: Partial<Template> = {
 		base: new Map(),
 		maxBase: new Map(),
@@ -58,8 +79,8 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "基礎": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Base index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.base);
+				assert.cond(index != null, `Base index in ${fileName} should be an integer`);
 				let value: number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (row[2] != null && row[2] !== "") {
@@ -73,8 +94,8 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "刻印": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Mark index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.mark);
+				assert.cond(index != null, `Mark index in ${fileName} should be an integer`);
 				let value: number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (row[2] != null && row[2] !== "") {
@@ -86,8 +107,8 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "経験": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Exp index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.exp);
+				assert.cond(index != null, `Exp index in ${fileName} should be an integer`);
 				let value: number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (row[2] != null && row[2] !== "") {
@@ -100,8 +121,8 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "能力": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Abl index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.abl);
+				assert.cond(index != null, `Abl index in ${fileName} should be an integer`);
 				let value: number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (row[2] != null && row[2] !== "") {
@@ -114,8 +135,8 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "素質": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Talent index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.talent);
+				assert.cond(index != null, `Talent index in ${fileName} should be an integer`);
 				let value: number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (row[2] != null && row[2] !== "") {
@@ -142,16 +163,16 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "フラグ": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Flag index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.cflag);
+				assert.cond(index != null, `Flag index in ${fileName} should be an integer`);
 				const value = parseInt(row[2]);
 				assert.number(value, `Flag value in ${fileName} should be an integer`);
 				template.cflag!.set(index, value);
 				break;
 			}
 			case "装着物": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Equip index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.equip);
+				assert.cond(index != null, `Equip index in ${fileName} should be an integer`);
 				let value: number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (row[2] != null && row[2] !== "") {
@@ -164,8 +185,8 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "珠": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Juel index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.juel);
+				assert.cond(index != null, `Juel index in ${fileName} should be an integer`);
 				let value: number;
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 				if (row[2] != null && row[2] !== "") {
@@ -178,8 +199,8 @@ export default function parse(fileName: string, rows: string[][]): Template {
 				break;
 			}
 			case "CSTR": {
-				const index = parseInt(row[1]);
-				assert.number(index, `Flag index in ${fileName} should be an integer`);
+				const index = parseWithName(row[1], names.cstr);
+				assert.cond(index != null, `Cstr index in ${fileName} should be an integer`);
 				const value = row[2];
 				template.cstr!.set(index, value);
 				break;

@@ -36,6 +36,8 @@ import CurrentRedraw from "../statement/command/currentredraw";
 import CustomDrawLine from "../statement/command/customdrawline";
 import CVarSet from "../statement/command/cvarset";
 import DebugClear from "../statement/command/debugclear";
+import DebugPrint from "../statement/command/debugprint";
+import DebugPrintForm from "../statement/command/debugprintform";
 import DelAllChara from "../statement/command/delallchara";
 import DelChara from "../statement/command/delchara";
 import DelData from "../statement/command/deldata";
@@ -515,6 +517,10 @@ const commandParser: Record<string, CommandParser> = {
 	RESTART: (arg) => [new Restart(arg), 1],
 	RETURN: (arg) => [new Return(arg), 1],
 	RETURNF: (arg) => [new ReturnF(arg), 1],
+	DEBUGPRINT: (arg) => [new DebugPrint([], arg), 1],
+	DEBUGPRINTL: (arg) => [new DebugPrint(["L"], arg), 1],
+	DEBUGPRINTFORM: (arg) => [new DebugPrintForm([], arg), 1],
+	DEBUGPRINTFORML: (arg) => [new DebugPrintForm(["L"], arg), 1],
 	DEBUGCLEAR: (arg) => [new DebugClear(arg), 1],
 	MOUSEX: (arg) => [new MouseX(arg), 1],
 	MOUSEY: (arg) => [new MouseY(arg), 1],

@@ -10,6 +10,7 @@ import AddCopyChara from "../statement/command/addcopychara";
 import AddDefChara from "../statement/command/adddefchara";
 import AddVoidChara from "../statement/command/addvoidchara";
 import Alignment from "../statement/command/alignment";
+import ArrayRemove from "../statement/command/arrayremove";
 import ArrayShift from "../statement/command/arrayshift";
 import Bar from "../statement/command/bar";
 import Begin from "../statement/command/begin";
@@ -459,6 +460,7 @@ const commandParser: Record<string, CommandParser> = {
 	VARSET: (arg) => [new VarSet(arg), 1],
 	CVARSET: (arg) => [new CVarSet(arg), 1],
 	ARRAYSHIFT: (arg) => [new ArrayShift(arg), 1],
+	ARRAYREMOVE: (arg) => [new ArrayRemove(arg), 1],
 	UPCHECK: (arg) => [new UpCheck(arg), 1],
 	CUPCHECK: (arg) => [new CUpCheck(arg), 1],
 	PUTFORM: (arg) => [new PutForm(arg), 1],

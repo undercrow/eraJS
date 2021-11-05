@@ -165,7 +165,13 @@ export default function parse(fileName: string, rows: string[][], names: {
 			case "フラグ": {
 				const index = parseWithName(row[1], names.cflag);
 				assert.cond(index != null, `Flag index in ${fileName} should be an integer`);
-				const value = parseInt(row[2]);
+				let value: number;
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+				if (row[2] != null && row[2] !== "") {
+					value = parseInt(row[2]);
+				} else {
+					value = 1;
+				}
 				assert.number(value, `Flag value in ${fileName} should be an integer`);
 				template.cflag!.set(index, value);
 				break;

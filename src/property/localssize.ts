@@ -1,14 +1,18 @@
+import * as assert from "../assert";
+import Expr from "../statement/expr";
 import Str1DValue from "../value/str-1d";
 import type VM from "../vm";
 
 export default class LocalSSize {
-	public size: number;
+	public size: Expr;
 
-	public constructor(size: number) {
+	public constructor(size: Expr) {
 		this.size = size;
 	}
 
-	public apply(vm: VM, fn: string) {
-		vm.staticMap.get(fn)!.set("LOCALS", new Str1DValue("LOCALS", [this.size]));
+	public async apply(vm: VM, fn: string) {
+		const size = await this.size.reduce(vm);
+		assert.bigint(size, "Argument of LOCALSIZE should be a number");
+		vm.staticMap.get(fn)!.set("LOCALS", new Str1DValue("LOCALS", [Number(size)]));
 	}
 }

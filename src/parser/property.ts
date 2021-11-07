@@ -24,8 +24,8 @@ const parser = P.string("#").then(P.alt<Property>(
 	P.regex(/SINGLE/i).map(() => new Single()),
 	P.regex(/FUNCTIONS/i).map(() => new Method()),
 	P.regex(/FUNCTION/i).map(() => new Method()),
-	P.regex(/LOCALSIZE/i).skip(C.WS1).then(C.UInt).map((size) => new LocalSize(size)),
-	P.regex(/LOCALSSIZE/i).skip(C.WS1).then(C.UInt).map((size) => new LocalSSize(size)),
+	P.regex(/LOCALSIZE/i).skip(C.WS1).then(X.expr).map((expr) => new LocalSize(expr)),
+	P.regex(/LOCALSSIZE/i).skip(C.WS1).then(X.expr).map((expr) => new LocalSSize(expr)),
 	P.regex(/DIM/i).skip(C.WS1).then(P.seqMap(
 		P.alt(
 			P.regex(/CONST/i).skip(C.WS1),

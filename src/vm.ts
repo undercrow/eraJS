@@ -242,7 +242,7 @@ export default class VM {
 				if (property instanceof Dim && !property.isDynamic()) {
 					this.staticMap.get(fn.name)!.set(property.name, await property.build(this));
 				} else if (property instanceof LocalSize || property instanceof LocalSSize) {
-					property.apply(this, fn.name);
+					await property.apply(this, fn.name);
 				}
 			}
 		}
